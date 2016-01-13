@@ -20,7 +20,7 @@ original manuals in German](http://www.busch-model.com/online/?rubrik=82&=6&spra
 
 See ``busch2090.ino`` sketch for further instructions. 
 
-####Hardware requirments
+####Hardware requirements
 
 - A TM1638 module with 8 7segment digits, 8 push buttons, and 8 LEDs
 - A 4x4 keypad with matrix encoding for hexadecimal input 
