@@ -37,8 +37,8 @@ See ``busch2090.ino`` sketch for further instructions.
 
 ###Description 
 
-The push buttons of the TM1638 are the function keys of the
-Microtronic, in this order of sequence:
+The **push buttons of the TM1638 are the function keys of the
+Microtronic**, in this order of sequence:
 
     #define HALT  1 
     #define NEXT  2 
@@ -49,13 +49,23 @@ Microtronic, in this order of sequence:
     #define BKP  64
     #define PGM 128 
 
-Carry and Zero flag are LEDs 0 and 1, 1 Hz clock LED is LED 2.  LEDs 4
-to 7 are used for DOT output (FEx op code). 
+The 4x4 keypad keys are hex from `0` to `F`, in left-to-right,
+bottom-left to top-right order.  Hence, ``* -> 0``, ``0 -> 1``, ...,
+``D -> 3``, ..., and ``A -> F``. You might consider using a labeler to
+relabel the keys on the pad: 
+
+    C D E F 
+    8 9 A B
+    4 5 6 7
+    0 1 2 3
+
+**Carry** and **Zero** flag are the LEDs 0 and 1, 1 Hz **clock LED**
+is LED 2.  LEDs 4 to 7 are used for **DOT output** (FEx op code).
 
 Unlike the original Microtronic, this emulator uses the leftmost digit
-of the 8digit FM1638 to display the current system status (the
+of the 8digit FM1638 to display the **current system status** (the
 original Microtronic only featured a 6digit display). Currently, the
-status codes are:
+**status codes** are:
 
 - H: stopped 
 - A: enter address 
