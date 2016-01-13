@@ -2,15 +2,14 @@
 ##An emulator of the Busch 2090 Microtronic Computer System for Arduino Uno R3
 ###Author: Michael Wessel
 ###License: GPL 3
-###Hompage: http://www.michael-wessel.info/
+###Hompage: [Author's Homepage](http://www.michael-wessel.info/)
 ###Version: 0.7
 
 This is an emulator for the Busch 2090 Microtronic Computer System, an
 educational single-board 4bit computer system from the early 1980,
 manufactured by the company Busch Modellbau in Germany. There is [some
 information about the Busch 2090 Microtronic available here, including
-the manuals]
-[http://www.busch-model.com/online/?rubrik=82&=6&sprach_id=de].
+the manuals](http://www.busch-model.com/online/?rubrik=82&=6&sprach_id=de). 
 
 ![Busch 2090 Microtronic Emulator for Arduino R3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img1-small.jpg)
 
@@ -20,7 +19,7 @@ the manuals]
 
 See busch2090.ino for further instructions. 
 
-####Hardware requirments: 
+####Hardware requirments
 
 - A TM1638 module with 8 7segment digits, 8 push buttons, and 8 LEDs
 - A 4x4 keypad with matrix encoding for hexadecimal input 
@@ -58,14 +57,17 @@ original 2090 doesn't do that):
 - r: running or entering / inspecting register via REG  
 - I: keypad input from user requested 
 
-Unlike the origin Busch Microtronic, this version uses blinking of LED
-digits to indicate cursor position. CCE key works a bit
-differently. Other than that, typical operation sequences such as
-"HALT-NEXT-00-RUN" and "HALT-NEXT-00-F10-NEXT-510-NEXT-C00-NEXT etc."
-will work comfortably. Programs can also be storred in the Arduino
-sketch, see MAX_PROGRAMS, programs[] and startAddresses[]. First
-string in programs array corresponds to PGM 7, second string to PGM 8,
-etc.
+Unlike the original Busch Microtronic, this version uses blinking
+digits to indicate cursor position. The CCE key works a little bit
+differently, but editing should be comfortable enough. 
+
+Typical operation sequences such as "HALT-NEXT-00-RUN" and
+"HALT-NEXT-00-F10-NEXT-510-NEXT-C00-NEXT etc."  will work as
+expected. 
+
+Note that programs can also be storred in the Arduino sketch, see
+variables `MAX_PROGRAMS, programs[]` and `startAddresses[]`.  First
+string in `programs[]` is PGM 7, second string is PGM 8, etc. 
 
 ####Demo programs
 
