@@ -22,6 +22,7 @@ See ``busch2090.ino`` sketch for further instructions.
 
 ####Hardware requirements
 
+- An Arduino Uno R3 
 - A TM1638 module with 8 7segment digits, 8 push buttons, and 8 LEDs
 - A 4x4 keypad with matrix encoding for hexadecimal input 
 
