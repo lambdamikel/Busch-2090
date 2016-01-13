@@ -5,6 +5,8 @@
 ###Hompage: [Author's Homepage](http://www.michael-wessel.info/)
 ###Version: 0.7
 
+###Abstract
+
 This is an emulator of the Busch 2090 Microtronic Computer System for
 the Arduino R3. The Busch 2090 was an educational 4bit single-board
 computer system of the early 1980s, manufactured by the company Busch
@@ -20,13 +22,13 @@ original manuals in German](http://www.busch-model.com/online/?rubrik=82&=6&spra
 
 See ``busch2090.ino`` sketch for further instructions. 
 
-####Hardware requirements
+###Hardware requirements
 
 - An Arduino Uno R3 
 - A TM1638 module with 8 7segment digits, 8 push buttons, and 8 LEDs
 - A 4x4 keypad with matrix encoding for hexadecimal input 
 
-####Wiring 
+###Wiring 
 
     TM1638 module(14, 15, 16);
 
@@ -75,7 +77,7 @@ program using the PGM button. See the `MAX_PROGRAMS, programs[]` and
 `startAddresses[]` in the sketch. The first string in `programs[]` is
 PGM 7, the second string is PGM 8, etc. 
 
-####Demo programs
+###Hardcoded Demo Programs
 
 - PGM 0, 1, 2, 3, 4: not implemented yet
 - PGM 5 : clear memory
