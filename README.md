@@ -87,3 +87,13 @@ PGM 7, the second string is PGM 8, etc.
 Still working on adding Nim game and set and display clock. Will
 probably also add lunar lander game. 
 
+###Required Libraries 
+
+The emulator requires the following libraries, which are the work of
+others, and which are included in the ``library` subdirectory: 
+
+- ``Keypad`` library
+- ``TM1638`` library - note that this is a modified version of the original one 
+
+
+
