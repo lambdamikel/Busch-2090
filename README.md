@@ -48,11 +48,11 @@ original 2090 doesn't do that):
 Unlike the origin Busch Microtronic, this version uses blinking of LED
 digits to indicate cursor position. CCE key works a bit
 differently. Other than that, typical operation sequences such as
-"HALT-NEXT-00-RUN" and "HALT-NEXT-00-<ENTER OP CODE 1>-NEXT-<ENTER OP
-CODE 2>-NEXT- ... etc." will work comfortably. Programs can also be
-storred in the Arduino sketch, see MAX_PROGRAMS, programs[] and
-startAddresses[]. First string in programs array corresponds to PGM 7,
-second string to PGM 8, etc.
+"HALT-NEXT-00-RUN" and "HALT-NEXT-00-F10-NEXT-510-NEXT-C00-NEXT etc."
+will work comfortably. Programs can also be storred in the Arduino
+sketch, see MAX_PROGRAMS, programs[] and startAddresses[]. First
+string in programs array corresponds to PGM 7, second string to PGM 8,
+etc.
 
 Demo programs:
 
