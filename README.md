@@ -92,7 +92,7 @@ probably also add lunar lander game.
 ###Required Third-Party Libraries 
 
 The emulator requires the following libraries, which are the work of
-others, and which are included in the ``library` subdirectory: 
+others, and which are included in the ``library`` subdirectory: 
 
 - ``Keypad`` library
 - ``TM1638`` library - note that this is a modified version of the original one 
