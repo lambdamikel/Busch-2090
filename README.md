@@ -5,11 +5,12 @@
 ###Hompage: [Author's Homepage](http://www.michael-wessel.info/)
 ###Version: 0.7
 
-This is an emulator for the Busch 2090 Microtronic Computer System, an
-educational single-board 4bit computer system from the early 1980,
-manufactured by the company Busch Modellbau in Germany. There is [some
-information about the Busch 2090 Microtronic available here, including
-the manuals](http://www.busch-model.com/online/?rubrik=82&=6&sprach_id=de). 
+This is an emulator of the Busch 2090 Microtronic Computer System for
+the Arduino R3. The Busch 2090 was an educational 4bit single-board
+computer system of the early 1980s, manufactured by the company Busch
+Modellbau in Germany. There is [some information about the Busch 2090
+Microtronic available here, including PDFs of the
+original manuals in German](http://www.busch-model.com/online/?rubrik=82&=6&sprach_id=de).
 
 ![Busch 2090 Microtronic Emulator for Arduino R3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img1-small.jpg)
 
@@ -17,7 +18,7 @@ the manuals](http://www.busch-model.com/online/?rubrik=82&=6&sprach_id=de).
 
 ![Busch 2090 Microtronic Emulator for Arduino R3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img3-small.jpg)
 
-See busch2090.ino for further instructions. 
+See ``busch2090.ino`` sketch for further instructions. 
 
 ####Hardware requirments
 
@@ -48,8 +49,10 @@ Microtronic, in this order of sequence:
 Carry and Zero flag are LEDs 0 and 1, 1 Hz clock LED is LED 2.  LEDs 4
 to 7 are used for DOT output (FEx op code). 
 
-The leftmost digit of the FM1638 is used to display status (the
-original 2090 doesn't do that):
+Unlike the original Microtronic, this emulator uses the leftmost digit
+of the 8digit FM1638 to display the current system status (the
+original Microtronic only featured a 6digit display). Currently, the
+status codes are:
 
 - H: stopped 
 - A: enter address 
@@ -57,17 +60,19 @@ original 2090 doesn't do that):
 - r: running or entering / inspecting register via REG  
 - I: keypad input from user requested 
 
-Unlike the original Busch Microtronic, this version uses blinking
-digits to indicate cursor position. The CCE key works a little bit
-differently, but editing should be comfortable enough. 
+Unlike the original Busch 2090 Microtronic, this emulator uses
+blinking digits to indicate cursor position. The CCE key works a
+little bit differently, but editing should be comfortable enough.
 
 Typical operation sequences such as "HALT-NEXT-00-RUN" and
-"HALT-NEXT-00-F10-NEXT-510-NEXT-C00-NEXT etc."  will work as
-expected. 
+"HALT-NEXT-00-F10-NEXT-510-NEXT-C00-NEXT etc."  will work as expected.
+Also, try to load a demo program: "HALT-PGM-7-RUN".
 
-Note that programs can also be storred in the Arduino sketch, see
-variables `MAX_PROGRAMS, programs[]` and `startAddresses[]`.  First
-string in `programs[]` is PGM 7, second string is PGM 8, etc. 
+Note that programs can be entered manually, using the keypad and
+function keys, or you can load a fixed program from the sketch Arduino
+program using the PGM button. See the `MAX_PROGRAMS, programs[]` and
+`startAddresses[]` in the sketch. The first string in `programs[]` is
+PGM 7, the second string is PGM 8, etc. 
 
 ####Demo programs
 
