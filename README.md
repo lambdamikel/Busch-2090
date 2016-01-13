@@ -2,24 +2,36 @@
 ##An emulator of the Busch 2090 Microtronic Computer System for Arduino Uno R3
 ###Author: Michael Wessel
 ###License: GPL 3
-###Hompage: http://www.michael-wessel.info
+###Hompage: [Author's Homepage][http://www.michael-wessel.info/]
 ###Version: 0.7
 
 This is an emulator for the Busch 2090 Microtronic Computer System, an
 educational single-board 4bit computer system from the early 1980,
-manufactured by the company Busch Modellbau in Germany. See
-http://www.busch-model.com/online/?rubrik=82&=6&sprach_id=de
+manufactured by the company Busch Modellbau in Germany. There is [some
+information about the Busch 2090 Microtronic available here, including
+the manuals]
+[http://www.busch-model.com/online/?rubrik=82&=6&sprach_id=de].
+
+![Busch 2090 Microtronic Emulator for Arduino R3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img3-small.jpg)
+
+![Busch 2090 Microtronic Emulator for Arduino R3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img1-small.jpg)
+
+![Busch 2090 Microtronic Emulator for Arduino R3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img2-small.jpg)
 
 See busch2090.ino for further instructions. 
 
-A TM1638 module with 8 7segment digits, 8 push buttons and 8 LEDs are
-required, as well as a matrix 4x4 keypad for hexadecimal input. 
-Wiring:
+####Hardware requirments: A TM1638 module with 8 7segment digits, 8
+push buttons and 8 LEDs are required, as well as a matrix 4x4 keypad
+for hexadecimal input.  
+
+####Wiring 
 
     TM1638 module(14, 15, 16);
 
     byte colPins[COLS] = {5, 6, 7, 8}; // row pinouts of the keypad
     byte rowPins[ROWS] = {9, 10, 11, 12}; // column pinouts of the keypad
+
+###Description 
 
 The push buttons of the TM1638 are the function keys of the
 Microtronic, in this order of sequence:
@@ -54,7 +66,7 @@ sketch, see MAX_PROGRAMS, programs[] and startAddresses[]. First
 string in programs array corresponds to PGM 7, second string to PGM 8,
 etc.
 
-Demo programs:
+####Demo programs
 
 - PGM 0, 1, 2, 3, 4: not implemented yet
 - PGM 5 : clear memory
