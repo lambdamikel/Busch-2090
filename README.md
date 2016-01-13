@@ -22,7 +22,7 @@ original manuals in German](http://www.busch-model.com/online/?rubrik=82&=6&spra
 
 See ``busch2090.ino`` sketch for further instructions. 
 
-###Hardware requirements
+###Hardware Requirements
 
 - An Arduino Uno R3 
 - A TM1638 module with 8 7segment digits, 8 push buttons, and 8 LEDs
@@ -89,7 +89,7 @@ PGM 7, the second string is PGM 8, etc.
 Still working on adding Nim game and set and display clock. Will
 probably also add lunar lander game. 
 
-###Required Libraries 
+###Required Third-Party Libraries 
 
 The emulator requires the following libraries, which are the work of
 others, and which are included in the ``library` subdirectory: 
