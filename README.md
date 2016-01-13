@@ -16,22 +16,22 @@ A TM1638 module with 8 7segment digits, 8 push buttons and 8 LEDs are
 required, as well as a matrix 4x4 keypad for hexadecimal input. 
 Wiring:
 
-TM1638 module(14, 15, 16);
+``TM1638 module(14, 15, 16);
 
 byte colPins[COLS] = {5, 6, 7, 8}; // row pinouts of the keypad
-byte rowPins[ROWS] = {9, 10, 11, 12}; // column pinouts of the keypad
+byte rowPins[ROWS] = {9, 10, 11, 12}; // column pinouts of the keypad```
 
 The push buttons of the TM1638 are the function keys of the
 Microtronic, in this order of sequence:
 
-#define HALT  1 
-#define NEXT  2
+```define HALT  1 
+define NEXT  2
 #define RUN   4
 #define CCE   8
 #define REG  16
 #define STEP 32
 #define BKP  64
-#define PGM 128 
+#define PGM 128 ```
 
 Carry and Zero flag are LEDs 0 and 1, 1 Hz clock LED is LED 2.  LEDs 4
 to 7 are used for DOT output (FEx op code). 
@@ -39,11 +39,11 @@ to 7 are used for DOT output (FEx op code).
 The leftmost digit of the FM1638 is used to display status (the
 original 2090 doesn't do that):
 
-H - Stopped 
-A - Enter address 
-P - Enter OP code 
-r - running or entering / inspecting register via REG  
-I - keypad input from user requested 
+- H  stopped 
+- A  enter address 
+- P  enter OP code 
+- r  running or entering / inspecting register via REG  
+- I  keypad input from user requested 
 
 Unlike the origin Busch Microtronic, this version uses blinking of LED
 digits to indicate cursor position. CCE key works a bit
@@ -56,12 +56,12 @@ second string to PGM 8, etc.
 
 Demo programs:
 
-PGM 0, 1, 2, 3, 4: not implemented yet
-PGM 5 : clear memory
-PGM 6 : load NOPs into memory
-PGM 7 : simple input and output demo 
-PGM 8 : crazy counter 
-PGM 9 : F05 (random generator) demo 
+- PGM 0, 1, 2, 3, 4: not implemented yet
+- PGM 5 : clear memory
+- PGM 6 : load NOPs into memory
+- PGM 7 : simple input and output demo 
+- PGM 8 : crazy counter 
+- PGM 9 : F05 (random generator) demo 
 
 Still working on adding Nim game and set and display clock. Will
 probably also add lunar lander game. 
