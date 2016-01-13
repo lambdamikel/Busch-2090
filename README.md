@@ -2,7 +2,7 @@
 ##An emulator of the Busch 2090 Microtronic Computer System for Arduino Uno R3
 ###Author: Michael Wessel
 ###License: GPL 3
-###Hompage: [Author's Homepage][http://www.michael-wessel.info/]
+###Hompage: http://www.michael-wessel.info/
 ###Version: 0.7
 
 This is an emulator for the Busch 2090 Microtronic Computer System, an
@@ -12,17 +12,18 @@ information about the Busch 2090 Microtronic available here, including
 the manuals]
 [http://www.busch-model.com/online/?rubrik=82&=6&sprach_id=de].
 
-![Busch 2090 Microtronic Emulator for Arduino R3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img3-small.jpg)
-
 ![Busch 2090 Microtronic Emulator for Arduino R3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img1-small.jpg)
 
 ![Busch 2090 Microtronic Emulator for Arduino R3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img2-small.jpg)
 
+![Busch 2090 Microtronic Emulator for Arduino R3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img3-small.jpg)
+
 See busch2090.ino for further instructions. 
 
-####Hardware requirments: A TM1638 module with 8 7segment digits, 8
-push buttons and 8 LEDs are required, as well as a matrix 4x4 keypad
-for hexadecimal input.  
+####Hardware requirments: 
+
+- A TM1638 module with 8 7segment digits, 8 push buttons, and 8 LEDs
+- A 4x4 keypad with matrix encoding for hexadecimal input 
 
 ####Wiring 
 
