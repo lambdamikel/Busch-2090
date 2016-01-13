@@ -334,7 +334,7 @@ void displayStatus() {
     status = 'r';
   else if (currentMode == ENTERING_REG || 
            currentMode == INSPECTING )
-    status = 'r'; 
+    status = 'S'; 
   else if (currentMode == ENTERING_VALUE )
     status = 'I'; 
   else status = ' ' ; 
