@@ -4,6 +4,7 @@
 ####License: GPL 3
 ####Hompage: [Author's Homepage](http://www.michael-wessel.info/)
 ####Version: 0.7
+####[YouTube Video of Emulator](https://www.youtube.com/watch?v=HHfHw3GVIuI)
 
 ###Abstract
 
@@ -20,7 +21,9 @@ original manuals in German](http://www.busch-model.com/online/?rubrik=82&=6&spra
 
 ![Busch 2090 Microtronic Emulator for Arduino R3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img3-small.jpg)
 
-See ``busch2090.ino`` sketch for further instructions. 
+See ``busch2090.ino`` sketch for further instructions, and 
+[see the emulator in action here.](https://www.youtube.com/watch?v=HHfHw3GVIuI)
+
 
 ###Hardware Requirements
 
