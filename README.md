@@ -60,9 +60,10 @@ relabel the keys on the pad:
     1 2 3 C  ==>  4 5 6 7
     * 0 # D       0 1 2 3
 
-**Carry** and **Zero** flag are the LEDs 1 and 2, the *1 Hz clock
-LED** is LED 3 (from left to right).  LEDs 5 to 8 are used for **DOT
-output** (``FEx`` op-code).
+**Carry** and **Zero** flag are the LEDs 1 and 2 of the TM1638, the *1
+Hz clock LED** is LED 3 (from left to right). The LEDs 5 to 8 of the
+TM1638 are used as **DOT outputs** (set by the data out op-code
+``FEx``).
 
 Unlike the original Microtronic, this emulator uses the leftmost digit
 of the 8digit FM1638 to display the **current system status** (the
@@ -93,10 +94,10 @@ program using the PGM button. See the `MAX_PROGRAMS, programs[]` and
 
 - ``PGM 0, 1, 2, 3, 4``: not implemented yet
 - ``PGM 5`` : clear memory
-- ``PGM 6`` : load NOPs into memory
+- ``PGM 6`` : load ``F01`` (NOPs) into memory
 - ``PGM 7`` : simple input and output demo 
 - ``PGM 8`` : crazy counter 
-- ``PGM 9`` : F05 (random generator) demo 
+- ``PGM 9`` : ``F05`` (random generator) demo 
 
 Still working on adding Nim game and set and display clock. Will
 probably also add lunar lander game. 
@@ -111,16 +112,40 @@ others, and which are included in the ``library`` subdirectory:
 
 ### Future Work 
 
-1. Test all op-codes for correct behavior, correct Carry and Zero flag behavior, etc. 
-2. The R3 resest button unfortunately also clears the RAM memory of the emulator. Hence, add a reset button that doesn't do that. 
-3. Add the "real" ``PGM 7``, which is the Nim game. I need to get the source code from somebody having a real Microtronic 2090 arround, as there is no listing of this game in the Busch manuals :-( 
-4. Add some more ``PGM`` programs, e.g., the Lunar Lander from the manual. 
-5. Implement the ``PGM 3`` and ``PGM 4`` clock programs (enter time and display time).
-6. Add drivers to the DOT output LEDs such that they can also be used as output pins, as with the real Microtronic. This might require a simple transitor or Darlington driver. 
-7. Add some digital inputs, like in the real Busch Microtronic. The input ports are for hardware hacking are are read via  ``FDx (DIN)`` data-in OP-code. This OP-code currently doesn't make sense, due to the lack of hardware inputs. Perhaps I can use the Arduino digital ports D0 - D4 for that.
-8. With 7. done, control a Speech Synthesizer from these ports! A Speech Synthesizer extension board was announced in the first Busch 2090 manual, but was never released to market.
-9. Try to connect a character display, such as the Hitachi HD44780 which has a 4bit input mode. 
-10. Implement ``BKP`` and ``STEP`` (breakpoint and step).
+1. Test all op-codes for correct behavior, correct Carry and Zero flag
+behavior, etc.
+
+2. The R3 reset button unfortunately also clears the RAM memory of
+the emulator. Hence, add a reset button that doesn't do that.
+
+3. Add the "real" ``PGM 7``, which is the Nim game. I need to get the
+source code from somebody having a real Microtronic 2090 arround, as
+there is no listing of this game in the Busch manuals :-(
+
+4. Add some more ``PGM`` programs, e.g., the Lunar Lander from the
+manual.
+
+5. Implement the ``PGM 3`` and ``PGM 4`` clock programs (enter time
+and display time).
+
+6. Add drivers to the DOT output LEDs such that they can be used as
+output pins, like in the real Microtronic. This might require a simple
+transitor or Darlington driver.
+
+7. Add four digital inputs, like in the real Busch Microtronic, for
+hardware hacking. These inputs are are read via the DIN data in
+op-code, ``FDx``, which is currently useless due to the lack of these
+inputs. Perhaps I can use the still unassigned ``D0`` - ``D3`` Arduino
+pins for that.
+
+8. With 7. done, control a Speech Synthesizer from these ports! A
+Speech Synthesizer extension board was announced as early as 1983 by
+Busch, in the first Busch 2090 manual, but was never released.
+
+9. Try to connect a character display, such as the Hitachi HD44780.
+
+10. Implement ``BKP`` and ``STEP`` function keys (breakpoint and
+step). I did not really use them a lot in 1983.
 
 **Plenty of work to be done - let's go for it!**
 
