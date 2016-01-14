@@ -61,7 +61,7 @@ top-right order. You might consider to relabel the keys on the pad
 
 Microtronic's **Carry** and **Zero** flag are the LEDs 1 and 2 of the
 TM1638, the 1 **Hz clock LED** is LED 3 (from left to right). The LEDs
-5 to 8 are **used as **DOT outputs** (set by the data out op-code
+5 to 8 are used as **DOT outputs** (set by the data out op-code
 ``FEx``).
 
 Unlike the original Microtronic, this emulator uses the leftmost digit
@@ -115,36 +115,27 @@ others, and which are included in the ``library`` subdirectory:
 
 1. Test all op-codes for correct behavior, correct Carry and Zero flag
 behavior, etc.
-
 2. The R3 reset button unfortunately also clears the RAM memory of
 the emulator. Hence, add a reset button that doesn't do that.
-
 3. Add the "real" ``PGM 7``, which is the Nim game. I need to get the
 source code from somebody having a real Microtronic 2090 arround, as
 there is no listing of this game in the Busch manuals :-(
-
 4. Add some more ``PGM`` programs, e.g., the Lunar Lander from the
 manual.
-
 5. Implement the ``PGM 3`` and ``PGM 4`` clock programs (enter time
 and display time).
-
 6. Add drivers to the DOT output LEDs such that they can be used as
 output pins, like in the real Microtronic. This might require a simple
 transitor or Darlington driver.
-
 7. Add four digital inputs, like in the real Busch Microtronic, for
-hardware hacking. These inputs are are read via the DIN data in
-op-code, ``FDx``, which is currently useless due to the lack of these
+hardware hacking. These inputs are read via the DIN data in op-code,
+``FDx``, which is currently useless due to the lack of these
 inputs. Perhaps I can use the still unassigned ``D0`` - ``D3`` Arduino
 pins for that.
-
 8. With 7. done, control a Speech Synthesizer from these ports! A
 Speech Synthesizer extension board was announced as early as 1983 by
 Busch, in the first Busch 2090 manual, but was never released.
-
 9. Try to connect a character display, such as the Hitachi HD44780.
-
 10. Implement ``BKP`` and ``STEP`` function keys (breakpoint and
 step). I did not really use them a lot in 1983.
 
