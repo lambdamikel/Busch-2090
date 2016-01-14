@@ -50,19 +50,18 @@ Microtronic**, in this order of sequence, from left to right:
     #define BKP  64
     #define PGM 128 
 
-The 4x4 keypad keys are hex from `0` to `F`, in left-to-right,
-bottom-left to top-right order.  Hence, ``* -> 0``, ``0 -> 1``, ...,
-``D -> 3``, ..., and ``A -> F``. You might consider using a labeler to
-relabel the keys on the pad: 
+The 4x4 keypad keys are hex from `0` to `F`, in bottom-left to
+top-right order. You might consider to relabel the keys on the pad 
+(I haven't done that):
 
     7 8 9 A       C D E F 
     4 5 6 B  ==>  8 9 A B
     1 2 3 C  ==>  4 5 6 7
     * 0 # D       0 1 2 3
 
-**Carry** and **Zero** flag are the LEDs 1 and 2 of the TM1638, the *1
-Hz clock LED** is LED 3 (from left to right). The LEDs 5 to 8 of the
-TM1638 are used as **DOT outputs** (set by the data out op-code
+Microtronic's **Carry** and **Zero** flag are the LEDs 1 and 2 of the
+TM1638, the 1 **Hz clock LED** is LED 3 (from left to right). The LEDs
+5 to 8 are **used as **DOT outputs** (set by the data out op-code
 ``FEx``).
 
 Unlike the original Microtronic, this emulator uses the leftmost digit
@@ -76,19 +75,21 @@ original Microtronic only featured a 6digit display). Currently, the
 - ``r``: running or entering / inspecting register via ``REG``  
 - ``I``: keypad input from user requested 
 
-Unlike the original Busch 2090 Microtronic, this emulator uses
-blinking digits to indicate cursor position. The ``CCE`` key works a
-little bit differently, but editing should be comfortable enough.
+Also unlike the original Microtronic, the emulator uses blinking
+digits to indicate cursor position. The ``CCE`` key works a little bit
+differently, but editing should be comfortable enough.
 
 Typical operation sequences such as ``HALT-NEXT-00-RUN`` and
 ``HALT-NEXT-00-F10-NEXT-510-NEXT-C00-NEXT`` etc. will work as expected.
 Also, try to load a demo program: ``HALT-PGM-7-RUN``.
 
 Note that programs can be entered manually, using the keypad and
-function keys, or you can load a fixed program from the sketch Arduino
-program using the PGM button. See the `MAX_PROGRAMS, programs[]` and
-`startAddresses[]` in the sketch. The first string in `programs[]` is
-``PGM 7``, the second string is ``PGM 8``, etc. 
+function keys, or you can load a fixed ROM program specified in the
+Arduino sketch via the ``PGM`` button. These ROM programs are defined
+in the ``busch2090.ino`` sketch, see variables ``MAX_PROGRAMS,
+programs[MAX_PROGRAMS]`` and ``startAddresses[MAX_PROGRAMS]``
+there. The first string in ``programs[MAX_PROGRAMS]`` is ``PGM 7``,
+the second string is ``PGM 8``, etc.
 
 ###Hardcoded Demo Programs
 
