@@ -38,7 +38,8 @@ See ``busch2090.ino`` sketch for further instructions.
 ###Description 
 
 The **push buttons of the TM1638 are the function keys of the
-Microtronic**, in this order of sequence:
+Microtronic**, in this order of sequence, from left to right:
+``HALT, NEXT, RUN, CCE, REG, STEP, BKP, RUN``: 
 
     #define HALT  1 
     #define NEXT  2 
@@ -54,38 +55,39 @@ bottom-left to top-right order.  Hence, ``* -> 0``, ``0 -> 1``, ...,
 ``D -> 3``, ..., and ``A -> F``. You might consider using a labeler to
 relabel the keys on the pad: 
 
-    C D E F 
-    8 9 A B
-    4 5 6 7
-    0 1 2 3
+    7 8 9 A       C D E F 
+    4 5 6 B  ==>  8 9 A B
+    1 2 3 C  ==>  4 5 6 7
+    * 0 # D       0 1 2 3
 
-**Carry** and **Zero** flag are the LEDs 0 and 1, 1 Hz **clock LED**
-is LED 2.  LEDs 4 to 7 are used for **DOT output** (FEx op code).
+**Carry** and **Zero** flag are the LEDs 1 and 2, the *1 Hz clock
+LED** is LED 3 (from left to right).  LEDs 5 to 8 are used for **DOT
+output** (``FEx`` op-code).
 
 Unlike the original Microtronic, this emulator uses the leftmost digit
 of the 8digit FM1638 to display the **current system status** (the
 original Microtronic only featured a 6digit display). Currently, the
 **status codes** are:
 
-- H: stopped 
-- A: enter address 
-- P: enter OP code 
-- r: running or entering / inspecting register via REG  
-- I: keypad input from user requested 
+- ``H``: stopped 
+- ``A``: enter address 
+- ``P``: enter op-code 
+- ``r``: running or entering / inspecting register via ``REG``  
+- ``I``: keypad input from user requested 
 
 Unlike the original Busch 2090 Microtronic, this emulator uses
 blinking digits to indicate cursor position. The CCE key works a
 little bit differently, but editing should be comfortable enough.
 
-Typical operation sequences such as "HALT-NEXT-00-RUN" and
-"HALT-NEXT-00-F10-NEXT-510-NEXT-C00-NEXT etc."  will work as expected.
-Also, try to load a demo program: "HALT-PGM-7-RUN".
+Typical operation sequences such as ``HALT-NEXT-00-RUN`` and
+``HALT-NEXT-00-F10-NEXT-510-NEXT-C00-NEXT`` etc. will work as expected.
+Also, try to load a demo program: ``HALT-PGM-7-RUN``.
 
 Note that programs can be entered manually, using the keypad and
 function keys, or you can load a fixed program from the sketch Arduino
 program using the PGM button. See the `MAX_PROGRAMS, programs[]` and
 `startAddresses[]` in the sketch. The first string in `programs[]` is
-PGM 7, the second string is PGM 8, etc. 
+``PGM 7``, the second string is ``PGM 8``, etc. 
 
 ###Hardcoded Demo Programs
 
@@ -109,17 +111,21 @@ others, and which are included in the ``library`` subdirectory:
 
 ### Future Work 
 
-1. test all OP-codes for correct behavior, correct Carry and Zero flag behavior, etc. 
-2. reset button on R3 also clears the RAM memory of the emulator. Add reset button that doesn't do that
-3. add "real" ``PGM 7``, which is the Nim game. Need to get the source code from somebody having a real Microtronic 2090 arround, as there is no listing in the Busch manuals :-( 
-4. add some other ``PGM`` .. programs, e.g., Lunar Lander
-5. implement ``PGM 3`` and ``PGM 4`` clock programs - enter time and display time 
-6. add some hardware such that the DOT output LEDs can also be used as output pins for hardware extensions, like in the real Microtronic. Might require a simple transitor or Darlington driver. 
-7. add some digital inputs, the analog of the Busch Microtronic input ports for hardware hacking. I might be able to use the still unused Arduino digitial pins D0 to D3 for that. Only then will the ``FDx (DIN)`` data-in OP-code make sense. 
-8. with 7. done, drive a speech synthesizer from these ports. A Speech Synthesizer extension board is mentioned in the first 2090 manual, but it was never released by Busch. 
-9. try to connect a character display, such as the Hitachi HD44780 which has a 4bit input mode. 
+1. Test all op-codes for correct behavior, correct Carry and Zero flag behavior, etc. 
+2. The R3 resest button unfortunately also clears the RAM memory of the emulator. Hence, add a reset button that doesn't do that. 
+3. Add the "real" ``PGM 7``, which is the Nim game. I need to get the source code from somebody having a real Microtronic 2090 arround, as there is no listing of this game in the Busch manuals :-( 
+4. Add some more ``PGM`` programs, e.g., the Lunar Lander from the manual. 
+5. Implement the ``PGM 3`` and ``PGM 4`` clock programs (enter time and display time).
+6. Add drivers to the DOT output LEDs such that they can also be used as output pins, as with the real Microtronic. This might require a simple transitor or Darlington driver. 
+7. Add some digital inputs, like in the real Busch Microtronic. The input ports are for hardware hacking are are read via  ``FDx (DIN)`` data-in OP-code. This OP-code currently doesn't make sense, due to the lack of hardware inputs. Perhaps I can use the Arduino digital ports D0 - D4 for that.
+8. With 7. done, control a Speech Synthesizer from these ports! A Speech Synthesizer extension board was announced in the first Busch 2090 manual, but was never released to market.
+9. Try to connect a character display, such as the Hitachi HD44780 which has a 4bit input mode. 
+10. Implement ``BKP`` and ``STEP`` (breakpoint and step).
 
-Plenty of work still to be done! 
+**Plenty of work to be done - let's go for it!**
+
+
+
 
 
 
