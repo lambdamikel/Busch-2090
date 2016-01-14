@@ -76,7 +76,7 @@ original Microtronic only featured a 6digit display). Currently, the
 - ``I``: keypad input from user requested 
 
 Unlike the original Busch 2090 Microtronic, this emulator uses
-blinking digits to indicate cursor position. The CCE key works a
+blinking digits to indicate cursor position. The ``CCE`` key works a
 little bit differently, but editing should be comfortable enough.
 
 Typical operation sequences such as ``HALT-NEXT-00-RUN`` and
