@@ -1,9 +1,9 @@
 #Busch-2090
 ##An emulator of the Busch 2090 Microtronic Computer System for Arduino Uno R3
-###Author: Michael Wessel
-###License: GPL 3
-###Hompage: [Author's Homepage](http://www.michael-wessel.info/)
-###Version: 0.7
+####Author: Michael Wessel
+####License: GPL 3
+####Hompage: [Author's Homepage](http://www.michael-wessel.info/)
+####Version: 0.7
 
 ###Abstract
 
@@ -89,12 +89,12 @@ PGM 7, the second string is PGM 8, etc.
 
 ###Hardcoded Demo Programs
 
-- PGM 0, 1, 2, 3, 4: not implemented yet
-- PGM 5 : clear memory
-- PGM 6 : load NOPs into memory
-- PGM 7 : simple input and output demo 
-- PGM 8 : crazy counter 
-- PGM 9 : F05 (random generator) demo 
+- ``PGM 0, 1, 2, 3, 4``: not implemented yet
+- ``PGM 5`` : clear memory
+- ``PGM 6`` : load NOPs into memory
+- ``PGM 7`` : simple input and output demo 
+- ``PGM 8`` : crazy counter 
+- ``PGM 9`` : F05 (random generator) demo 
 
 Still working on adding Nim game and set and display clock. Will
 probably also add lunar lander game. 
@@ -106,6 +106,20 @@ others, and which are included in the ``library`` subdirectory:
 
 - ``Keypad`` library
 - ``TM1638`` library - note that this is a modified version of the original one 
+
+### Future Work 
+
+1. test all OP-codes for correct behavior, correct Carry and Zero flag behavior, etc. 
+2. reset button on R3 also clears the RAM memory of the emulator. Add reset button that doesn't do that
+3. add "real" ``PGM 7``, which is the Nim game. Need to get the source code from somebody having a real Microtronic 2090 arround, as there is no listing in the Busch manuals :-( 
+4. add some other ``PGM`` .. programs, e.g., Lunar Lander
+5. implement ``PGM 3`` and ``PGM 4`` clock programs - enter time and display time 
+6. add some hardware such that the DOT output LEDs can also be used as output pins for hardware extensions, like in the real Microtronic. Might require a simple transitor or Darlington driver. 
+7. add some digital inputs, the analog of the Busch Microtronic input ports for hardware hacking. I might be able to use the still unused Arduino digitial pins D0 to D3 for that. Only then will the ``FDx (DIN)`` data-in OP-code make sense. 
+8. with 7. done, drive a speech synthesizer from these ports. A Speech Synthesizer extension board is mentioned in the first 2090 manual, but it was never released by Busch. 
+9. try to connect a character display, such as the Hitachi HD44780 which has a 4bit input mode. 
+
+Plenty of work still to be done! 
 
 
 
