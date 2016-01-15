@@ -3,7 +3,7 @@
 ####Author: Michael Wessel
 ####License: GPL 3
 ####Hompage: [Author's Homepage](http://www.michael-wessel.info/)
-####Version: 0.7
+####Version: 0.8
 ####[YouTube Video of Emulator](https://www.youtube.com/watch?v=HHfHw3GVIuI)
 
 ###Abstract
@@ -67,6 +67,14 @@ TM1638, the 1 **Hz clock LED** is LED 3 (from left to right). The LEDs
 5 to 8 are used as **DOT outputs** (set by the data out op-code
 ``FEx``).
 
+Notice that the Arduino reset button will erase the emulator's program 
+memory. To only reset emulator while keeping the program in memory, 
+connect Arduino pin ``D0 (RX)`` to ground. 
+
+The Arduino pins ``D1`` to ``D4`` are read by the Microtronic data in
+op-code ``FDx (DIN)``. Connecting them to ground will set the
+corresponding bit to 1. See ``PGM Dx``.
+
 Unlike the original Microtronic, this emulator uses the leftmost digit
 of the 8digit FM1638 to display the **current system status** (the
 original Microtronic only featured a 6digit display). Currently, the
@@ -75,8 +83,9 @@ original Microtronic only featured a 6digit display). Currently, the
 - ``H``: stopped 
 - ``A``: enter address 
 - ``P``: enter op-code 
-- ``r``: running or entering / inspecting register via ``REG``  
-- ``I``: keypad input from user requested 
+- ``r``: running program
+- ``?``: keypad input from user requested  
+- ``i``: entering / inspecting register via ``REG``  
 
 Also unlike the original Microtronic, the emulator uses blinking
 digits to indicate cursor position. The ``CCE`` key works a little bit
@@ -89,10 +98,7 @@ Also, try to load a demo program: ``HALT-PGM-7-RUN``.
 Note that programs can be entered manually, using the keypad and
 function keys, or you can load a fixed ROM program specified in the
 Arduino sketch via the ``PGM`` button. These ROM programs are defined
-in the ``busch2090.ino`` sketch, see variables ``MAX_PROGRAMS,
-programs[MAX_PROGRAMS]`` and ``startAddresses[MAX_PROGRAMS]``
-there. The first string in ``programs[MAX_PROGRAMS]`` is ``PGM 7``,
-the second string is ``PGM 8``, etc.
+in the ``busch2090.ino`` sketch as ``PGM7`` to ``PGMD`` macros. 
 
 ###Hardcoded Demo Programs
 
@@ -102,6 +108,10 @@ the second string is ``PGM 8``, etc.
 - ``PGM 7`` : simple input and output demo 
 - ``PGM 8`` : crazy counter 
 - ``PGM 9`` : ``F05`` (random generator) demo 
+- ``PGM A`` : three digit counter 
+- ``PGM B`` : shifting keyboard input 
+- ``PGM C`` : scrolling light
+- ``PGM D`` : test of digital input - connect pins D1 - D4 to ground
 
 Still working on adding Nim game and set and display clock. Will
 probably also add lunar lander game. 
@@ -118,28 +128,19 @@ others, and which are included in the ``library`` subdirectory:
 
 1. Test all op-codes for correct behavior, correct Carry and Zero flag
 behavior, etc.
-2. The R3 reset button unfortunately also clears the RAM memory of
-the emulator. Hence, add a reset button that doesn't do that.
-3. Add the "real" ``PGM 7``, which is the Nim game. I need to get the
+2. Add the "real" ``PGM 7``, which is the Nim game. I need to get the
 source code from somebody having a real Microtronic 2090 arround, as
 there is no listing of this game in the Busch manuals :-(
-4. Add some more ``PGM`` programs, e.g., the Lunar Lander from the
-manual.
-5. Implement the ``PGM 3`` and ``PGM 4`` clock programs (enter time
+3. Implement the ``PGM 3`` and ``PGM 4`` clock programs (enter time
 and display time).
-6. Add drivers to the DOT output LEDs such that they can be used as
+4. Add drivers to the DOT output LEDs such that they can be used as
 output pins, like in the real Microtronic. This might require a simple
 transitor or Darlington driver.
-7. Add four digital inputs, like in the real Busch Microtronic, for
-hardware hacking. These inputs are read via the DIN data in op-code,
-``FDx``, which is currently useless due to the lack of these
-inputs. Perhaps I can use the still unassigned ``D0`` - ``D3`` Arduino
-pins for that.
-8. With 7. done, control a Speech Synthesizer from these ports! A
+5. With 5. done, control a Speech Synthesizer from these ports. A
 Speech Synthesizer extension board was announced as early as 1983 by
 Busch, in the first Busch 2090 manual, but was never released.
-9. Try to connect a character display, such as the Hitachi HD44780.
-10. Implement ``BKP`` and ``STEP`` function keys (breakpoint and
+6. Try to connect a character display, such as the Hitachi HD44780.
+7. Implement ``BKP`` and ``STEP`` function keys (breakpoint and
 step). I did not really use them a lot in 1983.
 
 **Plenty of work to be done - let's go for it!**
