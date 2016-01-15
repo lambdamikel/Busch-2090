@@ -1,21 +1,21 @@
 /*
 
-   A Busch 2090 Microtronic Emulator for Arduino Uno / R3
+  A Busch 2090 Microtronic Emulator for Arduino Uno / R3
 
-   Version 0.8 (c) Michael Wessel, January 14 2016
+  Version 0.8 (c) Michael Wessel, January 14 2016
 
-   michael_wessel@gmx.de
-   miacwess@gmail.com
-   http://www.michael-wessel.info
+  michael_wessel@gmx.de
+  miacwess@gmail.com
+  http://www.michael-wessel.info
 
-   Hardware requirements:
-   - 4x4 hex keypad (HEX keypad for data and program entry)
-   - TM1638 8 digit 7segment display with 8 LEDs and 8 buttons (function keys)
+  Hardware requirements:
+  - 4x4 hex keypad (HEX keypad for data and program entry)
+  - TM1638 8 digit 7segment display with 8 LEDs and 8 buttons (function keys)
 
-   The Busch Microtronic 2090 is (C) Busch GmbH
-   See http://www.busch-model.com/online/?rubrik=82&=6&sprach_id=de
+  The Busch Microtronic 2090 is (C) Busch GmbH
+  See http://www.busch-model.com/online/?rubrik=82&=6&sprach_id=de
 
-   This program was written by Michael Wessel
+  This program was written by Michael Wessel
 
 
   This program is free software: you can redistribute it and/or modify
@@ -608,76 +608,76 @@ void interpret() {
 
   switch ( functionKey ) {
 
-    case HALT :
-      currentMode = STOPPED;
-      cursor = CURSOR_OFF;
-      break;
+  case HALT :
+    currentMode = STOPPED;
+    cursor = CURSOR_OFF;
+    break;
 
-    case RUN :
-      currentMode = RUNNING;
-      displayOff();
-      clearStack();
-      //step();
-      break;
+  case RUN :
+    currentMode = RUNNING;
+    displayOff();
+    clearStack();
+    //step();
+    break;
 
-    case NEXT :
-      if (currentMode == STOPPED) {
-        currentMode = ENTERING_ADDRESS_HIGH;
-        cursor = 0;
-      } else {
-        pc++;
-        cursor = 2;
-        currentMode = ENTERING_OP;
-      }
+  case NEXT :
+    if (currentMode == STOPPED) {
+      currentMode = ENTERING_ADDRESS_HIGH;
+      cursor = 0;
+    } else {
+      pc++;
+      cursor = 2;
+      currentMode = ENTERING_OP;
+    }
 
-      break;
+    break;
 
-    case REG :
+  case REG :
 
-      if (currentMode != ENTERING_REG) {
-        currentMode = ENTERING_REG;
-        cursor = 0;
-      } else {
-        currentMode = INSPECTING;
-        cursor = 1;
-      }
+    if (currentMode != ENTERING_REG) {
+      currentMode = ENTERING_REG;
+      cursor = 0;
+    } else {
+      currentMode = INSPECTING;
+      cursor = 1;
+    }
 
-      break;
+    break;
 
-    case STEP :
+  case STEP :
 
-      break;
+    break;
 
-    case BKP :
+  case BKP :
 
-      break;
+    break;
 
-    case CCE :
+  case CCE :
 
-      if (cursor == 2) {
-        cursor = 4;
-        arg2[pc] = 0;
-        currentMode = ENTERING_ARG2;
-      } else if (cursor == 3) {
-        cursor = 2;
-        op[pc] = 0;
-        currentMode = ENTERING_OP;
-      } else {
-        cursor = 3;
-        arg1[pc] = 0;
-        currentMode = ENTERING_ARG1;
-      }
+    if (cursor == 2) {
+      cursor = 4;
+      arg2[pc] = 0;
+      currentMode = ENTERING_ARG2;
+    } else if (cursor == 3) {
+      cursor = 2;
+      op[pc] = 0;
+      currentMode = ENTERING_OP;
+    } else {
+      cursor = 3;
+      arg1[pc] = 0;
+      currentMode = ENTERING_ARG1;
+    }
 
-      break;
+    break;
 
-    case PGM :
+  case PGM :
 
-      if ( currentMode != ENTERING_PROGRAM ) {
-        cursor = 0;
-        currentMode = ENTERING_PROGRAM;
-      }
+    if ( currentMode != ENTERING_PROGRAM ) {
+      cursor = 0;
+      currentMode = ENTERING_PROGRAM;
+    }
 
-      break;
+    break;
 
   }
 
@@ -688,141 +688,141 @@ void interpret() {
 
   switch (currentMode) {
 
-    case STOPPED :
-      cursor = CURSOR_OFF;
-      break;
+  case STOPPED :
+    cursor = CURSOR_OFF;
+    break;
 
-    case ENTERING_VALUE :
+  case ENTERING_VALUE :
 
-      if (keypadPressed) {
-        input = keypadKey;
-        reg[currentInputRegister] = input;
-        carry = false;
-        zero = reg[currentInputRegister] == 0;
-        currentMode = RUNNING;
-      }
+    if (keypadPressed) {
+      input = keypadKey;
+      reg[currentInputRegister] = input;
+      carry = false;
+      zero = reg[currentInputRegister] == 0;
+      currentMode = RUNNING;
+    }
 
-      break;
+    break;
 
-    case ENTERING_PROGRAM :
+  case ENTERING_PROGRAM :
 
-      if (keypadPressed) {
+    if (keypadPressed) {
 
-        program = keypadKey;
-        currentMode = STOPPED;
+      program = keypadKey;
+      currentMode = STOPPED;
 
-        switch ( program ) {
+      switch ( program ) {
 
-          case 0 :
-          case 1 :
-          case 2 :
-            error = true;
+      case 0 :
+      case 1 :
+      case 2 :
+	error = true;
 
-          case 3 :   // enter clock time - not yet
-            break;
+      case 3 :   // enter clock time - not yet
+	break;
 
-          case 4 : // show clock - not yet
-            break;
+      case 4 : // show clock - not yet
+	break;
 
-          case 5 : // clear mem
+      case 5 : // clear mem
 
-            clearMem();
-            break;
+	clearMem();
+	break;
 
-          case 6 : // load NOPs
+      case 6 : // load NOPs
 
-            loadNOPs();
-            break;
+	loadNOPs();
+	break;
 
-          default : // load other
+      default : // load other
          
-              switch (program) {
-                case 7 : enterProgram(PGM7, PGM7_ADR); break;    
-                case 8 : enterProgram(PGM8, PGM8_ADR); break; 
-                case 9 : enterProgram(PGM9, PGM9_ADR); break; 
-                case 10 : enterProgram(PGMA, PGMA_ADR); break;    
-                case 11 : enterProgram(PGMB, PGMB_ADR); break; 
-                case 12 : enterProgram(PGMC, PGMC_ADR); break; 
-                case 13 : enterProgram(PGMD, PGMD_ADR); break; 
-                default :   
-                  error = true;
-            }       
-        }
-
-        if (! error)
-          showLoaded();
-
+	switch (program) {
+	case 7 : enterProgram(PGM7, PGM7_ADR); break;    
+	case 8 : enterProgram(PGM8, PGM8_ADR); break; 
+	case 9 : enterProgram(PGM9, PGM9_ADR); break; 
+	case 10 : enterProgram(PGMA, PGMA_ADR); break;    
+	case 11 : enterProgram(PGMB, PGMB_ADR); break; 
+	case 12 : enterProgram(PGMC, PGMC_ADR); break; 
+	case 13 : enterProgram(PGMD, PGMD_ADR); break; 
+	default :   
+	  error = true;
+	}       
       }
 
-      break;
+      if (! error)
+	showLoaded();
 
-    case ENTERING_ADDRESS_HIGH :
+    }
 
-      if (keypadPressed) {
-        cursor = 1;
-        pc = keypadKey * 16;
-        currentMode = ENTERING_ADDRESS_LOW;
-      }
+    break;
 
-      break;
+  case ENTERING_ADDRESS_HIGH :
 
-    case ENTERING_ADDRESS_LOW :
+    if (keypadPressed) {
+      cursor = 1;
+      pc = keypadKey * 16;
+      currentMode = ENTERING_ADDRESS_LOW;
+    }
 
-      if (keypadPressed) {
-        cursor = 2;
-        pc += keypadKey;
-        currentMode = ENTERING_OP;
-      }
+    break;
 
-      break;
+  case ENTERING_ADDRESS_LOW :
 
-    case ENTERING_OP :
+    if (keypadPressed) {
+      cursor = 2;
+      pc += keypadKey;
+      currentMode = ENTERING_OP;
+    }
 
-      if (keypadPressed) {
-        cursor = 3;
-        op[pc] = keypadKey;
-        currentMode = ENTERING_ARG1;
-      }
+    break;
 
-      break;
+  case ENTERING_OP :
 
-    case ENTERING_ARG1 :
+    if (keypadPressed) {
+      cursor = 3;
+      op[pc] = keypadKey;
+      currentMode = ENTERING_ARG1;
+    }
 
-      if (keypadPressed) {
-        cursor = 4;
-        arg1[pc] = keypadKey;
-        currentMode = ENTERING_ARG2;
-      }
+    break;
 
-      break;
+  case ENTERING_ARG1 :
 
-    case ENTERING_ARG2 :
+    if (keypadPressed) {
+      cursor = 4;
+      arg1[pc] = keypadKey;
+      currentMode = ENTERING_ARG2;
+    }
 
-      if (keypadPressed) {
-        cursor = 2;
-        arg2[pc] = keypadKey;
-        currentMode = ENTERING_OP;
-      }
+    break;
 
-      break;
+  case ENTERING_ARG2 :
 
-    case RUNNING:
-      run();
-      break;
+    if (keypadPressed) {
+      cursor = 2;
+      arg2[pc] = keypadKey;
+      currentMode = ENTERING_OP;
+    }
 
-    case ENTERING_REG:
+    break;
 
-      if (keypadPressed)
-        currentReg = keypadKey;
+  case RUNNING:
+    run();
+    break;
 
-      break;
+  case ENTERING_REG:
 
-    case INSPECTING :
+    if (keypadPressed)
+      currentReg = keypadKey;
 
-      if (keypadPressed)
-        reg[currentReg] = keypadKey;
+    break;
 
-      break;
+  case INSPECTING :
+
+    if (keypadPressed)
+      reg[currentReg] = keypadKey;
+
+    break;
 
   }
 
@@ -850,495 +850,495 @@ void run() {
   unsigned int op3 = op1 * 256 + hi * 16 + lo;
 
   switch (op1) {
-    case OP_MOV :
+  case OP_MOV :
 
-      reg[d] = reg[s];
-      zero = reg[d] == 0;
-      pc++;
+    reg[d] = reg[s];
+    zero = reg[d] == 0;
+    pc++;
 
-      break;
+    break;
 
-    case OP_MOVI :
+  case OP_MOVI :
 
-      reg[d] = n;
-      zero = reg[d] == 0;
-      pc++;
+    reg[d] = n;
+    zero = reg[d] == 0;
+    pc++;
 
-      break;
+    break;
 
-    case OP_AND :
+  case OP_AND :
 
-      reg[d] &= reg[s];
-      carry = false;
-      zero = reg[d] == 0;
-      pc++;
+    reg[d] &= reg[s];
+    carry = false;
+    zero = reg[d] == 0;
+    pc++;
 
-      break;
+    break;
 
-    case OP_ANDI :
+  case OP_ANDI :
 
-      reg[d] &= n;
-      carry = false;
-      zero = reg[d] == 0;
-      pc++;
+    reg[d] &= n;
+    carry = false;
+    zero = reg[d] == 0;
+    pc++;
 
-      break;
+    break;
 
-    case OP_ADD :
+  case OP_ADD :
 
-      reg[d] += reg[s];
-      carry = reg[d] > 15;
-      reg[d] &= 15;
-      zero = reg[d] == 0;
-      pc++;
+    reg[d] += reg[s];
+    carry = reg[d] > 15;
+    reg[d] &= 15;
+    zero = reg[d] == 0;
+    pc++;
 
-      break;
+    break;
 
-    case OP_ADDI :
+  case OP_ADDI :
 
-      reg[d] += n;
-      carry = reg[d] > 15;
-      reg[d] &= 15;
-      zero =  reg[d] == 0;
-      pc++;
+    reg[d] += n;
+    carry = reg[d] > 15;
+    reg[d] &= 15;
+    zero =  reg[d] == 0;
+    pc++;
 
-      break;
+    break;
 
-    case OP_SUB :
+  case OP_SUB :
 
-      reg[d] -= reg[s]; // +/- 1 if negative?
-      carry = reg[d] > 15;
-      reg[d] &= 15;
-      zero =  reg[d] == 0;
-      pc++;
+    reg[d] -= reg[s]; // +/- 1 if negative?
+    carry = reg[d] > 15;
+    reg[d] &= 15;
+    zero =  reg[d] == 0;
+    pc++;
 
-      break;
+    break;
 
-    case OP_SUBI :
+  case OP_SUBI :
 
-      reg[d] -= n; // +/- 1 if negative?
-      carry = reg[d] > 15;
-      reg[d] &= 15;
-      zero =  reg[d] == 0;
-      pc++;
+    reg[d] -= n; // +/- 1 if negative?
+    carry = reg[d] > 15;
+    reg[d] &= 15;
+    zero =  reg[d] == 0;
+    pc++;
 
-      break;
+    break;
 
-    case OP_CMP :
+  case OP_CMP :
 
-      carry = reg[s] < reg[d];
-      zero = reg[s] == reg[d];
-      pc++;
+    carry = reg[s] < reg[d];
+    zero = reg[s] == reg[d];
+    pc++;
 
-      break;
+    break;
 
-    case OP_CMPI :
+  case OP_CMPI :
 
-      carry = n < reg[d];
-      zero = reg[d] = n;
-      pc++;
+    carry = n < reg[d];
+    zero = reg[d] = n;
+    pc++;
 
-      break;
+    break;
 
-    case OP_OR :
+  case OP_OR :
 
-      reg[d] |= reg[s];
-      carry = false;
-      zero = reg[d] == 0;
-      pc++;
+    reg[d] |= reg[s];
+    carry = false;
+    zero = reg[d] == 0;
+    pc++;
 
-      break;
+    break;
 
     //
     //
     //
 
 
-    case OP_CALL :
+  case OP_CALL :
 
-      if (sp < STACK_DEPTH - 1) {
-        stack[sp] = pc;
-        sp++;
-        pc = adr;
-
-      } else {
-
-        error = true;
-        currentMode = STOPPED;
-
-      }
-      break;
-
-    case OP_GOTO :
-
+    if (sp < STACK_DEPTH - 1) {
+      stack[sp] = pc;
+      sp++;
       pc = adr;
 
-      break;
+    } else {
 
-    case OP_BRC :
+      error = true;
+      currentMode = STOPPED;
 
-      if (carry)
-        pc = adr;
-      else
-        pc++;
+    }
+    break;
 
-      break;
+  case OP_GOTO :
 
-    case OP_BRZ :
+    pc = adr;
 
-      if (zero)
-        pc = adr;
-      else
-        pc++;
+    break;
 
-      break;
+  case OP_BRC :
+
+    if (carry)
+      pc = adr;
+    else
+      pc++;
+
+    break;
+
+  case OP_BRZ :
+
+    if (zero)
+      pc = adr;
+    else
+      pc++;
+
+    break;
 
     //
     //
     //
+
+  default : {
+
+    switch (op2) {
+
+    case OP_MAS :
+
+      regEx[d] = reg[d];
+      pc++;
+
+      break;
+
+    case OP_INV :
+
+      reg[d] ^= 15;
+      pc++;
+
+      break;
+
+    case OP_SHR :
+
+      reg[d] >>= 1;
+      carry = reg[d] & 16;
+      reg[d] &= 15;
+      zero = reg[d] == 0;
+      pc++;
+
+      break;
+
+    case OP_SHL :
+
+      reg[d] <<= 1;
+      carry = reg[d] & 16;
+      reg[d] &= 15;
+      zero = reg[d] == 0;
+      pc++;
+
+      break;
+
+    case OP_ADC :
+
+      if (carry) reg[d]++;
+      carry = reg[d] > 15;
+      reg[d] &= 15;
+      zero = reg[d] == 0;
+      pc++;
+
+      break;
+
+    case OP_SUBC :
+
+      if (carry) reg[d]--;
+      carry = reg[d] > 15;
+      reg[d] &= 15;
+      zero = reg[d] == 0;
+      pc++;
+
+      break;
+
+      //
+      //
+      //
+
+    case OP_DIN :
+
+      reg[d] = !digitalRead(1) | !digitalRead(2) << 1 | !digitalRead(3) << 2 | !digitalRead(4) << 3;
+      carry = false;
+      zero = reg[d] == 0;
+      pc++;
+
+      break;
+
+    case OP_DOT :
+
+      outputs = reg[dot_s];
+      carry = false;
+      zero = reg[dot_s] == 0;
+      pc++;
+
+      break;
+
+    case OP_KIN :
+
+      currentMode = ENTERING_VALUE;
+      currentInputRegister = d;
+      pc++;
+
+      break;
+
+      //
+      //
+      //
 
     default : {
 
-        switch (op2) {
+      switch (op3) {
 
-          case OP_MAS :
+      case OP_HALT :
 
-            regEx[d] = reg[d];
-            pc++;
+	currentMode = STOPPED;
+	break;
 
-            break;
+      case OP_NOP :
 
-          case OP_INV :
+	pc++;
+	break;
 
-            reg[d] ^= 15;
-            pc++;
+      case OP_DISOUT :
 
-            break;
+	showingDisplayDigits = 0;
+	pc++;
 
-          case OP_SHR :
+	break;
 
-            reg[d] >>= 1;
-            carry = reg[d] & 16;
-            reg[d] &= 15;
-            zero = reg[d] == 0;
-            pc++;
+      case OP_HXDZ :
 
-            break;
+	num =
+	  reg[0xD] +
+	  16 * reg[0xE] +
+	  256 * reg[0xF];
 
-          case OP_SHL :
+	zero = num > 999;
+	carry = false;
 
-            reg[d] <<= 1;
-            carry = reg[d] & 16;
-            reg[d] &= 15;
-            zero = reg[d] == 0;
-            pc++;
+	num %= 1000;
 
-            break;
+	reg[0xD] = num % 10;
+	reg[0xE] = ( num / 10 ) % 10;
+	reg[0xF] = ( num / 100 ) % 10;
 
-          case OP_ADC :
+	pc++;
 
-            if (carry) reg[d]++;
-            carry = reg[d] > 15;
-            reg[d] &= 15;
-            zero = reg[d] == 0;
-            pc++;
+	break;
 
-            break;
+      case OP_DZHX :
 
-          case OP_SUBC :
+	num =
+	  reg[0xD] +
+	  10 * reg[0xE] +
+	  100 * reg[0xF];
 
-            if (carry) reg[d]--;
-            carry = reg[d] > 15;
-            reg[d] &= 15;
-            zero = reg[d] == 0;
-            pc++;
+	carry = false;
+	zero = false;
 
-            break;
+	reg[0xD] = num % 16;
+	reg[0xE] = ( num / 16 ) % 16;
+	reg[0xF] = ( num / 256 ) % 16;
 
-          //
-          //
-          //
+	pc++;
 
-          case OP_DIN :
+	break;
 
-            reg[d] = !digitalRead(1) | !digitalRead(2) << 1 | !digitalRead(3) << 2 | !digitalRead(4) << 3;
-            carry = false;
-            zero = reg[d] == 0;
-            pc++;
+      case OP_RND :
 
-            break;
+	reg[0xD] = random(16);
+	reg[0xE] = random(16);
+	reg[0xF] = random(16);
 
-          case OP_DOT :
+	pc++;
 
-            outputs = reg[dot_s];
-            carry = false;
-            zero = reg[dot_s] == 0;
-            pc++;
+	break;
 
-            break;
+      case OP_TIME :
 
-          case OP_KIN :
+	reg[0xA] = timeSeconds1;
+	reg[0xB] = timeSeconds10;
+	reg[0xC] = timeMinutes1;
+	reg[0xD] = timeMinutes10;
+	reg[0xE] = timeHours1;
+	reg[0xF] = timeHours10;
 
-            currentMode = ENTERING_VALUE;
-            currentInputRegister = d;
-            pc++;
-
-            break;
-
-          //
-          //
-          //
-
-          default : {
-
-              switch (op3) {
-
-                case OP_HALT :
-
-                  currentMode = STOPPED;
-                  break;
-
-                case OP_NOP :
-
-                  pc++;
-                  break;
-
-                case OP_DISOUT :
-
-                  showingDisplayDigits = 0;
-                  pc++;
-
-                  break;
-
-                case OP_HXDZ :
-
-                  num =
-                    reg[0xD] +
-                    16 * reg[0xE] +
-                    256 * reg[0xF];
-
-                  zero = num > 999;
-                  carry = false;
-
-                  num %= 1000;
-
-                  reg[0xD] = num % 10;
-                  reg[0xE] = ( num / 10 ) % 10;
-                  reg[0xF] = ( num / 100 ) % 10;
-
-                  pc++;
-
-                  break;
-
-                case OP_DZHX :
-
-                  num =
-                    reg[0xD] +
-                    10 * reg[0xE] +
-                    100 * reg[0xF];
-
-                  carry = false;
-                  zero = false;
-
-                  reg[0xD] = num % 16;
-                  reg[0xE] = ( num / 16 ) % 16;
-                  reg[0xF] = ( num / 256 ) % 16;
-
-                  pc++;
-
-                  break;
-
-                case OP_RND :
-
-                  reg[0xD] = random(16);
-                  reg[0xE] = random(16);
-                  reg[0xF] = random(16);
-
-                  pc++;
-
-                  break;
-
-                case OP_TIME :
-
-                  reg[0xA] = timeSeconds1;
-                  reg[0xB] = timeSeconds10;
-                  reg[0xC] = timeMinutes1;
-                  reg[0xD] = timeMinutes10;
-                  reg[0xE] = timeHours1;
-                  reg[0xF] = timeHours10;
-
-                  pc++;
+	pc++;
                   
-                  break;
+	break;
 
-                case OP_RET :
+      case OP_RET :
 
-                  pc = stack[--sp] + 1;
-                  break;
+	pc = stack[--sp] + 1;
+	break;
 
-                case OP_CLEAR :
+      case OP_CLEAR :
 
-                  for (byte i = 0; i < 16; i ++)
-                    reg[i] = 0;
+	for (byte i = 0; i < 16; i ++)
+	  reg[i] = 0;
 
-                  carry = false;
-                  zero = true;
+	carry = false;
+	zero = true;
 
-                  pc++;
+	pc++;
                   
-                  break;
+	break;
 
-                case OP_STC :
+      case OP_STC :
 
-                  carry = true;
-                  pc++;
+	carry = true;
+	pc++;
                   
-                  break;
+	break;
 
-                case OP_RSC :
+      case OP_RSC :
 
-                  carry = false;
-                  pc++;
+	carry = false;
+	pc++;
                   
-                  break;
+	break;
 
-                case OP_MULT :
+      case OP_MULT :
 
-                  num =
-                    reg[0] + 10 * reg[1] + 100 * reg[2] +
-                    1000 * reg[3] + 10000 * reg[4] + 100000 * reg[5];
+	num =
+	  reg[0] + 10 * reg[1] + 100 * reg[2] +
+	  1000 * reg[3] + 10000 * reg[4] + 100000 * reg[5];
 
-                  num2 =
-                    regEx[0] + 10 * regEx[1] + 100 * regEx[2] +
-                    1000 * regEx[3] + 10000 * regEx[4] + 100000 * regEx[5];
+	num2 =
+	  regEx[0] + 10 * regEx[1] + 100 * regEx[2] +
+	  1000 * regEx[3] + 10000 * regEx[4] + 100000 * regEx[5];
 
-                  num *= num2;
+	num *= num2;
 
-                  carry = num > 999999;
-                  zero  = false;
+	carry = num > 999999;
+	zero  = false;
 
-                  num = num % 1000000;
+	num = num % 1000000;
 
-                  if (carry) {
+	if (carry) {
 
-                    reg[0] = 0xE;
-                    reg[1] = 0xE;
-                    reg[2] = 0xE;
-                    reg[3] = 0xE;
-                    reg[4] = 0xE;
-                    reg[5] = 0xE;
+	  reg[0] = 0xE;
+	  reg[1] = 0xE;
+	  reg[2] = 0xE;
+	  reg[3] = 0xE;
+	  reg[4] = 0xE;
+	  reg[5] = 0xE;
 
-                  } else {
+	} else {
 
-                    reg[0] = num % 10;
-                    reg[1] = ( num / 10 ) % 10;
-                    reg[2] = ( num / 100 ) % 10;
-                    reg[3] = ( num / 1000 ) % 10;
-                    reg[4] = ( num / 10000 ) % 10;
-                    reg[5] = ( num / 100000 ) % 10;
-                  }
+	  reg[0] = num % 10;
+	  reg[1] = ( num / 10 ) % 10;
+	  reg[2] = ( num / 100 ) % 10;
+	  reg[3] = ( num / 1000 ) % 10;
+	  reg[4] = ( num / 10000 ) % 10;
+	  reg[5] = ( num / 100000 ) % 10;
+	}
 
-                  pc++;
-                  break;
+	pc++;
+	break;
 
-                case OP_DIV :
+      case OP_DIV :
 
-                  num2 =
-                    reg[0] + 10 * reg[1] + 100 * reg[2] +
-                    1000 * reg[3];
+	num2 =
+	  reg[0] + 10 * reg[1] + 100 * reg[2] +
+	  1000 * reg[3];
 
-                  num =
-                    regEx[0] + 10 * regEx[1] + 100 * regEx[2] +
-                    1000 * regEx[3];
+	num =
+	  regEx[0] + 10 * regEx[1] + 100 * regEx[2] +
+	  1000 * regEx[3];
 
-                  if (num2 == 0 || num == 0 // really?
-                     ) {
-                    carry = true;
+	if (num2 == 0 || num == 0 // really?
+	    ) {
+	  carry = true;
 
-                    reg[0] = 0xE;
-                    reg[1] = 0xE;
-                    reg[2] = 0xE;
-                    reg[3] = 0xE;
-                    reg[4] = 0xE;
-                    reg[5] = 0xE;
+	  reg[0] = 0xE;
+	  reg[1] = 0xE;
+	  reg[2] = 0xE;
+	  reg[3] = 0xE;
+	  reg[4] = 0xE;
+	  reg[5] = 0xE;
 
-                  } else {
+	} else {
 
-                    carry = false;
-                    num3 = num / num2;
+	  carry = false;
+	  num3 = num / num2;
 
-                    reg[0] = num3 % 10;
-                    reg[1] = ( num3 / 10 ) % 10;
-                    reg[2] = ( num3 / 100 ) % 10;
-                    reg[3] = ( num3 / 1000 ) % 10;
-                    reg[4] = ( num3 / 10000 ) % 10;
-                    reg[5] = ( num3 / 100000 ) % 10;
+	  reg[0] = num3 % 10;
+	  reg[1] = ( num3 / 10 ) % 10;
+	  reg[2] = ( num3 / 100 ) % 10;
+	  reg[3] = ( num3 / 1000 ) % 10;
+	  reg[4] = ( num3 / 10000 ) % 10;
+	  reg[5] = ( num3 / 100000 ) % 10;
 
-                    num3 = num % num2;
+	  num3 = num % num2;
 
-                    regEx[0] = num3 % 10;
-                    regEx[1] = ( num3 / 10 ) % 10;
-                    regEx[2] = ( num3 / 100 ) % 10;
-                    regEx[3] = ( num3 / 1000 ) % 10;
-                    regEx[4] = ( num3 / 10000 ) % 10;
-                    regEx[5] = ( num3 / 100000 ) % 10;
+	  regEx[0] = num3 % 10;
+	  regEx[1] = ( num3 / 10 ) % 10;
+	  regEx[2] = ( num3 / 100 ) % 10;
+	  regEx[3] = ( num3 / 1000 ) % 10;
+	  regEx[4] = ( num3 / 10000 ) % 10;
+	  regEx[5] = ( num3 / 100000 ) % 10;
 
-                  }
+	}
 
-                  zero = false;
-                  pc++;
+	zero = false;
+	pc++;
                   
-                  break;
+	break;
 
-                case OP_EXRL :
+      case OP_EXRL :
 
-                  for (int i = 0; i < 8; i++) {
-                    byte aux = reg[i];
-                    reg[i] = regEx[i];
-                    regEx[i] = aux;
-                  }
+	for (int i = 0; i < 8; i++) {
+	  byte aux = reg[i];
+	  reg[i] = regEx[i];
+	  regEx[i] = aux;
+	}
+	pc++; 
 
-                  break;
+	break;
 
-                case OP_EXRM :
+      case OP_EXRM :
 
-                  for (int i = 8; i < 16; i++) {
-                    byte aux = reg[i];
-                    reg[i] = regEx[i];
-                    regEx[i] = aux;
-                  }
-                  pc++;
+	for (int i = 8; i < 16; i++) {
+	  byte aux = reg[i];
+	  reg[i] = regEx[i];
+	  regEx[i] = aux;
+	}
+	pc++;
 
-                  break;
+	break;
 
-                case OP_EXRA :
+      case OP_EXRA :
 
-                  for (int i = 0; i < 8; i++) {
-                    byte aux = reg[i];
-                    reg[i]   = reg[i + 8];
-                    reg[i + 8] = aux;
-                  }
+	for (int i = 0; i < 8; i++) {
+	  byte aux = reg[i];
+	  reg[i]   = reg[i + 8];
+	  reg[i + 8] = aux;
+	}
+	pc++;
 
-                  pc++;
-                  break;
+	break;
 
-                default : // DISP!
+      default : // DISP!
 
-                  showingDisplayDigits = disp_n;
-                  showingDisplayFromReg = disp_s;
-                  pc++;
+	showingDisplayDigits = disp_n;
+	showingDisplayFromReg = disp_s;
+	pc++;
 
-                  break;
+	break;
 
-                  //
-                  //
-                  //
+	//
+	//
+	//
 
-
-              }
-            }
-        }
       }
+    }
+    }
+  }
   }
 
 
