@@ -73,7 +73,7 @@ connect Arduino pin ``D0 (RX)`` to ground.
 
 The Arduino pins ``D1`` to ``D4`` are read by the Microtronic data in
 op-code ``FDx (DIN)``. Connecting them to ground will set the
-corresponding bit to 1. See ``PGM Dx``.
+corresponding bit to 1. See ``PGM D``.
 
 Unlike the original Microtronic, this emulator uses the leftmost digit
 of the 8digit FM1638 to display the **current system status** (the
