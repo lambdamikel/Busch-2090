@@ -4,7 +4,7 @@
 ####License: GPL 3
 ####Hompage: [Author's Homepage](http://www.michael-wessel.info/)
 ####Version: 0.81 
-####[YouTube Video of Emulator](https://www.youtube.com/watch?v=HHfHw3GVIuI)
+####[YouTube Videos](https://www.youtube.com/channel/UC1dEZ22WoacesGdSWdVqfTw)
 
 ###Abstract
 
