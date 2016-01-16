@@ -22,7 +22,7 @@ original manuals in German](http://www.busch-model.com/online/?rubrik=82&=6&spra
 ![Busch 2090 Microtronic Emulator for Arduino R3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img6-small.JPG)
 
 See ``busch2090.ino`` sketch for further instructions, and 
-[see the emulator in action here.](https://www.youtube.com/watch?v=HHfHw3GVIuI)
+[see the emulator in action here.](https://www.youtube.com/channel/UC1dEZ22WoacesGdSWdVqfTw)
 
 
 ###Hardware Requirements
@@ -79,7 +79,7 @@ Analog pin ``A5`` is used as a CPU speed throttle. Connect a
 potentiometer to adjust the speed of the CPU: 
 
     #define CPU_THROTTLE_ANALOG_PIN 5 
-    #define CPU_THROTTLE_DIVISOR 50 // potentiometer dependend 
+    #define CPU_THROTTLE_DIVISOR 50 // potentiometer dependent 
     #define CPU_MIN_THRESHOLD 10 // if smaller than this, delay = 0 
 
 Unlike the original Microtronic, this emulator uses the leftmost digit
