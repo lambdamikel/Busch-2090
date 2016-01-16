@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Uno / R3
 
-  Version 0.8 (c) Michael Wessel, January 14 2016
+  Version 0.81 (c) Michael Wessel, January 14 2016
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -63,6 +63,14 @@ byte rowPins[ROWS] = {9, 10, 11, 12}; //connect to the column pinouts of the key
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
 //
+//
+//
+
+#define CPU_THROTTLE_ANALOG_PIN 5 // connect a potentiometer here for CPU speed throttle controll 
+#define CPU_THROTTLE_DIVISOR 50 // potentiometer dependend 
+#define CPU_MIN_THRESHOLD 10 // if smaller than this, delay = 0
+
+//
 // some harcoded example programs
 // via PGM 7 - F. More to be added soon.
 // Nim game still missing here.
@@ -89,14 +97,14 @@ Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 #define PGMD "F10 FD0 FE0 C01 " // digital input pin test D1 - D4 - connect to ground 
 #define PGMD_ADR 0x00
 
-
 byte program;
 
 //
 //
 //
 
-#define CPU_DELAY 0
+int cpu_delay = 0; 
+
 #define DISP_DELAY 400
 
 //
@@ -287,17 +295,17 @@ void setup() {
   Serial.begin(9600);
   randomSeed(analogRead(0));
 
-  pinMode(0, INPUT); // reset pin
-  pinMode(1, INPUT); // DIN 1
-  pinMode(2, INPUT); // DIN 2
-  pinMode(3, INPUT); // DIN 3
-  pinMode(4, INPUT); // DIN 4
+  pinMode(0, INPUT_PULLUP); // reset pin
+  pinMode(1, INPUT_PULLUP); // DIN 1
+  pinMode(2, INPUT_PULLUP); // DIN 2
+  pinMode(3, INPUT_PULLUP); // DIN 3
+  pinMode(4, INPUT_PULLUP); // DIN 4
 
-  digitalWrite(0, HIGH);
-  digitalWrite(1, HIGH);
-  digitalWrite(2, HIGH);
-  digitalWrite(3, HIGH);
-  digitalWrite(4, HIGH);
+  //digitalWrite(0, LOW);
+  //digitalWrite(1, LOW);
+  //digitalWrite(2, LOW);
+  //digitalWrite(3, LOW);
+  //digitalWrite(4, LOW);
 
   sendString("  BUSCH ");
   sendString("  2090  ");
@@ -830,7 +838,7 @@ void interpret() {
 
 void run() {
 
-  delay(CPU_DELAY);
+  delay(cpu_delay);
 
   byte op1 = op[pc];
   byte hi = arg1[pc];
@@ -1388,5 +1396,9 @@ void loop() {
   if (!digitalRead(0)) {
     reset();
   }
+
+  cpu_delay = analogRead(CPU_THROTTLE_ANALOG_PIN) / CPU_THROTTLE_DIVISOR; 
+  if (cpu_delay < CPU_MIN_THRESHOLD) 
+    cpu_delay = 0; 
 
 }

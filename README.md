@@ -3,7 +3,7 @@
 ####Author: Michael Wessel
 ####License: GPL 3
 ####Hompage: [Author's Homepage](http://www.michael-wessel.info/)
-####Version: 0.8
+####Version: 0.81 
 ####[YouTube Video of Emulator](https://www.youtube.com/watch?v=HHfHw3GVIuI)
 
 ###Abstract
@@ -75,6 +75,13 @@ The Arduino pins ``D1`` to ``D4`` are read by the Microtronic data in
 op-code ``FDx (DIN)``. Connecting them to ground will set the
 corresponding bit to 1. See ``PGM D``.
 
+Analog pin ``A5`` is used as a CPU speed throttle. Connect a
+potentiometer to adjust the speed of the CPU: 
+
+  #define CPU_THROTTLE_ANALOG_PIN 5 
+  #define CPU_THROTTLE_DIVISOR 50 // potentiometer dependend 
+  #define CPU_MIN_THRESHOLD 10 // if smaller than this, delay = 0 
+
 Unlike the original Microtronic, this emulator uses the leftmost digit
 of the 8digit FM1638 to display the **current system status** (the
 original Microtronic only featured a 6digit display). Currently, the
@@ -136,7 +143,7 @@ and display time).
 4. Add drivers to the DOT output LEDs such that they can be used as
 output pins, like in the real Microtronic. This might require a simple
 transitor or Darlington driver.
-5. With 5. done, control a Speech Synthesizer from these ports. A
+5. With 4. done, control a Speech Synthesizer from these ports. A
 Speech Synthesizer extension board was announced as early as 1983 by
 Busch, in the first Busch 2090 manual, but was never released.
 6. Try to connect a character display, such as the Hitachi HD44780.
@@ -145,8 +152,15 @@ step). I did not really use them a lot in 1983.
 
 **Plenty of work to be done - let's go for it!**
 
+### Some Insights and Problems
 
-
-
-
+The Arduino Uno might not be powerful enough to go forward with this
+project.  I am running out of dynamic (SRAM) memory. Lunar Lander
+won't fit in. Also the EEPROM memory is too small to hold 256 words
+the way I am currently storing them. I need to reorganize the
+Microtronic program memory such that a word will only use 12 bits
+instead of twice as much as currently...  I can put these programs as
+strings into PROGMEM, but then I need at least one string buffer as
+big as Lunar Lander, and that is a problem.  I have ordered an Arduino
+Mega 2560 :-)
 
