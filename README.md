@@ -15,11 +15,11 @@ Modellbau in Germany. There is [some information about the Busch 2090
 Microtronic available here, including PDFs of the
 original manuals in German](http://www.busch-model.com/online/?rubrik=82&=6&sprach_id=de).
 
-![Busch 2090 Microtronic Emulator for Arduino R3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img1-small.jpg)
+![Busch 2090 Microtronic Emulator for Arduino R3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img4-small.JPG)
 
-![Busch 2090 Microtronic Emulator for Arduino R3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img2-small.jpg)
+![Busch 2090 Microtronic Emulator for Arduino R3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img5-small.JPG)
 
-![Busch 2090 Microtronic Emulator for Arduino R3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img3-small.jpg)
+![Busch 2090 Microtronic Emulator for Arduino R3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img6-small.JPG)
 
 See ``busch2090.ino`` sketch for further instructions, and 
 [see the emulator in action here.](https://www.youtube.com/watch?v=HHfHw3GVIuI)
