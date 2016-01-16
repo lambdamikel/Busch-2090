@@ -78,9 +78,9 @@ corresponding bit to 1. See ``PGM D``.
 Analog pin ``A5`` is used as a CPU speed throttle. Connect a
 potentiometer to adjust the speed of the CPU: 
 
-  #define CPU_THROTTLE_ANALOG_PIN 5 
-  #define CPU_THROTTLE_DIVISOR 50 // potentiometer dependend 
-  #define CPU_MIN_THRESHOLD 10 // if smaller than this, delay = 0 
+    #define CPU_THROTTLE_ANALOG_PIN 5 
+    #define CPU_THROTTLE_DIVISOR 50 // potentiometer dependend 
+    #define CPU_MIN_THRESHOLD 10 // if smaller than this, delay = 0 
 
 Unlike the original Microtronic, this emulator uses the leftmost digit
 of the 8digit FM1638 to display the **current system status** (the
