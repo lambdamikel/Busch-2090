@@ -67,7 +67,7 @@ Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 //
 
 #define CPU_THROTTLE_ANALOG_PIN 5 // connect a potentiometer here for CPU speed throttle controll 
-#define CPU_THROTTLE_DIVISOR 50 // potentiometer dependend 
+#define CPU_THROTTLE_DIVISOR 50 // potentiometer dependent 
 #define CPU_MIN_THRESHOLD 10 // if smaller than this, delay = 0
 
 //
