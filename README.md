@@ -155,12 +155,14 @@ step). I did not really use them a lot in 1983.
 ### Some Insights and Problems
 
 The Arduino Uno might not be powerful enough to go forward with this
-project.  I am running out of dynamic (SRAM) memory. Lunar Lander
-won't fit in. Also the EEPROM memory is too small to hold 256 words
-the way I am currently storing them. I need to reorganize the
-Microtronic program memory such that a word will only use 12 bits
-instead of twice as much as currently...  I can put these programs as
-strings into PROGMEM, but then I need at least one string buffer as
-big as Lunar Lander, and that is a problem.  I have ordered an Arduino
-Mega 2560 :-)
+project, considering I want to also add an SDCard and LCD Module.  The
+drivers require SRAM memory, too.  I am running out of dynamic (SRAM)
+memory. Lunar Lander won't fit in. I need at least 396 bytes of SRAM
+to store Lunar Lander, or I will have to reorganize the Microtronic
+program memory such that a word uses only 12 bits instead of 24 bits
+as currently.  I can put these programs as strings into PROGMEM or
+EEPROM, but then I need at least one string buffer as big as Lunar
+Lander, and that is a problem.  I have ordered an Arduino Mega 2560
+:-)
+
 
