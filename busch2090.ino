@@ -73,10 +73,13 @@ Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 //
 // some harcoded example programs
 // via PGM 7 - F. More to be added soon.
-// Nim game still missing here.
 //
 
-#define PGM7 "F10 FF0 FE0 C00 " // keyboard input and data out 
+#define PGM7 "F08 FE0 F41 FF2 FF1 FF4 045 046 516 FF4 854 D19 904 E19 \
+B3F F03 0D1 0E2 911 E15 C1A 902 D1A 1F0 FE0 F00 F02 064 10C 714 63F \
+11A 10B C24 46A FBB 8AD E27 C29 8BE E2F 51C E2C C22 914 E2F C1C F03 \
+0D1 0E2 F41 902 D09 911 E38 C09 1E2 1E3 1F5 FE5 105 FE5 C3A 01D 02E \
+F04 64D FCE F07 " // Nim game - https://en.wikipedia.org/wiki/Nim
 #define PGM7_ADR 0x00
 
 #define PGM8 "F60 510 521 532 543 554 565 FE0 C00 " // crazy counter and data out 
