@@ -136,7 +136,7 @@ retrieving the code from an original Busch Microtronic and contributing it to th
 - ``PGM 8`` : crazy counter
 - ``PGM 9`` : the electronic die, from Busch Manual Vol. 1, page 10
 - ``PGM A`` : three digit counter 
-- ``PGM C`` : scrolling LED DOT output light
+- ``PGM B`` : scrolling LED DOT output light
 
 The flash memory of an Uno cannot hold more programs it seems. 
 
