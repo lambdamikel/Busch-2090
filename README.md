@@ -3,7 +3,8 @@
 ####Author: Michael Wessel
 ####License: GPL 3
 ####Hompage: [Author's Homepage](http://www.michael-wessel.info/)
-####Version: 0.81 
+####Contributer: [Martin Sauter (PGM 7 Code)](http://mobilesociety.typepad.com/Homepage) 
+####Version: 0.9 
 ####[YouTube Videos](https://www.youtube.com/channel/UC1dEZ22WoacesGdSWdVqfTw)
 
 ###Abstract
@@ -24,6 +25,18 @@ original manuals in German](http://www.busch-model.com/online/?rubrik=82&=6&spra
 See ``busch2090.ino`` sketch for further instructions, and 
 [see the emulator in action here.](https://www.youtube.com/channel/UC1dEZ22WoacesGdSWdVqfTw)
 
+This project consists of two sketches. The main emulator code is in
+``busch2090.ino``. However, the emulator will not run / initialize
+properly if ``PGM-EEPROM.ino`` has not been uploaded at least once
+into the Arduino prior to running ``busch2090.ino``. The
+``PGM-EEPROM.ino`` sketch initializes the EEPROM with PGM example
+programs (see below). Without prior EEPROM initialization, it is
+likely that the emulator won't work.
+
+###Acknowledgements
+
+Many thanks to [Martin Sauter](http://mobilesociety.typepad.com/Homepage) for retrieving and
+entering the original code of ``PGM 7``, the Nim game. It works!
 
 ###Hardware Requirements
 
@@ -107,21 +120,28 @@ function keys, or you can load a fixed ROM program specified in the
 Arduino sketch via the ``PGM`` button. These ROM programs are defined
 in the ``busch2090.ino`` sketch as ``PGM7`` to ``PGMD`` macros. 
 
-###Hardcoded Demo Programs
+###``PGM`` Demo Programs are Stored in EEPROM  
+
+Please first run the ``PGM-EEPROM.ino`` sketch. This will load 5
+example programs into the Arduino's EEPROM. The emulator won't
+work / won't initialize correctly if the EEPROM has not been prepared. 
+The programs stored into and load from EEPROM are ``PGM 7` to 
+``PGM B`` : 
 
 - ``PGM 0, 1, 2, 3, 4``: not implemented yet
 - ``PGM 5`` : clear memory
 - ``PGM 6`` : load ``F01`` (NOPs) into memory
-- ``PGM 7`` : simple input and output demo 
-- ``PGM 8`` : crazy counter 
-- ``PGM 9`` : ``F05`` (random generator) demo 
+- ``PGM 7`` : the Nim game as documented in the Busch Manual Vol. 1, page 7. Many thanks to Martin Sauter for
+retrieving the code from an original Busch Microtronic and contributing it to this project! 
+- ``PGM 8`` : crazy counter
+- ``PGM 9`` : the electronic die, from Busch Manual Vol. 1, page 10
 - ``PGM A`` : three digit counter 
-- ``PGM B`` : shifting keyboard input 
-- ``PGM C`` : scrolling light
-- ``PGM D`` : test of digital input - connect pins D1 - D4 to ground
+- ``PGM C`` : scrolling LED DOT output light
 
-Still working on adding Nim game and set and display clock. Will
-probably also add lunar lander game. 
+The flash memory of an Uno cannot hold more programs it seems. 
+
+Still working on set and display clock programs, as well as load and
+save. Will probably also add lunar lander game. Stay tuned! 
 
 ###Required Third-Party Libraries 
 
@@ -133,21 +153,18 @@ others, and which are included in the ``library`` subdirectory:
 
 ### Future Work 
 
-1. Test all op-codes for correct behavior, correct Carry and Zero flag
-behavior, etc.
-2. Add the "real" ``PGM 7``, which is the Nim game. I need to get the
-source code from somebody having a real Microtronic 2090 arround, as
-there is no listing of this game in the Busch manuals :-(
-3. Implement the ``PGM 3`` and ``PGM 4`` clock programs (enter time
+1. Test all op-codes more thoroughly for correct behavior, correct Carry and Zero flag
+behavior, etc. 
+2. Implement the ``PGM 3`` and ``PGM 4`` clock programs (enter time
 and display time).
-4. Add drivers to the DOT output LEDs such that they can be used as
+3. Add drivers to the DOT output LEDs such that they can be used as
 output pins, like in the real Microtronic. This might require a simple
 transitor or Darlington driver.
-5. With 4. done, control a Speech Synthesizer from these ports. A
+4. With 3. done, control a Speech Synthesizer from these ports. A
 Speech Synthesizer extension board was announced as early as 1983 by
 Busch, in the first Busch 2090 manual, but was never released.
-6. Try to connect a character display, such as the Hitachi HD44780.
-7. Implement ``BKP`` and ``STEP`` function keys (breakpoint and
+5. Try to connect a character display, such as the Hitachi HD44780.
+6. Implement ``BKP`` and ``STEP`` function keys (breakpoint and
 step). I did not really use them a lot in 1983.
 
 **Plenty of work to be done - let's go for it!**

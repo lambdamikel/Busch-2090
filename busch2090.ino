@@ -2,8 +2,9 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Uno / R3
 
-  Version 0.81 (c) Michael Wessel, January 14 2016
-
+  Version 0.9 (c) Michael Wessel, January 14 2016 
+  With Contributions from Martin Sauter (PGM 7) http://mobilesociety.typepad.com/
+  
   michael_wessel@gmx.de
   miacwess@gmail.com
   http://www.michael-wessel.info
@@ -16,7 +17,6 @@
   See http://www.busch-model.com/online/?rubrik=82&=6&sprach_id=de
 
   This program was written by Michael Wessel
-
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@
 #include <TM1638.h>
 #include <Keypad.h>
 #include <TM16XXFonts.h>
-#include <avr/pgmspace.h>
+#include <EEPROM.h>
 
 //
 // set up hardware - wiring
@@ -67,40 +67,26 @@ Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 //
 
 #define CPU_THROTTLE_ANALOG_PIN 5 // connect a potentiometer here for CPU speed throttle controll 
-#define CPU_THROTTLE_DIVISOR 50 // potentiometer dependent 
+#define CPU_THROTTLE_DIVISOR 10 // potentiometer dependent 
 #define CPU_MIN_THRESHOLD 10 // if smaller than this, delay = 0
 
 //
-// some harcoded example programs
-// via PGM 7 - F. More to be added soon.
+// EEPROM PGM read 
+// Please first use the sketch PGM-EEPROM
+// to set up the PGM Microtronic ROM!
+// otherwise, PGM 7 - PGM B cannot be loaded 
+// properly! 
 //
 
-#define PGM7 "F08 FE0 F41 FF2 FF1 FF4 045 046 516 FF4 854 D19 904 E19 \
-B3F F03 0D1 0E2 911 E15 C1A 902 D1A 1F0 FE0 F00 F02 064 10C 714 63F \
-11A 10B C24 46A FBB 8AD E27 C29 8BE E2F 51C E2C C22 914 E2F C1C F03 \
-0D1 0E2 F41 902 D09 911 E38 C09 1E2 1E3 1F5 FE5 105 FE5 C3A 01D 02E \
-F04 64D FCE F07 " // Nim game - https://en.wikipedia.org/wiki/Nim
-#define PGM7_ADR 0x00
+byte programs = 0; 
+int startAddresses[16]; 
+int programLengths[16]; 
 
-#define PGM8 "F60 510 521 532 543 554 565 FE0 C00 " // crazy counter and data out 
-#define PGM8_ADR 0x00
+//
+//
+//
 
-#define PGM9 "F3D F05 C00 " // random generator 
-#define PGM9_ADR 0x00
-
-#define PGMA "F30 510 FB1 FB2 FE1 FE1 C00 " // three digit counter with carry 
-#define PGMA_ADR 0x00
-
-#define PGMB "F08 F31 FF0 023 012 001 C01 " // shifting keyboard input  
-#define PGMB_ADR 0x00
-
-#define PGMC "110 F10 FE0 FA0 FB0 C02 " // scrolling light
-#define PGMC_ADR 0x00
-
-#define PGMD "F10 FD0 FE0 C01 " // digital input pin test D1 - D4 - connect to ground 
-#define PGMD_ADR 0x00
-
-byte program;
+byte program; // current PGM requested
 
 //
 //
@@ -310,6 +296,33 @@ void setup() {
   //digitalWrite(3, LOW);
   //digitalWrite(4, LOW);
 
+  //
+  // read EEPROM PGMs meta data
+  // 
+  
+  sendString("  BUSCH ");
+  sendString("  2090  ");
+  sendString("  init  ");
+
+  int adr = 0; 
+  programs = EEPROM.read(adr++); 
+  module.setDisplayToHexNumber(programs, 0, true);  
+  delay(100); 
+
+  int start = 1; 
+
+  for (int n = 0; n < programs; n++) {
+     startAddresses[n] = start + programs; 
+     programLengths[n] = EEPROM.read(adr++); 
+     start += programLengths[n]; 
+     module.setDisplayToHexNumber( startAddresses[n], 0, true);  
+     delay(100); 
+  }
+  
+  //
+  //
+  //  
+
   sendString("  BUSCH ");
   sendString("  2090  ");
   sendString("  ready ");
@@ -414,6 +427,9 @@ void showReset() {
 
 
 void displayOff() {
+  
+ showingDisplayFromReg = 0;
+ showingDisplayDigits = 0;
 
   for (int i = 0; i < 8; i++)
     module.sendChar(i, 0, false);
@@ -505,26 +521,27 @@ byte decodeHex(char c) {
 
 }
 
-void enterProgram(String string, byte start) {
+void enterProgram(byte pgm, byte start) {
 
-  int i = 0;
-  byte origin = start;
+  cursor = CURSOR_OFF;
+  int origin = start; 
+  int adr  = startAddresses[pgm]; 
+  int end = adr + programLengths[pgm]; 
+  
+  while (adr < end) {
 
-  cursor = 0;
+    op[start] = EEPROM.read(adr++);
+    arg1[start] = EEPROM.read(adr++); 
+    arg2[start] = EEPROM.read(adr++); 
 
-  while ( string[i] ) {
-    op[start] = decodeHex(string[i++]);
-    arg1[start] = decodeHex(string[i++]);
-    arg2[start] = decodeHex(string[i++]);
-    i++; // skip over "-"
-    start++;
     pc = start;
+    start++; 
     currentMode = STOPPED;
     outputs = pc;
+    displayOff(); 
     displayStatus();
-    delay(5);
+    delay(100);
   };
-
 
   pc = origin;
   currentMode = STOPPED;
@@ -573,6 +590,9 @@ void reset() {
   clearStack();
 
   outputs = 0;
+  
+  showingDisplayFromReg = 0;
+  showingDisplayDigits = 0;
 
 }
 
@@ -747,18 +767,11 @@ void interpret() {
 
           default : // load other
 
-            switch (program) {
-              case 7 : enterProgram(PGM7, PGM7_ADR); break;
-              case 8 : enterProgram(PGM8, PGM8_ADR); break;
-              case 9 : enterProgram(PGM9, PGM9_ADR); break;
-              case 10 : enterProgram(PGMA, PGMA_ADR); break;
-              case 11 : enterProgram(PGMB, PGMB_ADR); break;
-              case 12 : enterProgram(PGMC, PGMC_ADR); break;
-              case 13 : enterProgram(PGMD, PGMD_ADR); break;
-              default :
-                error = true;
-            }
-        }
+          if (program - 7 < programs ) {
+              enterProgram(program - 7, 0); 
+          } else 
+            error = true; 
+        }            
 
         if (! error)
           showLoaded();
@@ -946,7 +959,7 @@ void run() {
     case OP_CMPI :
 
       carry = n < reg[d];
-      zero = reg[d] = n;
+      zero = reg[d] == n;
       pc++;
 
       break;
