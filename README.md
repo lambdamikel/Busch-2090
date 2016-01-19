@@ -123,10 +123,10 @@ in the ``busch2090.ino`` sketch as ``PGM7`` to ``PGMD`` macros.
 ###``PGM`` Demo Programs are Stored in EEPROM  
 
 Please first run the ``PGM-EEPROM.ino`` sketch. This will load 5
-example programs into the Arduino's EEPROM. The emulator won't
-work / won't initialize correctly if the EEPROM has not been prepared. 
-The programs stored into and load from EEPROM are ``PGM 7` to 
-``PGM B`` : 
+example programs into the Arduino's EEPROM. The emulator won't work /
+won't initialize correctly if the EEPROM has not been prepared.  The
+programs stored into and loaded from the EEPROM are ``PGM 7`` to ``PGM
+B``:
 
 - ``PGM 0, 1, 2, 3, 4``: not implemented yet
 - ``PGM 5`` : clear memory
