@@ -16,7 +16,10 @@
   The Busch Microtronic 2090 is (C) Busch GmbH
   See http://www.busch-model.com/online/?rubrik=82&=6&sprach_id=de
 
-  This program was written by Michael Wessel
+  Please run the PGM-EEPROM.ino sketch before running / loading this
+  sketch into the Arduino. The emulator will not work properly
+  otherwise. Note that PGM-EEPROM.ino stores example programs into the
+  EEPROM, and this sketch retrieve them from there. 
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by

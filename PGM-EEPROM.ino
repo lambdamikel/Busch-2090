@@ -1,3 +1,40 @@
+/*
+
+  A Busch 2090 Microtronic Emulator for Arduino Uno / R3
+  This program stores the PGM example programs into the EEPROM. 
+  It needs to be run before the busch2090.ino sketch, otherwise
+  the emulator will fail to initialize and will not work properly. 
+
+  Version 0.9 (c) Michael Wessel, January 14 2016 
+  With Contributions from Martin Sauter (PGM 7) http://mobilesociety.typepad.com/
+  
+  michael_wessel@gmx.de
+  miacwess@gmail.com
+  http://www.michael-wessel.info
+
+  Hardware requirements:
+  - 4x4 hex keypad (HEX keypad for data and program entry)
+  - TM1638 8 digit 7segment display with 8 LEDs and 8 buttons (function keys)
+
+  The Busch Microtronic 2090 is (C) Busch GmbH
+  See http://www.busch-model.com/online/?rubrik=82&=6&sprach_id=de
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+*/
+
 #include <TM1638.h>
 #include <TM16XXFonts.h>
 #include <EEPROM.h>
