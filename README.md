@@ -3,7 +3,7 @@
 ####Author: Michael Wessel
 ####License: GPL 3
 ####Hompage: [Author's Homepage](http://www.michael-wessel.info/)
-####Contributer: [Martin Sauter (PGM 7 Code)](http://mobilesociety.typepad.com/Homepage) 
+####Contributer: [Martin Sauter (PGM 7 Code)](http://mobilesociety.typepad.com/) 
 ####Version: 0.9 
 ####[YouTube Videos](https://www.youtube.com/channel/UC1dEZ22WoacesGdSWdVqfTw)
 
@@ -35,7 +35,7 @@ likely that the emulator won't work.
 
 ###Acknowledgements
 
-Many thanks to [Martin Sauter](http://mobilesociety.typepad.com/Homepage) for retrieving and
+Many thanks to [Martin Sauter](http://mobilesociety.typepad.com/) for retrieving and
 entering the original code of ``PGM 7``, the Nim game. It works!
 
 ###Hardware Requirements
