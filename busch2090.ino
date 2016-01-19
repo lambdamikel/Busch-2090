@@ -2,12 +2,14 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Uno / R3
 
-  Version 0.9 (c) Michael Wessel, January 14 2016 
-  With Contributions from Martin Sauter (PGM 7) http://mobilesociety.typepad.com/
+  Version 0.9 (c) Michael Wessel, January 18 2016 
   
   michael_wessel@gmx.de
   miacwess@gmail.com
   http://www.michael-wessel.info
+
+  With Contributions from Martin Sauter (PGM 7) 
+  See http://mobilesociety.typepad.com/
 
   Hardware requirements:
   - 4x4 hex keypad (HEX keypad for data and program entry)
