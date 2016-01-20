@@ -106,8 +106,8 @@ original Microtronic only featured a 6digit display). Currently, the
 - ``r``: running program
 - ``?``: keypad input from user requested  
 - ``i``: entering / inspecting register via ``REG``  
-- ``t` : entering clock time (``PGM 3``) 
-- ``C` : showing clock time (``PGM 4``) 
+- ``t`` : entering clock time (``PGM 3``) 
+- ``C`` : showing clock time (``PGM 4``) 
 
 Also unlike the original Microtronic, the emulator uses blinking
 digits to indicate cursor position. The ``CCE`` key works a little bit
