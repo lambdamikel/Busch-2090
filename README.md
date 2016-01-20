@@ -130,7 +130,7 @@ B``:
 
 - ``PGM 0, 1, 2`` : not implemented yet
 - ``PGM 3`` : set time / clock 
-- ``PGM 4`` : show tome / clock 
+- ``PGM 4`` : show time / clock 
 - ``PGM 5`` : clear memory
 - ``PGM 6`` : load ``F01`` (NOPs) into memory
 - ``PGM 7`` : the Nim game as documented in the Busch Manual Vol. 1, page 7. Many thanks to Martin Sauter for
