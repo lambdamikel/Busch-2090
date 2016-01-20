@@ -106,6 +106,8 @@ original Microtronic only featured a 6digit display). Currently, the
 - ``r``: running program
 - ``?``: keypad input from user requested  
 - ``i``: entering / inspecting register via ``REG``  
+- ``t` : entering clock time (``PGM 3``) 
+- ``C` : showing clock time (``PGM 4``) 
 
 Also unlike the original Microtronic, the emulator uses blinking
 digits to indicate cursor position. The ``CCE`` key works a little bit
@@ -128,9 +130,9 @@ won't initialize correctly if the EEPROM has not been prepared.  The
 programs stored into and loaded from the EEPROM are ``PGM 7`` to ``PGM
 B``:
 
-- ``PGM 0, 1, 2`` : not implemented yet
-- ``PGM 3`` : set time / clock 
-- ``PGM 4`` : show time / clock 
+- ``PGM 0, 1, 2`` : not implemented yet, not function
+- ``PGM 3`` : set time / clock (not a real program, i.e., nothing is loaded into program memory for this function) 
+- ``PGM 4`` : show time / clock  (not a real program, i.e., nothing is loaded into program memory for this function) 
 - ``PGM 5`` : clear memory
 - ``PGM 6`` : load ``F01`` (NOPs) into memory
 - ``PGM 7`` : the Nim game as documented in the Busch Manual Vol. 1, page 7. Many thanks to Martin Sauter for
