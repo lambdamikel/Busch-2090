@@ -4,7 +4,7 @@
 ####License: GPL 3
 ####Hompage: [Author's Homepage](http://www.michael-wessel.info/)
 ####Contributer: [Martin Sauter (PGM 7 Code)](http://mobilesociety.typepad.com/) 
-####Version: 0.9 
+####Version: 0.95
 ####[YouTube Videos](https://www.youtube.com/channel/UC1dEZ22WoacesGdSWdVqfTw)
 
 ###Abstract
@@ -128,7 +128,9 @@ won't initialize correctly if the EEPROM has not been prepared.  The
 programs stored into and loaded from the EEPROM are ``PGM 7`` to ``PGM
 B``:
 
-- ``PGM 0, 1, 2, 3, 4``: not implemented yet
+- ``PGM 0, 1, 2`` : not implemented yet
+- ``PGM 3`` : set time / clock 
+- ``PGM 4`` : show tome / clock 
 - ``PGM 5`` : clear memory
 - ``PGM 6`` : load ``F01`` (NOPs) into memory
 - ``PGM 7`` : the Nim game as documented in the Busch Manual Vol. 1, page 7. Many thanks to Martin Sauter for
@@ -140,8 +142,8 @@ retrieving the code from an original Busch Microtronic and contributing it to th
 
 The flash memory of an Uno cannot hold more programs it seems. 
 
-Still working on set and display clock programs, as well as load and
-save. Will probably also add lunar lander game. Stay tuned! 
+Still working save and load (probably SDCard shield). Will probably
+also add Lunar Lander game from Microtronic Manual Vol 1. Stay tuned!
 
 ###Required Third-Party Libraries 
 
@@ -155,16 +157,14 @@ others, and which are included in the ``library`` subdirectory:
 
 1. Test all op-codes more thoroughly for correct behavior, correct Carry and Zero flag
 behavior, etc. 
-2. Implement the ``PGM 3`` and ``PGM 4`` clock programs (enter time
-and display time).
-3. Add drivers to the DOT output LEDs such that they can be used as
+2. Add drivers to the DOT output LEDs such that they can be used as
 output pins, like in the real Microtronic. This might require a simple
 transitor or Darlington driver.
-4. With 3. done, control a Speech Synthesizer from these ports. A
+3. With 2. done, control a Speech Synthesizer from these ports. A
 Speech Synthesizer extension board was announced as early as 1983 by
 Busch, in the first Busch 2090 manual, but was never released.
-5. Try to connect a character display, such as the Hitachi HD44780.
-6. Implement ``BKP`` and ``STEP`` function keys (breakpoint and
+4. Try to connect a character display, such as the Hitachi HD44780.
+5. Implement ``BKP`` and ``STEP`` function keys (breakpoint and
 step). I did not really use them a lot in 1983.
 
 **Plenty of work to be done - let's go for it!**

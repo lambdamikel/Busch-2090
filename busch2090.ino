@@ -2,13 +2,13 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Uno / R3
 
-  Version 0.9 (c) Michael Wessel, January 18 2016 
-  
+  Version 0.95 (c) Michael Wessel, January 19 2016
+
   michael_wessel@gmx.de
   miacwess@gmail.com
   http://www.michael-wessel.info
 
-  With Contributions from Martin Sauter (PGM 7) 
+  With Contributions from Martin Sauter (PGM 7)
   See http://mobilesociety.typepad.com/
 
   Hardware requirements:
@@ -21,7 +21,7 @@
   Please run the PGM-EEPROM.ino sketch before running / loading this
   sketch into the Arduino. The emulator will not work properly
   otherwise. Note that PGM-EEPROM.ino stores example programs into the
-  EEPROM, and this sketch retrieve them from there. 
+  EEPROM, and this sketch retrieve them from there.
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -76,16 +76,16 @@ Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 #define CPU_MIN_THRESHOLD 10 // if smaller than this, delay = 0
 
 //
-// EEPROM PGM read 
+// EEPROM PGM read
 // Please first use the sketch PGM-EEPROM
 // to set up the PGM Microtronic ROM!
-// otherwise, PGM 7 - PGM B cannot be loaded 
-// properly! 
+// otherwise, PGM 7 - PGM B cannot be loaded
+// properly!
 //
 
-byte programs = 0; 
-int startAddresses[16]; 
-int programLengths[16]; 
+byte programs = 0;
+int startAddresses[16];
+int programLengths[16];
 
 //
 //
@@ -97,7 +97,7 @@ byte program; // current PGM requested
 //
 //
 
-int cpu_delay = 0; 
+int cpu_delay = 0;
 
 #define DISP_DELAY 400
 
@@ -122,7 +122,7 @@ int cpu_delay = 0;
 unsigned long lastDispTime = 0;
 unsigned long lastDispTime2 = 0;
 
-#define CURSOR_OFF 5
+#define CURSOR_OFF 8
 byte cursor = CURSOR_OFF;
 boolean blink = true;
 
@@ -223,7 +223,10 @@ enum mode {
   INSPECTING,
 
   ENTERING_VALUE,
-  ENTERING_PROGRAM
+  ENTERING_PROGRAM,
+
+  ENTERING_TIME,
+  SHOWING_TIME
 
 };
 
@@ -303,30 +306,30 @@ void setup() {
 
   //
   // read EEPROM PGMs meta data
-  // 
-  
+  //
+
   sendString("  BUSCH ");
   sendString("  2090  ");
   sendString("  init  ");
 
-  int adr = 0; 
-  programs = EEPROM.read(adr++); 
-  module.setDisplayToHexNumber(programs, 0, true);  
-  delay(100); 
+  int adr = 0;
+  programs = EEPROM.read(adr++);
+  module.setDisplayToHexNumber(programs, 0, true);
+  delay(100);
 
-  int start = 1; 
+  int start = 1;
 
   for (int n = 0; n < programs; n++) {
-     startAddresses[n] = start + programs; 
-     programLengths[n] = EEPROM.read(adr++); 
-     start += programLengths[n]; 
-     module.setDisplayToHexNumber( startAddresses[n], 0, true);  
-     delay(100); 
+    startAddresses[n] = start + programs;
+    programLengths[n] = EEPROM.read(adr++);
+    start += programLengths[n];
+    module.setDisplayToHexNumber( startAddresses[n], 0, true);
+    delay(50);
   }
-  
+
   //
   //
-  //  
+  //
 
   sendString("  BUSCH ");
   sendString("  2090  ");
@@ -383,6 +386,82 @@ void showMem() {
 
 }
 
+void advanceTime() {
+
+  if (currentMode != ENTERING_TIME) {
+
+    timeSeconds1++;
+    if (timeSeconds1 > 9) {
+      timeSeconds10++;
+      timeSeconds1 = 0;
+
+      if (timeSeconds10 > 5) {
+        timeMinutes1++;
+        timeSeconds10 = 0;
+
+        if (timeMinutes1 > 9) {
+          timeMinutes10++;
+          timeMinutes1 = 0;
+
+          if (timeMinutes10 > 5) {
+            timeHours1++;
+            timeMinutes10 = 0;
+
+            if (timeHours10 < 2) {
+              if (timeHours1 > 9) {
+                timeHours1 = 0;
+                timeHours10++;
+              }
+            } else if (timeHours10 == 2) {
+              if (timeHours1 > 3) {
+                timeHours1 = 0;
+                timeHours10 = 0;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+void showTime() {
+
+  module.sendChar(1, 0, false);
+
+  if (cursor == 0)
+    module.sendChar(2, blink ? NUMBER_FONT[ timeHours10 ] : 0, true);
+  else
+    module.sendChar(2, NUMBER_FONT[ timeHours10 ], false);
+
+  if (cursor == 1)
+    module.sendChar(3, blink ? NUMBER_FONT[ timeHours1 ] : 0, true);
+  else
+    module.sendChar(3, NUMBER_FONT[ timeHours1  ], false);
+
+  if (cursor == 2)
+    module.sendChar(4, blink ? NUMBER_FONT[ timeMinutes10 ] : 0, true);
+  else
+    module.sendChar(4, NUMBER_FONT[ timeMinutes10 ], false);
+
+  if (cursor == 3)
+    module.sendChar(5, blink ? NUMBER_FONT[ timeMinutes1 ] : 0, true);
+  else
+    module.sendChar(5, NUMBER_FONT[ timeMinutes1  ], false);
+
+  if (cursor == 4)
+    module.sendChar(6, blink ? NUMBER_FONT[ timeSeconds10 ] : 0, true);
+  else
+    module.sendChar(6, NUMBER_FONT[ timeSeconds10 ], false);
+
+  if (cursor == 5)
+    module.sendChar(7, blink ? NUMBER_FONT[ timeSeconds1 ] : 0, true);
+  else
+    module.sendChar(7, NUMBER_FONT[ timeSeconds1  ], false);
+
+}
+
+
 void showReg() {
 
   module.sendChar(1, 0, false);
@@ -432,9 +511,9 @@ void showReset() {
 
 
 void displayOff() {
-  
- showingDisplayFromReg = 0;
- showingDisplayDigits = 0;
+
+  showingDisplayFromReg = 0;
+  showingDisplayDigits = 0;
 
   for (int i = 0; i < 8; i++)
     module.sendChar(i, 0, false);
@@ -459,6 +538,7 @@ void displayStatus() {
   if (delta >= 1000) {
     clock = !clock;
     lastDispTime = time;
+    advanceTime();
   }
 
   if (delta2 > 300) {
@@ -495,6 +575,10 @@ void displayStatus() {
     status = 'i';
   else if (currentMode == ENTERING_VALUE )
     status = '?';
+  else if (currentMode == ENTERING_TIME )
+    status = 't';
+  else if (currentMode == SHOWING_TIME )
+    status = 'C';
   else status = ' ' ;
 
   module.sendChar(0, FONT_DEFAULT[status - 32], false);
@@ -509,6 +593,8 @@ void displayStatus() {
     showReg();
   else if ( currentMode == ENTERING_PROGRAM )
     showProgram();
+  else if ( currentMode == ENTERING_TIME || currentMode == SHOWING_TIME )
+    showTime();
   else if ( error )
     showError();
   else
@@ -529,23 +615,23 @@ byte decodeHex(char c) {
 void enterProgram(byte pgm, byte start) {
 
   cursor = CURSOR_OFF;
-  int origin = start; 
-  int adr  = startAddresses[pgm]; 
-  int end = adr + programLengths[pgm]; 
-  
+  int origin = start;
+  int adr  = startAddresses[pgm];
+  int end = adr + programLengths[pgm];
+
   while (adr < end) {
 
     op[start] = EEPROM.read(adr++);
-    arg1[start] = EEPROM.read(adr++); 
-    arg2[start] = EEPROM.read(adr++); 
+    arg1[start] = EEPROM.read(adr++);
+    arg2[start] = EEPROM.read(adr++);
 
     pc = start;
-    start++; 
+    start++;
     currentMode = STOPPED;
     outputs = pc;
-    displayOff(); 
+    displayOff();
     displayStatus();
-    delay(100);
+    delay(40);
   };
 
   pc = origin;
@@ -595,7 +681,7 @@ void reset() {
   clearStack();
 
   outputs = 0;
-  
+
   showingDisplayFromReg = 0;
   showingDisplayDigits = 0;
 
@@ -715,6 +801,7 @@ void interpret() {
 
       break;
 
+
   }
 
 
@@ -740,6 +827,46 @@ void interpret() {
 
       break;
 
+    case ENTERING_TIME :
+
+      if (keypadPressed ) {
+
+        input = keypadKey;
+        switch (cursor) {
+          case 0 : if (input < 3) {
+              timeHours10 = input;
+              cursor++;
+            } break;
+          case 1 : if (timeHours10 == 2 && input < 4 || timeHours10 < 2 && input < 10) {
+              timeHours1 = input;
+              cursor++;
+            } break;
+          case 2 : if (input < 6) {
+              timeMinutes10 = input;
+              cursor++;
+            } break;
+          case 3 : if (input < 10) {
+              timeMinutes1 = input;
+              cursor++;
+            } break;
+          case 4 : if (input < 6) {
+              timeSeconds10 = input;
+              cursor++;
+            } break;
+          case 5 : if (input < 10) {
+              timeSeconds1 = input;
+              cursor++;
+            } break;
+          default : break;
+        }
+
+        if (cursor > 5)
+          cursor = 0;
+
+      }
+
+      break;
+
     case ENTERING_PROGRAM :
 
       if (keypadPressed) {
@@ -754,10 +881,16 @@ void interpret() {
           case 2 :
             error = true;
 
-          case 3 :   // enter clock time - not yet
+          case 3 :
+
+            currentMode = ENTERING_TIME;
+            cursor = 0;
             break;
 
-          case 4 : // show clock - not yet
+          case 4 :
+
+            currentMode = SHOWING_TIME;
+            cursor = CURSOR_OFF;
             break;
 
           case 5 : // clear mem
@@ -772,11 +905,11 @@ void interpret() {
 
           default : // load other
 
-          if (program - 7 < programs ) {
-              enterProgram(program - 7, 0); 
-          } else 
-            error = true; 
-        }            
+            if (program - 7 < programs ) {
+              enterProgram(program - 7, 0);
+            } else
+              error = true;
+        }
 
         if (! error)
           showLoaded();
@@ -1418,8 +1551,8 @@ void loop() {
     reset();
   }
 
-  cpu_delay = analogRead(CPU_THROTTLE_ANALOG_PIN) / CPU_THROTTLE_DIVISOR; 
-  if (cpu_delay < CPU_MIN_THRESHOLD) 
-    cpu_delay = 0; 
+  cpu_delay = analogRead(CPU_THROTTLE_ANALOG_PIN) / CPU_THROTTLE_DIVISOR;
+  if (cpu_delay < CPU_MIN_THRESHOLD)
+    cpu_delay = 0;
 
 }
