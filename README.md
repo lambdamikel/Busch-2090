@@ -38,8 +38,9 @@ initialization, it is likely that the emulator won't work.
 
 ###Acknowledgements
 
-Many thanks to [Martin Sauter](http://mobilesociety.typepad.com/) for retrieving and
-entering the original code of ``PGM 7``, the Nim game. It works!
+Many thanks to [Martin Sauter](http://mobilesociety.typepad.com/) for
+retrieving and entering the original code of ``PGM 7``, the Nim
+game. It works!
 
 ###Hardware Requirements
 
@@ -95,15 +96,16 @@ For the Mega 2560:
     #define CPU_THROTTLE_DIVISOR 10 // potentiometer dependent 
     #define CPU_MIN_THRESHOLD 10 // if smaller than this, delay = 0
 
-For the Mega, please note that you will have to clip or disconnect PIN 10 from the LCD shield, otherwise 
-the SDCard will interfere with the LCD shield. I am using extension headers for this, and just bent 
-PIN 10 out of the way such it doesn't make contact. 
+For the Mega, please note that you will have to clip or disconnect PIN
+10 from the LCD shield, otherwise the SDCard will interfere with the
+LCD shield. I am using extension headers for this, and just bent PIN
+10 out of the way such it doesn't make contact.
 
 ###Description 
 
 The **push buttons of the TM1638 are the function keys of the
-Microtronic**, in this order of sequence, from left to right:
-``HALT, NEXT, RUN, CCE, REG, STEP, BKP, RUN``: 
+Microtronic**, in this order of sequence, from left to right: ``HALT,
+NEXT, RUN, CCE, REG, STEP, BKP, RUN``:
 
     #define HALT  1 
     #define NEXT  2 
@@ -128,19 +130,18 @@ TM1638, the 1 **Hz clock LED** is LED 3 (from left to right). The LEDs
 5 to 8 are used as **DOT outputs** (set by the data out op-code
 ``FEx``).
 
-Notice that the Arduino reset button will erase the emulator's program 
-memory. To only reset emulator while keeping the program in memory, 
-connect Arduino pin ``D0 (RX)`` to ground. 
+Notice that the Arduino reset button will erase the emulator's program
+memory. To only reset emulator while keeping the program in memory,
+connect Arduino pin ``D0 (RX)`` to ground.
 
-The Arduino Uno pins ``D1`` to ``D4`` 
-(or ``D22``, ``D24`, ``D24`` and ``D26`` on the Arduino Mega) 
-are read by the Microtronic data in
+The Arduino Uno pins ``D1`` to ``D4`` (or ``D22``, ``D24``, ``D24``
+and ``D26`` on the Arduino Mega) are read by the Microtronic data in
 op-code ``FDx (DIN)``. Connecting them to ground will set the
 corresponding bit to 1. See ``PGM D``.
 
-Analog pin ``A5`` on the Uno (or ``A15`` on the Mega) is used as
-a CPU speed throttle. Connect a potentiometer to adjust the speed of
-the CPU:
+Analog pin ``A5`` on the Uno (or ``A15`` on the Mega) is used as a CPU
+speed throttle. Connect a potentiometer to adjust the speed of the
+CPU:
 
 Unlike the original Microtronic, this emulator uses the leftmost digit
 of the 8digit FM1638 to display the **current system status** (the
@@ -202,8 +203,8 @@ others, and which are included in the ``library`` subdirectory:
 - ``Keypad`` library
 - ``TM1638`` library - note that this is a modified version of the original one 
 
-For the Mega version, the following standard libraries are used, and already part
-of the Arduino distribution (version 1.6.6): 
+For the Mega version, the following standard libraries are used, and
+already part of the Arduino distribution (version 1.6.6):
 
 - ``LiquidCrystal`` library
 - ``SPI`` library
@@ -212,8 +213,8 @@ of the Arduino distribution (version 1.6.6):
 
 ### Future Work 
 
-1. Test all op-codes more thoroughly for correct behavior, correct Carry and Zero flag
-behavior, etc. 
+1. Test all op-codes more thoroughly for correct behavior, correct
+Carry and Zero flag behavior, etc.
 2. Add drivers to the DOT output LEDs such that they can be used as
 output pins, like in the real Microtronic. This might require a simple
 transitor or Darlington driver.
@@ -226,10 +227,11 @@ step). I did not really use them a lot in 1983.
 
 For the Mega version:
 
-1. Use the LCD keypad buttons to toggle between register status  display and pc + current instruction status display.
-2. Use one of the LCD keypad buttons to turn of LCD, as displaying the status slows down the emulator considerably.
-3. Implement ``PGM1`` and ``PGM2`` (load and save program) using the SDCard. Use the LCD keypad buttons to select
-program. For save we might just use a HEX number instead of a real file name.  
-
-
+1. Use the LCD keypad buttons to toggle between register status
+display and pc + current instruction status display.
+2. Use one of the LCD keypad buttons to turn of LCD, as displaying the
+status slows down the emulator considerably.
+3. Implement ``PGM1`` and ``PGM2`` (load and save program) using the
+SDCard. Use the LCD keypad buttons to select program. For save we
+might just use a HEX number instead of a real file name.
 
