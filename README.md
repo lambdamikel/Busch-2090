@@ -43,14 +43,17 @@ entering the original code of ``PGM 7``, the Nim game. It works!
 
 ###Hardware Requirements
 
+For the Uno version: 
+
 - An Arduino Uno R3 
 - A TM1638 module with 8 7segment digits, 8 push buttons, and 8 LEDs
 - A 4x4 keypad with matrix encoding for hexadecimal input 
 
 For the Mega 2560 version, you will also need
 
-- A LCD+Keypad shield
-- The Ethernet+SDCard shield 
+- An Arduino Mega 2560 R3 
+- An LCD+Keypad shield
+- An Ethernet+SDCard shield 
 
 ###Wiring 
 
