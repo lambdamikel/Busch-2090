@@ -15,7 +15,7 @@
   - 4x4 hex keypad (HEX keypad for data and program entry)
   - TM1638 8 digit 7segment display with 8 LEDs and 8 buttons (function keys)
   - SDCard + Ethernet shield
-  - LCD+Keypad shield
+  - LCD + Keypad shield
 
   The Busch Microtronic 2090 is (C) Busch GmbH
   See http://www.busch-model.com/online/?rubrik=82&=6&sprach_id=de
@@ -762,7 +762,7 @@ void displayStatus() {
       case OP_SUB  : mnem = "SUB   "; break;
       case OP_SUBI : mnem = "SUBI  "; break;
       case OP_CMP  : mnem = "CMP   "; break;
-      case OP_CMPI : mnem = "CMPUI "; break;
+      case OP_CMPI : mnem = "CMPI  "; break;
       case OP_OR   : mnem = "OR    "; break;
       case OP_CALL : mnem = "CALL  "; break;
       case OP_GOTO : mnem = "GOTO  "; break;
