@@ -14,7 +14,7 @@
   Hardware requirements:
   - 4x4 hex keypad (HEX keypad for data and program entry)
   - TM1638 8 digit 7segment display with 8 LEDs and 8 buttons (function keys)
-  - SDCard + Ethernet shield 
+  - SDCard + Ethernet shield
   - LCD+Keypad shield
 
   The Busch Microtronic 2090 is (C) Busch GmbH
@@ -103,7 +103,7 @@ int startAddresses[16];
 int programLengths[16];
 
 //
-// SDCard demo 
+// SDCard demo
 //
 
 File root;
@@ -189,7 +189,9 @@ byte op[256] ;
 byte arg1[256] ;
 byte arg2[256] ;
 
+boolean jump = false;
 byte pc = 0;
+byte lastPc = 1;
 byte breakAt = 0;
 
 //
@@ -490,11 +492,6 @@ void showMem() {
   else
     module.sendChar(7, NUMBER_FONT[arg2[pc]], false);
 
-  lcd.setCursor(0, 0);
-  lcd.print("PC");
-  lcd.setCursor(0, 1);
-  lcd.print(pc);
-
 }
 
 void advanceTime() {
@@ -616,6 +613,7 @@ void showError() {
 void showReset() {
 
   displayOff();
+  lcd.clear();
   sendString("  reset ");
 
 }
@@ -711,91 +709,96 @@ void displayStatus() {
   else
     showMem();
 
-  lcd.setCursor(0, 0);
-  lcd.print("PC     OP  MNEM");
-  lcd.setCursor(0, 1);
+  if (pc != lastPc) {
 
-  if (pc < 16)
-    lcd.print("0");
-  lcd.print(pc, HEX);
+    lastPc = pc;
 
-  lcd.setCursor(3, 1);
+    lcd.setCursor(0, 0);
+    lcd.print("PC     OP  MNEM");
+    lcd.setCursor(0, 1);
 
-  if (pc < 100)
-    lcd.print(0);
-  if (pc < 10)
-    lcd.print(0);
-  lcd.print(pc);
+    if (pc < 16)
+      lcd.print(0);
+    lcd.print(pc, HEX);
+
+    lcd.setCursor(3, 1);
+
+    if (pc < 100)
+      lcd.print(0);
+    if (pc < 10)
+      lcd.print(0);
+    lcd.print(pc);
 
 
-  lcd.setCursor(7, 1);
-  lcd.print(op[pc], HEX);
-  lcd.print(arg1[pc], HEX);
-  lcd.print(arg2[pc], HEX);
+    lcd.setCursor(7, 1);
+    lcd.print(op[pc], HEX);
+    lcd.print(arg1[pc], HEX);
+    lcd.print(arg2[pc], HEX);
 
-  lcd.setCursor(11, 1);
+    lcd.setCursor(11, 1);
 
-  String mnem = "";
+    String mnem = "";
 
-  byte op1 = op[pc];
-  byte hi = arg1[pc];
-  byte lo = arg2[pc];
-  byte op2 = op1 * 16 + hi;
-  unsigned int op3 = op1 * 256 + hi * 16 + lo;
+    byte op1 = op[pc];
+    byte hi = arg1[pc];
+    byte lo = arg2[pc];
+    byte op2 = op1 * 16 + hi;
+    unsigned int op3 = op1 * 256 + hi * 16 + lo;
 
-  switch ( op[pc] ) {
-    case OP_MOV  : mnem = "MOV   " ; break;
-    case OP_MOVI : mnem = "MOVI  " ; break;
-    case OP_AND  : mnem = "AND   " ; break;
-    case OP_ANDI : mnem = "ANDI  "; break;
-    case OP_ADD  : mnem = "ADD   "; break;
-    case OP_ADDI : mnem = "ADDI  "; break;
-    case OP_SUB  : mnem = "SUB   "; break;
-    case OP_SUBI : mnem = "SUBI  "; break;
-    case OP_CMP  : mnem = "CMP   "; break;
-    case OP_CMPI : mnem = "CMPUI "; break;
-    case OP_OR   : mnem = "OR    "; break;
-    case OP_CALL : mnem = "CALL  "; break;
-    case OP_GOTO : mnem = "GOTO  "; break;
-    case OP_BRC  : mnem = "BRC   "; break;
-    case OP_BRZ  : mnem = "BRZ   "; break;
-    default : {
-        switch (op2) {
-          case OP_MAS  : mnem = "MAS   "; break;
-          case OP_INV  : mnem = "INV   "; break;
-          case OP_SHR  : mnem = "SHR   "; break;
-          case OP_SHL  : mnem = "SHL   "; break;
-          case OP_ADC  : mnem = "ADC   "; break;
-          case OP_SUBC : mnem = "SUBC  "; break;
-          case OP_DIN  : mnem = "DIN   "; break;
-          case OP_DOT  : mnem = "DOT   "; break;
-          case OP_KIN  : mnem = "KIN   "; break;
-          default : {
-              switch (op3) {
-                case OP_HALT   : mnem = "HALT  "; break;
-                case OP_NOP    : mnem = "NOP   "; break;
-                case OP_DISOUT : mnem = "DISOUT"; break;
-                case OP_HXDZ   : mnem = "HXDZ  "; break;
-                case OP_DZHX   : mnem = "DZHX  "; break;
-                case OP_RND    : mnem = "RND   "; break;
-                case OP_TIME   : mnem = "TIME  "; break;
-                case OP_RET    : mnem = "RET   "; break;
-                case OP_CLEAR  : mnem = "CLEAR "; break;
-                case OP_STC    : mnem = "STC   "; break;
-                case OP_RSC    : mnem = "RSC   "; break;
-                case OP_MULT   : mnem = "MULT  "; break;
-                case OP_DIV    : mnem = "DIV   "; break;
-                case OP_EXRL   : mnem = "EXRL  "; break;
-                case OP_EXRM   : mnem = "EXRM  "; break;
-                case OP_EXRA   : mnem = "EXRA  "; break;
-                default        : mnem = "DISP  "; break;
+    switch ( op[pc] ) {
+      case OP_MOV  : mnem = "MOV   " ; break;
+      case OP_MOVI : mnem = "MOVI  " ; break;
+      case OP_AND  : mnem = "AND   " ; break;
+      case OP_ANDI : mnem = "ANDI  "; break;
+      case OP_ADD  : mnem = "ADD   "; break;
+      case OP_ADDI : mnem = "ADDI  "; break;
+      case OP_SUB  : mnem = "SUB   "; break;
+      case OP_SUBI : mnem = "SUBI  "; break;
+      case OP_CMP  : mnem = "CMP   "; break;
+      case OP_CMPI : mnem = "CMPUI "; break;
+      case OP_OR   : mnem = "OR    "; break;
+      case OP_CALL : mnem = "CALL  "; break;
+      case OP_GOTO : mnem = "GOTO  "; break;
+      case OP_BRC  : mnem = "BRC   "; break;
+      case OP_BRZ  : mnem = "BRZ   "; break;
+      default : {
+          switch (op2) {
+            case OP_MAS  : mnem = "MAS   "; break;
+            case OP_INV  : mnem = "INV   "; break;
+            case OP_SHR  : mnem = "SHR   "; break;
+            case OP_SHL  : mnem = "SHL   "; break;
+            case OP_ADC  : mnem = "ADC   "; break;
+            case OP_SUBC : mnem = "SUBC  "; break;
+            case OP_DIN  : mnem = "DIN   "; break;
+            case OP_DOT  : mnem = "DOT   "; break;
+            case OP_KIN  : mnem = "KIN   "; break;
+            default : {
+                switch (op3) {
+                  case OP_HALT   : mnem = "HALT  "; break;
+                  case OP_NOP    : mnem = "NOP   "; break;
+                  case OP_DISOUT : mnem = "DISOUT"; break;
+                  case OP_HXDZ   : mnem = "HXDZ  "; break;
+                  case OP_DZHX   : mnem = "DZHX  "; break;
+                  case OP_RND    : mnem = "RND   "; break;
+                  case OP_TIME   : mnem = "TIME  "; break;
+                  case OP_RET    : mnem = "RET   "; break;
+                  case OP_CLEAR  : mnem = "CLEAR "; break;
+                  case OP_STC    : mnem = "STC   "; break;
+                  case OP_RSC    : mnem = "RSC   "; break;
+                  case OP_MULT   : mnem = "MULT  "; break;
+                  case OP_DIV    : mnem = "DIV   "; break;
+                  case OP_EXRL   : mnem = "EXRL  "; break;
+                  case OP_EXRM   : mnem = "EXRM  "; break;
+                  case OP_EXRA   : mnem = "EXRA  "; break;
+                  default        : mnem = "DISP  "; break;
+                }
               }
-            }
+          }
         }
-      }
-  }
+    }
 
-  lcd.print(mnem);
+    lcd.print(mnem);
+  }
 
 }
 
@@ -1190,6 +1193,10 @@ void run() {
 
   delay(cpu_delay);
 
+  if (!jump)
+    pc++;
+  jump = false;
+
   byte op1 = op[pc];
   byte hi = arg1[pc];
   byte lo = arg2[pc];
@@ -1212,7 +1219,7 @@ void run() {
 
       reg[d] = reg[s];
       zero = reg[d] == 0;
-      pc++;
+      ;
 
       break;
 
@@ -1220,7 +1227,7 @@ void run() {
 
       reg[d] = n;
       zero = reg[d] == 0;
-      pc++;
+      ;
 
       break;
 
@@ -1229,7 +1236,7 @@ void run() {
       reg[d] &= reg[s];
       carry = false;
       zero = reg[d] == 0;
-      pc++;
+      ;
 
       break;
 
@@ -1238,7 +1245,7 @@ void run() {
       reg[d] &= n;
       carry = false;
       zero = reg[d] == 0;
-      pc++;
+      ;
 
       break;
 
@@ -1248,7 +1255,7 @@ void run() {
       carry = reg[d] > 15;
       reg[d] &= 15;
       zero = reg[d] == 0;
-      pc++;
+      ;
 
       break;
 
@@ -1258,7 +1265,7 @@ void run() {
       carry = reg[d] > 15;
       reg[d] &= 15;
       zero =  reg[d] == 0;
-      pc++;
+      ;
 
       break;
 
@@ -1268,7 +1275,7 @@ void run() {
       carry = reg[d] > 15;
       reg[d] &= 15;
       zero =  reg[d] == 0;
-      pc++;
+      ;
 
       break;
 
@@ -1278,7 +1285,7 @@ void run() {
       carry = reg[d] > 15;
       reg[d] &= 15;
       zero =  reg[d] == 0;
-      pc++;
+      ;
 
       break;
 
@@ -1286,7 +1293,7 @@ void run() {
 
       carry = reg[s] < reg[d];
       zero = reg[s] == reg[d];
-      pc++;
+      ;
 
       break;
 
@@ -1294,7 +1301,7 @@ void run() {
 
       carry = n < reg[d];
       zero = reg[d] == n;
-      pc++;
+      ;
 
       break;
 
@@ -1303,7 +1310,7 @@ void run() {
       reg[d] |= reg[s];
       carry = false;
       zero = reg[d] == 0;
-      pc++;
+      ;
 
       break;
 
@@ -1318,6 +1325,7 @@ void run() {
         stack[sp] = pc;
         sp++;
         pc = adr;
+        jump = true;
 
       } else {
 
@@ -1330,24 +1338,25 @@ void run() {
     case OP_GOTO :
 
       pc = adr;
+      jump = true;
 
       break;
 
     case OP_BRC :
 
-      if (carry)
+      if (carry) {
         pc = adr;
-      else
-        pc++;
+        jump = true;
+      }
 
       break;
 
     case OP_BRZ :
 
-      if (zero)
+      if (zero) {
         pc = adr;
-      else
-        pc++;
+        jump = true;
+      }
 
       break;
 
@@ -1362,14 +1371,13 @@ void run() {
           case OP_MAS :
 
             regEx[d] = reg[d];
-            pc++;
 
             break;
 
           case OP_INV :
 
             reg[d] ^= 15;
-            pc++;
+
 
             break;
 
@@ -1379,7 +1387,7 @@ void run() {
             carry = reg[d] & 16;
             reg[d] &= 15;
             zero = reg[d] == 0;
-            pc++;
+
 
             break;
 
@@ -1389,7 +1397,7 @@ void run() {
             carry = reg[d] & 16;
             reg[d] &= 15;
             zero = reg[d] == 0;
-            pc++;
+
 
             break;
 
@@ -1399,7 +1407,7 @@ void run() {
             carry = reg[d] > 15;
             reg[d] &= 15;
             zero = reg[d] == 0;
-            pc++;
+
 
             break;
 
@@ -1409,7 +1417,7 @@ void run() {
             carry = reg[d] > 15;
             reg[d] &= 15;
             zero = reg[d] == 0;
-            pc++;
+
 
             break;
 
@@ -1422,7 +1430,7 @@ void run() {
             reg[d] = !digitalRead(DIN_PIN_1) | !digitalRead(DIN_PIN_2) << 1 | !digitalRead(DIN_PIN_3) << 2 | !digitalRead(DIN_PIN_4) << 3;
             carry = false;
             zero = reg[d] == 0;
-            pc++;
+
 
             break;
 
@@ -1431,7 +1439,7 @@ void run() {
             outputs = reg[dot_s];
             carry = false;
             zero = reg[dot_s] == 0;
-            pc++;
+
 
             break;
 
@@ -1439,7 +1447,7 @@ void run() {
 
             currentMode = ENTERING_VALUE;
             currentInputRegister = d;
-            pc++;
+
 
             break;
 
@@ -1458,13 +1466,13 @@ void run() {
 
                 case OP_NOP :
 
-                  pc++;
+
                   break;
 
                 case OP_DISOUT :
 
                   showingDisplayDigits = 0;
-                  pc++;
+
 
                   break;
 
@@ -1484,7 +1492,7 @@ void run() {
                   reg[0xE] = ( num / 10 ) % 10;
                   reg[0xF] = ( num / 100 ) % 10;
 
-                  pc++;
+
 
                   break;
 
@@ -1502,7 +1510,7 @@ void run() {
                   reg[0xE] = ( num / 16 ) % 16;
                   reg[0xF] = ( num / 256 ) % 16;
 
-                  pc++;
+
 
                   break;
 
@@ -1512,7 +1520,7 @@ void run() {
                   reg[0xE] = random(16);
                   reg[0xF] = random(16);
 
-                  pc++;
+
 
                   break;
 
@@ -1525,13 +1533,14 @@ void run() {
                   reg[0xE] = timeHours1;
                   reg[0xF] = timeHours10;
 
-                  pc++;
+
 
                   break;
 
                 case OP_RET :
 
                   pc = stack[--sp] + 1;
+                  jump = true;
                   break;
 
                 case OP_CLEAR :
@@ -1542,21 +1551,19 @@ void run() {
                   carry = false;
                   zero = true;
 
-                  pc++;
-
                   break;
 
                 case OP_STC :
 
                   carry = true;
-                  pc++;
+
 
                   break;
 
                 case OP_RSC :
 
                   carry = false;
-                  pc++;
+
 
                   break;
 
@@ -1596,7 +1603,7 @@ void run() {
                     reg[5] = ( num / 100000 ) % 10;
                   }
 
-                  pc++;
+
                   break;
 
                 case OP_DIV :
@@ -1644,7 +1651,7 @@ void run() {
                   }
 
                   zero = false;
-                  pc++;
+
 
                   break;
 
@@ -1655,7 +1662,7 @@ void run() {
                     reg[i] = regEx[i];
                     regEx[i] = aux;
                   }
-                  pc++;
+
 
                   break;
 
@@ -1666,7 +1673,7 @@ void run() {
                     reg[i] = regEx[i];
                     regEx[i] = aux;
                   }
-                  pc++;
+
 
                   break;
 
@@ -1677,7 +1684,7 @@ void run() {
                     reg[i]   = reg[i + 8];
                     reg[i + 8] = aux;
                   }
-                  pc++;
+
 
                   break;
 
@@ -1685,7 +1692,7 @@ void run() {
 
                   showingDisplayDigits = disp_n;
                   showingDisplayFromReg = disp_s;
-                  pc++;
+
 
                   break;
 
