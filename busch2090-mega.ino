@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
 
-  Version 0.95 (c) Michael Wessel, January 18 2016
+  Version 0.95 (c) Michael Wessel, January 21 2016
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -38,7 +38,6 @@
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 */
 
 #include <SPI.h>
@@ -59,7 +58,7 @@ LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 // use pins 49, 47, 45 for TM1638 module
 TM1638 module(49, 47, 45);
 
-// set up the 4x4 matrix - use pins 5 - 12
+// set up the 4x4 matrix - use pins 30 - 37
 #define ROWS 4
 #define COLS 4
 
@@ -76,7 +75,7 @@ byte colPins[COLS] = {36, 34, 32, 30}; //connect to the column pinouts of the ke
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
 //
-//
+// these are the digital pins used for DIN instructions 
 //
 
 #define DIN_PIN_1 22
@@ -84,7 +83,15 @@ Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 #define DIN_PIN_3 26
 #define DIN_PIN_4 28
 
+//
+// reset Microtronic (not Arduino) by pulling this to GND 
+// 
+
 #define RESET_PIN 53
+
+//
+// connect a CPU throttle potentiometer here 
+// 
 
 #define CPU_THROTTLE_ANALOG_PIN 15 // connect a potentiometer here for CPU speed throttle controll 
 #define CPU_THROTTLE_DIVISOR 10 // potentiometer dependent 
