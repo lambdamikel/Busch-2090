@@ -66,10 +66,10 @@ For the Uno version:
 
     pinMode(0, INPUT_PULLUP); // reset pin
   
-    pinMode(1, INPUT_PULLUP); // DIN 1 - for digital input DIN instruction
-    pinMode(2, INPUT_PULLUP); // DIN 2
-    pinMode(3, INPUT_PULLUP); // DIN 3
-    pinMode(4, INPUT_PULLUP); // DIN 4
+    pinMode(1, INPUT_PULLUP); // digital input pins read by DIN instruction 
+    pinMode(2, INPUT_PULLUP); 
+    pinMode(3, INPUT_PULLUP); 
+    pinMode(4, INPUT_PULLUP); 
 
     #define CPU_THROTTLE_ANALOG_PIN 5 // connect a potentiometer here for CPU speed throttle controll  
     #define CPU_THROTTLE_DIVISOR 10 // potentiometer dependent 
@@ -77,23 +77,23 @@ For the Uno version:
     
 For the Mega 2560: 
     
-   LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
+    LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 
-   TM1638 module(49, 47, 45);
+    TM1638 module(49, 47, 45);
 
-   byte rowPins[ROWS] = {37, 35, 33, 31}; 
-   byte colPins[COLS] = {36, 34, 32, 30}; 
+    byte rowPins[ROWS] = {37, 35, 33, 31}; 
+    byte colPins[COLS] = {36, 34, 32, 30}; 
 
-   #define DIN_PIN_1 22 // digital input pins read by DIN instruction 
-   #define DIN_PIN_2 24
-   #define DIN_PIN_3 26
-   #define DIN_PIN_4 28
+    #define DIN_PIN_1 22 // digital input pins read by DIN instruction 
+    #define DIN_PIN_2 24
+    #define DIN_PIN_3 26
+    #define DIN_PIN_4 28
 
-   #define RESET_PIN 53
+    #define RESET_PIN 53
 
-   #define CPU_THROTTLE_ANALOG_PIN 15 // connect a potentiometer here for CPU speed throttle controll 
-   #define CPU_THROTTLE_DIVISOR 10 // potentiometer dependent 
-   #define CPU_MIN_THRESHOLD 10 // if smaller than this, delay = 0
+    #define CPU_THROTTLE_ANALOG_PIN 15 // connect a potentiometer here for CPU speed throttle controll 
+    #define CPU_THROTTLE_DIVISOR 10 // potentiometer dependent 
+    #define CPU_MIN_THRESHOLD 10 // if smaller than this, delay = 0
 
 For the Mega, please note that you will have to clip or disconnect PIN 10 from the LCD shield, otherwise 
 the SDCard will interfere with the LCD shield. I am using extension headers for this, and just bent 
