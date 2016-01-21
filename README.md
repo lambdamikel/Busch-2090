@@ -68,9 +68,9 @@ For the Uno version:
     pinMode(3, INPUT_PULLUP); // DIN 3
     pinMode(4, INPUT_PULLUP); // DIN 4
 
-   #define CPU_THROTTLE_ANALOG_PIN 5 // connect a potentiometer here for CPU speed throttle controll  
-   #define CPU_THROTTLE_DIVISOR 10 // potentiometer dependent 
-   #define CPU_MIN_THRESHOLD 10 // if smaller than this, delay = 0
+    #define CPU_THROTTLE_ANALOG_PIN 5 // connect a potentiometer here for CPU speed throttle controll  
+    #define CPU_THROTTLE_DIVISOR 10 // potentiometer dependent 
+    #define CPU_MIN_THRESHOLD 10 // if smaller than this, delay = 0
     
 For the Mega 2560: 
     
@@ -91,6 +91,10 @@ For the Mega 2560:
    #define CPU_THROTTLE_ANALOG_PIN 15 // connect a potentiometer here for CPU speed throttle controll 
    #define CPU_THROTTLE_DIVISOR 10 // potentiometer dependent 
    #define CPU_MIN_THRESHOLD 10 // if smaller than this, delay = 0
+
+For the Mega, please note that you will have to clip or disconnect PIN 10 from the LCD shield, otherwise 
+the SDCard will interfere with the LCD shield. I am using extension headers for this, and just bent 
+PIN 10 out of the way such it doesn't make contact. 
 
 ###Description 
 
@@ -131,7 +135,7 @@ are read by the Microtronic data in
 op-code ``FDx (DIN)``. Connecting them to ground will set the
 corresponding bit to 1. See ``PGM D``.
 
-Analog pin ``A5`` on the Uno (or analog pin 15 on the Mega) is used as
+Analog pin ``A5`` on the Uno (or ``A15`` on the Mega) is used as
 a CPU speed throttle. Connect a potentiometer to adjust the speed of
 the CPU:
 
@@ -224,19 +228,5 @@ For the Mega version:
 3. Implement ``PGM1`` and ``PGM2`` (load and save program) using the SDCard. Use the LCD keypad buttons to select
 program. For save we might just use a HEX number instead of a real file name.  
 
-**Plenty of work to be done - let's go for it!**
-
-### Some Insights and Problems
-
-The Arduino Uno might not be powerful enough to go forward with this
-project, considering I want to also add an SDCard and LCD Module.  The
-drivers require SRAM memory, too.  I am running out of dynamic (SRAM)
-memory. Lunar Lander won't fit in. I need at least 396 bytes of SRAM
-to store Lunar Lander, or I will have to reorganize the Microtronic
-program memory such that a word uses only 12 bits instead of 24 bits
-as currently.  I can put these programs as strings into PROGMEM or
-EEPROM, but then I need at least one string buffer as big as Lunar
-Lander, and that is a problem.  I have ordered an Arduino Mega 2560
-:-)
 
 
