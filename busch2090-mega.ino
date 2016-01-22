@@ -52,13 +52,71 @@
 // set up hardware - wiring
 //
 
-// select the pins used on the LCD panel
+//
+// LCD panel pins 
+// 
+
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 
-// use pins 49, 47, 45 for TM1638 module
+boolean forceRefresh = false;
+
+//
+// define key codes for LCD keypad panel 
+// these are analog read from the LCD and
+// may require adjustments in order to fit
+// your LCD Keypad shield
+// Note that the values specified here should
+// be lower bounds to distinguish them, i.e., 
+// an analog value > 770 counts as SELECT etc.
+// 
+
+#define NOTHING_KEY 1000
+#define SELECT_KEY  770
+#define LEFT_KEY    540
+#define DOWN_KEY    360
+#define UP_KEY      160
+
+int keypadKeys = 0;
+int lastKeypadKeys = 255;
+
+//
+//
+//
+
+#define NOTHING 0
+#define SELECT 1
+#define LEFT 2
+#define DOWN 3
+#define UP 4
+#define RIGHT 5
+
+//
+// LCD Display mode
+// 
+
+enum LCDmode {
+  OFF,
+  PCMEM,
+  REG1,
+  REG2
+};
+
+LCDmode displayMode = OFF;
+
+//
+// LED Module and keys 
+// Use pins 49, 47, 45 for TM1638 module
+// 
+
 TM1638 module(49, 47, 45);
 
-// set up the 4x4 matrix - use pins 30 - 37
+#define DISP_DELAY 400
+
+//
+// Keypad 4x4 matrix 
+// Use pins 30 - 37
+// 
+
 #define ROWS 4
 #define COLS 4
 
@@ -75,7 +133,7 @@ byte colPins[COLS] = {36, 34, 32, 30}; //connect to the column pinouts of the ke
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
 //
-// these are the digital pins used for DIN instructions 
+// these are the digital pins used for DIN instructions
 //
 
 #define DIN_PIN_1 22
@@ -84,14 +142,14 @@ Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 #define DIN_PIN_4 28
 
 //
-// reset Microtronic (not Arduino) by pulling this to GND 
-// 
+// reset Microtronic (not Arduino) by pulling this to GND
+//
 
 #define RESET_PIN 53
 
 //
-// connect a CPU throttle potentiometer here 
-// 
+// connect a CPU throttle potentiometer here
+//
 
 #define CPU_THROTTLE_ANALOG_PIN 15 // connect a potentiometer here for CPU speed throttle controll 
 #define CPU_THROTTLE_DIVISOR 10 // potentiometer dependent 
@@ -117,18 +175,16 @@ File root;
 File myFile;
 
 //
-//
+// Current PGM program  
 //
 
-byte program; // current PGM requested
+byte program; 
 
 //
 //
 //
 
 int cpu_delay = 0;
-
-#define DISP_DELAY 400
 
 //
 // Microtronic 2090 function keys are mapped to the TM1638 buttons
@@ -327,7 +383,7 @@ void setup() {
   lcd.print("Microtronic");
 
   Serial.begin(9600);
-  randomSeed(analogRead(0));
+  randomSeed(analogRead(1));
 
   pinMode(RESET_PIN, INPUT_PULLUP); // reset pin
   pinMode(DIN_PIN_1, INPUT_PULLUP); // DIN 1
@@ -620,7 +676,6 @@ void showError() {
 void showReset() {
 
   displayOff();
-  lcd.clear();
   sendString("  reset ");
 
 }
@@ -716,95 +771,164 @@ void displayStatus() {
   else
     showMem();
 
-  if (pc != lastPc) {
-
-    lastPc = pc;
-
-    lcd.setCursor(0, 0);
-    lcd.print("PC     OP  MNEM");
-    lcd.setCursor(0, 1);
-
-    if (pc < 16)
-      lcd.print(0);
-    lcd.print(pc, HEX);
-
-    lcd.setCursor(3, 1);
-
-    if (pc < 100)
-      lcd.print(0);
-    if (pc < 10)
-      lcd.print(0);
-    lcd.print(pc);
+  updateLCD();
 
 
-    lcd.setCursor(7, 1);
-    lcd.print(op[pc], HEX);
-    lcd.print(arg1[pc], HEX);
-    lcd.print(arg2[pc], HEX);
+}
 
-    lcd.setCursor(11, 1);
+void updateLCD() {
 
-    String mnem = "";
+  scanLCDKeypad();
 
-    byte op1 = op[pc];
-    byte hi = arg1[pc];
-    byte lo = arg2[pc];
-    byte op2 = op1 * 16 + hi;
-    unsigned int op3 = op1 * 256 + hi * 16 + lo;
+  if ( displayMode != OFF) {
 
-    switch ( op[pc] ) {
-      case OP_MOV  : mnem = "MOV   " ; break;
-      case OP_MOVI : mnem = "MOVI  " ; break;
-      case OP_AND  : mnem = "AND   " ; break;
-      case OP_ANDI : mnem = "ANDI  "; break;
-      case OP_ADD  : mnem = "ADD   "; break;
-      case OP_ADDI : mnem = "ADDI  "; break;
-      case OP_SUB  : mnem = "SUB   "; break;
-      case OP_SUBI : mnem = "SUBI  "; break;
-      case OP_CMP  : mnem = "CMP   "; break;
-      case OP_CMPI : mnem = "CMPI  "; break;
-      case OP_OR   : mnem = "OR    "; break;
-      case OP_CALL : mnem = "CALL  "; break;
-      case OP_GOTO : mnem = "GOTO  "; break;
-      case OP_BRC  : mnem = "BRC   "; break;
-      case OP_BRZ  : mnem = "BRZ   "; break;
-      default : {
-          switch (op2) {
-            case OP_MAS  : mnem = "MAS   "; break;
-            case OP_INV  : mnem = "INV   "; break;
-            case OP_SHR  : mnem = "SHR   "; break;
-            case OP_SHL  : mnem = "SHL   "; break;
-            case OP_ADC  : mnem = "ADC   "; break;
-            case OP_SUBC : mnem = "SUBC  "; break;
-            case OP_DIN  : mnem = "DIN   "; break;
-            case OP_DOT  : mnem = "DOT   "; break;
-            case OP_KIN  : mnem = "KIN   "; break;
-            default : {
-                switch (op3) {
-                  case OP_HALT   : mnem = "HALT  "; break;
-                  case OP_NOP    : mnem = "NOP   "; break;
-                  case OP_DISOUT : mnem = "DISOUT"; break;
-                  case OP_HXDZ   : mnem = "HXDZ  "; break;
-                  case OP_DZHX   : mnem = "DZHX  "; break;
-                  case OP_RND    : mnem = "RND   "; break;
-                  case OP_TIME   : mnem = "TIME  "; break;
-                  case OP_RET    : mnem = "RET   "; break;
-                  case OP_CLEAR  : mnem = "CLEAR "; break;
-                  case OP_STC    : mnem = "STC   "; break;
-                  case OP_RSC    : mnem = "RSC   "; break;
-                  case OP_MULT   : mnem = "MULT  "; break;
-                  case OP_DIV    : mnem = "DIV   "; break;
-                  case OP_EXRL   : mnem = "EXRL  "; break;
-                  case OP_EXRM   : mnem = "EXRM  "; break;
-                  case OP_EXRA   : mnem = "EXRA  "; break;
-                  default        : mnem = "DISP  "; break;
-                }
+    if ( pc != lastPc || forceRefresh ) {
+
+      forceRefresh = false;
+
+      if (displayMode == PCMEM ) {
+
+        lastPc = pc;
+
+        lcd.setCursor(0, 0);
+        lcd.print("PC     OP  MNEM");
+        lcd.setCursor(0, 1);
+
+        if (pc < 16)
+          lcd.print(0);
+        lcd.print(pc, HEX);
+
+        lcd.setCursor(3, 1);
+
+        if (pc < 100)
+          lcd.print(0);
+        if (pc < 10)
+          lcd.print(0);
+        lcd.print(pc);
+
+        lcd.setCursor(7, 1);
+        lcd.print(op[pc], HEX);
+        lcd.print(arg1[pc], HEX);
+        lcd.print(arg2[pc], HEX);
+
+        lcd.setCursor(11, 1);
+
+        String mnem = "";
+
+        byte op1 = op[pc];
+        byte hi = arg1[pc];
+        byte lo = arg2[pc];
+        byte op2 = op1 * 16 + hi;
+        unsigned int op3 = op1 * 256 + hi * 16 + lo;
+
+        switch ( op[pc] ) {
+          case OP_MOV  : mnem = "MOV   " ; break;
+          case OP_MOVI : mnem = "MOVI  " ; break;
+          case OP_AND  : mnem = "AND   " ; break;
+          case OP_ANDI : mnem = "ANDI  "; break;
+          case OP_ADD  : mnem = "ADD   "; break;
+          case OP_ADDI : mnem = "ADDI  "; break;
+          case OP_SUB  : mnem = "SUB   "; break;
+          case OP_SUBI : mnem = "SUBI  "; break;
+          case OP_CMP  : mnem = "CMP   "; break;
+          case OP_CMPI : mnem = "CMPI  "; break;
+          case OP_OR   : mnem = "OR    "; break;
+          case OP_CALL : mnem = "CALL  "; break;
+          case OP_GOTO : mnem = "GOTO  "; break;
+          case OP_BRC  : mnem = "BRC   "; break;
+          case OP_BRZ  : mnem = "BRZ   "; break;
+          default : {
+              switch (op2) {
+                case OP_MAS  : mnem = "MAS   "; break;
+                case OP_INV  : mnem = "INV   "; break;
+                case OP_SHR  : mnem = "SHR   "; break;
+                case OP_SHL  : mnem = "SHL   "; break;
+                case OP_ADC  : mnem = "ADC   "; break;
+                case OP_SUBC : mnem = "SUBC  "; break;
+                case OP_DIN  : mnem = "DIN   "; break;
+                case OP_DOT  : mnem = "DOT   "; break;
+                case OP_KIN  : mnem = "KIN   "; break;
+                default : {
+                    switch (op3) {
+                      case OP_HALT   : mnem = "HALT  "; break;
+                      case OP_NOP    : mnem = "NOP   "; break;
+                      case OP_DISOUT : mnem = "DISOUT"; break;
+                      case OP_HXDZ   : mnem = "HXDZ  "; break;
+                      case OP_DZHX   : mnem = "DZHX  "; break;
+                      case OP_RND    : mnem = "RND   "; break;
+                      case OP_TIME   : mnem = "TIME  "; break;
+                      case OP_RET    : mnem = "RET   "; break;
+                      case OP_CLEAR  : mnem = "CLEAR "; break;
+                      case OP_STC    : mnem = "STC   "; break;
+                      case OP_RSC    : mnem = "RSC   "; break;
+                      case OP_MULT   : mnem = "MULT  "; break;
+                      case OP_DIV    : mnem = "DIV   "; break;
+                      case OP_EXRL   : mnem = "EXRL  "; break;
+                      case OP_EXRM   : mnem = "EXRM  "; break;
+                      case OP_EXRA   : mnem = "EXRA  "; break;
+                      default        : mnem = "DISP  "; break;
+                    }
+                  }
               }
-          }
+            }
         }
-    }
 
-    lcd.print(mnem);
+        lcd.print(mnem);
+
+      } else if (displayMode == REG1 ) {
+
+        lcd.setCursor(0, 0);
+        lcd.print("0123456789ABCDEF");
+        lcd.setCursor(0, 1);
+        for (int i = 0; i < 16; i++)
+          lcd.print(reg[i], HEX);
+
+      } else if (displayMode == REG2 ) {
+
+        lcd.setCursor(0, 0);
+        lcd.print("0123456789abcdef");
+        lcd.setCursor(0, 1);
+        for (int i = 0; i < 16; i++)
+          lcd.print(regEx[i], HEX);
+      }
+    }
+  }
+}
+
+void scanLCDKeypad() {
+
+  keypadKeys  = analogRead(0);
+
+  if ( abs(keypadKeys - lastKeypadKeys ) > 40) {
+
+    delay(30);
+    keypadKeys  = analogRead(0);
+    int decoded;
+
+    if (keypadKeys > NOTHING_KEY)
+      decoded = NOTHING;
+    else if (keypadKeys > SELECT_KEY)
+      decoded = SELECT;
+    else if (keypadKeys > LEFT_KEY)
+      decoded = LEFT;
+    else if (keypadKeys > DOWN_KEY)
+      decoded = DOWN;
+    else if (keypadKeys > UP_KEY)
+      decoded = UP;
+    else
+      decoded = RIGHT;
+
+    lastKeypadKeys = keypadKeys;
+
+    if (decoded == SELECT ) {
+      forceRefresh = true;
+      switch ( displayMode  ) {
+        case OFF    : displayMode = PCMEM; break;
+        case PCMEM  : displayMode = REG1; break;
+        case REG1   : displayMode = REG2; break;
+        default     : displayMode = OFF; lcd.clear(); break;
+      }
+    }
   }
 
 }
@@ -891,6 +1015,8 @@ void reset() {
   showingDisplayFromReg = 0;
   showingDisplayDigits = 0;
 
+  forceRefresh = true;
+
 }
 
 void clearMem() {
@@ -937,6 +1063,7 @@ void interpret() {
   switch ( functionKey ) {
 
     case HALT :
+
       currentMode = STOPPED;
       cursor = CURSOR_OFF;
       break;
@@ -1737,6 +1864,7 @@ void loop() {
     keypadKey = NO_KEY;
   } else {
     previousKeypadKey = keypadKey;
+    forceRefresh = true;
   }
 
   //

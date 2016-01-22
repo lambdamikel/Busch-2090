@@ -96,6 +96,13 @@ For the Mega 2560:
     #define CPU_THROTTLE_DIVISOR 10 // potentiometer dependent 
     #define CPU_MIN_THRESHOLD 10 // if smaller than this, delay = 0
 
+    // these are analog read values for LCD keypad keys, adjust if necessary
+    #define NOTHING_KEY 1000
+    #define SELECT_KEY  770
+    #define LEFT_KEY    540
+    #define DOWN_KEY    360
+    #define UP_KEY      160
+
 For the Mega, please note that you will have to clip or disconnect PIN
 10 from the LCD shield, otherwise the SDCard will interfere with the
 LCD shield. I am using extension headers for this, and just bent PIN
@@ -170,6 +177,11 @@ function keys, or you can load a fixed ROM program specified in the
 Arduino sketch via the ``PGM`` button. These ROM programs are defined
 in the ``busch2090.ino`` sketch as ``PGM7`` to ``PGMD`` macros. 
 
+The Mega version uses the select button of the LCD Keypad shield to
+toggle between PC + current op-code display, register display,
+extra-register display, and display off. Note that the emulator slows
+down considerably with LCD being on.
+
 ###``PGM`` Demo Programs are Stored in EEPROM  
 
 Please first run the ``PGM-EEPROM.ino`` sketch. This will load 5
@@ -227,11 +239,9 @@ step). I did not really use them a lot in 1983.
 
 For the Mega version:
 
-1. Use the LCD keypad buttons to toggle between register status
-display and pc + current instruction status display.
-2. Use one of the LCD keypad buttons to turn of LCD, as displaying the
+1. Use one of the LCD keypad buttons to turn of LCD, as displaying the
 status slows down the emulator considerably.
-3. Implement ``PGM1`` and ``PGM2`` (load and save program) using the
+2. Implement ``PGM1`` and ``PGM2`` (load and save program) using the
 SDCard. Use the LCD keypad buttons to select program. For save we
 might just use a HEX number instead of a real file name.
 
