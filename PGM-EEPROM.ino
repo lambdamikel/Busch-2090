@@ -1,6 +1,6 @@
 /*
 
-  A Busch 2090 Microtronic Emulator for Arduino Uno / R3
+  A Busch 2090 Microtronic Emulator for Arduino Mega 2560
   This program stores the PGM example programs into the EEPROM. 
   It needs to be run before the busch2090.ino sketch, otherwise
   the emulator will fail to initialize and will not work properly. 
@@ -44,9 +44,9 @@
 #define DISP_DELAY 200
 
 // use pins 14, 15, 16 for TM1638 module
-TM1638 module(14, 15, 16);
+TM1638 module(49, 47, 45);
 
-#define PROGRAMS 5
+#define PROGRAMS 6
 String programs [PROGRAMS] = {
 
   // PGM 7 - many thanks to Martin Sauter for retrieving this from original Microtronic and entering it here!!
@@ -68,6 +68,8 @@ F04 64D FCE F07 ",
   // PGM B - scrolling LED light
   "110 F10 FE0 FA0 FB0 C02 ", 
 
+  // PGM C - DIN digital input test
+  "F10 FD0 FE0 C00 ", 
 };
 
 //
@@ -80,6 +82,66 @@ void setup() {
   sendString("  BUSCH ");
   sendString("  2090  ");
   sendString("  eeprog");
+
+  
+  int i = 0;
+
+  byte numPrograms = PROGRAMS;
+
+  int adr = 0;
+
+  EEPROM.write(adr++, numPrograms);
+
+  for (int n = 0; n < numPrograms; n++) {
+
+    String program = programs[n];
+    int length = (program.length() / 4) * 3;
+    EEPROM.write(adr++, length);
+
+  }
+
+  for (int n = 0; n < numPrograms; n++) {
+
+    String program = programs[n];
+    int length = (program.length() / 4) * 3;
+
+    enterProgram(program, adr, n);
+
+    adr += length;
+
+
+  }
+
+  module.setDisplayToHexNumber(adr, 0, true);
+  delay(DISP_DELAY);
+
+  //
+  // test read back
+  //
+
+  adr = 0;
+
+  int n1 = EEPROM.read(adr++);
+  module.setDisplayToHexNumber(n1, 0, true);
+  delay(DISP_DELAY);
+
+  int startAddresses[16];
+
+  int start = 1;
+
+  for (int n = 0; n < n1; n++) {
+
+    startAddresses[n] = start;
+    start += EEPROM.read(adr++) * 3;
+    module.setDisplayToHexNumber( startAddresses[n], 0, true);
+    delay(DISP_DELAY);
+  }
+
+  module.setDisplayToHexNumber( start, 0, true);
+  delay(DISP_DELAY);
+
+  sendString("  exit  ");
+
 
 }
 
@@ -146,64 +208,5 @@ void displayOff() {
 
 void loop() {
 
-  int i = 0;
-
-  byte numPrograms = PROGRAMS;
-
-  int adr = 0;
-
-  EEPROM.write(adr++, numPrograms);
-
-  for (int n = 0; n < numPrograms; n++) {
-
-    String program = programs[n];
-    int length = (program.length() / 4) * 3;
-    EEPROM.write(adr++, length);
-
-  }
-
-  for (int n = 0; n < numPrograms; n++) {
-
-    String program = programs[n];
-    int length = (program.length() / 4) * 3;
-
-    enterProgram(program, adr, n);
-
-    adr += length;
-
-
-  }
-
-  module.setDisplayToHexNumber(adr, 0, true);
-  delay(DISP_DELAY);
-
-  //
-  // test read back
-  //
-
-  adr = 0;
-
-  int n1 = EEPROM.read(adr++);
-  module.setDisplayToHexNumber(n1, 0, true);
-  delay(DISP_DELAY);
-
-  int startAddresses[16];
-
-  int start = 1;
-
-  for (int n = 0; n < n1; n++) {
-
-    startAddresses[n] = start;
-    start += EEPROM.read(adr++) * 3;
-    module.setDisplayToHexNumber( startAddresses[n], 0, true);
-    delay(DISP_DELAY);
-  }
-
-  module.setDisplayToHexNumber( start, 0, true);
-  delay(DISP_DELAY);
-
-  sendString("  exit  ");
-
-  exit(0);
 
 }
