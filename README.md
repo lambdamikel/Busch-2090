@@ -239,9 +239,7 @@ step). I did not really use them a lot in 1983.
 
 For the Mega version:
 
-1. Use one of the LCD keypad buttons to turn of LCD, as displaying the
-status slows down the emulator considerably.
-2. Implement ``PGM1`` and ``PGM2`` (load and save program) using the
+1. Implement ``PGM1`` and ``PGM2`` (load and save program) using the
 SDCard. Use the LCD keypad buttons to select program. For save we
 might just use a HEX number instead of a real file name.
 
