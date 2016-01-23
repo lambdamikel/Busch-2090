@@ -2,8 +2,11 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Uno / R3
 
-  Version 0.95 (c) Michael Wessel, January 19 2016
+  Version 0.97 (c) Michael Wessel, January 23  2016
 
+  WARNING - THIS VERSION IS CURRENTLY NOT TESTED
+  PLEASE USE THE MEGA VERSION IN THE MEANTIME
+  
   michael_wessel@gmx.de
   miacwess@gmail.com
   http://www.michael-wessel.info
@@ -167,6 +170,7 @@ byte op[256] ;
 byte arg1[256] ;
 byte arg2[256] ;
 
+boolean jump = false;
 byte pc = 0;
 byte breakAt = 0;
 
@@ -523,7 +527,7 @@ void displayOff() {
 void showDisplay() {
 
   for (int i = 0; i < showingDisplayDigits; i++)
-    module.sendChar(7 - i, NUMBER_FONT[reg[i +  showingDisplayFromReg]], false);
+    module.sendChar(7 - i, NUMBER_FONT[reg[(i +  showingDisplayFromReg ) % 16]], false);
 
 }
 
@@ -873,10 +877,14 @@ void interpret() {
 
         program = keypadKey;
         currentMode = STOPPED;
+        cursor = CURSOR_OFF;
 
         switch ( program ) {
 
           case 0 :
+            error = true;
+            break;
+
           case 1 :
           case 2 :
             error = true;
@@ -910,9 +918,6 @@ void interpret() {
             } else
               error = true;
         }
-
-        if (! error)
-          showLoaded();
 
       }
 
@@ -994,6 +999,10 @@ void run() {
 
   delay(cpu_delay);
 
+  if (!jump)
+    pc++;
+  jump = false;
+
   byte op1 = op[pc];
   byte hi = arg1[pc];
   byte lo = arg2[pc];
@@ -1016,7 +1025,7 @@ void run() {
 
       reg[d] = reg[s];
       zero = reg[d] == 0;
-      pc++;
+      ;
 
       break;
 
@@ -1024,7 +1033,7 @@ void run() {
 
       reg[d] = n;
       zero = reg[d] == 0;
-      pc++;
+      ;
 
       break;
 
@@ -1033,7 +1042,7 @@ void run() {
       reg[d] &= reg[s];
       carry = false;
       zero = reg[d] == 0;
-      pc++;
+      ;
 
       break;
 
@@ -1042,7 +1051,7 @@ void run() {
       reg[d] &= n;
       carry = false;
       zero = reg[d] == 0;
-      pc++;
+      ;
 
       break;
 
@@ -1052,7 +1061,7 @@ void run() {
       carry = reg[d] > 15;
       reg[d] &= 15;
       zero = reg[d] == 0;
-      pc++;
+      ;
 
       break;
 
@@ -1062,7 +1071,7 @@ void run() {
       carry = reg[d] > 15;
       reg[d] &= 15;
       zero =  reg[d] == 0;
-      pc++;
+      ;
 
       break;
 
@@ -1072,7 +1081,7 @@ void run() {
       carry = reg[d] > 15;
       reg[d] &= 15;
       zero =  reg[d] == 0;
-      pc++;
+      ;
 
       break;
 
@@ -1082,7 +1091,7 @@ void run() {
       carry = reg[d] > 15;
       reg[d] &= 15;
       zero =  reg[d] == 0;
-      pc++;
+      ;
 
       break;
 
@@ -1090,7 +1099,7 @@ void run() {
 
       carry = reg[s] < reg[d];
       zero = reg[s] == reg[d];
-      pc++;
+      ;
 
       break;
 
@@ -1098,7 +1107,7 @@ void run() {
 
       carry = n < reg[d];
       zero = reg[d] == n;
-      pc++;
+      ;
 
       break;
 
@@ -1107,7 +1116,7 @@ void run() {
       reg[d] |= reg[s];
       carry = false;
       zero = reg[d] == 0;
-      pc++;
+      ;
 
       break;
 
@@ -1122,6 +1131,7 @@ void run() {
         stack[sp] = pc;
         sp++;
         pc = adr;
+        jump = true;
 
       } else {
 
@@ -1134,24 +1144,25 @@ void run() {
     case OP_GOTO :
 
       pc = adr;
+      jump = true;
 
       break;
 
     case OP_BRC :
 
-      if (carry)
+      if (carry) {
         pc = adr;
-      else
-        pc++;
+        jump = true;
+      }
 
       break;
 
     case OP_BRZ :
 
-      if (zero)
+      if (zero) {
         pc = adr;
-      else
-        pc++;
+        jump = true;
+      }
 
       break;
 
@@ -1166,14 +1177,13 @@ void run() {
           case OP_MAS :
 
             regEx[d] = reg[d];
-            pc++;
 
             break;
 
           case OP_INV :
 
             reg[d] ^= 15;
-            pc++;
+
 
             break;
 
@@ -1183,7 +1193,7 @@ void run() {
             carry = reg[d] & 16;
             reg[d] &= 15;
             zero = reg[d] == 0;
-            pc++;
+
 
             break;
 
@@ -1193,7 +1203,7 @@ void run() {
             carry = reg[d] & 16;
             reg[d] &= 15;
             zero = reg[d] == 0;
-            pc++;
+
 
             break;
 
@@ -1203,7 +1213,7 @@ void run() {
             carry = reg[d] > 15;
             reg[d] &= 15;
             zero = reg[d] == 0;
-            pc++;
+
 
             break;
 
@@ -1213,7 +1223,7 @@ void run() {
             carry = reg[d] > 15;
             reg[d] &= 15;
             zero = reg[d] == 0;
-            pc++;
+
 
             break;
 
@@ -1226,7 +1236,7 @@ void run() {
             reg[d] = !digitalRead(1) | !digitalRead(2) << 1 | !digitalRead(3) << 2 | !digitalRead(4) << 3;
             carry = false;
             zero = reg[d] == 0;
-            pc++;
+
 
             break;
 
@@ -1235,7 +1245,7 @@ void run() {
             outputs = reg[dot_s];
             carry = false;
             zero = reg[dot_s] == 0;
-            pc++;
+
 
             break;
 
@@ -1243,7 +1253,7 @@ void run() {
 
             currentMode = ENTERING_VALUE;
             currentInputRegister = d;
-            pc++;
+
 
             break;
 
@@ -1262,13 +1272,13 @@ void run() {
 
                 case OP_NOP :
 
-                  pc++;
+
                   break;
 
                 case OP_DISOUT :
 
                   showingDisplayDigits = 0;
-                  pc++;
+                  displayOff(); 
 
                   break;
 
@@ -1288,7 +1298,7 @@ void run() {
                   reg[0xE] = ( num / 10 ) % 10;
                   reg[0xF] = ( num / 100 ) % 10;
 
-                  pc++;
+
 
                   break;
 
@@ -1306,7 +1316,7 @@ void run() {
                   reg[0xE] = ( num / 16 ) % 16;
                   reg[0xF] = ( num / 256 ) % 16;
 
-                  pc++;
+
 
                   break;
 
@@ -1316,7 +1326,7 @@ void run() {
                   reg[0xE] = random(16);
                   reg[0xF] = random(16);
 
-                  pc++;
+
 
                   break;
 
@@ -1329,13 +1339,14 @@ void run() {
                   reg[0xE] = timeHours1;
                   reg[0xF] = timeHours10;
 
-                  pc++;
+
 
                   break;
 
                 case OP_RET :
 
                   pc = stack[--sp] + 1;
+                  jump = true;
                   break;
 
                 case OP_CLEAR :
@@ -1346,21 +1357,19 @@ void run() {
                   carry = false;
                   zero = true;
 
-                  pc++;
-
                   break;
 
                 case OP_STC :
 
                   carry = true;
-                  pc++;
+
 
                   break;
 
                 case OP_RSC :
 
                   carry = false;
-                  pc++;
+
 
                   break;
 
@@ -1400,7 +1409,7 @@ void run() {
                     reg[5] = ( num / 100000 ) % 10;
                   }
 
-                  pc++;
+
                   break;
 
                 case OP_DIV :
@@ -1448,7 +1457,7 @@ void run() {
                   }
 
                   zero = false;
-                  pc++;
+
 
                   break;
 
@@ -1459,7 +1468,7 @@ void run() {
                     reg[i] = regEx[i];
                     regEx[i] = aux;
                   }
-                  pc++;
+
 
                   break;
 
@@ -1470,7 +1479,7 @@ void run() {
                     reg[i] = regEx[i];
                     regEx[i] = aux;
                   }
-                  pc++;
+
 
                   break;
 
@@ -1481,15 +1490,16 @@ void run() {
                     reg[i]   = reg[i + 8];
                     reg[i + 8] = aux;
                   }
-                  pc++;
+
 
                   break;
 
                 default : // DISP!
 
+                  displayOff(); 
                   showingDisplayDigits = disp_n;
                   showingDisplayFromReg = disp_s;
-                  pc++;
+
 
                   break;
 
