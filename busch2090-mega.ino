@@ -110,7 +110,7 @@ LCDmode displayMode = OFF;
 
 TM1638 module(49, 47, 45);
 
-#define DISP_DELAY 400
+#define DISP_DELAY 200
 
 //
 // Keypad 4x4 matrix
@@ -443,6 +443,8 @@ String selectFile() {
 
   int count = 0;
 
+  lcd.clear();
+
   File root = SD.open("/");
 
   while (true) {
@@ -463,7 +465,7 @@ String selectFile() {
   count = 0;
 
   root = SD.open("/");
-  
+
   while (true) {
 
     File entry =  root.openNextFile();
@@ -640,6 +642,16 @@ void saveProgram() {
   String fn = createName(name);
   fn += ".mic";
 
+  if (SD.exists(fn)) {
+     lcd.clear();
+     lcd.setCursor(0,0);
+     lcd.print("Overwriting");     
+     lcd.setCursor(0, 1);
+     lcd.print(fn);
+     SD.remove(fn); 
+     delay(500); 
+  }
+
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("Saving");
@@ -662,6 +674,8 @@ void saveProgram() {
       myFile.print(arg1[i], HEX);
       myFile.print(arg2[i], HEX);
       myFile.println();
+      if (i % 16 == 15)
+        myFile.println();
 
       pc = i;
       showMem();
@@ -671,7 +685,6 @@ void saveProgram() {
       lcd.print(arg1[i], HEX);
       lcd.print(arg2[i], HEX);
 
-      delay(20);
     }
 
     lcd.clear();
@@ -707,7 +720,7 @@ void loadProgram() {
     lcd.clear();
     lcd.print("*** ABORT ***");
     delay(500);
-    lcd.clear(); 
+    lcd.clear();
     return;
   }
 
@@ -721,32 +734,65 @@ void loadProgram() {
 
   File myFile = SD.open( fn);
 
+  int count = 0;
+  pc = 0; 
+
   if (myFile) {
 
-    for (int i = 0; i < 256; i++) {
+    while (true) {
 
       lcd.setCursor(8, 0);
       lcd.print("@ ");
-      lcd.print(i, HEX);
+      lcd.print(pc, HEX);
 
-      char o = myFile.read();
-      char a1 = myFile.read();
-      char a2 = myFile.read();
-      myFile.read(); // CR
-      myFile.read(); // LF
+      int b = myFile.read();
+      if (b == -1) 
+        break; 
+        
+      if (b != '\r' && b != '\n' && b != '\t' && b != ' ') { // skip whitespace
 
-      pc = i;
-      op[pc] = decodeHex(o);
-      arg1[pc] = decodeHex(a1);
-      arg2[pc] = decodeHex(a2);
-      showMem();
+        switch ( b ) {
+            case 'a' : b = 'A'; break;
+            case 'b' : b = 'B'; break; 
+            case 'c' : b = 'C'; break;
+            case 'd' : b = 'D'; break;
+            case 'e' : b = 'E'; break;
+            case 'f' : b = 'F'; break; 
+            default : break;           
+        }
 
-      lcd.setCursor(13, 0);
-      lcd.print(o);
-      lcd.print(a1);
-      lcd.print(a2);
+        pc = count / 3;
+        int decoded = decodeHex(b);
 
-      delay(20);
+        if ( decoded == -1) {      
+          lcd.clear();
+          lcd.print("*** ERROR ! ***");
+          lcd.setCursor(0,1); 
+          lcd.print("Byte "); 
+          lcd.print(count); 
+          lcd.print(" ");          
+          lcd.print((char) b); 
+          delay(2000);
+          lcd.clear(); 
+          break; 
+        } 
+
+        switch ( count % 3 ) {
+          case 0 : op[pc] = decoded; break;
+          case 1 : arg1[pc] = decoded; break;
+          case 2 : arg2[pc] = decoded; break;
+          default : break;
+        }
+
+        if (count % 3 == 2) 
+          showMem();
+        
+        lcd.setCursor(13 + (count % 3), 0);
+        lcd.print(b); 
+
+        count++; 
+
+      }
     }
 
     myFile.close();
@@ -956,7 +1002,7 @@ void displayOff() {
 void showDisplay() {
 
   for (int i = 0; i < showingDisplayDigits; i++)
-    module.sendChar(7 - i, NUMBER_FONT[reg[i +  showingDisplayFromReg]], false);
+    module.sendChar(7 - i, NUMBER_FONT[reg[(i +  showingDisplayFromReg ) % 16]], false);
 
 }
 
@@ -1195,12 +1241,13 @@ void scanLCDKeypad() {
 
 }
 
-byte decodeHex(char c) {
+int decodeHex(char c) {
 
-  if (c >= 65)
+  if (c >= 65 && c <= 70 ) 
     return c - 65 + 10;
-  else
+  else if ( c >= 48 && c <= 67 ) 
     return c - 48;
+  else return -1; 
 
 }
 
@@ -1223,7 +1270,7 @@ void enterProgram(byte pgm, byte start) {
     outputs = pc;
     displayOff();
     displayStatus();
-    delay(20);
+    delay(10);
   };
 
   pc = origin;
@@ -1877,7 +1924,7 @@ void run() {
                 case OP_DISOUT :
 
                   showingDisplayDigits = 0;
-
+                  displayOff(); 
 
                   break;
 
@@ -2095,6 +2142,7 @@ void run() {
 
                 default : // DISP!
 
+                  displayOff(); 
                   showingDisplayDigits = disp_n;
                   showingDisplayFromReg = disp_s;
 

@@ -4,7 +4,7 @@
 ####License: GPL 3
 ####Hompage: [Author's Homepage](http://www.michael-wessel.info/)
 ####Contributer: [Martin Sauter (PGM 7 Code)](http://mobilesociety.typepad.com/) 
-####Version: 0.97
+####Version: 0.99
 ####[YouTube Videos](https://www.youtube.com/channel/UC1dEZ22WoacesGdSWdVqfTw)
 
 ###Abstract
@@ -35,6 +35,10 @@ This project consists of two sketches. The main emulator code is in
 Arduino first. The ``PGM-EEPROM.ino`` sketch initializes the EEPROM
 with PGM example programs (see below). Without prior EEPROM
 initialization, it is likely that the emulator won't work.
+
+Also, you will find ``LUNAR.MIC``. This is the Lunar Lander game
+from Manual Vol. 1, pp. 23 - 24. With the Mega version, put it on
+a FAT16 formatted SDCard, and load via ``PGM1``.
 
 ###Acknowledgements
 
@@ -211,11 +215,7 @@ retrieving the code from an original Busch Microtronic and contributing it to th
 - ``PGM 9`` : the electronic die, from Busch Manual Vol. 1, page 10
 - ``PGM A`` : three digit counter 
 - ``PGM B`` : scrolling LED DOT output light
-
-The flash memory of an Uno cannot hold more programs it seems. 
-
-Still working save and load (probably SDCard shield). Will probably
-also add Lunar Lander game from Microtronic Manual Vol 1. Stay tuned!
+- ``PGM C`` : digitial input ``DIN`` test
 
 ###Required Third-Party Libraries 
 
@@ -236,7 +236,8 @@ already part of the Arduino distribution (version 1.6.6):
 ### Future Work 
 
 1. Test all op-codes more thoroughly for correct behavior, correct
-Carry and Zero flag behavior, etc.
+Carry and Zero flag behavior, etc. Lunar Lander now works, so I have
+faith that there are not a lot of outstanding issues! 
 2. Add drivers to the DOT output LEDs such that they can be used as
 output pins, like in the real Microtronic. This might require a simple
 transitor or Darlington driver.
