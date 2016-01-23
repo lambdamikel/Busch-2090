@@ -36,9 +36,9 @@ Arduino first. The ``PGM-EEPROM.ino`` sketch initializes the EEPROM
 with PGM example programs (see below). Without prior EEPROM
 initialization, it is likely that the emulator won't work.
 
-Also, you will find ``LUNAR.MIC``. This is the Lunar Lander game
-from Manual Vol. 1, pp. 23 - 24. With the Mega version, put it on
-a FAT16 formatted SDCard, and load via ``PGM1``.
+Also, you will find ``LUNAR.MIC``. This is the Lunar Lander game from
+Microtronic Manual Vol. 1, pp. 23 - 24. With the Mega version, put it
+on a FAT16 formatted SDCard, and load via ``PGM1``.
 
 ###Acknowledgements
 
@@ -100,7 +100,7 @@ For the Mega 2560:
     #define CPU_THROTTLE_DIVISOR 10 // potentiometer dependent 
     #define CPU_MIN_THRESHOLD 10 // if smaller than this, delay = 0
 
-    // these are analog read values for LCD keypad keys, adjust if necessary
+    // these are analog values read from the LCD+Keypad shield, adjust if necessary 
     #define NOTHING_KEY 1000
     #define SELECT_KEY  770
     #define LEFT_KEY    540
@@ -108,9 +108,9 @@ For the Mega 2560:
     #define UP_KEY      160
 
 For the Mega, please note that you will have to clip or disconnect PIN
-10 from the LCD shield, otherwise the SDCard will interfere with the
-LCD shield. I am using extension headers for this, and just bent PIN
-10 out of the way such it doesn't make contact.
+10 from the LCD+Keypad, otherwise the SDCard will not function
+properly. I am using extension headers for this (just bent PIN 10
+out of the way such it doesn't make contact). 
 
 ###Description 
 
@@ -181,18 +181,20 @@ function keys, or you can load a fixed ROM program specified in the
 Arduino sketch via the ``PGM`` button. These ROM programs are defined
 in the ``busch2090.ino`` sketch as ``PGM7`` to ``PGMD`` macros. 
 
-The Mega version uses the select button of the LCD Keypad shield to
+The Mega version uses the select button of the LCD+Keypad shield to
 toggle between PC + current op-code display, register display,
 extra-register display, and display off. Note that the emulator slows
 down considerably with LCD being on.
 
-The Mega version supports saving a memory dump to SDCard. See ``PGM
+The Mega version supports saving a memory dump to SDCard via ``PGM
 2``.  The LCD+Keypad shield offers a primitive file name editor. Use
-Select key to confirm current file name; Left and Right keys to move
-cursor, Up and Down keys to change character at cursor position. Files
-are loaded from SDCard with ``PGM 1``. Here, the LCD+Keypad shield is
-used to browse through the directory of files. Use Select key to
-confirm selection, and Left key to abort loading.
+``Select`` key to confirm current file name; ``Left`` and ``Right``
+keys to move cursor, ``Up`` and ``Down`` keys to change character at
+cursor position. 
+
+Files are loaded from SDCard via ``PGM 1``. Here, the LCD+Keypad
+shield is used to browse through the directory of files. Use ``Select``
+key to confirm selection, and ``Left`` key to abort loading.
 
 ###``PGM`` Demo Programs are Stored in EEPROM  
 
@@ -202,19 +204,19 @@ won't initialize correctly if the EEPROM has not been prepared.  The
 programs stored into and loaded from the EEPROM are ``PGM 7`` to ``PGM
 B``:
 
-- ``PGM 0``
-- ``PGM 1`` : on Mega, this loads a program memory dump from SDCard. Use LCD+Keypad shield to select file, Select key to confirm, Left key to abort loading. 
-- ``PGM 2`` : on Mega, this saves a complete memory dump to SDCard. The LCD+Keypad shield offers a simple filename editor. Use Left and Right to change cursor position, Up and Down to change character at cursor position, and Select to confirm and save. The files are stored as text, one line per op-code. You can also use a simple text editor to create files and load them via ``PGM 2`` (provided they have 256 lines). 
+- ``PGM 0`` : self-test not yet implemented. 
+- ``PGM 1`` : on Mega, this loads a program memory dump from SDCard. Use LCD+Keypad shield to select file via ``Select`` key, ``Left`` key to abort loading. 
+- ``PGM 2`` : on Mega, this saves a complete memory dump to SDCard (``.MIC`` file extension is used). The LCD+Keypad shield offers a simple filename editor. Use ``Left`` and ``Right`` to change cursor position, ``Up`` and ``Down`` to change character at cursor position, and ``Select`` to confirm and save. The files are stored as text. You can also use a simple text editor to create files (CR+LF end of line coding), and load them back via ``PGM 2``. Whitespace is ignored. 
 - ``PGM 3`` : set time / clock (not a real program, i.e., nothing is loaded into program memory for this function) 
 - ``PGM 4`` : show time / clock  (not a real program, i.e., nothing is loaded into program memory for this function) 
 - ``PGM 5`` : clear memory
 - ``PGM 6`` : load ``F01`` (NOPs) into memory
-- ``PGM 7`` : the Nim game as documented in the Busch Manual Vol. 1, page 7. Many thanks to Martin Sauter for
+- ``PGM 7`` : the Nim game as documented in the Microtronic Manual Vol. 1, page 7. Many thanks to Martin Sauter for
 retrieving the code from an original Busch Microtronic and contributing it to this project! 
 - ``PGM 8`` : crazy counter
-- ``PGM 9`` : the electronic die, from Busch Manual Vol. 1, page 10
-- ``PGM A`` : three digit counter 
-- ``PGM B`` : scrolling LED DOT output light
+- ``PGM 9`` : the electronic die, from Microtronic Manual Vol. 1, page 10
+- ``PGM A`` : the three digit counter from Microtronic Manual Vol. 1, page 19 
+- ``PGM B`` : moving LED light from Manul Vol. 1, page 48 
 - ``PGM C`` : digitial input ``DIN`` test
 
 ###Required Third-Party Libraries 
@@ -243,7 +245,7 @@ output pins, like in the real Microtronic. This might require a simple
 transitor or Darlington driver.
 3. With 2. done, control a Speech Synthesizer from these ports. A
 Speech Synthesizer extension board was announced as early as 1983 by
-Busch, in the first Busch 2090 manual, but was never released.
+Busch, in the Microtronic Mmanual Vol. 1, but was never released.
 4. Implement ``BKP`` and ``STEP`` function keys (breakpoint and
 step). I did not really use them a lot in 1983.
 
