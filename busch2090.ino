@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Uno / R3
 
-  Version 0.97 (c) Michael Wessel, January 23  2016
+  Version 0.97 (c) Michael Wessel, January 23 2016
 
   WARNING - THIS VERSION IS CURRENTLY NOT TESTED
   PLEASE USE THE MEGA VERSION IN THE MEANTIME
@@ -39,7 +39,6 @@
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 */
 
 #include <TM1638.h>
@@ -48,13 +47,19 @@
 #include <EEPROM.h>
 
 //
-// set up hardware - wiring
+// set up hardware 
 //
 
-// use pins 14, 15, 16 for TM1638 module
+//
+// TM1638 module 
+// 
+
 TM1638 module(14, 15, 16);
 
-// set up the 4x4 matrix - use pins 5 - 12
+//
+// Keypad 4 x 4 matrix 
+// 
+
 #define ROWS 4
 #define COLS 4
 
@@ -65,13 +70,28 @@ char keys[ROWS][COLS] = { // plus one because 0 = no key pressed!
   {0x1, 0x2, 0x3, 0x4}
 };
 
-byte colPins[COLS] = {5, 6, 7, 8}; //connect to the row pinouts of the keypad
-byte rowPins[ROWS] = {9, 10, 11, 12}; //connect to the column pinouts of the keypad
+byte colPins[COLS] = {5, 6, 7, 8}; // columns 
+byte rowPins[ROWS] = {9, 10, 11, 12}; // rows
 
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
 //
+// these are the digital pins used for DIN instructions
 //
+
+#define DIN_PIN_1 1
+#define DIN_PIN_2 2
+#define DIN_PIN_3 3
+#define DIN_PIN_4 4
+
+//
+// reset Microtronic (not Arduino) by pulling this to GND
+//
+
+#define RESET_PIN 0
+
+//
+// CPU throttle 
 //
 
 #define CPU_THROTTLE_ANALOG_PIN 5 // connect a potentiometer here for CPU speed throttle controll 
@@ -91,13 +111,13 @@ int startAddresses[16];
 int programLengths[16];
 
 //
-//
+// current PGM requested 
 //
 
-byte program; // current PGM requested
+byte program;
 
 //
-//
+// 
 //
 
 int cpu_delay = 0;
@@ -175,7 +195,7 @@ byte pc = 0;
 byte breakAt = 0;
 
 //
-// stack
+// Stack
 //
 
 #define STACK_DEPTH 5
@@ -184,7 +204,7 @@ byte stack[STACK_DEPTH] ;
 byte sp = 0;
 
 //
-// registers
+// Registers
 //
 
 byte reg[16];
@@ -296,17 +316,11 @@ void setup() {
   Serial.begin(9600);
   randomSeed(analogRead(0));
 
-  pinMode(0, INPUT_PULLUP); // reset pin
-  pinMode(1, INPUT_PULLUP); // DIN 1
-  pinMode(2, INPUT_PULLUP); // DIN 2
-  pinMode(3, INPUT_PULLUP); // DIN 3
-  pinMode(4, INPUT_PULLUP); // DIN 4
-
-  //digitalWrite(0, LOW);
-  //digitalWrite(1, LOW);
-  //digitalWrite(2, LOW);
-  //digitalWrite(3, LOW);
-  //digitalWrite(4, LOW);
+  pinMode(RESET_PIN, INPUT_PULLUP);
+  pinMode(DIN_PIN_1, INPUT_PULLUP); // DIN 1
+  pinMode(DIN_PIN_2, INPUT_PULLUP); // DIN 2
+  pinMode(DIN_PIN_3, INPUT_PULLUP); // DIN 3
+  pinMode(DIN_PIN_4, INPUT_PULLUP); // DIN 4
 
   //
   // read EEPROM PGMs meta data
@@ -647,7 +661,7 @@ void showLoaded() {
 
   sendString(" loaded ");
   displayOff();
-  module.sendChar(7, NUMBER_FONT[program], false);
+  module.sendChar(4, NUMBER_FONT[program], false);
   delay(DISP_DELAY);
   sendString("   at   ");
   module.sendChar(3, NUMBER_FONT[pc / 16], false);
@@ -882,12 +896,10 @@ void interpret() {
         switch ( program ) {
 
           case 0 :
-            error = true;
-            break;
-
           case 1 :
           case 2 :
             error = true;
+            break; 
 
           case 3 :
 
@@ -1233,7 +1245,7 @@ void run() {
 
           case OP_DIN :
 
-            reg[d] = !digitalRead(1) | !digitalRead(2) << 1 | !digitalRead(3) << 2 | !digitalRead(4) << 3;
+            reg[d] = !digitalRead(DIN_PIN_1) | !digitalRead(DIN_PIN_2) << 1 | !digitalRead(DIN_PIN_3) << 2 | !digitalRead(DIN_PIN_4) << 3;
             carry = false;
             zero = reg[d] == 0;
 
@@ -1557,7 +1569,7 @@ void loop() {
   displayStatus();
   interpret();
 
-  if (!digitalRead(0)) {
+  if (!digitalRead(RESET_PIN)) {
     reset();
   }
 

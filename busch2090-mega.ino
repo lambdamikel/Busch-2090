@@ -1,8 +1,7 @@
 /*
-
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
 
-  Version 0.97 (c) Michael Wessel, January 22 2016
+  Version 0.99 (c) Michael Wessel, January 23 2016
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -545,7 +544,6 @@ String selectFile() {
   }
 
   return files[cursor];
-
 
 }
 
