@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
 
-  Version 0.95 (c) Michael Wessel, January 21 2016
+  Version 0.97 (c) Michael Wessel, January 22 2016
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -53,22 +53,22 @@
 //
 
 //
-// LCD panel pins 
-// 
+// LCD panel pins
+//
 
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 
 boolean forceRefresh = false;
 
 //
-// define key codes for LCD keypad panel 
+// define key codes for LCD keypad panel
 // these are analog read from the LCD and
 // may require adjustments in order to fit
 // your LCD Keypad shield
 // Note that the values specified here should
-// be lower bounds to distinguish them, i.e., 
+// be lower bounds to distinguish them, i.e.,
 // an analog value > 770 counts as SELECT etc.
-// 
+//
 
 #define NOTHING_KEY 1000
 #define SELECT_KEY  770
@@ -92,7 +92,7 @@ int lastKeypadKeys = 255;
 
 //
 // LCD Display mode
-// 
+//
 
 enum LCDmode {
   OFF,
@@ -104,18 +104,18 @@ enum LCDmode {
 LCDmode displayMode = OFF;
 
 //
-// LED Module and keys 
+// LED Module and keys
 // Use pins 49, 47, 45 for TM1638 module
-// 
+//
 
 TM1638 module(49, 47, 45);
 
 #define DISP_DELAY 400
 
 //
-// Keypad 4x4 matrix 
+// Keypad 4x4 matrix
 // Use pins 30 - 37
-// 
+//
 
 #define ROWS 4
 #define COLS 4
@@ -168,17 +168,10 @@ int startAddresses[16];
 int programLengths[16];
 
 //
-// SDCard demo
+// Current PGM program
 //
 
-File root;
-File myFile;
-
-//
-// Current PGM program  
-//
-
-byte program; 
+byte program;
 
 //
 //
@@ -441,72 +434,341 @@ void setup() {
   }
   Serial.println("initialization done.");
 
-  root = SD.open("/");
-
-  printDirectory(root, 0);
-
   Serial.println("done!");
 
-
-  // open the file. note that only one file can be open at a time,
-  // so you have to close this one before opening another.
-  myFile = SD.open("test.txt", FILE_WRITE);
-
-  // if the file opened okay, write to it:
-  if (myFile) {
-    Serial.print("Writing to test.txt...");
-    myFile.println("testing 1, 2, 3.");
-    // close the file:
-    myFile.close();
-    Serial.println("done.");
-  } else {
-    // if the file didn't open, print an error:
-    Serial.println("error opening test.txt");
-  }
-
-  // re-open the file for reading:
-  myFile = SD.open("test.txt");
-  if (myFile) {
-    Serial.println("test.txt:");
-
-    // read from the file until there's nothing else in it:
-    while (myFile.available()) {
-      Serial.write(myFile.read());
-    }
-    // close the file:
-    myFile.close();
-  } else {
-    // if the file didn't open, print an error:
-    Serial.println("error opening test.txt");
-  }
-
-
 }
 
 
-void printDirectory(File dir, int numTabs) {
+String selectFile() {
+
+  int count = 0;
+
+  File root = SD.open("/");
+
   while (true) {
 
-    File entry =  dir.openNextFile();
+    File entry =  root.openNextFile();
     if (! entry) {
-      // no more files
+      entry.close();
       break;
+    } else if (! entry.isDirectory()) {
+      count++;
+      entry.close();
     }
-    for (uint8_t i = 0; i < numTabs; i++) {
-      Serial.print('\t');
-    }
-    Serial.print(entry.name());
-    if (entry.isDirectory()) {
-      Serial.println("/");
-      printDirectory(entry, numTabs + 1);
-    } else {
-      // files have sizes, directories do not
-      Serial.print("\t\t");
-      Serial.println(entry.size(), DEC);
-    }
-    entry.close();
   }
+  root.close();
+
+  String* files = new String [count];
+
+  count = 0;
+
+  root = SD.open("/");
+  
+  while (true) {
+
+    File entry =  root.openNextFile();
+    if (! entry) {
+      entry.close();
+      break;
+    } else if (! entry.isDirectory()) {
+      files[count++] = String(entry.name());
+      entry.close();
+    }
+  }
+  root.close();
+
+  int cursor = 0;
+
+  unsigned long last = millis();
+  boolean blink = false;
+
+  int decoded = NOTHING;
+
+  lcd.setCursor(0, 0);
+  lcd.print("Load Program");
+  lcd.setCursor(0, 1);
+  lcd.print(files[0]);
+
+  while ( decoded != SELECT ) {
+
+    keypadKeys  = analogRead(0);
+
+    if ( millis() - last > 100) {
+
+      last = millis();
+
+      lcd.setCursor(0, 1);
+
+      blink = !blink;
+
+      if (blink)
+        lcd.print("                ");
+      else
+        lcd.print(files[cursor]);
+
+      if ( abs(keypadKeys - lastKeypadKeys ) > 40) {
+
+        delay(10);
+        keypadKeys  = analogRead(0);
+
+        if (keypadKeys > NOTHING_KEY)
+          decoded = NOTHING;
+        else if (keypadKeys > SELECT_KEY)
+          decoded = SELECT;
+        else if (keypadKeys > LEFT_KEY)
+          decoded = LEFT;
+        else if (keypadKeys > DOWN_KEY)
+          decoded = DOWN;
+        else if (keypadKeys > UP_KEY)
+          decoded = UP;
+        else
+          decoded = RIGHT;
+
+        lastKeypadKeys = keypadKeys;
+
+        switch ( decoded ) {
+          case UP : cursor++; break;
+          case DOWN : cursor--; break;
+          case LEFT : return ""; break;
+          default : break;
+        }
+
+        if (cursor < 0)
+          cursor = 0;
+        else if (cursor > count - 1)
+          cursor = count - 1;
+
+      }
+    }
+  }
+
+  return files[cursor];
+
+
 }
+
+
+String createName(String name) {
+
+  int cursor = 0;
+
+  unsigned long last = millis();
+  boolean blink = false;
+
+  int decoded = NOTHING;
+
+  lcd.setCursor(0, 0);
+  lcd.print("Save Program");
+  lcd.setCursor(0, 1);
+  lcd.print(name);
+
+  while ( decoded != SELECT ) {
+
+    keypadKeys  = analogRead(0);
+
+    if ( millis() - last > 100) {
+
+      last = millis();
+
+      lcd.setCursor(cursor, 1);
+
+      blink = !blink;
+
+      if (blink)
+        if (name[cursor] == ' ' )
+          lcd.print("_");
+        else
+          lcd.print(name[cursor]);
+      else
+        lcd.print("_");
+
+      if ( abs(keypadKeys - lastKeypadKeys ) > 40) {
+
+        delay(10);
+        keypadKeys  = analogRead(0);
+
+        if (keypadKeys > NOTHING_KEY)
+          decoded = NOTHING;
+        else if (keypadKeys > SELECT_KEY)
+          decoded = SELECT;
+        else if (keypadKeys > LEFT_KEY)
+          decoded = LEFT;
+        else if (keypadKeys > DOWN_KEY)
+          decoded = DOWN;
+        else if (keypadKeys > UP_KEY)
+          decoded = UP;
+        else
+          decoded = RIGHT;
+
+        lastKeypadKeys = keypadKeys;
+
+        switch ( decoded ) {
+          case UP : name[cursor]++; break;
+          case DOWN : name[cursor]--; break;
+          case LEFT : cursor--; break;
+          case RIGHT : cursor++; break;
+          default : break;
+        }
+
+        if (cursor < 0)
+          cursor = 0;
+        else if (cursor > 7)
+          cursor = 7;
+
+        if (cursor > name.length() - 1 )
+          name += "0";
+
+        lcd.setCursor(0, 1);
+        lcd.print(name);
+
+      }
+    }
+  }
+
+  return name;
+
+}
+
+void saveProgram() {
+
+  int oldPc = pc;
+
+  lcd.clear();
+
+  String name = String("Program");
+
+  String fn = createName(name);
+  fn += ".mic";
+
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Saving");
+  lcd.setCursor(0, 1);
+  lcd.print(fn);
+
+  File myFile = SD.open( fn , FILE_WRITE);
+
+  cursor = CURSOR_OFF;
+
+  if (myFile) {
+
+    for (int i = 0; i < 256; i++) {
+
+      lcd.setCursor(8, 0);
+      lcd.print("@ ");
+      lcd.print(i, HEX);
+
+      myFile.print(op[i], HEX);
+      myFile.print(arg1[i], HEX);
+      myFile.print(arg2[i], HEX);
+      myFile.println();
+
+      pc = i;
+      showMem();
+
+      lcd.setCursor(13, 0);
+      lcd.print(op[i], HEX);
+      lcd.print(arg1[i], HEX);
+      lcd.print(arg2[i], HEX);
+
+      delay(20);
+    }
+
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Saved");
+    lcd.setCursor(0, 1);
+    lcd.print(fn);
+    delay(500);
+
+  } else {
+    lcd.clear();
+    lcd.print("*** ERROR ! ***");
+    delay(500);
+
+  }
+
+  lcd.clear();
+
+  myFile.close();
+
+  pc = oldPc;
+
+}
+
+
+void loadProgram() {
+
+  lcd.clear();
+
+  String fn = selectFile();
+
+  if ( fn.equals("") ) {
+    lcd.clear();
+    lcd.print("*** ABORT ***");
+    delay(500);
+    lcd.clear(); 
+    return;
+  }
+
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Loading");
+  lcd.setCursor(0, 1);
+  lcd.print(fn);
+
+  cursor = CURSOR_OFF;
+
+  File myFile = SD.open( fn);
+
+  if (myFile) {
+
+    for (int i = 0; i < 256; i++) {
+
+      lcd.setCursor(8, 0);
+      lcd.print("@ ");
+      lcd.print(i, HEX);
+
+      char o = myFile.read();
+      char a1 = myFile.read();
+      char a2 = myFile.read();
+      myFile.read(); // CR
+      myFile.read(); // LF
+
+      pc = i;
+      op[pc] = decodeHex(o);
+      arg1[pc] = decodeHex(a1);
+      arg2[pc] = decodeHex(a2);
+      showMem();
+
+      lcd.setCursor(13, 0);
+      lcd.print(o);
+      lcd.print(a1);
+      lcd.print(a2);
+
+      delay(20);
+    }
+
+    myFile.close();
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Loaded");
+    lcd.setCursor(0, 1);
+    lcd.print(fn);
+    delay(500);
+
+  } else {
+    lcd.clear();
+    lcd.print("*** ERROR ! ***");
+    delay(500);
+
+  }
+
+  lcd.clear();
+  reset();
+
+}
+
 
 //
 //
@@ -961,11 +1223,14 @@ void enterProgram(byte pgm, byte start) {
     outputs = pc;
     displayOff();
     displayStatus();
-    delay(40);
+    delay(20);
   };
 
   pc = origin;
   currentMode = STOPPED;
+
+  showLoaded();
+  lcd.clear();
 
 }
 
@@ -973,7 +1238,7 @@ void showLoaded() {
 
   sendString(" loaded ");
   displayOff();
-  module.sendChar(7, NUMBER_FONT[program], false);
+  module.sendChar(4, NUMBER_FONT[program], false);
   delay(DISP_DELAY);
   sendString("   at   ");
   module.sendChar(3, NUMBER_FONT[pc / 16], false);
@@ -1206,13 +1471,22 @@ void interpret() {
 
         program = keypadKey;
         currentMode = STOPPED;
+        cursor = CURSOR_OFF;
 
         switch ( program ) {
 
           case 0 :
-          case 1 :
-          case 2 :
             error = true;
+            break;
+
+          case 1 :
+            loadProgram();
+            break;
+
+          case 2 :
+
+            saveProgram();
+            break;
 
           case 3 :
 
@@ -1243,9 +1517,6 @@ void interpret() {
             } else
               error = true;
         }
-
-        if (! error)
-          showLoaded();
 
       }
 

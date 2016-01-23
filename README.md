@@ -4,7 +4,7 @@
 ####License: GPL 3
 ####Hompage: [Author's Homepage](http://www.michael-wessel.info/)
 ####Contributer: [Martin Sauter (PGM 7 Code)](http://mobilesociety.typepad.com/) 
-####Version: 0.95
+####Version: 0.97
 ####[YouTube Videos](https://www.youtube.com/channel/UC1dEZ22WoacesGdSWdVqfTw)
 
 ###Abstract
@@ -182,6 +182,14 @@ toggle between PC + current op-code display, register display,
 extra-register display, and display off. Note that the emulator slows
 down considerably with LCD being on.
 
+The Mega version supports saving a memory dump to SDCard. See ``PGM
+2``.  The LCD+Keypad shield offers a primitive file name editor. Use
+Select key to confirm current file name; Left and Right keys to move
+cursor, Up and Down keys to change character at cursor position. Files
+are loaded from SDCard with ``PGM 1``. Here, the LCD+Keypad shield is
+used to browse through the directory of files. Use Select key to
+confirm selection, and Left key to abort loading.
+
 ###``PGM`` Demo Programs are Stored in EEPROM  
 
 Please first run the ``PGM-EEPROM.ino`` sketch. This will load 5
@@ -190,7 +198,9 @@ won't initialize correctly if the EEPROM has not been prepared.  The
 programs stored into and loaded from the EEPROM are ``PGM 7`` to ``PGM
 B``:
 
-- ``PGM 0, 1, 2`` : not implemented yet, not function
+- ``PGM 0``
+- ``PGM 1`` : on Mega, this loads a program memory dump from SDCard. Use LCD+Keypad shield to select file, Select key to confirm, Left key to abort loading. 
+- ``PGM 2`` : on Mega, this saves a complete memory dump to SDCard. The LCD+Keypad shield offers a simple filename editor. Use Left and Right to change cursor position, Up and Down to change character at cursor position, and Select to confirm and save. The files are stored as text, one line per op-code. You can also use a simple text editor to create files and load them via ``PGM 2`` (provided they have 256 lines). 
 - ``PGM 3`` : set time / clock (not a real program, i.e., nothing is loaded into program memory for this function) 
 - ``PGM 4`` : show time / clock  (not a real program, i.e., nothing is loaded into program memory for this function) 
 - ``PGM 5`` : clear memory
@@ -233,13 +243,7 @@ transitor or Darlington driver.
 3. With 2. done, control a Speech Synthesizer from these ports. A
 Speech Synthesizer extension board was announced as early as 1983 by
 Busch, in the first Busch 2090 manual, but was never released.
-4. Try to connect a character display, such as the Hitachi HD44780.
-5. Implement ``BKP`` and ``STEP`` function keys (breakpoint and
+4. Implement ``BKP`` and ``STEP`` function keys (breakpoint and
 step). I did not really use them a lot in 1983.
 
-For the Mega version:
-
-1. Implement ``PGM1`` and ``PGM2`` (load and save program) using the
-SDCard. Use the LCD keypad buttons to select program. For save we
-might just use a HEX number instead of a real file name.
 
