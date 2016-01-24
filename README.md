@@ -18,11 +18,14 @@ Germany. There is [some information about the Busch 2090 Microtronic
 available here, including PDFs of the original manuals in
 German](http://www.busch-model.com/online/?rubrik=82&=6&sprach_id=de).
 
-![Busch 2090 Microtronic Emulator for Arduino R3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img4-small.JPG)
+![Busch 2090 Microtronic Emulator for Arduino Uno](https://github.com/lambdamikel/Busch-2090/blob/master/images/img4-small.jpg)
 
-![Busch 2090 Microtronic Emulator for Arduino R3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img5-small.JPG)
+![Busch 2090 Microtronic Emulator for Arduino Mega](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-1-small.jpg)
 
-![Busch 2090 Microtronic Emulator for Arduino R3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega1-small.JPG)
+![Busch 2090 Microtronic Emulator for Arduino Mega](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-6-small.jpg)
+
+![Busch 2090 Microtronic Emulator for Arduino Mega](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-1-small.jpg)
+
 
 See ``busch2090.ino`` or ``busch2090-mega.ino`` sketch for further
 instructions, and [see the emulator in action
@@ -112,6 +115,8 @@ For the Mega, please note that you will have to clip or disconnect PIN
 properly. I am using extension headers for this (just bent PIN 10
 out of the way such it doesn't make contact). 
 
+![Bent Pin 10 of LCD+Keypad Shield](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega5-small.jpg)
+
 ###Description 
 
 The **push buttons of the TM1638 are the function keys of the
@@ -186,6 +191,9 @@ toggle between PC + current op-code display, register display,
 extra-register display, and display off. Note that the emulator slows
 down considerably with LCD being on.
 
+![Program Counter and Op-Code Display](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-6-small.jpg)
+![Register Content Display](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-7-small.jpg)
+
 The Mega version supports saving a memory dump to SDCard via ``PGM
 2``.  The LCD+Keypad shield offers a primitive file name editor. Use
 ``Select`` key to confirm current file name; ``Left`` and ``Right``
@@ -195,6 +203,9 @@ cursor position.
 Files are loaded from SDCard via ``PGM 1``. Here, the LCD+Keypad
 shield is used to browse through the directory of files. Use ``Select``
 key to confirm selection, and ``Left`` key to abort loading.
+
+![Load Program from SDCard](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-2-small.jpg)
+![Save Program to SDCard](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-8-small.jpg)
 
 ###``PGM`` Demo Programs are Stored in EEPROM  
 
@@ -242,10 +253,10 @@ Carry and Zero flag behavior, etc. Lunar Lander now works, so I have
 faith that there are not a lot of outstanding issues! 
 2. Add drivers to the DOT output LEDs such that they can be used as
 output pins, like in the real Microtronic. This might require a simple
-transitor or Darlington driver.
+transistor or Darlington driver.
 3. With 2. done, control a Speech Synthesizer from these ports. A
 Speech Synthesizer extension board was announced as early as 1983 by
-Busch, in the Microtronic Mmanual Vol. 1, but was never released.
+Busch, in the Microtronic Manual Vol. 1, but was never released.
 4. Implement ``BKP`` and ``STEP`` function keys (breakpoint and
 step). I did not really use them a lot in 1983.
 
