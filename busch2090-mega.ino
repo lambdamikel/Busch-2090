@@ -131,6 +131,10 @@ byte colPins[COLS] = {36, 34, 32, 30}; //connect to the column pinouts of the ke
 
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
+unsigned long lastFuncKeyTime = 0;
+
+#define FUNCTION_KEY_DEBOUNCE_TIME 50
+
 //
 // these are the digital pins used for DIN instructions
 //
@@ -750,7 +754,13 @@ void loadProgram() {
       if (b != '\r' && b != '\n' && b != '\t' && b != ' ') { // skip whitespace
 
         switch ( b ) {
-            case 'a' : b = 'A'; break;
+            case 'I' : b = '1'; break; // correct for some common OCR errors
+            case 'l' : b = '1'; break; 
+            case 'P' : b = 'D'; break; 
+            case 'Q' : b = '0'; break; 
+            case 'O' : b = '0'; break; 
+            
+            case 'a' : b = 'A'; break; // also allow lowercase hex
             case 'b' : b = 'B'; break; 
             case 'c' : b = 'C'; break;
             case 'd' : b = 'D'; break;
@@ -1721,7 +1731,7 @@ void run() {
 
     case OP_SUB :
 
-      reg[d] -= reg[s]; // +/- 1 if negative?
+      reg[d] -= reg[s]; 
       carry = reg[d] > 15;
       reg[d] &= 15;
       zero =  reg[d] == 0;
@@ -1731,7 +1741,7 @@ void run() {
 
     case OP_SUBI :
 
-      reg[d] -= n; // +/- 1 if negative?
+      reg[d] -= n; 
       carry = reg[d] > 15;
       reg[d] &= 15;
       zero =  reg[d] == 0;
@@ -2030,8 +2040,13 @@ void run() {
                   num *= num2;
 
                   carry = num > 999999;
-                  zero  = false;
 
+                  for (int i = 0; i < 6; i++) {
+                      carry |= ( reg[i] > 9 || regEx[i] > 9 ); 
+                  }
+                  
+                  zero  = false;
+                  
                   num = num % 1000000;
 
                   if (carry) {
@@ -2053,6 +2068,8 @@ void run() {
                     reg[5] = ( num / 100000 ) % 10;
                   }
 
+                  for (int i = 0; i < 7; i++) // not documented in manual, but true!
+                    regEx[i] = 0;                    
 
                   break;
 
@@ -2066,9 +2083,16 @@ void run() {
                     regEx[0] + 10 * regEx[1] + 100 * regEx[2] +
                     1000 * regEx[3];
 
-                  if (num2 == 0 || num == 0 // really?
-                     ) {
+                  carry = false; 
+
+                  for (int i = 0; i < 6; i++) {
+                      carry |= ( reg[i] > 9 || regEx[i] > 9 ); 
+                  }
+                  
+                  if (num2 == 0 || carry ) {
+                      
                     carry = true;
+                    zero = false, 
 
                     reg[0] = 0xE;
                     reg[1] = 0xE;
@@ -2086,23 +2110,17 @@ void run() {
                     reg[1] = ( num3 / 10 ) % 10;
                     reg[2] = ( num3 / 100 ) % 10;
                     reg[3] = ( num3 / 1000 ) % 10;
-                    reg[4] = ( num3 / 10000 ) % 10;
-                    reg[5] = ( num3 / 100000 ) % 10;
 
-                    num3 = num % num2;
+                    num3 = num % num2;               
+                    zero = num3 > 0; 
 
                     regEx[0] = num3 % 10;
                     regEx[1] = ( num3 / 10 ) % 10;
                     regEx[2] = ( num3 / 100 ) % 10;
                     regEx[3] = ( num3 / 1000 ) % 10;
-                    regEx[4] = ( num3 / 10000 ) % 10;
-                    regEx[5] = ( num3 / 100000 ) % 10;
 
                   }
-
-                  zero = false;
-
-
+                
                   break;
 
                 case OP_EXRL :
@@ -2170,10 +2188,12 @@ void loop() {
 
   if (functionKey == previousFunctionKey) { // button held down pressed
     functionKey = NO_KEY;
-  } else {
+  } else if (millis() - lastFuncKeyTime > FUNCTION_KEY_DEBOUNCE_TIME ) { // debounce
     previousFunctionKey = functionKey;
     error = false;
-  }
+    lastFuncKeyTime = millis(); 
+  } else 
+    functionKey = NO_KEY; 
 
   keypadKey = keypad.getKey();
 
