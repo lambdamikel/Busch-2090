@@ -1,4 +1,5 @@
 # Zahlenlawine
+# tested 
 
 @ 00
 
@@ -27,7 +28,7 @@ B39
 F17
 B39
 F05
-018
+0D8
 0E9
 OFA
 F18
@@ -43,12 +44,12 @@ OEC
 FIB
 B39
 FIC
-839
+B39
 F05
 FID
 B39
 FIE
-839
+B39
 F1F
 B39
 IFF
@@ -76,7 +77,7 @@ FFO
 E45
 C8E
 921
-F8D
+E8D
 FFO
 804
 E4B

@@ -424,13 +424,17 @@ void setup() {
   //
   //
 
+  boolean initialized = SD.begin(4); 
+
+/*
   while (!Serial) {
   }
 
-  if (!SD.begin(4)) {
+  if (! initialized) {
     Serial.println("SD initialization failed!");
     return;
   }
+*/ 
 
 }
 
@@ -763,7 +767,7 @@ void loadProgram() {
       }
 
       if (!readingComment && b != '\r' && b != '\n' && b != '\t' && b != ' ' && b != '@' ) { // skip whitespace
-
+         
         switch ( b ) {
           case 'I' : b = '1'; break; // correct for some common OCR errors
           case 'l' : b = '1'; break;
@@ -771,14 +775,15 @@ void loadProgram() {
           case 'Q' : b = '0'; break;
           case 'O' : b = '0'; break;
 
+          /*
           case 'a' : b = 'A'; break; // also allow lowercase hex
           case 'b' : b = 'B'; break;
           case 'c' : b = 'C'; break;
           case 'd' : b = 'D'; break;
           case 'e' : b = 'E'; break;
-          case 'f' : b = 'F'; break;
+          case 'f' : b = 'F'; break; */
           default : break;
-        }
+        } 
 
         int decoded = decodeHex(b);
 
