@@ -424,20 +424,13 @@ void setup() {
   //
   //
 
-
   while (!Serial) {
-    ; // wait for serial port to connect. Needed for native USB port only
   }
-
-  Serial.print("Initializing SD card...");
 
   if (!SD.begin(4)) {
-    Serial.println("initialization failed!");
+    Serial.println("SD initialization failed!");
     return;
   }
-  Serial.println("initialization done.");
-
-  Serial.println("done!");
 
 }
 
@@ -639,19 +632,19 @@ void saveProgram() {
 
   lcd.clear();
 
-  String name = String("Program");
+  String name = String("P");
 
   String fn = createName(name);
   fn += ".mic";
 
   if (SD.exists(fn)) {
-     lcd.clear();
-     lcd.setCursor(0,0);
-     lcd.print("Overwriting");     
-     lcd.setCursor(0, 1);
-     lcd.print(fn);
-     SD.remove(fn); 
-     delay(500); 
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Overwriting");
+    lcd.setCursor(0, 1);
+    lcd.print(fn);
+    SD.remove(fn);
+    delay(500);
   }
 
   lcd.clear();
@@ -666,7 +659,11 @@ void saveProgram() {
 
   if (myFile) {
 
-    for (int i = 0; i < 256; i++) {
+    myFile.print("# PC = ");
+    myFile.print(pc);
+    myFile.println();
+
+    for (int i = pc; i < 256; i++) {
 
       lcd.setCursor(8, 0);
       lcd.print("@ ");
@@ -707,6 +704,7 @@ void saveProgram() {
 
   myFile.close();
 
+  reset();
   pc = oldPc;
 
 }
@@ -737,9 +735,13 @@ void loadProgram() {
   File myFile = SD.open( fn);
 
   int count = 0;
-  pc = 0; 
+  int firstPc = -1;
+  int oldPc = pc;
 
   if (myFile) {
+
+    boolean readingComment = false;
+    boolean readingOrigin = false;
 
     while (true) {
 
@@ -748,67 +750,85 @@ void loadProgram() {
       lcd.print(pc, HEX);
 
       int b = myFile.read();
-      if (b == -1) 
-        break; 
-        
-      if (b != '\r' && b != '\n' && b != '\t' && b != ' ') { // skip whitespace
+      if (b == -1)
+        break;
+
+      if (b == '\n' || b == '\r') {
+        readingComment = false;
+        readingOrigin = false;
+      } else if (b == '#') {
+        readingComment = true;
+      } else if (b == '@') {
+        readingOrigin = true;
+      }
+
+      if (!readingComment && b != '\r' && b != '\n' && b != '\t' && b != ' ' && b != '@' ) { // skip whitespace
 
         switch ( b ) {
-            case 'I' : b = '1'; break; // correct for some common OCR errors
-            case 'l' : b = '1'; break; 
-            case 'P' : b = 'D'; break; 
-            case 'Q' : b = '0'; break; 
-            case 'O' : b = '0'; break; 
-            
-            case 'a' : b = 'A'; break; // also allow lowercase hex
-            case 'b' : b = 'B'; break; 
-            case 'c' : b = 'C'; break;
-            case 'd' : b = 'D'; break;
-            case 'e' : b = 'E'; break;
-            case 'f' : b = 'F'; break; 
-            default : break;           
-        }
+          case 'I' : b = '1'; break; // correct for some common OCR errors
+          case 'l' : b = '1'; break;
+          case 'P' : b = 'D'; break;
+          case 'Q' : b = '0'; break;
+          case 'O' : b = '0'; break;
 
-        pc = count / 3;
-        int decoded = decodeHex(b);
-
-        if ( decoded == -1) {      
-          lcd.clear();
-          lcd.print("*** ERROR ! ***");
-          lcd.setCursor(0,1); 
-          lcd.print("Byte "); 
-          lcd.print(count); 
-          lcd.print(" ");          
-          lcd.print((char) b); 
-          delay(2000);
-          lcd.clear(); 
-          break; 
-        } 
-
-        switch ( count % 3 ) {
-          case 0 : op[pc] = decoded; break;
-          case 1 : arg1[pc] = decoded; break;
-          case 2 : arg2[pc] = decoded; break;
+          case 'a' : b = 'A'; break; // also allow lowercase hex
+          case 'b' : b = 'B'; break;
+          case 'c' : b = 'C'; break;
+          case 'd' : b = 'D'; break;
+          case 'e' : b = 'E'; break;
+          case 'f' : b = 'F'; break;
           default : break;
         }
 
-        if (count % 3 == 2) 
-          showMem();
-        
-        lcd.setCursor(13 + (count % 3), 0);
-        lcd.print(b); 
+        int decoded = decodeHex(b);
 
-        count++; 
+        if ( decoded == -1) {
+          lcd.clear();
+          lcd.print("*** ERROR ! ***");
+          lcd.setCursor(0, 1);
+          lcd.print("Byte ");
+          lcd.print(count);
+          lcd.print(" ");
+          lcd.print((char) b);
+          delay(2000);
+          lcd.clear();
+          break;
+        }
 
+        lcd.setCursor(13 + count, 0);
+        lcd.print(b);
+
+        if ( readingOrigin ) {
+          switch ( count ) {
+            case 0 : pc = decoded * 16; count = 1; break;
+            case 1 : pc += decoded; showMem(); count = 0; readingOrigin = false; break;
+            default : break;
+          }       
+
+        } else {
+          switch ( count ) {
+            case 0 : op[pc] = decoded; count = 1;  break;
+            case 1 : arg1[pc] = decoded; count = 2; break;
+            case 2 : arg2[pc] = decoded; showMem(); count = 0; if (firstPc == -1) firstPc = pc; pc++; break;
+            default : break;
+          }
+       
+        }
       }
     }
 
     myFile.close();
+
+    pc = firstPc;
+
     lcd.clear();
     lcd.setCursor(0, 0);
-    lcd.print("Loaded");
+    lcd.print("Loaded @ ");
+    lcd.print(pc, HEX);
     lcd.setCursor(0, 1);
     lcd.print(fn);
+
+    showLoaded();
     delay(500);
 
   } else {
@@ -819,7 +839,9 @@ void loadProgram() {
   }
 
   lcd.clear();
+
   reset();
+  pc = firstPc;
 
 }
 
@@ -1251,11 +1273,11 @@ void scanLCDKeypad() {
 
 int decodeHex(char c) {
 
-  if (c >= 65 && c <= 70 ) 
+  if (c >= 65 && c <= 70 )
     return c - 65 + 10;
-  else if ( c >= 48 && c <= 67 ) 
+  else if ( c >= 48 && c <= 67 )
     return c - 48;
-  else return -1; 
+  else return -1;
 
 }
 
@@ -1731,7 +1753,7 @@ void run() {
 
     case OP_SUB :
 
-      reg[d] -= reg[s]; 
+      reg[d] -= reg[s];
       carry = reg[d] > 15;
       reg[d] &= 15;
       zero =  reg[d] == 0;
@@ -1741,7 +1763,7 @@ void run() {
 
     case OP_SUBI :
 
-      reg[d] -= n; 
+      reg[d] -= n;
       carry = reg[d] > 15;
       reg[d] &= 15;
       zero =  reg[d] == 0;
@@ -1932,7 +1954,7 @@ void run() {
                 case OP_DISOUT :
 
                   showingDisplayDigits = 0;
-                  displayOff(); 
+                  displayOff();
 
                   break;
 
@@ -2042,11 +2064,11 @@ void run() {
                   carry = num > 999999;
 
                   for (int i = 0; i < 6; i++) {
-                      carry |= ( reg[i] > 9 || regEx[i] > 9 ); 
+                    carry |= ( reg[i] > 9 || regEx[i] > 9 );
                   }
-                  
+
                   zero  = false;
-                  
+
                   num = num % 1000000;
 
                   if (carry) {
@@ -2069,7 +2091,7 @@ void run() {
                   }
 
                   for (int i = 0; i < 7; i++) // not documented in manual, but true!
-                    regEx[i] = 0;                    
+                    regEx[i] = 0;
 
                   break;
 
@@ -2083,16 +2105,16 @@ void run() {
                     regEx[0] + 10 * regEx[1] + 100 * regEx[2] +
                     1000 * regEx[3];
 
-                  carry = false; 
+                  carry = false;
 
                   for (int i = 0; i < 6; i++) {
-                      carry |= ( reg[i] > 9 || regEx[i] > 9 ); 
+                    carry |= ( reg[i] > 9 || regEx[i] > 9 );
                   }
-                  
+
                   if (num2 == 0 || carry ) {
-                      
+
                     carry = true;
-                    zero = false, 
+                    zero = false,
 
                     reg[0] = 0xE;
                     reg[1] = 0xE;
@@ -2111,8 +2133,8 @@ void run() {
                     reg[2] = ( num3 / 100 ) % 10;
                     reg[3] = ( num3 / 1000 ) % 10;
 
-                    num3 = num % num2;               
-                    zero = num3 > 0; 
+                    num3 = num % num2;
+                    zero = num3 > 0;
 
                     regEx[0] = num3 % 10;
                     regEx[1] = ( num3 / 10 ) % 10;
@@ -2120,7 +2142,7 @@ void run() {
                     regEx[3] = ( num3 / 1000 ) % 10;
 
                   }
-                
+
                   break;
 
                 case OP_EXRL :
@@ -2158,7 +2180,7 @@ void run() {
 
                 default : // DISP!
 
-                  displayOff(); 
+                  displayOff();
                   showingDisplayDigits = disp_n;
                   showingDisplayFromReg = disp_s;
 
@@ -2191,9 +2213,9 @@ void loop() {
   } else if (millis() - lastFuncKeyTime > FUNCTION_KEY_DEBOUNCE_TIME ) { // debounce
     previousFunctionKey = functionKey;
     error = false;
-    lastFuncKeyTime = millis(); 
-  } else 
-    functionKey = NO_KEY; 
+    lastFuncKeyTime = millis();
+  } else
+    functionKey = NO_KEY;
 
   keypadKey = keypad.getKey();
 
