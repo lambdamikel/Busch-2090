@@ -1,5 +1,6 @@
 # Calculate Weekday 
 # Part 2 - Load DAYS.MIC first
+# tested
 
 @ 51
 
@@ -13,7 +14,7 @@ FOD
 FOC
 006
 017
-02 E
+02E
 FOD
 001
 080

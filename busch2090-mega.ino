@@ -2095,8 +2095,9 @@ void run() {
                     reg[5] = ( num / 100000 ) % 10;
                   }
 
-                  for (int i = 0; i < 7; i++) // not documented in manual, but true!
-                    regEx[i] = 0;
+
+                  for (int i = 0; i < 6; i++) // not documented in manual, but true!
+                    regEx[i] = 0; 
 
                   break;
 
