@@ -441,11 +441,11 @@ void setup() {
 
 String selectFile() {
 
-  int count = 0;
-
   lcd.clear();
 
+  int count = 0;
   File root = SD.open("/");
+  root.rewindDirectory(); 
 
   while (true) {
 
@@ -458,13 +458,9 @@ String selectFile() {
       entry.close();
     }
   }
-  root.close();
-
   String* files = new String [count];
-
-  count = 0;
-
-  root = SD.open("/");
+  count = 0;  
+  root.rewindDirectory();   
 
   while (true) {
 
@@ -1481,9 +1477,7 @@ void interpret() {
 
       break;
 
-
   }
-
 
   //
   //
