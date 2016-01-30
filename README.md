@@ -24,9 +24,6 @@ German](http://www.busch-model.com/online/?rubrik=82&=6&sprach_id=de).
 
 ![Busch 2090 Microtronic Emulator for Arduino Mega](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-6-small.jpg)
 
-![Busch 2090 Microtronic Emulator for Arduino Mega](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-1-small.jpg)
-
-
 See ``busch2090.ino`` or ``busch2090-mega.ino`` sketch for further
 instructions, and [see the emulator in action
 here.](https://www.youtube.com/channel/UC1dEZ22WoacesGdSWdVqfTw)
@@ -221,24 +218,27 @@ how to use these programs.
 In ``.MIC`` file, in addition to hexadecimal instructions, you can
 find comments (a line starting with ``#``), as well as the origin
 address instruction ``@ xx``. This means that the instructions
-following ``@ xx`` will be loaded from address ``xx`` on. Most of the
-time, you will find ``@ 00` at the beginning of the file. If a
-``.MIC`` file does not contain any ``@ xx``, then the program will be
-loaded at the current PC.
+following ``@ xx`` will be stored from address ``xx`` on. Most of the
+time, you will find ``@ 00`` at the beginning of the file. If a
+``.MIC`` file does not contain a ``@ xx``, then the program will be
+loaded at the current PC. That way, programs could be relocatable
+(e.g., for subroutines). Also, a ``.MIC`` can contain more than on ``@
+xx``. An example is the ``DAYS.MIC`` program. 
 
 Note that there are a couple of programs in the Manual Vol. 2 which
 require incremental loading, i.e., first load ``DAYS.MIC``, and then
-``WEEKDAY.MIC``. The programs load at the correct addresses. 
+additionally load ``WEEKDAY.MIC``. The programs automatically load at
+the correct addresses.
 
-Please note that the example programs in the ``sofware`` subdirectory
-have been converted from PDFs with the help of an OCR (Optical
-Character Recognition) program, so they may contain some strange
-characters and OCR artifacts and errors. Not all programs were tested
-by the author yet, but programs which have been successfully tested
-contain a ``# tested`` comment.  To compensate for OCR artifacts, the
-``.MIC`` loader recognizes an extended character set for hexadecimal
-input, e.g., not only 1, but also I and l are accepted for 1, the O
-character is accepted for 0, etc.
+The example programs in the ``sofware`` subdirectory have been
+automatically converted from the above linked PDFs with the help of an
+OCR (Optical Character Recognition) program, so they may contain some
+strange characters and OCR artifacts and errors. Not all programs have
+been tested by the author yet. Programs which have been successfully
+tested contain a ``# tested`` comment.  To compensate for OCR
+artifacts, the ``.MIC`` loader recognizes an extended character set
+for hexadecimal input, e.g., not only 1, but also I and l are accepted
+for 1, the O character is accepted for 0, etc.
 
 ###``PGM`` Demo Programs are Stored in EEPROM  
 
