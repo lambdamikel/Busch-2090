@@ -1,4 +1,5 @@
 # Nim 2
+# tested 
 
 @ 00
 
@@ -7,6 +8,7 @@ FEO
 FIO
 FF8
 F61
+FF3
 FF2
 FF1
 FF6
@@ -47,7 +49,7 @@ E35
 D42
 03D
 01E
-866
+B66
 8D2
 E35
 D48

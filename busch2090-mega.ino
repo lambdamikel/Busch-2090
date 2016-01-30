@@ -1,7 +1,7 @@
 /*
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
 
-  Version 0.99 (c) Michael Wessel, January 23 2016
+  Version 1.0 (c) Michael Wessel, January 29 2016
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -15,7 +15,7 @@
   - TM1638 8 digit 7segment display with 8 LEDs and 8 buttons (function keys)
   - SDCard + Ethernet shield
   - LCD + Keypad shield
-
+  run
   The Busch Microtronic 2090 is (C) Busch GmbH
   See http://www.busch-model.com/online/?rubrik=82&=6&sprach_id=de
 
@@ -424,17 +424,17 @@ void setup() {
   //
   //
 
-  boolean initialized = SD.begin(4); 
+  boolean initialized = SD.begin(4);
 
-/*
-  while (!Serial) {
-  }
+  /*
+    while (!Serial) {
+    }
 
-  if (! initialized) {
-    Serial.println("SD initialization failed!");
-    return;
-  }
-*/ 
+    if (! initialized) {
+      Serial.println("SD initialization failed!");
+      return;
+    }
+  */
 
 }
 
@@ -445,7 +445,7 @@ String selectFile() {
 
   int count = 0;
   File root = SD.open("/");
-  root.rewindDirectory(); 
+  root.rewindDirectory();
 
   while (true) {
 
@@ -459,8 +459,8 @@ String selectFile() {
     }
   }
   String* files = new String [count];
-  count = 0;  
-  root.rewindDirectory();   
+  count = 0;
+  root.rewindDirectory();
 
   while (true) {
 
@@ -763,7 +763,7 @@ void loadProgram() {
       }
 
       if (!readingComment && b != '\r' && b != '\n' && b != '\t' && b != ' ' && b != '@' ) { // skip whitespace
-         
+
         switch ( b ) {
           case 'I' : b = '1'; break; // correct for some common OCR errors
           case 'l' : b = '1'; break;
@@ -772,14 +772,14 @@ void loadProgram() {
           case 'O' : b = '0'; break;
 
           /*
-          case 'a' : b = 'A'; break; // also allow lowercase hex
-          case 'b' : b = 'B'; break;
-          case 'c' : b = 'C'; break;
-          case 'd' : b = 'D'; break;
-          case 'e' : b = 'E'; break;
-          case 'f' : b = 'F'; break; */
+            case 'a' : b = 'A'; break; // also allow lowercase hex
+            case 'b' : b = 'B'; break;
+            case 'c' : b = 'C'; break;
+            case 'd' : b = 'D'; break;
+            case 'e' : b = 'E'; break;
+            case 'f' : b = 'F'; break; */
           default : break;
-        } 
+        }
 
         int decoded = decodeHex(b);
 
@@ -804,7 +804,7 @@ void loadProgram() {
             case 0 : pc = decoded * 16; count = 1; break;
             case 1 : pc += decoded; showMem(); count = 0; readingOrigin = false; break;
             default : break;
-          }       
+          }
 
         } else {
           switch ( count ) {
@@ -813,7 +813,7 @@ void loadProgram() {
             case 2 : arg2[pc] = decoded; showMem(); count = 0; if (firstPc == -1) firstPc = pc; pc++; break;
             default : break;
           }
-       
+
         }
       }
     }
@@ -1415,6 +1415,7 @@ void interpret() {
       currentMode = RUNNING;
       displayOff();
       clearStack();
+      jump = true; // don't increment PC !
       //step();
       break;
 
@@ -2091,7 +2092,7 @@ void run() {
 
 
                   for (int i = 0; i < 6; i++) // not documented in manual, but true!
-                    regEx[i] = 0; 
+                    regEx[i] = 0;
 
                   break;
 

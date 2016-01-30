@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Uno / R3
 
-  Version 0.97 (c) Michael Wessel, January 23 2016
+  Version 0.99 (c) Michael Wessel, January 29 2016
 
   WARNING - THIS VERSION IS CURRENTLY NOT TESTED
   PLEASE USE THE MEGA VERSION IN THE MEANTIME
@@ -762,6 +762,8 @@ void interpret() {
       currentMode = RUNNING;
       displayOff();
       clearStack();
+      jump = true; // don't increment PC !
+      
       //step();
       break;
 

@@ -4,7 +4,7 @@
 ####License: GPL 3
 ####Hompage: [Author's Homepage](http://www.michael-wessel.info/)
 ####Contributer: [Martin Sauter (PGM 7 Code)](http://mobilesociety.typepad.com/) 
-####Version: 0.99
+####Version: 1.0 
 ####[YouTube Videos](https://www.youtube.com/channel/UC1dEZ22WoacesGdSWdVqfTw)
 
 ###Abstract
@@ -39,9 +39,9 @@ Arduino first. The ``PGM-EEPROM.ino`` sketch initializes the EEPROM
 with PGM example programs (see below). Without prior EEPROM
 initialization, it is likely that the emulator won't work.
 
-Also, you will find ``LUNAR.MIC``. This is the Lunar Lander game from
-Microtronic Manual Vol. 1, pp. 23 - 24. With the Mega version, put it
-on a FAT16 formatted SDCard, and load via ``PGM1``.
+Also, you will find some programs in the ``software``
+subdirectory. See below for instructions how to use them, and
+for a brief explanation of the ``.MIC`` file format. 
 
 ###Acknowledgements
 
@@ -71,13 +71,13 @@ For the Uno version:
 
     byte colPins[COLS] = {5, 6, 7, 8};
     byte rowPins[ROWS] = {9, 10, 11, 12}; 
+    
+    #define DIN_PIN_1 1
+    #define DIN_PIN_2 2
+    #define DIN_PIN_3 3
+    #define DIN_PIN_4 4
 
-    pinMode(0, INPUT_PULLUP); // reset pin
-  
-    pinMode(1, INPUT_PULLUP); // digital input pins read by DIN instruction 
-    pinMode(2, INPUT_PULLUP); 
-    pinMode(3, INPUT_PULLUP); 
-    pinMode(4, INPUT_PULLUP); 
+    #define RESET_PIN 0
 
     #define CPU_THROTTLE_ANALOG_PIN 5 // connect a potentiometer here for CPU speed throttle controll  
     #define CPU_THROTTLE_DIVISOR 10 // potentiometer dependent 
@@ -104,6 +104,7 @@ For the Mega 2560:
     #define CPU_MIN_THRESHOLD 10 // if smaller than this, delay = 0
 
     // these are analog values read from the LCD+Keypad shield, adjust if necessary 
+    // the read analog values must be greater than these, they are lower bounds: 
     #define NOTHING_KEY 1000
     #define SELECT_KEY  770
     #define LEFT_KEY    540
@@ -194,6 +195,8 @@ down considerably with LCD being on.
 ![Program Counter and Op-Code Display](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-6-small.jpg)
 ![Register Content Display](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-7-small.jpg)
 
+###Load and Save Files to SDCard (Mega version only) 
+
 The Mega version supports saving a memory dump to SDCard via ``PGM
 2``.  The LCD+Keypad shield offers a primitive file name editor. Use
 ``Select`` key to confirm current file name; ``Left`` and ``Right``
@@ -206,6 +209,36 @@ key to confirm selection, and ``Left`` key to abort loading.
 
 ![Load Program from SDCard](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-2-small.jpg)
 ![Save Program to SDCard](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-8-small.jpg)
+
+###The ``.MIC`` File Format and Example Programs 
+
+The ``sofware`` subdirectory contains some programs from the
+Microtronic manuals and from the book "Computer Games (2094)". With
+the Mega version, you can put these files on a FAT16 formatted SDCard,
+and load them via ``PGM1``. Please refer to the original manuals on
+how to use these programs.
+
+In ``.MIC`` file, in addition to hexadecimal instructions, you can
+find comments (a line starting with ``#``), as well as the origin
+address instruction ``@ xx``. This means that the instructions
+following ``@ xx`` will be loaded from address ``xx`` on. Most of the
+time, you will find ``@ 00` at the beginning of the file. If a
+``.MIC`` file does not contain any ``@ xx``, then the program will be
+loaded at the current PC.
+
+Note that there are a couple of programs in the Manual Vol. 2 which
+require incremental loading, i.e., first load ``DAYS.MIC``, and then
+``WEEKDAY.MIC``. The programs load at the correct addresses. 
+
+Please note that the example programs in the ``sofware`` subdirectory
+have been converted from PDFs with the help of an OCR (Optical
+Character Recognition) program, so they may contain some strange
+characters and OCR artifacts and errors. Not all programs were tested
+by the author yet, but programs which have been successfully tested
+contain a ``# tested`` comment.  To compensate for OCR artifacts, the
+``.MIC`` loader recognizes an extended character set for hexadecimal
+input, e.g., not only 1, but also I and l are accepted for 1, the O
+character is accepted for 0, etc.
 
 ###``PGM`` Demo Programs are Stored in EEPROM  
 
@@ -245,19 +278,16 @@ already part of the Arduino distribution (version 1.6.6):
 - ``SPI`` library
 - ``SD`` library
 
-
 ### Future Work 
 
-1. Test all op-codes more thoroughly for correct behavior, correct
-Carry and Zero flag behavior, etc. Lunar Lander now works, so I have
-faith that there are not a lot of outstanding issues! 
-2. Add drivers to the DOT output LEDs such that they can be used as
-output pins, like in the real Microtronic. This might require a simple
-transistor or Darlington driver.
-3. With 2. done, control a Speech Synthesizer from these ports. A
-Speech Synthesizer extension board was announced as early as 1983 by
-Busch, in the Microtronic Manual Vol. 1, but was never released.
-4. Implement ``BKP`` and ``STEP`` function keys (breakpoint and
+1. Add drivers to the DOT output LEDs such that they can be used as
+output pins, like in the real Microtronic (or use a additional digital
+outputs for this - would work for Mega version only, though). This
+might also require a simple transistor or Darlington driver.  
+2. With 1. done, control a Speech Synthesizer from these ports. A Speech
+Synthesizer extension board was announced as early as 1983 by Busch,
+in the Microtronic Manual Vol. 1, but was never released.
+3. Implement ``BKP`` and ``STEP`` function keys (breakpoint and
 step). I did not really use them a lot in 1983.
 
 
