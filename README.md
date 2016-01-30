@@ -222,7 +222,7 @@ following ``@ xx`` will be stored from address ``xx`` on. Most of the
 time, you will find ``@ 00`` at the beginning of the file. If a
 ``.MIC`` file does not contain a ``@ xx``, then the program will be
 loaded at the current PC. That way, programs could be relocatable
-(e.g., for subroutines). Also, a ``.MIC`` can contain more than on ``@
+(e.g., for subroutines). Also, a ``.MIC`` can contain more than one ``@
 xx``. An example is the ``DAYS.MIC`` program. 
 
 Note that there are a couple of programs in the Manual Vol. 2 which
