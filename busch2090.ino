@@ -6,7 +6,7 @@
 
   WARNING - THIS VERSION IS CURRENTLY NOT TESTED
   PLEASE USE THE MEGA VERSION IN THE MEANTIME
-  
+
   michael_wessel@gmx.de
   miacwess@gmail.com
   http://www.michael-wessel.info
@@ -47,18 +47,18 @@
 #include <EEPROM.h>
 
 //
-// set up hardware 
+// set up hardware
 //
 
 //
-// TM1638 module 
-// 
+// TM1638 module
+//
 
 TM1638 module(14, 15, 16);
 
 //
-// Keypad 4 x 4 matrix 
-// 
+// Keypad 4 x 4 matrix
+//
 
 #define ROWS 4
 #define COLS 4
@@ -70,7 +70,7 @@ char keys[ROWS][COLS] = { // plus one because 0 = no key pressed!
   {0x1, 0x2, 0x3, 0x4}
 };
 
-byte colPins[COLS] = {5, 6, 7, 8}; // columns 
+byte colPins[COLS] = {5, 6, 7, 8}; // columns
 byte rowPins[ROWS] = {9, 10, 11, 12}; // rows
 
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
@@ -95,7 +95,7 @@ unsigned long lastFuncKeyTime = 0;
 #define RESET_PIN 0
 
 //
-// CPU throttle 
+// CPU throttle
 //
 
 #define CPU_THROTTLE_ANALOG_PIN 5 // connect a potentiometer here for CPU speed throttle controll 
@@ -115,13 +115,13 @@ int startAddresses[16];
 int programLengths[16];
 
 //
-// current PGM requested 
+// current PGM requested
 //
 
 byte program;
 
 //
-// 
+//
 //
 
 int cpu_delay = 0;
@@ -627,11 +627,11 @@ void displayStatus() {
 
 byte decodeHex(char c) {
 
-  if (c >= 65 && c <= 70 ) 
+  if (c >= 65 && c <= 70 )
     return c - 65 + 10;
-  else if ( c >= 48 && c <= 67 ) 
+  else if ( c >= 48 && c <= 67 )
     return c - 48;
-  else return -1; 
+  else return -1;
 
 }
 
@@ -659,6 +659,8 @@ void enterProgram(byte pgm, byte start) {
 
   pc = origin;
   currentMode = STOPPED;
+
+  outputs = 0;
 
 }
 
@@ -726,6 +728,7 @@ void clearMem() {
   arg2[255] = 0;
 
   pc = 0;
+  outputs = 0;
 
 }
 
@@ -746,6 +749,7 @@ void loadNOPs() {
   arg2[255] = 1;
 
   pc = 0;
+  outputs = 0;
 
 }
 
@@ -763,7 +767,7 @@ void interpret() {
       displayOff();
       clearStack();
       jump = true; // don't increment PC !
-      
+
       //step();
       break;
 
@@ -906,7 +910,7 @@ void interpret() {
           case 1 :
           case 2 :
             error = true;
-            break; 
+            break;
 
           case 3 :
 
@@ -1096,7 +1100,7 @@ void run() {
 
     case OP_SUB :
 
-      reg[d] -= reg[s]; 
+      reg[d] -= reg[s];
       carry = reg[d] > 15;
       reg[d] &= 15;
       zero =  reg[d] == 0;
@@ -1106,7 +1110,7 @@ void run() {
 
     case OP_SUBI :
 
-      reg[d] -= n; 
+      reg[d] -= n;
       carry = reg[d] > 15;
       reg[d] &= 15;
       zero =  reg[d] == 0;
@@ -1297,7 +1301,7 @@ void run() {
                 case OP_DISOUT :
 
                   showingDisplayDigits = 0;
-                  displayOff(); 
+                  displayOff();
 
                   break;
 
@@ -1407,11 +1411,11 @@ void run() {
                   carry = num > 999999;
 
                   for (int i = 0; i < 6; i++) {
-                      carry |= ( reg[i] > 9 || regEx[i] > 9 ); 
+                    carry |= ( reg[i] > 9 || regEx[i] > 9 );
                   }
-                  
+
                   zero  = false;
-                  
+
                   num = num % 1000000;
 
                   if (carry) {
@@ -1434,7 +1438,7 @@ void run() {
                   }
 
                   for (int i = 0; i < 6; i++) // not documented in manual, but true!
-                    regEx[i] = 0;                    
+                    regEx[i] = 0;
 
                   break;
 
@@ -1448,16 +1452,16 @@ void run() {
                     regEx[0] + 10 * regEx[1] + 100 * regEx[2] +
                     1000 * regEx[3];
 
-                  carry = false; 
+                  carry = false;
 
                   for (int i = 0; i < 6; i++) {
-                      carry |= ( reg[i] > 9 || regEx[i] > 9 ); 
+                    carry |= ( reg[i] > 9 || regEx[i] > 9 );
                   }
-                  
+
                   if (num2 == 0 || carry ) {
-                      
+
                     carry = true;
-                    zero = false, 
+                    zero = false,
 
                     reg[0] = 0xE;
                     reg[1] = 0xE;
@@ -1476,8 +1480,8 @@ void run() {
                     reg[2] = ( num3 / 100 ) % 10;
                     reg[3] = ( num3 / 1000 ) % 10;
 
-                    num3 = num % num2;               
-                    zero = num3 > 0; 
+                    num3 = num % num2;
+                    zero = num3 > 0;
 
                     regEx[0] = num3 % 10;
                     regEx[1] = ( num3 / 10 ) % 10;
@@ -1485,7 +1489,7 @@ void run() {
                     regEx[3] = ( num3 / 1000 ) % 10;
 
                   }
-                
+
                   break;
 
                 case OP_EXRL :
@@ -1523,7 +1527,7 @@ void run() {
 
                 default : // DISP!
 
-                  displayOff(); 
+                  displayOff();
                   showingDisplayDigits = disp_n;
                   showingDisplayFromReg = disp_s;
 
@@ -1556,9 +1560,9 @@ void loop() {
   } else if (millis() - lastFuncKeyTime > FUNCTION_KEY_DEBOUNCE_TIME ) { // debounce
     previousFunctionKey = functionKey;
     error = false;
-    lastFuncKeyTime = millis(); 
-  } else 
-    functionKey = NO_KEY; 
+    lastFuncKeyTime = millis();
+  } else
+    functionKey = NO_KEY;
 
   keypadKey = keypad.getKey();
 

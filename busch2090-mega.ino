@@ -1,4 +1,5 @@
 /*
+
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
 
   Version 1.0 (c) Michael Wessel, January 29 2016
@@ -143,6 +144,11 @@ unsigned long lastFuncKeyTime = 0;
 #define DIN_PIN_2 24
 #define DIN_PIN_3 26
 #define DIN_PIN_4 28
+
+#define DOT_PIN_1 40
+#define DOT_PIN_2 42
+#define DOT_PIN_3 44
+#define DOT_PIN_4 46
 
 //
 // reset Microtronic (not Arduino) by pulling this to GND
@@ -386,6 +392,16 @@ void setup() {
   pinMode(DIN_PIN_2, INPUT_PULLUP); // DIN 2
   pinMode(DIN_PIN_3, INPUT_PULLUP); // DIN 3
   pinMode(DIN_PIN_4, INPUT_PULLUP); // DIN 4
+
+  pinMode(DOT_PIN_1, OUTPUT); // DOT 1
+  pinMode(DOT_PIN_2, OUTPUT); // DOT 2
+  pinMode(DOT_PIN_3, OUTPUT); // DOT 3
+  pinMode(DOT_PIN_4, OUTPUT); // DOT 4
+
+  digitalWrite(DOT_PIN_1, LOW);
+  digitalWrite(DOT_PIN_2, LOW);
+  digitalWrite(DOT_PIN_3, LOW);
+  digitalWrite(DOT_PIN_4, LOW);
 
   //
   // read EEPROM PGMs meta data
@@ -1095,6 +1111,11 @@ void displayStatus() {
 
   moduleLEDs |= ( outputs << 4 );
 
+  digitalWrite(DOT_PIN_1, outputs & 1 ? HIGH : LOW );
+  digitalWrite(DOT_PIN_2, outputs & 2 ? HIGH : LOW );
+  digitalWrite(DOT_PIN_3, outputs & 4 ? HIGH : LOW );
+  digitalWrite(DOT_PIN_4, outputs & 8 ? HIGH : LOW );
+
   module.setLEDs( moduleLEDs);
 
   if ( currentMode == RUNNING || currentMode == ENTERING_VALUE )
@@ -1310,6 +1331,8 @@ void enterProgram(byte pgm, byte start) {
   showLoaded();
   lcd.clear();
 
+  outputs = 0;
+
 }
 
 void showLoaded() {
@@ -1378,6 +1401,7 @@ void clearMem() {
   arg2[255] = 0;
 
   pc = 0;
+  outputs = 0;
 
 }
 
@@ -1398,6 +1422,7 @@ void loadNOPs() {
   arg2[255] = 1;
 
   pc = 0;
+  outputs = 0;
 
 }
 
