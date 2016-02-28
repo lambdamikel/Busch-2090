@@ -294,26 +294,43 @@ top-right order. You might consider to relabel the keys on the pad
     1 2 3 C  ==>  4 5 6 7
     * 0 # D       0 1 2 3
 
-Microtronic's **Carry** and **Zero** flag are the LEDs 1 and 2 of the
+For the Arduino mega version 2, there is another (non-matrix encoded)
+telephone keypad being used, for function buttons. The mapping
+is as follows: 
+
+    1 2 3       NEXT  REG DIN 4
+    4 5 6  ==>   BKP STEP DIN 3
+    7 8 9  ==>   RUN HALT DIN 2
+    * 0 #       C/CE  PGM DIN 1
+
+(Note that, also on the Mega version 2, ``STEP`` and ``BKP`` are not
+implemented yet). 
+
+ Microtronic's **Carry** and **Zero** flag are the LEDs 1 and 2 of the
 TM1638, the 1 **Hz clock LED** is LED 3 (from left to right). The LEDs
 5 to 8 are used as **DOT outputs** (set by the data out op-code
-``FEx``).
+``FEx``). On the mega version 2, there is no TM1638, but discrete LEDs
+are used instead. See below.
 
 Notice that the Arduino reset button will erase the emulator's program
 memory. To only reset emulator while keeping the program in memory,
 connect Arduino pin ``D0 (RX)`` to ground.
 
 The Arduino Uno pins ``D1`` to ``D4`` (or ``D22``, ``D24``, ``D24``
-and ``D26`` on the Arduino Mega version 1) are read by the Microtronic
-data in op-code ``FDx (DIN)``. Connecting them to ground will set the
-corresponding bit to 1. See ``PGM D``.
+and ``D26`` on the Arduino Mega version 1, or the telephone keypad
+keys ``#``, ``9``, ``6``, ``3`` and pins ``D14`` to ``D17`` on the
+Mega version 2), are read by the Microtronic data in op-code ``FDx
+(DIN)``. Connecting them to ground will set the corresponding bit to
+1. See ``PGM D``. On the mega version 2, different pins are used, see
+below.
 
-Analog pin ``A5`` on the Uno (or ``A15`` on the Mega version 1) is
-used as a CPU speed throttle. Connect a potentiometer to adjust the
-speed of the CPU:
+Analog pin ``A5`` on the Uno (or ``A15`` on the Mega version 1, or
+``A0`` on the Mega version 2), is used as a CPU speed
+throttle. Connect a potentiometer to adjust the speed of the CPU.
 
 Unlike the original Microtronic, this emulator uses the leftmost digit
-of the 8digit FM1638 to display the **current system status** (the
+of the 8digit FM1638 (or of the left Adafruit LEDs backpack display on
+the mega version 2) to display the **current system status** (the
 original Microtronic only featured a 6digit display). Currently, the
 **status codes** are:
 
@@ -339,10 +356,11 @@ function keys, or you can load a fixed ROM program specified in the
 Arduino sketch via the ``PGM`` button. These ROM programs are defined
 in the ``busch2090.ino`` sketch as ``PGM7`` to ``PGMD`` macros. 
 
-The Mega version 1 uses the select button of the LCD+Keypad shield to
-toggle between PC + current op-code display, register display,
-extra-register display, and display off. Note that the emulator slows
-down considerably with LCD being on.
+The Mega version 1 uses the select button (either of the LCD+Keypad
+shield, or the discrete N.O. button for the mega version 2) to toggle
+between PC + current op-code display, register display, extra-register
+display, and display off. Note that the emulator slows down
+considerably with LCD being on.
 
 ![Program Counter and Op-Code Display](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-6-small.jpg)
 ![Register Content Display](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-7-small.jpg)
@@ -403,8 +421,6 @@ N.O. buttons that take on these functions (SD card):
     #define LEFT   67
     #define CANCEL 68
     #define ENTER  69
-
-  
 
 
 ###Load and Save Files to SDCard (Mega version only) 
