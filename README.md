@@ -18,23 +18,37 @@ Germany. There is [some information about the Busch 2090 Microtronic
 available here, including PDFs of the original manuals in
 German](http://www.busch-model.com/online/?rubrik=82&=6&sprach_id=de).
 
+![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 2](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v2-1-small.jpg)
+
+![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 2](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v2-5-small.jpg)
+
+![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 2](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v2-3-small.jpg)
+
 ![Busch 2090 Microtronic Emulator for Arduino Uno](https://github.com/lambdamikel/Busch-2090/blob/master/images/img4-small.jpg)
 
 ![Busch 2090 Microtronic Emulator for Arduino Mega](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-1-small.jpg)
 
 ![Busch 2090 Microtronic Emulator for Arduino Mega](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-6-small.jpg)
 
-See ``busch2090.ino`` or ``busch2090-mega.ino`` sketch for further
-instructions, and [see the emulator in action
+See ``busch2090.ino`` or ``busch2090-mega.ino``, or
+``busch2090-mega-v2.ino``sketch for further instructions, and [see the
+emulator in action
 here.](https://www.youtube.com/channel/UC1dEZ22WoacesGdSWdVqfTw)
 
 This project consists of two sketches. The main emulator code is in
-``busch2090.ino`` for the Uno, and ``busch2090-mega.ino`` for the Mega
-2560. However, the emulator will not run / initialize properly if
-``PGM-EEPROM.ino`` has not been uploaded at least once into the
-Arduino first. The ``PGM-EEPROM.ino`` sketch initializes the EEPROM
-with PGM example programs (see below). Without prior EEPROM
-initialization, it is likely that the emulator won't work.
+``busch2090.ino`` for the Uno, and ``busch2090-mega.ino`` or
+``busch2090-mega-v2.ino`` for the Mega 2560. However, the emulator
+will not run / initialize properly if ``PGM-EEPROM.ino`` has not been
+uploaded at least once into the Arduino first. The ``PGM-EEPROM.ino``
+sketch initializes the EEPROM with PGM example programs (see
+below). Without prior EEPROM initialization, it is likely that the
+emulator won't work. Important - if you are using ``busch2090-mega-v2.ino``, 
+then please use ``PGM-EEPROM-v2.ino``. 
+
+The ``busch2090-mega-v2.ino`` is the Busch Microtronic mega emulator
+version 2.  This version uses different hardware, see below, and is
+meant to be cased.  The first pictures show the mega emulator version
+2. 
 
 Also, you will find some programs in the ``software``
 subdirectory. See below for instructions how to use them, and
@@ -48,17 +62,34 @@ game. It works!
 
 ###Hardware Requirements
 
-For the Uno version: 
+For the Uno version, ``busch2090.ino``: 
 
 - An Arduino Uno R3 
 - A TM1638 module with 8 7segment digits, 8 push buttons, and 8 LEDs
 - A 4x4 keypad with matrix encoding for hexadecimal input 
 
-For the Mega 2560 version, you will also need
+For the Mega 2560 version, ``busch2090-mega.ino``, you will need 
 
 - An Arduino Mega 2560 R3 
+- A TM1638 module with 8 7segment digits, 8 push buttons, and 8 LEDs
+- A 4x4 keypad with matrix encoding for hexadecimal input 
 - An LCD+Keypad shield
 - An Ethernet+SDCard shield 
+
+For the Mega 2560 version 2, ``busch2090-mega-v2.ino``, which is meant
+to be housed in a case, you will need 
+
+- An Arduino Mega 2560 R3 
+- A 4x4 keypad with matrix encoding for hexadecimal input 
+- A 3x4 telephone keypad, for function buttons and DIN input, NOT matrix encoded 
+- 8 LEDs and matching resistors (for 5 V) 
+- 8 N.O. momentary push buttons
+- A power switch
+- 2 Adafruit 7Segment LED backpacks 
+- 2 potentiometer, one for LCD contrast (100 Ohms), one for CPU speed (200 Ohms)
+- An Ethernet+SDCard shield 
+- A 4x20 LCD display, standard Hitachi HD44780 
+- A laser-cut / laser-printer face place. The blueprint / layout is in the faceplate subdirectory.
 
 ###Wiring 
 
@@ -80,7 +111,7 @@ For the Uno version:
     #define CPU_THROTTLE_DIVISOR 10 // potentiometer dependent 
     #define CPU_MIN_THRESHOLD 10 // if smaller than this, delay = 0
     
-For the Mega 2560: 
+For the Mega 2560 version 1: 
     
     LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 
@@ -108,10 +139,128 @@ For the Mega 2560:
     #define DOWN_KEY    360
     #define UP_KEY      160
 
-For the Mega, please note that you will have to clip or disconnect PIN
-10 from the LCD+Keypad, otherwise the SDCard will not function
-properly. I am using extension headers for this (just bent PIN 10
-out of the way such it doesn't make contact). 
+For the Mega version 1, please note that you will have to clip or
+disconnect PIN 10 from the LCD+Keypad, otherwise the SDCard will not
+function properly. I am using extension headers for this (just bent
+PIN 10 out of the way such it doesn't make contact).
+
+For the Mega 2560 version 2 - there is more freedom how to arrange, but I did it as follows: 
+
+     #define RESET  47 // soft reset 
+
+     #define BACK   63
+     #define RIGHT  64
+     #define UP     65
+     #define DOWN   66
+     #define LEFT   67
+     #define CANCEL 68
+     #define ENTER  69
+
+     //
+     // status LEDs
+     //
+
+     #define DOT_LED_1 55
+     #define DOT_LED_2 56
+     #define DOT_LED_3 57
+     #define DOT_LED_4 58
+
+     #define CLOCK_LED     39
+     #define CLOCK_1HZ_LED 41
+     #define CARRY_LED     43
+     #define ZERO_LED      45
+
+     //
+     // DOT digital output
+     //
+
+     #define DOT_1 1
+     #define DOT_2 2
+     #define DOT_3 3 // we need pin 4 for SD card!
+     #define DOT_4 5
+
+     //
+     // DIN digital input
+     //
+
+     #define DIN_1 17
+     #define DIN_2 16
+     #define DIN_3 15
+     #define DIN_4 14
+
+     //
+     // telephone keypad buttons for DIN input
+     //
+
+     #define DIN_BUTTON_1 42 // telephone keypad # 
+     #define DIN_BUTTON_2 44 // telephone keypad 9 
+     #define DIN_BUTTON_3 46 // telephone keypad 6
+     #define DIN_BUTTON_4 48 // telephone keypad 3 
+
+     //
+     // remaining telephone keypad buttons
+     //
+
+     #define CCE  26 // telephone keypad *
+     #define RUN  28 // telephone keypad 7
+     #define BKP  30 // telephone keypad 4
+     #define NEXT 32 // telephone keypad 1
+     #define PGM  34 // telephone keypad 0 
+     #define HALT 36 // telephone keypad 8 
+     #define STEP 38 // telephone keypad 5
+     #define REG  40 // telephone keypad 2 
+
+     //
+     // CPU speed throttle potentiometer
+     //
+
+     #define CPU_THROTTLE_ANALOG_PIN A0
+     #define CPU_THROTTLE_DIVISOR 10   // potentiometer dependent 
+     #define CPU_MIN_THRESHOLD 5       // if smaller than this, CPU = max speed  
+     #define CPU_MAX_THRESHOLD 99      // if higher than this, CPU = min speed 
+     #define CPU_DELTA_DISP 3          // if analog value changes more than this, update CPU delay display 
+
+     //
+     // for initialization of random generator
+     //
+
+     #define RANDOM_ANALOG_PIN A5
+
+     //
+     // LCD panel pins
+     //
+
+     LiquidCrystal lcd(13, 12, 11, 7, 9, 8); // we need pin 10 for SD card!
+
+     //
+     // 2 Adafruit 7Segment LED backpacks
+     //
+
+     Adafruit_7segment right = Adafruit_7segment();
+     Adafruit_7segment left  = Adafruit_7segment();
+
+     //
+     // HEX 4x4 matrix keypad
+     //
+
+     #define ROWS 4
+     #define COLS 4
+
+     char keys[ROWS][COLS] = { // plus one because 0 = no key pressed!
+     {0xD, 0xE, 0xF, 0x10},
+     {0x9, 0xA, 0xB, 0xC},
+     {0x5, 0x6, 0x7, 0x8},
+     {0x1, 0x2, 0x3, 0x4}
+     };
+
+     byte colPins[COLS] = {37, 35, 33, 31}; // columns
+     byte rowPins[ROWS] = {29, 27, 25, 23}; // rows
+
+     Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
+
+
+For the mega version 2, you have more freedom and use whatever PIN layout you want. 
+See the sourcecode and pictures. 
 
 ![Bent Pin 10 of LCD+Keypad Shield](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega5-small.jpg)
 
@@ -270,13 +419,26 @@ others, and which are included in the ``library`` subdirectory:
 
 - ``Keypad`` library
 - ``TM1638`` library - note that this is a modified version of the original one 
+- ``TM16XXFonts`` for alphanumeric 7segment display fonts
+- ``EEPROM`` library 
 
-For the Mega version, the following standard libraries are used, and
+For the Mega version one, the following standard libraries are used, and
 already part of the Arduino distribution (version 1.6.6):
 
 - ``LiquidCrystal`` library
 - ``SPI`` library
 - ``SD`` library
+
+For the Mega version two, the following standard libraries are used, and
+already part of the Arduino distribution (version 1.6.6):
+
+- ``LiquidCrystal`` library
+- ``SPI`` library
+- ``SD`` library
+
+These libraries are available from Adafruit homepage: 
+- ``Adafruit_LEDBackpack``library
+- ``<Adafruit_GFX`` library
 
 ### Future Work 
 
