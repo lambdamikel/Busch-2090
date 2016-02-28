@@ -47,9 +47,9 @@ below). Without prior EEPROM initialization, it is likely that the
 emulator won't work. Important - if you are using ``busch2090-mega-v2.ino``, 
 then please use ``PGM-EEPROM-v2.ino``. 
 
-The ``busch2090-mega-v2.ino`` is the Busch Microtronic mega emulator
+The ``busch2090-mega-v2.ino`` is the Busch Microtronic Mega emulator
 version 2.  This version uses different hardware, see below, and is
-meant to be housed in a case.  The first pictures show the mega
+meant to be housed in a case.  The first pictures show the Mega
 emulator version 2. 
 
 Also, you will find some programs in the ``software``
@@ -271,7 +271,7 @@ Also notice that there is a blueprint of the faceplate in the
 
 ###Description 
 
-For the Arduino Uno and Mega Version 1, the TM1638 module is used. 
+For the Arduino Uno and Mega version 1, the TM1638 module is used. 
 The **push buttons of the TM1638 are the function keys of the
 Microtronic**, in this order of sequence, from left to right: ``HALT,
 NEXT, RUN, CCE, REG, STEP, BKP, RUN``:
@@ -294,7 +294,7 @@ top-right order. You might consider to relabel the keys on the pad
     1 2 3 C  ==>  4 5 6 7
     * 0 # D       0 1 2 3
 
-For the Arduino mega version 2, there is another (non-matrix encoded)
+For the Arduino Mega version 2, there is another (non-matrix encoded)
 telephone keypad being used, for function buttons. The mapping
 is as follows: 
 
@@ -309,7 +309,7 @@ implemented yet).
  Microtronic's **Carry** and **Zero** flag are the LEDs 1 and 2 of the
 TM1638, the 1 **Hz clock LED** is LED 3 (from left to right). The LEDs
 5 to 8 are used as **DOT outputs** (set by the data out op-code
-``FEx``). On the mega version 2, there is no TM1638, but discrete LEDs
+``FEx``). On the Mega version 2, there is no TM1638, but discrete LEDs
 are used instead. See below.
 
 Notice that the Arduino reset button will erase the emulator's program
@@ -321,7 +321,7 @@ and ``D26`` on the Arduino Mega version 1, or the telephone keypad
 keys ``#``, ``9``, ``6``, ``3`` and pins ``D14`` to ``D17`` on the
 Mega version 2), are read by the Microtronic data in op-code ``FDx
 (DIN)``. Connecting them to ground will set the corresponding bit to
-1. See ``PGM D``. On the mega version 2, different pins are used, see
+1. See ``PGM D``. On the Mega version 2, different pins are used, see
 below.
 
 Analog pin ``A5`` on the Uno (or ``A15`` on the Mega version 1, or
@@ -330,7 +330,7 @@ throttle. Connect a potentiometer to adjust the speed of the CPU.
 
 Unlike the original Microtronic, this emulator uses the leftmost digit
 of the 8digit FM1638 (or of the left Adafruit LEDs backpack display on
-the mega version 2) to display the **current system status** (the
+the Mega version 2) to display the **current system status** (the
 original Microtronic only featured a 6digit display). Currently, the
 **status codes** are:
 
@@ -357,7 +357,7 @@ Arduino sketch via the ``PGM`` button. These ROM programs are defined
 in the ``busch2090.ino`` sketch as ``PGM7`` to ``PGMD`` macros. 
 
 The Mega version 1 uses the select button (either of the LCD+Keypad
-shield, or the discrete N.O. button for the mega version 2) to toggle
+shield, or the discrete N.O. button for the Mega version 2) to toggle
 between PC + current op-code display, register display, extra-register
 display, and display off. Note that the emulator slows down
 considerably with LCD being on.
@@ -365,7 +365,7 @@ considerably with LCD being on.
 ![Program Counter and Op-Code Display](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-6-small.jpg)
 ![Register Content Display](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-7-small.jpg)
 
-For the Mega Version 2, I have used a telephone keypad for the function buttons:
+For the Mega version 2, I have used a telephone keypad for the function buttons:
 
     #define CCE  26 // telephone keypad *
     #define RUN  28 // telephone keypad 7
@@ -380,36 +380,36 @@ The remaining 4 buttons can be used to provide digital input to
 ``DIN`` command; in addition, there are also real digital inputs
 reserved for hardware experiments:
 
-   #define DIN_BUTTON_1 42 // telephone keypad # 
-   #define DIN_BUTTON_2 44 // telephone keypad 9 
-   #define DIN_BUTTON_3 46 // telephone keypad 6
-   #define DIN_BUTTON_4 48 // telephone keypad 3 
+    #define DIN_BUTTON_1 42 // telephone keypad # 
+    #define DIN_BUTTON_2 44 // telephone keypad 9 
+    #define DIN_BUTTON_3 46 // telephone keypad 6
+    #define DIN_BUTTON_4 48 // telephone keypad 3 
 
-   #define DIN_1 17
-   #define DIN_2 16
-   #define DIN_3 15
-   #define DIN_4 14
+    #define DIN_1 17
+    #define DIN_2 16
+    #define DIN_3 15
+    #define DIN_4 14
 
 The ``DOT`` output LEDs are discrete LEDs, and so are carry, zero, 1 hz clock, 
 and CPU clock: 
 
-   #define DOT_LED_1 55
-   #define DOT_LED_2 56
-   #define DOT_LED_3 57
-   #define DOT_LED_4 58
+    #define DOT_LED_1 55
+    #define DOT_LED_2 56
+    #define DOT_LED_3 57
+    #define DOT_LED_4 58
 
-   #define CLOCK_LED     39
-   #define CLOCK_1HZ_LED 41
-   #define CARRY_LED     43
-   #define ZERO_LED      45
+    #define CLOCK_LED     39
+    #define CLOCK_1HZ_LED 41
+    #define CARRY_LED     43
+    #define ZERO_LED      45
 
 For hardware experiments, there are additional outputs for ``DOT`` as
 well:
 
-   #define DOT_1 1
-   #define DOT_2 2
-   #define DOT_3 3 // we need pin 4 for SD card!
-   #define DOT_4 5
+    #define DOT_1 1
+    #define DOT_2 2
+    #define DOT_3 3 // we need pin 4 for SD card!
+    #define DOT_4 5
 
 Since there is no LCD+Keypad shield being used, there are discrete
 N.O. buttons that take on these functions (SD card):
@@ -422,7 +422,6 @@ N.O. buttons that take on these functions (SD card):
     #define CANCEL 68
     #define ENTER  69
 
-
 ###Load and Save Files to SDCard (Mega version only) 
 
 The Mega version supports saving a memory dump to SDCard via ``PGM
@@ -431,7 +430,7 @@ The Mega version supports saving a memory dump to SDCard via ``PGM
 keys to move cursor, ``Up`` and ``Down`` keys to change character at
 cursor position. 
 
-On the mega version 2, there is no keypad, but discrete N.O. buttons
+On the Mega version 2, there is no keypad, but discrete N.O. buttons
 (see above) take on the functions for SD card operations. 
 
 Files are loaded from SDCard via ``PGM 1``. Here, the LCD+Keypad
