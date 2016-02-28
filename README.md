@@ -49,12 +49,12 @@ then please use ``PGM-EEPROM-v2.ino``.
 
 The ``busch2090-mega-v2.ino`` is the Busch Microtronic mega emulator
 version 2.  This version uses different hardware, see below, and is
-meant to be cased.  The first pictures show the mega emulator version
-2. 
+meant to be housed in a case.  The first pictures show the mega
+emulator version 2. 
 
 Also, you will find some programs in the ``software``
-subdirectory. See below for instructions how to use them, and
-for a brief explanation of the ``.MIC`` file format. 
+subdirectory. See below for instructions how to use them, and for a
+brief explanation of the ``.MIC`` file format.
 
 ###Acknowledgements
 
