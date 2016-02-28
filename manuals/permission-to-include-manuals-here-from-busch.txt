@@ -1,0 +1,16 @@
+From ???@busch-model.com Tue Feb  9 07:18:02 2016
+Delivered-To: miacwess@gmail.com
+Received: by 10.27.85.4 with SMTP id j4csp2111360wlb; Tue, 9 Feb 2016
+ 07:18:02 -0800 (PST)
+X-Received: by 10.194.175.198 with SMTP id
+ cc6mr34547014wjc.24.1455031082157; Tue, 09 Feb 2016 07:18:02 -0800 (PST)
+
+Hallo Herr Wessel,
+
+die PDFs dürfen Sie gerne auch im GitHub-Verzeichnis hinterlegen. 
+
+...
+
+Viele Grüße
+Jörg Vallen
+
