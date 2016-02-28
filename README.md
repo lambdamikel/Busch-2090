@@ -20,7 +20,7 @@ German](http://www.busch-model.com/online/?rubrik=82&=6&sprach_id=de).
 
 The designer of the original Busch Microtronic, Mr. Jörg Vallen of Busch, 
 was also so kind to grant permission to include a full copy of the
-manual set in the ``manuals/`` directory of this project. 
+manual set in the ``manuals`` directory of this project. 
 
 ![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 2](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v2-1-small.jpg)
 
@@ -91,7 +91,7 @@ to be housed in a case, you will need
 - 2 potentiometer, one for LCD contrast (100 Ohms), one for CPU speed (200 Ohms)
 - An Ethernet+SDCard shield 
 - A 4x20 LCD display, standard Hitachi HD44780 
-- A laser-cut / laser-printer face place. The blueprint / layout is in the faceplate subdirectory.
+- A laser-cut (or laser-printed?) face place. The blueprint / layout is in the ``faceplate`` directory of this project.
 
 ###Wiring 
 
@@ -267,7 +267,7 @@ This picture might provide some ideas how to set up / wire the hardware:
 ![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 2](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v2-3-small.jpg)
 
 Also notice that there is a blueprint of the faceplate in the 
-``faceplate/`` directory of this project. 
+``faceplate`` directory of this project. 
 
 ###Description 
 
