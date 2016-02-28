@@ -2,10 +2,10 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
   This program stores the PGM example programs into the EEPROM. 
-  It needs to be run before the busch2090.ino sketch, otherwise
+  It needs to be run before the busch2090-mega-v2.ino sketch, otherwise
   the emulator will fail to initialize and will not work properly. 
 
-  Version 1.0 (c) Michael Wessel, January 18 2016 
+  Version 2.0 (c) Michael Wessel, February 27 2016 
   
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -13,11 +13,12 @@
 
   With Contributions from Martin Sauter (PGM 7) 
   See http://mobilesociety.typepad.com/
-
+  
   Hardware requirements:
-  - 4x4 hex keypad (HEX keypad for data and program entry)
-  - TM1638 8 digit 7segment display with 8 LEDs and 8 buttons (function keys)
-
+  - 2 Adafruit 7Segment LED display backpacks
+  - 4x20 LCD display, standard Hitachi HD44780
+  - 1 Arduino Mega 2560 
+  
   The Busch Microtronic 2090 is (C) Busch GmbH
   See http://www.busch-model.com/online/?rubrik=82&=6&sprach_id=de
 
@@ -34,7 +35,6 @@
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 */
 
 #include <TM16XXFonts.h>
@@ -42,10 +42,9 @@
 
 #include <Adafruit_LEDBackpack.h>
 #include <Adafruit_GFX.h> 
+
 #define DISP_DELAY 200
-
 #define PROGRAMS 6
-
 
 Adafruit_7segment right = Adafruit_7segment();
 Adafruit_7segment left  = Adafruit_7segment();

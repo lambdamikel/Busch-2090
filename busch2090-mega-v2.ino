@@ -16,21 +16,22 @@
   - 3x4 telephone keypad, NOT matrix encoded
   - 2 Adafruit 7Segment LED display backpacks
   - 4x20 LCD display, standard Hitachi HD44780
-  - 8 ultrabright LEDs + 8 100 Ohm resistory
-  - 9 momementary N.O. push buttons (normally off)
+  - 8 LEDs (and 8 100 Ohm resistors, matching LEDs) 
+  - 9 momementary N.O. push buttons 
   - 1 Power switch (optional)
+  - 1 Arduino Power Supply 
   - 1 200 Ohm potentiometer
   - 1 100 Ohm potentiometer (LCD contrast)
   - 1 SDCard + Ethernet shield
-  - 1 Arduino Mega 2560 of course
-  - lots of wires and solder!
+  - 1 Arduino Mega 2560 
+  - lots of wires and solder
 
   The Busch Microtronic 2090 is (C) Busch GmbH
   See http://www.busch-model.com/online/?rubrik=82&=6&sprach_id=de
 
   Please run the PGM-EEPROM.ino sketch before running / loading this
   sketch into the Arduino. The emulator will not work properly
-  otherwise. Note that PGM-EEPROM.ino stores example programs into the
+  otherwise. Note that PGM-EEPROM-v2.ino stores example programs into the
   EEPROM, and this sketch retrieve them from there.
 
   This program is free software: you can redistribute it and/or modify
@@ -445,15 +446,7 @@ void setup() {
   right.begin(0x71);
   left.begin(0x70);
 
-  lcd.begin(20, 4);
-  lcd.setCursor(0, 0);
-  lcd.print("Busch 2090");
-  lcd.setCursor(0, 1);
-  lcd.print(" Microtronic");
-  lcd.setCursor(0, 2);
-  lcd.print("  Computer System");
-  lcd.setCursor(0, 3);
-  lcd.print("   Mega Emulator 2.0");
+  LCDLogo(); 
 
   sendString("  BUSCH ");
   sendString("  2090  ");
@@ -558,7 +551,6 @@ void setup() {
   sendString("  2090  ");
   sendString("  ready ");
 
-  lcd.clear();
 
   //
   // init SD card
@@ -1281,6 +1273,20 @@ void displayStatus() {
 
 }
 
+void LCDLogo() {
+  
+  lcd.begin(20, 4);
+  lcd.setCursor(0, 0);
+  lcd.print("Busch 2090");
+  lcd.setCursor(0, 1);
+  lcd.print(" Microtronic");
+  lcd.setCursor(0, 2);
+  lcd.print("  Mega 2560 Emulator");
+  lcd.setCursor(0, 3);
+  lcd.print("   by Michael Wessel");
+
+}
+
 void updateLCD() {
 
   readPushButtons();
@@ -1290,7 +1296,7 @@ void updateLCD() {
     switch ( displayMode  ) {
       case OFF    : displayMode = PCMEM; lcd.clear(); break;
       case PCMEM  : displayMode = REGD; lcd.clear(); break;
-      default     : displayMode = OFF; lcd.clear(); break;
+      default     : displayMode = OFF; lcd.clear(); LCDLogo(); break;
     }
   }
 
