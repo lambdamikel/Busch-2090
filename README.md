@@ -18,11 +18,13 @@ Germany. There is [some information about the Busch 2090 Microtronic
 available here, including PDFs of the original manuals in
 German](http://www.busch-model.com/online/?rubrik=82&=6&sprach_id=de).
 
+The designer of the original Busch Microtronic, Mr. Jörg Vallen of Busch, 
+was also so kind to grant permission to include a full copy of the
+manual set in the ``manuals/`` directory of this project. 
+
 ![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 2](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v2-1-small.jpg)
 
 ![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 2](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v2-5-small.jpg)
-
-![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 2](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v2-3-small.jpg)
 
 ![Busch 2090 Microtronic Emulator for Arduino Uno](https://github.com/lambdamikel/Busch-2090/blob/master/images/img4-small.jpg)
 
@@ -142,9 +144,11 @@ For the Mega 2560 version 1:
 For the Mega version 1, please note that you will have to clip or
 disconnect PIN 10 from the LCD+Keypad, otherwise the SDCard will not
 function properly. I am using extension headers for this (just bent
-PIN 10 out of the way such it doesn't make contact).
+PIN 10 out of the way such it doesn't make contact). See this image: 
 
-For the Mega 2560 version 2 - there is more freedom how to arrange, but I did it as follows: 
+![Bent Pin 10 of LCD+Keypad Shield](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega5-small.jpg)
+
+For the Mega 2560 version 2 - there is more freedom how to set up the hardware, but I did it as follows: 
 
      #define RESET  47 // soft reset 
 
@@ -258,14 +262,16 @@ For the Mega 2560 version 2 - there is more freedom how to arrange, but I did it
 
      Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
+This picture might provide some ideas how to set up / wire the hardware: 
 
-For the mega version 2, you have more freedom and use whatever PIN layout you want. 
-See the sourcecode and pictures. 
+![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 2](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v2-3-small.jpg)
 
-![Bent Pin 10 of LCD+Keypad Shield](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega5-small.jpg)
+Also notice that there is a blueprint of the faceplate in the 
+``faceplate/`` directory of this project. 
 
 ###Description 
 
+For the Arduino Uno and Mega Version 1, the TM1638 module is used. 
 The **push buttons of the TM1638 are the function keys of the
 Microtronic**, in this order of sequence, from left to right: ``HALT,
 NEXT, RUN, CCE, REG, STEP, BKP, RUN``:
@@ -298,13 +304,13 @@ memory. To only reset emulator while keeping the program in memory,
 connect Arduino pin ``D0 (RX)`` to ground.
 
 The Arduino Uno pins ``D1`` to ``D4`` (or ``D22``, ``D24``, ``D24``
-and ``D26`` on the Arduino Mega) are read by the Microtronic data in
-op-code ``FDx (DIN)``. Connecting them to ground will set the
+and ``D26`` on the Arduino Mega version 1) are read by the Microtronic
+data in op-code ``FDx (DIN)``. Connecting them to ground will set the
 corresponding bit to 1. See ``PGM D``.
 
-Analog pin ``A5`` on the Uno (or ``A15`` on the Mega) is used as a CPU
-speed throttle. Connect a potentiometer to adjust the speed of the
-CPU:
+Analog pin ``A5`` on the Uno (or ``A15`` on the Mega version 1) is
+used as a CPU speed throttle. Connect a potentiometer to adjust the
+speed of the CPU:
 
 Unlike the original Microtronic, this emulator uses the leftmost digit
 of the 8digit FM1638 to display the **current system status** (the
@@ -333,13 +339,73 @@ function keys, or you can load a fixed ROM program specified in the
 Arduino sketch via the ``PGM`` button. These ROM programs are defined
 in the ``busch2090.ino`` sketch as ``PGM7`` to ``PGMD`` macros. 
 
-The Mega version uses the select button of the LCD+Keypad shield to
+The Mega version 1 uses the select button of the LCD+Keypad shield to
 toggle between PC + current op-code display, register display,
 extra-register display, and display off. Note that the emulator slows
 down considerably with LCD being on.
 
 ![Program Counter and Op-Code Display](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-6-small.jpg)
 ![Register Content Display](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-7-small.jpg)
+
+For the Mega Version 2, I have used a telephone keypad for the function buttons:
+
+    #define CCE  26 // telephone keypad *
+    #define RUN  28 // telephone keypad 7
+    #define BKP  30 // telephone keypad 4
+    #define NEXT 32 // telephone keypad 1
+    #define PGM  34 // telephone keypad 0 
+    #define HALT 36 // telephone keypad 8 
+    #define STEP 38 // telephone keypad 5
+    #define REG  40 // telephone keypad 2 
+
+The remaining 4 buttons can be used to provide digital input to
+``DIN`` command; in addition, there are also real digital inputs
+reserved for hardware experiments:
+
+   #define DIN_BUTTON_1 42 // telephone keypad # 
+   #define DIN_BUTTON_2 44 // telephone keypad 9 
+   #define DIN_BUTTON_3 46 // telephone keypad 6
+   #define DIN_BUTTON_4 48 // telephone keypad 3 
+
+   #define DIN_1 17
+   #define DIN_2 16
+   #define DIN_3 15
+   #define DIN_4 14
+
+The ``DOT`` output LEDs are discrete LEDs, and so are carry, zero, 1 hz clock, 
+and CPU clock: 
+
+   #define DOT_LED_1 55
+   #define DOT_LED_2 56
+   #define DOT_LED_3 57
+   #define DOT_LED_4 58
+
+   #define CLOCK_LED     39
+   #define CLOCK_1HZ_LED 41
+   #define CARRY_LED     43
+   #define ZERO_LED      45
+
+For hardware experiments, there are additional outputs for ``DOT`` as
+well:
+
+   #define DOT_1 1
+   #define DOT_2 2
+   #define DOT_3 3 // we need pin 4 for SD card!
+   #define DOT_4 5
+
+Since there is no LCD+Keypad shield being used, there are discrete
+N.O. buttons that take on these functions (SD card):
+
+    #define BACK   63
+    #define RIGHT  64
+    #define UP     65
+    #define DOWN   66
+    #define LEFT   67
+    #define CANCEL 68
+    #define ENTER  69
+
+  
+
 
 ###Load and Save Files to SDCard (Mega version only) 
 
@@ -348,6 +414,9 @@ The Mega version supports saving a memory dump to SDCard via ``PGM
 ``Select`` key to confirm current file name; ``Left`` and ``Right``
 keys to move cursor, ``Up`` and ``Down`` keys to change character at
 cursor position. 
+
+On the mega version 2, there is no keypad, but discrete N.O. buttons
+(see above) take on the functions for SD card operations. 
 
 Files are loaded from SDCard via ``PGM 1``. Here, the LCD+Keypad
 shield is used to browse through the directory of files. Use ``Select``
