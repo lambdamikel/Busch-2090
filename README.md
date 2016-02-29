@@ -395,8 +395,8 @@ reserved for hardware experiments:
     #define DIN_3 15
     #define DIN_4 14
 
-The ``DOT`` output LEDs are discrete LEDs, and so are carry, zero, 1 hz clock, 
-and CPU clock: 
+The ``DOT`` output LEDs are discrete LEDs, and so are carry and zero
+flags, 1 Hz clock, and CPU clock:
 
     #define DOT_LED_1 55
     #define DOT_LED_2 56
