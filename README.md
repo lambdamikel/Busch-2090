@@ -53,7 +53,7 @@ meant to be housed in a case.  The first pictures show the Mega
 emulator version 2. 
 
 Also, you will find some programs in the ``software``
-subdirectory. See below for instructions how to use them, and for a
+directory. See below for instructions how to use them, and for a
 brief explanation of the ``.MIC`` file format.
 
 ###Acknowledgements
@@ -240,8 +240,11 @@ For the Mega 2560 version 2 - there is more freedom how to set up the hardware, 
      // 2 Adafruit 7Segment LED backpacks
      //
 
-     Adafruit_7segment right = Adafruit_7segment();
-     Adafruit_7segment left  = Adafruit_7segment();
+     Adafruit_7segment right = Adafruit_7segment(); // at address 0x71
+     Adafruit_7segment left  = Adafruit_7segment(); // at address 0x70 
+
+     // right.begin(0x71);
+     //  left.begin(0x70);
 
      //
      // HEX 4x4 matrix keypad
@@ -298,10 +301,10 @@ For the Arduino Mega version 2, there is another (non-matrix encoded)
 telephone keypad being used, for function buttons. The mapping
 is as follows: 
 
-    1 2 3       NEXT  REG DIN 4
-    4 5 6  ==>   BKP STEP DIN 3
-    7 8 9  ==>   RUN HALT DIN 2
-    * 0 #       C/CE  PGM DIN 1
+    1 2 3       NEXT  REG DIN4
+    4 5 6  ==>   BKP STEP DIN3
+    7 8 9  ==>   RUN HALT DIN2
+    * 0 #       C/CE  PGM DIN1
 
 (Note that, also on the Mega version 2, ``STEP`` and ``BKP`` are not
 implemented yet). 
@@ -314,7 +317,9 @@ are used instead. See below.
 
 Notice that the Arduino reset button will erase the emulator's program
 memory. To only reset emulator while keeping the program in memory,
-connect Arduino pin ``D0 (RX)`` to ground.
+connect Arduino pin ``D0 (RX)`` to ground (or ``D53`` for the Mega
+version 1, or ``D47`` for the Mega version 2, which also has N.O.
+push button for that purpose).
 
 The Arduino Uno pins ``D1`` to ``D4`` (or ``D22``, ``D24``, ``D24``
 and ``D26`` on the Arduino Mega version 1, or the telephone keypad
@@ -442,7 +447,7 @@ key to confirm selection, and ``Left`` key to abort loading.
 
 ###The ``.MIC`` File Format and Example Programs 
 
-The ``sofware`` subdirectory contains some programs from the
+The ``software`` directory contains some programs from the
 Microtronic manuals and from the book "Computer Games (2094)". With
 the Mega version, you can put these files on a FAT16 formatted SDCard,
 and load them via ``PGM1``. Please refer to the original manuals on
@@ -463,7 +468,7 @@ require incremental loading, i.e., first load ``DAYS.MIC``, and then
 additionally load ``WEEKDAY.MIC``. The programs automatically load at
 the correct addresses.
 
-The example programs in the ``sofware`` subdirectory have been
+The example programs in the ``software`` directory have been
 automatically converted from the above linked PDFs with the help of an
 OCR (Optical Character Recognition) program, so they may contain some
 strange characters and OCR artifacts and errors. Not all programs have
@@ -506,23 +511,24 @@ others, and which are included in the ``library`` subdirectory:
 - ``TM16XXFonts`` for alphanumeric 7segment display fonts
 - ``EEPROM`` library 
 
-For the Mega version one, the following standard libraries are used, and
+For the Mega version 1, the following standard libraries are used, and
 already part of the Arduino distribution (version 1.6.6):
 
 - ``LiquidCrystal`` library
 - ``SPI`` library
 - ``SD`` library
 
-For the Mega version two, the following standard libraries are used, and
+For the Mega version 2, the following standard libraries are used, and
 already part of the Arduino distribution (version 1.6.6):
 
 - ``LiquidCrystal`` library
 - ``SPI`` library
 - ``SD`` library
 
-These libraries are available from Adafruit homepage: 
+These additional Adafruit libraries are required for the 
+7Segment LED backpack displays. They are available from the Adafruit homepage: 
 - ``Adafruit_LEDBackpack``library
-- ``<Adafruit_GFX`` library
+- ``Adafruit_GFX`` library
 
 ### Future Work 
 
