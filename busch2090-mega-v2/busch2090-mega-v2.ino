@@ -796,8 +796,9 @@ void saveProgram() {
   if ( fn.equals("") ) {
     lcd.clear();
     lcd.print("*** ABORT ***");
-    delay(500);
-    lcd.clear();
+    delay(500);   
+    reset();
+    pc = oldPc;
     return;
   }
 
@@ -914,7 +915,7 @@ void loadProgram() {
     lcd.clear();
     lcd.print("*** ABORT ***");
     delay(500);
-    lcd.clear();
+    reset();
     return;
   }
 
@@ -1568,7 +1569,7 @@ void loadEEPromProgram(byte pgm, byte start) {
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("Loading PGM ");
-  lcd.print(pgm);
+  lcd.print(pgm + 7);
 
   int curX = 0;
   int curY = 1;
@@ -1692,8 +1693,11 @@ void setDisplayToHexNumber(uint32_t number) {
 
 void showLoaded() {
 
-  sendString(" loaded ");
-
+  lcd.clear(); 
+  lcd.write("Loaded @ "); 
+  lcd.print(pc, HEX); 
+  
+  sendString(" loaded ");   
   sendChar(4, NUMBER_FONT[program], false);
   writeDisplay();
   delay(DISP_DELAY);
@@ -1703,7 +1707,9 @@ void showLoaded() {
   sendChar(3, NUMBER_FONT[pc / 16], false);
   sendChar(4, NUMBER_FONT[pc % 16], false);
   writeDisplay();
+  
   delay(DISP_DELAY);
+  
 
 }
 
