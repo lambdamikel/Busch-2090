@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
 
-  Version 2.1 (c) Michael Wessel, February 28 2016
+  Version 2.2 (c) Michael Wessel, February 28 2016
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -93,13 +93,19 @@ int pushButtons[] = { RESET, BACK, RIGHT, UP, DOWN, LEFT, CANCEL, ENTER };
 #define ZERO_LED      45
 
 //
+// 1 Hz clock digital output
+// 
+
+#define CLOCK_OUT 6
+
+//
 // DOT digital output
 //
 
-#define DOT_1 1
-#define DOT_2 2
-#define DOT_3 3 // we need pin 4 for SD card!
-#define DOT_4 5
+#define DOT_1 5
+#define DOT_2 3
+#define DOT_3 2 // we need pin 4 for SD card!
+#define DOT_4 1
 
 //
 // DIN digital input
@@ -496,15 +502,17 @@ void setup() {
   pinMode(DOT_LED_3, OUTPUT);
   pinMode(DOT_LED_4, OUTPUT);
 
+  pinMode(CLOCK_OUT, OUTPUT); 
+  
   pinMode(DOT_1, OUTPUT);
   pinMode(DOT_2, OUTPUT);
   pinMode(DOT_3, OUTPUT);
   pinMode(DOT_4, OUTPUT);
 
-  pinMode(DIN_1, INPUT_PULLUP); // that should be changed to input with pulldown resistors!
-  pinMode(DIN_2, INPUT_PULLUP);
-  pinMode(DIN_3, INPUT_PULLUP);
-  pinMode(DIN_4, INPUT_PULLUP);
+  pinMode(DIN_1, INPUT); // that should be changed to input with pulldown resistors!
+  pinMode(DIN_2, INPUT);
+  pinMode(DIN_3, INPUT);
+  pinMode(DIN_4, INPUT);
 
   pinMode(DIN_BUTTON_1, INPUT_PULLUP);
   pinMode(DIN_BUTTON_2, INPUT_PULLUP);
@@ -626,10 +634,10 @@ byte readDIN() {
            !digitalRead(DIN_BUTTON_3) << 2 |
            !digitalRead(DIN_BUTTON_4) << 3 |
 
-           !digitalRead(DIN_1)      |
-           !digitalRead(DIN_2) << 1 |
-           !digitalRead(DIN_3) << 2 |
-           !digitalRead(DIN_4) << 3   );
+           digitalRead(DIN_1)      |
+           digitalRead(DIN_2) << 1 |
+           digitalRead(DIN_3) << 2 |
+           digitalRead(DIN_4) << 3   );
 
 }
 
@@ -1312,6 +1320,8 @@ void displayStatus() {
   digitalWrite(ZERO_LED, carry);
   digitalWrite(CLOCK_LED, clock == 0);
   digitalWrite(CLOCK_1HZ_LED, clock1hz);
+  
+  digitalWrite(CLOCK_OUT, clock1hz); 
 
   char status = ' ';
 
