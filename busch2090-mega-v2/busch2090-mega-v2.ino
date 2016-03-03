@@ -509,7 +509,7 @@ void setup() {
   pinMode(DOT_3, OUTPUT);
   pinMode(DOT_4, OUTPUT);
 
-  pinMode(DIN_1, INPUT); // that should be changed to input with pulldown resistors!
+  pinMode(DIN_1, INPUT); 
   pinMode(DIN_2, INPUT);
   pinMode(DIN_3, INPUT);
   pinMode(DIN_4, INPUT);
