@@ -188,8 +188,8 @@ For the Mega 2560 version 2 - there is more freedom how to set up the hardware, 
 
      #define DOT_1 5
      #define DOT_2 3
-     #define DOT_3 2 // we need pin 4 for SD card!
-     #define DOT_4 1
+     #define DOT_3 2  // we need pin 4 for SD card!
+     #define DOT_4 18 // PIN 1 didn't work for hardware experiments, probably serial 
 
      //
      // DIN digital input
@@ -428,10 +428,10 @@ flags, 1 Hz clock, and CPU clock:
 For hardware experiments, there are additional outputs for ``DOT`` as
 well:
 
-    #define DOT_1 1
-    #define DOT_2 2
-    #define DOT_3 3 // we need pin 4 for SD card!
-    #define DOT_4 5
+    #define DOT_1 5
+    #define DOT_2 3
+    #define DOT_3 2  // we need pin 4 for SD card!
+    #define DOT_4 18 // PIN 1 didn't work for hardware experiments, probably serial 
 
 and there is an additional output for clock 1 Hz: 
 
