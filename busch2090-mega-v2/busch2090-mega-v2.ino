@@ -105,7 +105,7 @@ int pushButtons[] = { RESET, BACK, RIGHT, UP, DOWN, LEFT, CANCEL, ENTER };
 #define DOT_1 5
 #define DOT_2 3
 #define DOT_3 2 // we need pin 4 for SD card!
-#define DOT_4 1
+#define DOT_4 18 // PIN 1 didn't work for hardware experiments for some reason
 
 //
 // DIN digital input
