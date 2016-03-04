@@ -85,6 +85,8 @@ to be housed in a case, you will need
 - A 4x4 keypad with matrix encoding for hexadecimal input 
 - A 3x4 telephone keypad, for function buttons and DIN input, NOT matrix encoded 
 - 8 LEDs and matching resistors (for 5 V) 
+- 4 pull-down resistors for DIN digital inputs (typical 10 kOhms)
+- 4 standard signal diodes for DOT digital outputs to prevent leakage currents from external electronic circuits / experiments connected to the outputs   
 - 8 N.O. momentary push buttons
 - A power switch
 - 2 Adafruit 7Segment LED backpacks 
@@ -175,13 +177,19 @@ For the Mega 2560 version 2 - there is more freedom how to set up the hardware, 
      #define ZERO_LED      45
 
      //
+     // 1 Hz clock digital output
+     // 
+
+     #define CLOCK_OUT 6
+
+     //
      // DOT digital output
      //
 
-     #define DOT_1 1
-     #define DOT_2 2
-     #define DOT_3 3 // we need pin 4 for SD card!
-     #define DOT_4 5
+     #define DOT_1 5
+     #define DOT_2 3
+     #define DOT_3 2 // we need pin 4 for SD card!
+     #define DOT_4 1
 
      //
      // DIN digital input
@@ -395,6 +403,15 @@ reserved for hardware experiments:
     #define DIN_3 15
     #define DIN_4 14
 
+Note that on the Mega version 2,  all digital inputs are
+set to ``INPUT_PULLUP``, with *the exception* of these
+``DIN_1`` to ``DIN_4``: 
+
+  pinMode(DIN_1, INPUT); 
+  pinMode(DIN_2, INPUT);
+  pinMode(DIN_3, INPUT);
+  pinMode(DIN_4, INPUT);
+
 The ``DOT`` output LEDs are discrete LEDs, and so are carry and zero
 flags, 1 Hz clock, and CPU clock:
 
@@ -415,6 +432,14 @@ well:
     #define DOT_2 2
     #define DOT_3 3 // we need pin 4 for SD card!
     #define DOT_4 5
+
+and there is an additional output for clock 1 Hz: 
+
+    #define CLOCK_OUT 6
+
+The faceplate has four holes under the ``DOT`` LEDs for one pair of
+``DIN``-``DOT`` input-output cables, and three more holes to the
+right, for 9 V VCC, GND, and 1 Hz clock cables.
 
 Since there is no LCD+Keypad shield being used, there are discrete
 N.O. buttons that take on these functions (SD card):
