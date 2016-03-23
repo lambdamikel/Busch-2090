@@ -1,0 +1,94 @@
+# Microtronic ASCII Terminal for Emic 2 
+
+@ 00 
+F40
+
+113
+FF2
+
+123
+FF1
+
+133
+FF0
+
+144
+FF4
+9A4
+EC0  # start
+9B4 
+E30  # enter
+9C4 
+EF0  # end 
+
+C00 
+
+@ 30
+
+01D
+02E 
+10F 
+F04
+0D1 
+CE0 
+
+# send start 
+# send N = 78 -> 89 
+# cr = 24 -> 13 
+# send S = 83 -> 94 
+
+@ C0 
+
+102 
+FE2 
+180 
+191 
+FE0
+FE2
+FE1
+FE2
+120  
+141 
+FE0
+FE2
+FE1 
+FE2
+190
+141 
+FE0
+FE2
+FE1
+FE2 
+F08 
+C00 
+
+# send char 
+# ascii xy = x-1 y-1 
+
+@ E0
+
+102
+510
+511
+FE1
+FE2
+FE0
+FE2
+F08
+C00  
+
+# send end 
+# cr = 24 = 13 
+
+@ F0
+
+102
+120  
+141 
+FE0
+FE2
+FE1 
+FE2
+F08 
+C00 
+
