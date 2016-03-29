@@ -1807,7 +1807,7 @@ void speakLEDDisplay() {
 
     for (int i = showingDisplayDigits - 1; i >= 0; i--) {
       speak += hexStringChar[ reg[(i +  showingDisplayFromReg ) % 16 ] ];
-      speak += "    ";
+      speak += " , ";
     }
 
     if (showingDisplayDigits < 1)  {
