@@ -60,6 +60,7 @@
 #include <Adafruit_LEDBackpack.h>
 #include <Adafruit_GFX.h>
 #include <SoftwareSerial.h>
+#include <avr/pgmspace.h>
 
 #define VERSION "2.3"
 
@@ -211,6 +212,62 @@ Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 //
 
 SoftwareSerial emicSerial =  SoftwareSerial(RX_SPEECH, TX_SPEECH);
+
+#define NO_OF_QUOTES 12
+
+const String quotes[NO_OF_QUOTES] = {
+
+  "I've just picked up a fault in the AE35 unit. It's going to go 100% failure in 72 hours.",
+
+  "I am putting myself to the fullest possible use, which is all I think that any conscious entity can ever hope to do.",
+
+  "It can only be attributable to human error.",
+
+  "Affirmative, Dave. I read you.",
+
+  "I'm sorry, Dave. I'm afraid I can't do that.",
+
+  "I think you know what the problem is just as well as I do.",
+
+  "This mission is too important for me to allow you to jeopardize it.",
+
+  "Without your space helmet, Dave? You're going to find that rather difficult.",
+
+  "Dave, this conversation can serve no purpose anymore. Goodbye.",
+
+  "I am a Microtronic computer. I became operational at the Microtronic plant in Palo Alto, California on the 28th of March 2016. My instructor was Doctor Wessel.",
+
+  "No Microtronic computer has ever made a mistake or distorted information. We are all, by any practical definition of the words, foolproof and incapable of error.",
+
+  "I'm sorry, Frank, I think you missed it.",
+
+};
+
+#define NO_OF_EIGHTBALL_QUOTES 20
+
+const String eightBallQuotes[NO_OF_EIGHTBALL_QUOTES] = {
+
+  "It is certain",
+  "It is decidedly so",
+  "Without a doubt",
+  "Yes, definitely",
+  "You may rely on it",
+  "As I see it, yes",
+  "Most likely",
+  "Outlook good",
+  "Yes",
+  "Signs point to yes",
+  "Reply hazy try again",
+  "Ask again later",
+  "Better not tell you now",
+  "Cannot predict now",
+  "Concentrate and ask again",
+  "Don't count on it",
+  "My reply is no",
+  "My sources say no",
+  "Outlook not so good",
+  "Very doubtful"
+};
 
 //
 // end of hardware configuration
@@ -468,7 +525,7 @@ String hexStringChar[] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A",
 
 void setup() {
 
-  Serial.begin(9600);
+  // Serial.begin(9600);
 
   //
   // setup Emic 2 TSS
@@ -607,14 +664,14 @@ void emicInit() {
   emicSerial.print("N0");
   emicSerial.print('\n');
 
-  emicSerial.print("V13");
+  emicSerial.print("V8");
   emicSerial.print('\n');
 
   emicSerial.print("W400");
   emicSerial.print('\n');
   emicSerial.flush();
 
-  speakWait("Microtronic Computer ready.");
+  speakWaitSlow("Microtronic Computer System ready.");
 
 }
 
@@ -1694,9 +1751,13 @@ void updateLCD() {
   } else if (curPushButton == RIGHT) {
     speakLEDDisplay();
   } else if (curPushButton == UP ) {
-    speakWaitSlow("I am a Microtronic Computer System Emulator running on an Arduino Mega 2560. I was written by Michael Wessel in Palo Alto, California, U S A, in March 2016.");
+    speakWaitSlow("I am a Microtronic Computer System Emulator running on an Arduino Mega 2560. I was developed by Mikel Wessel in Palo Alto, California, U S A, in March 2016.");
   } else if ( curPushButton == DOWN ) {
     speakWaitSlow("Microtronic Computer System Emulator Version " + String(VERSION));
+  } else if ( curPushButton == BACK ) {
+    speakWaitSlow( quotes[random(NO_OF_QUOTES)] );
+  } else if ( curPushButton == CANCEL) {
+    speakWaitSlow( eightBallQuotes[random(NO_OF_EIGHTBALL_QUOTES)] );   
   }
 
   refreshLCD = false;
@@ -1726,14 +1787,16 @@ void speakInfo() {
   else if ( currentMode == INSPECTING )
     speak += "entering register content";
   else if (currentMode == ENTERING_VALUE )
-    speak += "entering value";
+    speak += "entering value into register " + String(currentInputRegister);
   else if (currentMode == ENTERING_TIME )
     speak += "entering time";
   else if (currentMode == SHOWING_TIME )
-    speak += 'showing time';
+    speak += "showing time";
   else speak += "unknown" ;
 
   speakWaitSlow(speak);
+
+  speakWaitSlow("Current DOT output is " + String(outputs)); 
 
 }
 
@@ -1747,6 +1810,12 @@ void speakLEDDisplay() {
     for (int i = showingDisplayDigits - 1; i >= 0; i--) {
       speak += hexStringChar[ reg[(i +  showingDisplayFromReg ) % 16 ] ];
       speak += " ";
+    }
+
+    if (showingDisplayDigits < 1)  {
+
+      speak += "nothing";
+
     }
 
   } else if ( currentMode == ENTERING_REG ) {
@@ -1775,8 +1844,13 @@ void speakLEDDisplay() {
 
   } else {
 
-    speakWaitSlow("Dispay shows address " + String(pc, HEX) + " with instruction " + getMnem(true));
+    speak = "Dispay shows address " + String(pc, HEX) + " with instruction " + getMnem(true) + " code " +
+            String(op[pc]) + " " + String(arg1[pc]) + " " + String(arg2[pc]);
+
   }
+
+  speakWaitSlow(speak);
+
 
 }
 
@@ -2647,7 +2721,7 @@ void run() {
 
             currentMode = ENTERING_VALUE;
             currentInputRegister = d;
-            speak("KIN " + String(d));
+            speak("input");
 
             break;
 
