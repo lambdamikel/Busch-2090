@@ -213,13 +213,9 @@ Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
 SoftwareSerial emicSerial =  SoftwareSerial(RX_SPEECH, TX_SPEECH);
 
-#define NO_OF_QUOTES 12
+#define NO_OF_QUOTES 8
 
 const String quotes[NO_OF_QUOTES] = {
-
-  "I've just picked up a fault in the AE35 unit. It's going to go 100% failure in 72 hours.",
-
-  "I am putting myself to the fullest possible use, which is all I think that any conscious entity can ever hope to do.",
 
   "It can only be attributable to human error.",
 
@@ -227,11 +223,7 @@ const String quotes[NO_OF_QUOTES] = {
 
   "I'm sorry, Dave. I'm afraid I can't do that.",
 
-  "I think you know what the problem is just as well as I do.",
-
   "This mission is too important for me to allow you to jeopardize it.",
-
-  "Without your space helmet, Dave? You're going to find that rather difficult.",
 
   "Dave, this conversation can serve no purpose anymore. Goodbye.",
 
@@ -243,36 +235,22 @@ const String quotes[NO_OF_QUOTES] = {
 
 };
 
-#define NO_OF_EIGHTBALL_QUOTES 20
+#define NO_OF_EIGHTBALL_QUOTES 4
 
 const String eightBallQuotes[NO_OF_EIGHTBALL_QUOTES] = {
 
-  "It is certain",
-  "It is decidedly so",
-  "Without a doubt",
-  "Yes, definitely",
-  "You may rely on it",
-  "As I see it, yes",
-  "Most likely",
-  "Outlook good",
-  "Yes",
-  "Signs point to yes",
-  "Reply hazy try again",
-  "Ask again later",
-  "Better not tell you now",
-  "Cannot predict now",
-  "Concentrate and ask again",
-  "Don't count on it",
-  "My reply is no",
-  "My sources say no",
-  "Outlook not so good",
-  "Very doubtful"
+  "The answer is yes.", 
+  "The answer is no.", 
+  "The answer is unknown.", 
+  "The answer is 42."
+  
 };
 
 //
 // end of hardware configuration
 //
 
+File root;
 
 //
 // LCD display mode
@@ -564,6 +542,8 @@ void setup() {
     delay(2000);
   }
 
+  root = SD.open("/");
+  
   //
   // init pins
   //
@@ -792,7 +772,8 @@ String selectFile() {
   lcd.clear();
 
   int count = 0;
-  File root = SD.open("/");
+
+  root = SD.open("/");  
   root.rewindDirectory();
 
   while (true) {
@@ -1583,7 +1564,7 @@ void LCDLogo() {
 String getMnem(boolean spaces) {
 
   String mnem = "";
-  String sep = spaces ? " " : "";
+  String sep = spaces ? " . " : "";
 
   byte op1 = op[pc];
   byte hi = arg1[pc];
@@ -1592,32 +1573,32 @@ String getMnem(boolean spaces) {
   unsigned int op3 = op1 * 256 + hi * 16 + lo;
 
   switch ( op[pc] ) {
-    case OP_MOV  : mnem = "MOV   " + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
-    case OP_MOVI : mnem = "MOVI  " + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
-    case OP_AND  : mnem = "AND   " + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
-    case OP_ANDI : mnem = "ANDI  " + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
-    case OP_ADD  : mnem = "ADD   " + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
-    case OP_ADDI : mnem = "ADDI  " + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
-    case OP_SUB  : mnem = "SUB   " + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
-    case OP_SUBI : mnem = "SUBI  " + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
-    case OP_CMP  : mnem = "CMP   " + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
-    case OP_CMPI : mnem = "CMPI  " + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
-    case OP_OR   : mnem = "OR    " + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
-    case OP_CALL : mnem = "CALL  " + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
-    case OP_GOTO : mnem = "GOTO  " + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
-    case OP_BRC  : mnem = "BRC   " + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
-    case OP_BRZ  : mnem = "BRZ   " + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
+    case OP_MOV  : mnem = "MOV   " + sep + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
+    case OP_MOVI : mnem = "MOVI  " + sep + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
+    case OP_AND  : mnem = "AND   " + sep + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
+    case OP_ANDI : mnem = "ANDI  " + sep + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
+    case OP_ADD  : mnem = "ADD   " + sep + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
+    case OP_ADDI : mnem = "ADDI  " + sep + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
+    case OP_SUB  : mnem = "SUB   " + sep + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
+    case OP_SUBI : mnem = "SUBI  " + sep + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
+    case OP_CMP  : mnem = "CMP   " + sep + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
+    case OP_CMPI : mnem = "CMPI  " + sep + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
+    case OP_OR   : mnem = "OR    " + sep + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
+    case OP_CALL : mnem = "CALL  " + sep + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
+    case OP_GOTO : mnem = "GOTO  " + sep + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
+    case OP_BRC  : mnem = "BRC   " + sep + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
+    case OP_BRZ  : mnem = "BRZ   " + sep + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
     default : {
         switch (op2) {
-          case OP_MAS  : mnem = "MAS   " + hexStringChar[lo] + " "; break;
-          case OP_INV  : mnem = "INV   " + hexStringChar[lo] + " "; break;
-          case OP_SHR  : mnem = "SHR   " + hexStringChar[lo] + " "; break;
-          case OP_SHL  : mnem = "SHL   " + hexStringChar[lo] + " "; break;
-          case OP_ADC  : mnem = "ADC   " + hexStringChar[lo] + " "; break;
-          case OP_SUBC : mnem = "SUBC  " + hexStringChar[lo] + " "; break;
-          case OP_DIN  : mnem = "DIN   " + hexStringChar[lo] + " "; break;
-          case OP_DOT  : mnem = "DOT   " + hexStringChar[lo] + " "; break;
-          case OP_KIN  : mnem = "KIN   " + hexStringChar[lo] + " "; break;
+          case OP_MAS  : mnem = "MAS   " + sep + hexStringChar[lo] + " "; break;
+          case OP_INV  : mnem = "INV   " + sep + hexStringChar[lo] + " "; break;
+          case OP_SHR  : mnem = "SHR   " + sep + hexStringChar[lo] + " "; break;
+          case OP_SHL  : mnem = "SHL   " + sep + hexStringChar[lo] + " "; break;
+          case OP_ADC  : mnem = "ADC   " + sep + hexStringChar[lo] + " "; break;
+          case OP_SUBC : mnem = "SUBC  " + sep + hexStringChar[lo] + " "; break;
+          case OP_DIN  : mnem = "DIN   " + sep + hexStringChar[lo] + " "; break;
+          case OP_DOT  : mnem = "DOT   " + sep + hexStringChar[lo] + " "; break;
+          case OP_KIN  : mnem = "KIN   " + sep + hexStringChar[lo] + " "; break;
           default : {
               switch (op3) {
                 case OP_HALT   : mnem = "HALT    " ; break;
@@ -1636,7 +1617,7 @@ String getMnem(boolean spaces) {
                 case OP_EXRL   : mnem = "EXRL    "; break;
                 case OP_EXRM   : mnem = "EXRM    "; break;
                 case OP_EXRA   : mnem = "EXRA    "; break;
-                default        : mnem = "DISP  " + hexStringChar[hi] + sep + hexStringChar[lo]; break;
+                default        : mnem = "DISP  " + sep + hexStringChar[hi] + sep + hexStringChar[lo]; break;
               }
             }
         }
@@ -1751,7 +1732,7 @@ void updateLCD() {
   } else if (curPushButton == RIGHT) {
     speakLEDDisplay();
   } else if (curPushButton == UP ) {
-    speakWaitSlow("I am a Microtronic Computer System Emulator running on an Arduino Mega 2560. I was developed by Mikel Wessel in Palo Alto, California, U S A, in March 2016.");
+    speakWaitSlow("I am a Microtronic Computer System Emulator running on an Arduino. I was developed by Mikel Wessel in Palo Alto, California, U S A, in March 2016.");
   } else if ( curPushButton == DOWN ) {
     speakWaitSlow("Microtronic Computer System Emulator Version " + String(VERSION));
   } else if ( curPushButton == BACK ) {
@@ -1792,6 +1773,8 @@ void speakInfo() {
     speak += "entering time";
   else if (currentMode == SHOWING_TIME )
     speak += "showing time";
+  else if (currentMode == ENTERING_PROGRAM ) 
+    speak += "entering program number"; 
   else speak += "unknown" ;
 
   speakWaitSlow(speak);
@@ -1842,8 +1825,8 @@ void speakLEDDisplay() {
 
   } else { 
 
-    speak = "Dispay shows address " + String(pc, HEX) + " with instruction " + getMnem(true) + ". Code " +
-            String(op[pc],HEX) + " " + String(arg1[pc],HEX) + " " + String(arg2[pc],HEX) + ".";
+    speak = "Dispay shows address " + String(int(pc / 16), HEX) +" , " + String(pc % 16, HEX) + ", with instruction " + getMnem(true) + ". Code " +
+            String(op[pc],HEX) + " , " + String(arg1[pc],HEX) + " , " + String(arg2[pc],HEX) + ".";
 
   } 
 
