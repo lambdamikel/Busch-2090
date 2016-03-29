@@ -1807,7 +1807,7 @@ void speakLEDDisplay() {
 
     for (int i = showingDisplayDigits - 1; i >= 0; i--) {
       speak += hexStringChar[ reg[(i +  showingDisplayFromReg ) % 16 ] ];
-      speak += " ";
+      speak += "    ";
     }
 
     if (showingDisplayDigits < 1)  {
@@ -1842,8 +1842,8 @@ void speakLEDDisplay() {
 
   } else { 
 
-    speak = "Dispay shows address " + String(pc, HEX) + " with instruction " + getMnem(true) + " code " +
-            String(op[pc]) + " " + String(arg1[pc]) + " " + String(arg2[pc]);
+    speak = "Dispay shows address " + String(pc, HEX) + " with instruction " + getMnem(true) + ". Code " +
+            String(op[pc],HEX) + " " + String(arg1[pc],HEX) + " " + String(arg2[pc],HEX) + ".";
 
   } 
 
