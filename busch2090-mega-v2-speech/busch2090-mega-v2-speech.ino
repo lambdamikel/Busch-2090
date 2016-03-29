@@ -1,8 +1,8 @@
 /*
 
-  A Busch 2090 Microtronic Emulator for Arduino Mega 2560 SPEECH VERSION 
+  A Busch 2090 Microtronic Emulator for Arduino Mega 2560 SPEECH VERSION
 
-  Version 2.2 (c) Michael Wessel, March 22 2016
+  Version 2.3 (c) Michael Wessel, March 28 2016
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -12,8 +12,8 @@
   See http://mobilesociety.typepad.com/
 
   Hardware requirements:
-  
-  - EMic 2 Speech TTS module 
+
+  - EMic 2 speech module
   - 4x4 hex keypad (HEX keypad for data and program entry), matrix encoded
   - 3x4 telephone keypad, NOT matrix encoded
   - 2 Adafruit 7Segment LED display backpacks
@@ -61,8 +61,16 @@
 #include <Adafruit_GFX.h>
 #include <SoftwareSerial.h>
 
+#define VERSION "2.3"
+
 //
 // hardware configuration / wiring
+//
+
+//
+// serial interface to Emic 2 TTS module
+// note that only certain pins can be used
+// for RX_SPEECH (see software serial library doc)
 //
 
 #define RX_SPEECH A8
@@ -100,7 +108,7 @@ int pushButtons[] = { RESET, BACK, RIGHT, UP, DOWN, LEFT, CANCEL, ENTER };
 
 //
 // 1 Hz clock digital output
-// 
+//
 
 #define CLOCK_OUT 6
 
@@ -199,8 +207,8 @@ byte rowPins[ROWS] = {29, 27, 25, 23}; // rows
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
 //
-// Emic 2 TTS 
-// 
+// Emic 2 TTS
+//
 
 SoftwareSerial emicSerial =  SoftwareSerial(RX_SPEECH, TX_SPEECH);
 
@@ -463,12 +471,12 @@ void setup() {
   Serial.begin(9600);
 
   //
-  // setup Emic 2 TSS 
-  // 
- 
+  // setup Emic 2 TSS
+  //
+
   pinMode(RX_SPEECH, INPUT);
   pinMode(TX_SPEECH, OUTPUT);
-  
+
   emicSerial.begin(9600);
 
   //
@@ -523,14 +531,14 @@ void setup() {
   pinMode(DOT_LED_3, OUTPUT);
   pinMode(DOT_LED_4, OUTPUT);
 
-  pinMode(CLOCK_OUT, OUTPUT); 
-  
+  pinMode(CLOCK_OUT, OUTPUT);
+
   pinMode(DOT_1, OUTPUT);
   pinMode(DOT_2, OUTPUT);
   pinMode(DOT_3, OUTPUT);
   pinMode(DOT_4, OUTPUT);
 
-  pinMode(DIN_1, INPUT); 
+  pinMode(DIN_1, INPUT);
   pinMode(DIN_2, INPUT);
   pinMode(DIN_3, INPUT);
   pinMode(DIN_4, INPUT);
@@ -579,18 +587,18 @@ void setup() {
   }
 
   //
-  // 
-  // 
+  //
+  //
 
   sendString("  BUSCH ");
   sendString("  2090  ");
   sendString("  ready ");
 
   //
-  // Emic 2 init 
-  // 
+  // Emic 2 init
+  //
 
-  emicInit(); 
+  emicInit();
 
 }
 
@@ -598,58 +606,58 @@ void emicInit() {
 
   emicSerial.print("N0");
   emicSerial.print('\n');
-  
+
   emicSerial.print("V13");
   emicSerial.print('\n');
 
   emicSerial.print("W400");
   emicSerial.print('\n');
-  emicSerial.flush();  
-  
+  emicSerial.flush();
+
   speakWait("Microtronic Computer ready.");
-     
+
 }
 
 void speak(String message) {
 
-  while(Serial.available() > 0) {
+  while (Serial.available() > 0) {
     char t = Serial.read();
   }
 
   emicSerial.print('S');
   emicSerial.print(message);
   emicSerial.print('\n');
-  emicSerial.flush();  
-  
+  emicSerial.flush();
+
 }
 
-void speakWait(String message) {      
- 
-  speak(message);  
+void speakWait(String message) {
+
+  speak(message);
 
   while (emicSerial.read() != ':' );
-  
+
 }
 
 
-void speakWaitSlow(String message) {      
+void speakWaitSlow(String message) {
 
-  while(Serial.available() > 0) {
+  while (Serial.available() > 0) {
     char t = Serial.read();
   }
 
   emicSerial.print("W300");
   emicSerial.print('\n');
   emicSerial.flush();
-  
-  speak(message);   
-  
+
+  speak(message);
+
   while (emicSerial.read() != ':' );
 
   emicSerial.print("W400");
-  emicSerial.print('\n');  
+  emicSerial.print('\n');
   emicSerial.flush();
-  
+
 }
 
 int readPushButtons() {
@@ -723,9 +731,9 @@ byte readDIN() {
 String selectFile() {
 
   speakWait("Choose file.");
-  
+
   lcd.clear();
- 
+
   int count = 0;
   File root = SD.open("/");
   root.rewindDirectory();
@@ -765,7 +773,7 @@ String selectFile() {
   boolean blink = false;
 
   readPushButtons();
-  
+
   while ( curPushButton != ENTER ) {
 
     lcd.setCursor(0, 0);
@@ -812,14 +820,14 @@ String selectFile() {
 String createName(String name) {
 
   lcd.clear();
-  
+
   speak("Create file.");
- 
+
   int cursor = 0;
 
   unsigned long last = millis();
   boolean blink = false;
-  
+
   readPushButtons();
 
   while ( curPushButton != ENTER ) {
@@ -886,8 +894,8 @@ void saveProgram() {
   if ( fn.equals("") ) {
     lcd.clear();
     lcd.print("*** ABORT ***");
-    speak("Saving aborted."); 
-    delay(500);   
+    speak("Saving aborted.");
+    delay(500);
     reset();
     pc = oldPc;
     return;
@@ -902,7 +910,7 @@ void saveProgram() {
     lcd.setCursor(0, 1);
     lcd.print(fn);
     SD.remove(fn);
-    ("Overwriting " + fn); 
+    ("Overwriting " + fn);
     delay(500);
   }
 
@@ -912,10 +920,10 @@ void saveProgram() {
   lcd.setCursor(0, 1);
   lcd.print(fn);
 
-  
-  String speakFn = fn.substring(0, fn.length() - 4) + "."; 
-  
-  speak("Now saving " + speakFn); 
+
+  String speakFn = fn.substring(0, fn.length() - 4) + ".";
+
+  speak("Now saving " + speakFn);
 
   File myFile = SD.open( fn , FILE_WRITE);
 
@@ -983,14 +991,14 @@ void saveProgram() {
     lcd.print("Saved");
     lcd.setCursor(0, 1);
     lcd.print(fn);
-    speakWait("Saved " + speakFn);    
- 
+    speakWait("Saved " + speakFn);
+
 
   } else {
     lcd.clear();
-    lcd.print("*** ERROR ! ***");    
-    speakWait("Error during saving occured."); 
- 
+    lcd.print("*** ERROR ! ***");
+    speakWait("Error during saving occured.");
+
 
   }
 
@@ -1004,7 +1012,7 @@ void saveProgram() {
 
 
 void loadProgram() {
-  
+
   lcd.clear();
 
   String fn = selectFile();
@@ -1012,8 +1020,8 @@ void loadProgram() {
   if ( fn.equals("") ) {
     lcd.clear();
     lcd.print("*** ABORT ***");
-    speakWait("Loading aborted.");  
- 
+    speakWait("Loading aborted.");
+
     reset();
     return;
   }
@@ -1024,9 +1032,9 @@ void loadProgram() {
   lcd.setCursor(0, 1);
   lcd.print(fn);
 
-  String speakFn = fn.substring(0, fn.length() - 4) + "."; 
-  
-  speak("Now loading " + speakFn); 
+  String speakFn = fn.substring(0, fn.length() - 4) + ".";
+
+  speak("Now loading " + speakFn);
 
   cursor = CURSOR_OFF;
 
@@ -1189,16 +1197,16 @@ void loadProgram() {
     lcd.print(pc, HEX);
     lcd.setCursor(0, 1);
     lcd.print(fn);
-    
-    speakWait("Loaded " + speakFn);     
+
+    speakWait("Loaded " + speakFn);
     showLoaded(false);
-   
+
 
   } else {
     lcd.clear();
     lcd.print("*** ERROR ! ***");
-    speakWait("Error during loading occured."); 
-   
+    speakWait("Error during loading occured.");
+
 
   }
 
@@ -1264,7 +1272,7 @@ void showMem() {
     sendChar(7, NUMBER_FONT[arg2[pc]], false);
 
   writeDisplay();
-  
+
 
 }
 
@@ -1307,7 +1315,7 @@ void advanceTime() {
   }
 }
 
-long lastTimeSpeak = 0; 
+long lastTimeSpeak = 0;
 
 void showTime() {
 
@@ -1343,17 +1351,24 @@ void showTime() {
 
   writeDisplay();
 
-  if (millis() - lastTimeSpeak > 10000) {
+  /*
+    if (millis() - lastTimeSpeak > 10000) {
 
-    lastTimeSpeak = millis();
-    speakWaitSlow("It is " + String(timeHours10)+String(timeHours1)+ " hours, " + String(timeMinutes10)+String(timeMinutes1)+" minutes and " + 
-    String(timeSeconds10)+String(timeSeconds1) + " seconds."); 
-    
-  }
+      speakTime();
+      lastTimeSpeak = millis();
+
+    }
+  */
 
 
 }
 
+void speakTime() {
+
+  speakWaitSlow("It is " + String(timeHours10) + String(timeHours1) + " hours, " + String(timeMinutes10) + String(timeMinutes1) + " minutes and " +
+                String(timeSeconds10) + String(timeSeconds1) + " seconds.");
+
+}
 
 void showReg() {
 
@@ -1428,8 +1443,8 @@ void displayStatus() {
   digitalWrite(ZERO_LED, carry);
   digitalWrite(CLOCK_LED, clock == 0);
   digitalWrite(CLOCK_1HZ_LED, clock1hz);
-  
-  digitalWrite(CLOCK_OUT, clock1hz); 
+
+  digitalWrite(CLOCK_OUT, clock1hz);
 
   char status = ' ';
 
@@ -1508,69 +1523,70 @@ void LCDLogo() {
 
 }
 
-String getMnem() {
-  
-   String mnem = "";
+String getMnem(boolean spaces) {
 
-      byte op1 = op[pc];
-      byte hi = arg1[pc];
-      byte lo = arg2[pc];
-      byte op2 = op1 * 16 + hi;
-      unsigned int op3 = op1 * 256 + hi * 16 + lo;
+  String mnem = "";
+  String sep = spaces ? " " : "";
 
-      switch ( op[pc] ) {
-        case OP_MOV  : mnem = "MOV   " + hexStringChar[hi] + hexStringChar[lo] ; break;
-        case OP_MOVI : mnem = "MOVI  " + hexStringChar[hi] + hexStringChar[lo] ; break;
-        case OP_AND  : mnem = "AND   " + hexStringChar[hi] + hexStringChar[lo] ; break;
-        case OP_ANDI : mnem = "ANDI  " + hexStringChar[hi] + hexStringChar[lo] ; break;
-        case OP_ADD  : mnem = "ADD   " + hexStringChar[hi] + hexStringChar[lo] ; break;
-        case OP_ADDI : mnem = "ADDI  " + hexStringChar[hi] + hexStringChar[lo] ; break;
-        case OP_SUB  : mnem = "SUB   " + hexStringChar[hi] + hexStringChar[lo] ; break;
-        case OP_SUBI : mnem = "SUBI  " + hexStringChar[hi] + hexStringChar[lo] ; break;
-        case OP_CMP  : mnem = "CMP   " + hexStringChar[hi] + hexStringChar[lo] ; break;
-        case OP_CMPI : mnem = "CMPI  " + hexStringChar[hi] + hexStringChar[lo] ; break;
-        case OP_OR   : mnem = "OR    " + hexStringChar[hi] + hexStringChar[lo] ; break;
-        case OP_CALL : mnem = "CALL  " + hexStringChar[hi] + hexStringChar[lo] ; break;
-        case OP_GOTO : mnem = "GOTO  " + hexStringChar[hi] + hexStringChar[lo] ; break;
-        case OP_BRC  : mnem = "BRC   " + hexStringChar[hi] + hexStringChar[lo] ; break;
-        case OP_BRZ  : mnem = "BRZ   " + hexStringChar[hi] + hexStringChar[lo] ; break;
-        default : {
-            switch (op2) {
-              case OP_MAS  : mnem = "MAS   " + hexStringChar[lo] + " "; break;
-              case OP_INV  : mnem = "INV   " + hexStringChar[lo] + " "; break;
-              case OP_SHR  : mnem = "SHR   " + hexStringChar[lo] + " "; break;
-              case OP_SHL  : mnem = "SHL   " + hexStringChar[lo] + " "; break;
-              case OP_ADC  : mnem = "ADC   " + hexStringChar[lo] + " "; break;
-              case OP_SUBC : mnem = "SUBC  " + hexStringChar[lo] + " "; break;
-              case OP_DIN  : mnem = "DIN   " + hexStringChar[lo] + " "; break;
-              case OP_DOT  : mnem = "DOT   " + hexStringChar[lo] + " "; break;
-              case OP_KIN  : mnem = "KIN   " + hexStringChar[lo] + " "; break;
-              default : {
-                  switch (op3) {
-                    case OP_HALT   : mnem = "HALT    " ; break;
-                    case OP_NOP    : mnem = "NOP     "; break;
-                    case OP_DISOUT : mnem = "DISOUT  "; break;
-                    case OP_HXDZ   : mnem = "HXDZ    "; break;
-                    case OP_DZHX   : mnem = "DZHX    "; break;
-                    case OP_RND    : mnem = "RND     "; break;
-                    case OP_TIME   : mnem = "TIME    "; break;
-                    case OP_RET    : mnem = "RET     "; break;
-                    case OP_CLEAR  : mnem = "CLEAR   "; break;
-                    case OP_STC    : mnem = "STC     "; break;
-                    case OP_RSC    : mnem = "RSC     "; break;
-                    case OP_MULT   : mnem = "MULT    "; break;
-                    case OP_DIV    : mnem = "DIV     "; break;
-                    case OP_EXRL   : mnem = "EXRL    "; break;
-                    case OP_EXRM   : mnem = "EXRM    "; break;
-                    case OP_EXRA   : mnem = "EXRA    "; break;
-                    default        : mnem = "DISP  " + hexStringChar[hi] + hexStringChar[lo]; break;
-                  }
-                }
+  byte op1 = op[pc];
+  byte hi = arg1[pc];
+  byte lo = arg2[pc];
+  byte op2 = op1 * 16 + hi;
+  unsigned int op3 = op1 * 256 + hi * 16 + lo;
+
+  switch ( op[pc] ) {
+    case OP_MOV  : mnem = "MOV   " + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
+    case OP_MOVI : mnem = "MOVI  " + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
+    case OP_AND  : mnem = "AND   " + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
+    case OP_ANDI : mnem = "ANDI  " + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
+    case OP_ADD  : mnem = "ADD   " + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
+    case OP_ADDI : mnem = "ADDI  " + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
+    case OP_SUB  : mnem = "SUB   " + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
+    case OP_SUBI : mnem = "SUBI  " + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
+    case OP_CMP  : mnem = "CMP   " + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
+    case OP_CMPI : mnem = "CMPI  " + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
+    case OP_OR   : mnem = "OR    " + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
+    case OP_CALL : mnem = "CALL  " + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
+    case OP_GOTO : mnem = "GOTO  " + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
+    case OP_BRC  : mnem = "BRC   " + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
+    case OP_BRZ  : mnem = "BRZ   " + hexStringChar[hi] + sep + hexStringChar[lo] ; break;
+    default : {
+        switch (op2) {
+          case OP_MAS  : mnem = "MAS   " + hexStringChar[lo] + " "; break;
+          case OP_INV  : mnem = "INV   " + hexStringChar[lo] + " "; break;
+          case OP_SHR  : mnem = "SHR   " + hexStringChar[lo] + " "; break;
+          case OP_SHL  : mnem = "SHL   " + hexStringChar[lo] + " "; break;
+          case OP_ADC  : mnem = "ADC   " + hexStringChar[lo] + " "; break;
+          case OP_SUBC : mnem = "SUBC  " + hexStringChar[lo] + " "; break;
+          case OP_DIN  : mnem = "DIN   " + hexStringChar[lo] + " "; break;
+          case OP_DOT  : mnem = "DOT   " + hexStringChar[lo] + " "; break;
+          case OP_KIN  : mnem = "KIN   " + hexStringChar[lo] + " "; break;
+          default : {
+              switch (op3) {
+                case OP_HALT   : mnem = "HALT    " ; break;
+                case OP_NOP    : mnem = "NOP     "; break;
+                case OP_DISOUT : mnem = "DISOUT  "; break;
+                case OP_HXDZ   : mnem = "HXDZ    "; break;
+                case OP_DZHX   : mnem = "DZHX    "; break;
+                case OP_RND    : mnem = "RND     "; break;
+                case OP_TIME   : mnem = "TIME    "; break;
+                case OP_RET    : mnem = "RET     "; break;
+                case OP_CLEAR  : mnem = "CLEAR   "; break;
+                case OP_STC    : mnem = "STC     "; break;
+                case OP_RSC    : mnem = "RSC     "; break;
+                case OP_MULT   : mnem = "MULT    "; break;
+                case OP_DIV    : mnem = "DIV     "; break;
+                case OP_EXRL   : mnem = "EXRL    "; break;
+                case OP_EXRM   : mnem = "EXRM    "; break;
+                case OP_EXRA   : mnem = "EXRA    "; break;
+                default        : mnem = "DISP  " + hexStringChar[hi] + sep + hexStringChar[lo]; break;
+              }
             }
-          }
+        }
       }
+  }
 
-  return mnem; 
+  return mnem;
 
 }
 
@@ -1621,9 +1637,8 @@ void updateLCD() {
 
       lcd.setCursor(11, 1);
 
-      String mnem = getMnem(); 
+      String mnem = getMnem(false);
 
-  
       lcd.print(mnem);
       lcd.setCursor(0, 2);
       lcd.print("WR ");
@@ -1675,46 +1690,94 @@ void updateLCD() {
 
 
   if (curPushButton == LEFT ) {
-     speakLCD();     
+    speakInfo();
   } else if (curPushButton == RIGHT) {
-     speakLED(); 
+    speakLEDDisplay();
+  } else if (curPushButton == UP ) {
+    speakWaitSlow("I am a Microtronic Computer System Emulator running on an Arduino Mega 2560. I was written by Michael Wessel in Palo Alto, California, U S A, in March 2016.");
+  } else if ( curPushButton == DOWN ) {
+    speakWaitSlow("Microtronic Computer System Emulator Version " + String(VERSION));
   }
 
   refreshLCD = false;
 
 }
 
-void speakLCD(){
-  speak("LCD"); 
-  
+void speakInfo() {
+
+  String speak = "Current system status is ";
+
+  if ( error )
+    speak += "error. Please reset to continue";
+  else if ( currentMode == STOPPED )
+    speak += "halted";
+  else if (currentMode == ENTERING_ADDRESS_HIGH )
+    speak += "entering high byte of address";
+  else if ( currentMode == ENTERING_ADDRESS_LOW )
+    speak += "entering low byte of address";
+  else if (currentMode == ENTERING_OP ||
+           currentMode == ENTERING_ARG1 ||
+           currentMode == ENTERING_ARG2 )
+    speak += "entering instruction at " + String(pc, HEX);
+  else if (currentMode == RUNNING)
+    speak +=  "running program";
+  else if (currentMode == ENTERING_REG)
+    speak += "entering register";
+  else if ( currentMode == INSPECTING )
+    speak += "entering register content";
+  else if (currentMode == ENTERING_VALUE )
+    speak += "entering value";
+  else if (currentMode == ENTERING_TIME )
+    speak += "entering time";
+  else if (currentMode == SHOWING_TIME )
+    speak += 'showing time';
+  else speak += "unknown" ;
+
+  speakWaitSlow(speak);
+
 }
 
 
-void speakLED(){
+void speakLEDDisplay() {
+
+  String speak = "Display shows ";
 
   if ( currentMode == RUNNING || currentMode == ENTERING_VALUE ) {
-   
-     String s = "Display "; 
-     for (int i = showingDisplayDigits-1; i >= 0; i--) {
-       s += hexStringChar[ reg[(i +  showingDisplayFromReg ) % 16 ] ]; 
-       s += " "; 
-     }
 
-     speakWaitSlow(s);        
-   
-  } else if ( currentMode == ENTERING_REG || currentMode == INSPECTING ) {
-    
+    for (int i = showingDisplayDigits - 1; i >= 0; i--) {
+      speak += hexStringChar[ reg[(i +  showingDisplayFromReg ) % 16 ] ];
+      speak += " ";
+    }
+
+  } else if ( currentMode == ENTERING_REG ) {
+
+    speak += "current register number " + String(currentReg);
+
+  } else if ( currentMode == INSPECTING ) {
+
+    speak += "current register content " + String(reg[currentReg]);
+
   } else if ( currentMode == ENTERING_PROGRAM ) {
-   
-  } else if ( currentMode == ENTERING_TIME || currentMode == SHOWING_TIME ) {
-  
+
+    speak += "current program number " + String(program);
+
+  } else if ( currentMode == ENTERING_TIME ) {
+
+    speak += "current time to set";
+
+  } else if ( currentMode == SHOWING_TIME ) {
+
+    speak += "current time";
+
   } else if ( error ) {
-   
+
+    speak += "error. Please reset.";
+
   } else {
 
-    speakWaitSlow("Address " + String(pc, HEX) + ", Instruction " + getMnem()); 
+    speakWaitSlow("Dispay shows address " + String(pc, HEX) + " with instruction " + getMnem(true));
   }
-  
+
 }
 
 int decodeHex(char c) {
@@ -1863,12 +1926,12 @@ void showLoaded(boolean showLCD) {
   speakWait("Loaded");
 
   if (showLCD) {
-    lcd.clear(); 
-    lcd.write("Loaded @ "); 
-    lcd.print(pc, HEX); 
+    lcd.clear();
+    lcd.write("Loaded @ ");
+    lcd.print(pc, HEX);
   }
 
-  sendString(" loaded ");   
+  sendString(" loaded ");
   sendChar(4, NUMBER_FONT[program], false);
   writeDisplay();
   delay(DISP_DELAY);
@@ -1878,9 +1941,9 @@ void showLoaded(boolean showLCD) {
   sendChar(3, NUMBER_FONT[pc / 16], false);
   sendChar(4, NUMBER_FONT[pc % 16], false);
   writeDisplay();
-  
+
   delay(DISP_DELAY);
-  
+
 
 }
 
@@ -1934,7 +1997,7 @@ void clearMem() {
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("PGM 5 LOAD 000");
-  
+
   int curX = 0;
   int curY = 1;
 
@@ -1987,7 +2050,7 @@ void loadNOPs() {
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("PGM 6 LOAD F01");
-  
+
   int curX = 0;
   int curY = 1;
 
@@ -2042,8 +2105,8 @@ void interpret() {
       currentMode = STOPPED;
       cursor = CURSOR_OFF;
 
-      speak("Halt"); 
-      
+      speak("Halt");
+
       break;
 
     case RUN :
@@ -2053,8 +2116,8 @@ void interpret() {
       jump = true; // don't increment PC !
       //step();
 
-       speak("Run"); 
-      
+      speak("Run");
+
       break;
 
     case NEXT :
@@ -2067,7 +2130,7 @@ void interpret() {
         currentMode = ENTERING_OP;
       }
 
-       speak("Next");       
+      speak("Next");
 
       break;
 
@@ -2075,13 +2138,13 @@ void interpret() {
 
       if (currentMode != ENTERING_REG) {
         currentMode = ENTERING_REG;
-        cursor = 0;        
-        speak("Register"); 
+        cursor = 0;
+        speak("Register");
       } else {
         currentMode = INSPECTING;
         cursor = 1;
         speak("Content");
-      }      
+      }
 
       break;
 
@@ -2109,8 +2172,8 @@ void interpret() {
         currentMode = ENTERING_ARG1;
       }
 
-      speak("Clear");     
-      
+      speak("Clear");
+
       break;
 
     case PGM :
@@ -2120,8 +2183,8 @@ void interpret() {
         currentMode = ENTERING_PROGRAM;
       }
 
-      speak("Program");    
-      
+      speak("Program");
+
       break;
 
   }
@@ -2245,7 +2308,7 @@ void interpret() {
 
           default : // load other
 
-            if (program - 7 < programs ) {              
+            if (program - 7 < programs ) {
               speakWait("Load " + String(program));
               loadEEPromProgram(program - 7, 0);
             } else {
@@ -2584,7 +2647,7 @@ void run() {
 
             currentMode = ENTERING_VALUE;
             currentInputRegister = d;
-            speak("KIN " + String(d)); 
+            speak("KIN " + String(d));
 
             break;
 
