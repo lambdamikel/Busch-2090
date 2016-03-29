@@ -1420,10 +1420,10 @@ void showTime() {
 
 }
 
-void speakTime() {
+String getTimeString() {
 
-  speakWaitSlow("It is " + String(timeHours10) + String(timeHours1) + " hours, " + String(timeMinutes10) + String(timeMinutes1) + " minutes and " +
-                String(timeSeconds10) + String(timeSeconds1) + " seconds.");
+  return "It is " + String(timeHours10) + String(timeHours1) + " hours, " + String(timeMinutes10) + String(timeMinutes1) + " minutes and " +
+                String(timeSeconds10) + String(timeSeconds1) + " seconds.";
 
 }
 
@@ -1796,8 +1796,6 @@ void speakInfo() {
 
   speakWaitSlow(speak);
 
-  speakWaitSlow("Current DOT output is " + String(outputs)); 
-
 }
 
 
@@ -1816,7 +1814,7 @@ void speakLEDDisplay() {
 
       speak += "nothing";
 
-    }
+    } 
 
   } else if ( currentMode == ENTERING_REG ) {
 
@@ -1832,24 +1830,26 @@ void speakLEDDisplay() {
 
   } else if ( currentMode == ENTERING_TIME ) {
 
-    speak += "current time to set";
+    speak += "current time to set. " + getTimeString();
 
   } else if ( currentMode == SHOWING_TIME ) {
 
-    speak += "current time";
+    speak += "current time. " + getTimeString();
 
   } else if ( error ) {
 
     speak += "error. Please reset.";
 
-  } else {
+  } else { 
 
     speak = "Dispay shows address " + String(pc, HEX) + " with instruction " + getMnem(true) + " code " +
             String(op[pc]) + " " + String(arg1[pc]) + " " + String(arg2[pc]);
 
-  }
+  } 
 
   speakWaitSlow(speak);
+  
+  speakWaitSlow("DOT output value is " + String(outputs)); 
 
 
 }
