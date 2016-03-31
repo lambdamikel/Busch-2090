@@ -1868,9 +1868,9 @@ void speakInfo() {
   else if ( currentMode == STOPPED )
     speakSend("halted");
   else if (currentMode == ENTERING_ADDRESS_HIGH )
-    speakSend("entering high byte of address");
+    speakSend("entering high nibble of address");
   else if ( currentMode == ENTERING_ADDRESS_LOW )
-    speakSend("entering low byte of address");
+    speakSend("entering low nibble of address");
   else if (currentMode == ENTERING_OP ||
            currentMode == ENTERING_ARG1 ||
            currentMode == ENTERING_ARG2 ) {
