@@ -606,14 +606,9 @@ These additional Adafruit libraries are required for the
 
 ### Future Work 
 
-1. Add drivers to the DOT output LEDs such that they can be used as
-output pins, like in the real Microtronic (or use a additional digital
-outputs for this - would work for Mega version only, though). This
-might also require a simple transistor or Darlington driver.  
-2. With 1. done, control a Speech Synthesizer from these ports. A Speech
-Synthesizer extension board was announced as early as 1983 by Busch,
-in the Microtronic Manual Vol. 1, but was never released.
-3. Implement ``BKP`` and ``STEP`` function keys (breakpoint and
+1. Implement ``BKP`` and ``STEP`` function keys (breakpoint and
 step). I did not really use them a lot in 1983.
+2. Sync back latest changes from Mega version 3 into Mega version 1 and
+Uno version.
 
 
