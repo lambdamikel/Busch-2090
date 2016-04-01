@@ -436,14 +436,14 @@ reserved for hardware experiments:
     #define DIN_3 15
     #define DIN_4 14
 
-Note that on the Mega version 3,  all digital inputs are
-set to ``INPUT_PULLUP``, with *the exception* of these
-``DIN_1`` to ``DIN_4``: 
-
-  pinMode(DIN_1, INPUT); 
-  pinMode(DIN_2, INPUT);
-  pinMode(DIN_3, INPUT);
-  pinMode(DIN_4, INPUT);
+Note that on the Mega version 3, all digital inputs are set to
+``INPUT_PULLUP``, with *the exception* of these ``DIN_1`` to
+``DIN_4``, for which external pull-down resistors have to be used:
+  
+    pinMode(DIN_1, INPUT); 
+    pinMode(DIN_2, INPUT);
+    pinMode(DIN_3, INPUT);
+    pinMode(DIN_4, INPUT);
 
 The ``DOT`` output LEDs are discrete LEDs, and so are carry and zero
 flags, 1 Hz clock, and CPU clock:
