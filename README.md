@@ -154,6 +154,34 @@ PIN 10 out of the way such it doesn't make contact). See this image:
 
 For the Mega 2560 version 3 - there is more freedom how to set up the hardware, but I did it as follows: 
 
+     // 
+     // optional components
+     //
+
+     #define SPEECH // uncomment if no Emic 2 present
+     #define SDCARD // uncomment if no SDCard shield present 
+
+     //
+     // SDCard chip select pin 4 
+     // 
+
+     #if defined (SDCARD)
+       #define SDCARD_CHIP_SELECT 4
+     #endif
+     
+     //
+     // serial interface Emic 2 TTS module
+     //
+
+     #if defined (SPEECH)
+        #define RX_SPEECH A8
+        #define TX_SPEECH 53
+     #endif
+     
+     //
+     //   
+     //
+
      #define RESET  47 // soft reset 
 
      #define BACK   63
@@ -527,6 +555,25 @@ retrieving the code from an original Busch Microtronic and contributing it to th
 - ``PGM A`` : the three digit counter from Microtronic Manual Vol. 1, page 19 
 - ``PGM B`` : moving LED light from Manul Vol. 1, page 48 
 - ``PGM C`` : digitial input ``DIN`` test
+
+###Optional Emic 2 TTS Speech Module for Mega Version 3 
+
+If enabled, the Emic 2 speech module will echo back and confirm
+function and HEX keypad presses. In addition, the file browser
+navigation buttons trigger the following functions: 
+
+- Left : describe current system status.
+- Right :  describe content of 7segment display 
+- Up : software logo 
+- Down : software version
+- Cancel : Magic 8-Ball  
+- Back: quote from HAL 9000 
+
+Also, activities such as loading a PGM or SDCard program, erasing the
+program memory, displaying or setting the time, are spoken. 
+
+Ocasionally, the Emic 2 crashes and simply stops talking. Only a full
+power-cycle will revive it then.
 
 ###Required Third-Party Libraries 
 
