@@ -39,22 +39,22 @@ here.](https://www.youtube.com/channel/UC1dEZ22WoacesGdSWdVqfTw)
 
 This project consists of two sketches. The main emulator code is in
 ``busch2090.ino`` for the Uno, and ``busch2090-mega.ino`` or
-``busch2090-mega-v3.ino`` for the Mega 2560. However, the emulator
-will not run / initialize properly if ``PGM-EEPROM.ino`` has not been
-uploaded at least once into the Arduino first. The ``PGM-EEPROM.ino``
-sketch initializes the EEPROM with PGM example programs (see
-below). Without prior EEPROM initialization, it is likely that the
-emulator won't work. Important - if you are using ``busch2090-mega-v3.ino``, 
-then please use ``PGM-EEPROM-MEGA.ino``. 
+``busch2090-mega-v3.ino`` for the Mega 2560. The EEPROM has to be
+initialized properly before running the emulator. Please load and run
+``PGM-EEPROM.ino`` for the Uno version, and ``PGM-EEPROM-MEGA.ino``
+for the Mega version(s) first. The EEPROM is loaded with example
+ROM programs to be loaded into the emulator via the ``PGM`` key.
 
 The ``busch2090-mega-v3.ino`` is the Busch Microtronic Mega emulator
-version 2.  This version uses different hardware, see below, and is
-meant to be housed in a case.  The first pictures show the Mega
-emulator version 3. 
+version 3.  This version uses different hardware, and it is meant to
+be housed in a case. In addition, it supports the Emic 2 TTS Speech
+Synthesizer module. The Emic 2 module is optional, as is the SDCard
+shield. However, Mega version 1 currently requires the SDCard shield
+(will be updated soon).
 
-Also, you will find some programs in the ``software``
-directory. See below for instructions how to use them, and for a
-brief explanation of the ``.MIC`` file format.
+Also, you will find some programs in the ``software`` directory. See
+below for instructions how to use them, and for a brief explanation of
+the ``.MIC`` file format.
 
 ###Acknowledgements
 
@@ -91,10 +91,12 @@ to be housed in a case, you will need
 - A power switch
 - 2 Adafruit 7Segment LED backpacks 
 - 2 potentiometer, one for LCD contrast (100 Ohms), one for CPU speed (200 Ohms)
-- An optional Ethernet+SDCard shield (see ``#define SDCARD``) 
 - A 4x20 LCD display, standard Hitachi HD44780 
-- An optional Emic 2 TTS Speech Synthesizer module (see ``#define SPEECH``) 
 - A laser-cut (or laser-printed?) face place. The blueprint / layout is in the ``faceplate`` directory of this project.
+
+The following components are optional for the Mega version 3: 
+- Ethernet+SDCard shield (see ``#define SDCARD``) 
+- Emic 2 TTS Speech Synthesizer module (see ``#define SPEECH``) 
 
 
 ###Wiring 
@@ -113,7 +115,7 @@ For the Uno version:
 
     #define RESET_PIN 0
 
-    #define CPU_THROTTLE_ANALOG_PIN 5 // connect a potentiometer here for CPU speed throttle controll  
+    #define CPU_THROTTLE_ANALOG_PIN 5 // connect a potentiometer here for CPU speed throttle control
     #define CPU_THROTTLE_DIVISOR 10 // potentiometer dependent 
     #define CPU_MIN_THRESHOLD 10 // if smaller than this, delay = 0
     
@@ -133,7 +135,7 @@ For the Mega 2560 version 1:
 
     #define RESET_PIN 53
 
-    #define CPU_THROTTLE_ANALOG_PIN 15 // connect a potentiometer here for CPU speed throttle controll 
+    #define CPU_THROTTLE_ANALOG_PIN 15 // connect a potentiometer here for CPU speed throttle control
     #define CPU_THROTTLE_DIVISOR 10 // potentiometer dependent 
     #define CPU_MIN_THRESHOLD 10 // if smaller than this, delay = 0
 
@@ -158,8 +160,8 @@ For the Mega 2560 version 3 - there is more freedom how to set up the hardware, 
      // optional components
      //
 
-     #define SPEECH // uncomment if no Emic 2 present
-     #define SDCARD // uncomment if no SDCard shield present 
+     #define SPEECH // comment out if no Emic 2 present
+     #define SDCARD // comment out if no SDCard shield present 
 
      //
      // SDCard chip select pin 4 
@@ -312,7 +314,7 @@ Also notice that there is a blueprint of the faceplate in the
 
 ###Description 
 
-For the Arduino Uno and Mega version 1, the TM1638 module is used. 
+For the Arduino Uno and Mega version 1, the TM1638 module is used.
 The **push buttons of the TM1638 are the function keys of the
 Microtronic**, in this order of sequence, from left to right: ``HALT,
 NEXT, RUN, CCE, REG, STEP, BKP, RUN``:
@@ -399,11 +401,12 @@ function keys, or you can load a fixed ROM program specified in the
 Arduino sketch via the ``PGM`` button. These ROM programs are defined
 in the ``busch2090.ino`` sketch as ``PGM7`` to ``PGMD`` macros. 
 
-The Mega version 1 uses the select button (either of the LCD+Keypad
-shield, or the discrete N.O. button for the Mega version 3) to toggle
-between PC + current op-code display, register display, extra-register
-display, and display off. Note that the emulator slows down
-considerably with LCD being on.
+The Mega version 1 uses the select button (either the LCD+Keypad
+shield for Uno version and Mega version 1, or the discrete N.O. button
+with the Mega version 3) to toggle between PC + current op-code
+display, register display, extra-register display, and display
+off. Notice that the emulator slows down considerably with LCD being
+turned on.
 
 ![Program Counter and Op-Code Display](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-6-small.jpg)
 ![Register Content Display](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-7-small.jpg)
@@ -482,16 +485,17 @@ N.O. buttons that take on these functions (SD card):
     #define CANCEL 68
     #define ENTER  69
 
-###Load and Save Files to SDCard (Mega version only) 
+###Load and Save Files to SDCard (Mega versions only) 
 
 The Mega version supports saving a memory dump to SDCard via ``PGM
-2``.  The LCD+Keypad shield offers a primitive file name editor. Use
-``Select`` key to confirm current file name; ``Left`` and ``Right``
-keys to move cursor, ``Up`` and ``Down`` keys to change character at
-cursor position. 
+2``. Currently, the SDCard+Ethernet card shield is mandatory in Mega
+version 1, but optional in Mega version 3. The LCD+Keypad shield
+offers a primitive file name editor. Use ``Select`` key to confirm
+current file name; ``Left`` and ``Right`` keys to move cursor, ``Up``
+and ``Down`` keys to change character at cursor position.
 
-On the Mega version 3, there is no keypad, but discrete N.O. buttons
-(see above) take on the functions for SD card operations. 
+With the Mega version 3, there is no keypad, but discrete N.O. buttons
+(see above) take on the functions for SD card operations.
 
 Files are loaded from SDCard via ``PGM 1``. Here, the LCD+Keypad
 shield is used to browse through the directory of files. Use ``Select``
@@ -518,10 +522,10 @@ loaded at the current PC. That way, programs could be relocatable
 (e.g., for subroutines). Also, a ``.MIC`` can contain more than one ``@
 xx``. An example is the ``DAYS.MIC`` program. 
 
-Note that there are a couple of programs in the Manual Vol. 2 which
-require incremental loading, i.e., first load ``DAYS.MIC``, and then
-additionally load ``WEEKDAY.MIC``. The programs automatically load at
-the correct addresses.
+There are a couple of programs in the Microtronic Manual Vol. 2 which
+require incremental loading of parts, i.e., first load ``DAYS.MIC``,
+and then additionally load ``WEEKDAY.MIC``. The programs automatically
+load at the correct addresses.
 
 The example programs in the ``software`` directory have been
 automatically converted from the above linked PDFs with the help of an
@@ -535,11 +539,13 @@ for 1, the O character is accepted for 0, etc.
 
 ###``PGM`` Demo Programs are Stored in EEPROM  
 
-Please first run the ``PGM-EEPROM.ino`` sketch. This will load 5
-example programs into the Arduino's EEPROM. The emulator won't work /
-won't initialize correctly if the EEPROM has not been prepared.  The
-programs stored into and loaded from the EEPROM are ``PGM 7`` to ``PGM
-B``:
+For the Uno version, please run the ``PGM-EEPROM.ino`` sketch first,
+and use ``PGM-EEPROM-MEGA.ino`` for the Mega versions. This will load
+example programs into the Arduino's EEPROM. The emulator won't
+initialize correctly otherwise. 
+
+The programs stored into and loaded from the EEPROM are ``PGM 7`` to
+``PGM C``:
 
 - ``PGM 0`` : self-test not yet implemented. 
 - ``PGM 1`` : on Mega, this loads a program memory dump from SDCard. Use LCD+Keypad shield to select file via ``Select`` key, ``Left`` key to abort loading. 
@@ -554,26 +560,26 @@ retrieving the code from an original Busch Microtronic and contributing it to th
 - ``PGM 9`` : the electronic die, from Microtronic Manual Vol. 1, page 10
 - ``PGM A`` : the three digit counter from Microtronic Manual Vol. 1, page 19 
 - ``PGM B`` : moving LED light from Manul Vol. 1, page 48 
-- ``PGM C`` : digitial input ``DIN`` test
+- ``PGM C`` : digitial input ``DIN`` test (port input output echo)
 
 ###Optional Emic 2 TTS Speech Module for Mega Version 3 
 
 If enabled, the Emic 2 speech module will echo back and confirm
-function and HEX keypad presses. In addition, the file browser
-navigation buttons trigger the following functions: 
+function and HEX keypad presses. In addition, the navigation buttons
+of the file browser trigger the following functions:
 
 - Left : describe current system status.
 - Right :  describe content of 7segment display 
-- Up : software logo 
-- Down : software version
-- Cancel : Magic 8-Ball  
-- Back: quote from HAL 9000 
+- Up : general Microtronic emulator information 
+- Down : emulator software version
+- Cancel : get an answer from the Magic 8-Ball 
+- Back: listen to HAL 9000 
 
-Also, activities such as loading a PGM or SDCard program, erasing the
-program memory, displaying or setting the time, are spoken. 
+Also, activities such as loading a PGM or SDCard program, clearing the
+program memory, displaying or setting the time, are spoken.
 
-Ocasionally, the Emic 2 crashes and simply stops talking. Only a full
-power-cycle will revive it then.
+Occasionally, the Emic 2 crashes and simply stops talking. Then, only a
+full power-cycle will revive it.
 
 ###Required Third-Party Libraries 
 
@@ -588,21 +594,35 @@ others, and which are included in the ``library`` subdirectory:
 For the Mega version 1, the following standard libraries are used, and
 already part of the Arduino distribution (version 1.6.6):
 
+- ``TM16XXFonts`` from the ``TM1638`` library 
 - ``LiquidCrystal`` library
 - ``SPI`` library
 - ``SD`` library
+- ``String`` library
+
+The ``SD`` and ``String`` libraries were responsible for memory leaks 
+and terrible system instability. I hence removed them in Mega version 3, 
+and switched to the fabulous ``SdFat`` library which works much more
+reliably. 
 
 For the Mega version 3, the following standard libraries are used, and
 already part of the Arduino distribution (version 1.6.6):
 
+- ``TM16XXFonts`` from the ``TM1638`` library 
 - ``LiquidCrystal`` library
 - ``SPI`` library
-- ``SD`` library
+- ``SoftwareSerial`` to talk to the Emic 2 TTS module 
 
-These additional Adafruit libraries are required for the 
-7Segment LED backpack displays. They are available from the Adafruit homepage: 
+These additional Adafruit libraries are required to drive the 
+7Segment LED SPI backpack displays. They are available from the Adafruit homepage:  
+
 - ``Adafruit_LEDBackpack``library
 - ``Adafruit_GFX`` library
+
+In addition, instead of the ``SD`` card library, the 
+
+- ``SdFat`` library. 
+
 
 ### Future Work 
 

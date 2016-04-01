@@ -59,8 +59,8 @@
 
 #define VERSION "3.0"
 
-#define SPEECH // uncomment if no Emic 2 present
-#define SDCARD // uncomment if no SDCard shield present 
+#define SPEECH // comment out if no Emic 2 present
+#define SDCARD // comment out if no SDCard shield present 
 
 //
 //
