@@ -1,8 +1,14 @@
 /*
 
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
+  Optional support for
+  - Emic 2 TTS Speech Module
+  - SDCard + Ehternet shield
 
-  Version 2.2 (c) Michael Wessel, February 28 2016
+  See #define SDCARD
+  See #define SPEECH
+
+  Version 3.0 (c) Michael Wessel, April 1 2016
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -12,6 +18,8 @@
   See http://mobilesociety.typepad.com/
 
   Hardware requirements:
+
+  - EMic 2 speech module
   - 4x4 hex keypad (HEX keypad for data and program entry), matrix encoded
   - 3x4 telephone keypad, NOT matrix encoded
   - 2 Adafruit 7Segment LED display backpacks
@@ -49,18 +57,54 @@
 
 */
 
+#define VERSION "3.0"
+
+#define SPEECH // uncomment if no Emic 2 present
+#define SDCARD // uncomment if no SDCard shield present 
+
+//
+//
+//
+
+#if defined (SDCARD)
+#include <SdFat.h>
+#endif
+
 #include <SPI.h>
-#include <SD.h>
 #include <Keypad.h>
 #include <TM16XXFonts.h>
 #include <EEPROM.h>
 #include <LiquidCrystal.h>
 #include <Adafruit_LEDBackpack.h>
 #include <Adafruit_GFX.h>
+#include <SoftwareSerial.h>
+
+//
+// SD Card
+//
+
+
+#if defined (SDCARD)
+#define SDCARD_CHIP_SELECT 4
+
+SdFat SD;
+SdFile root;
+#endif
 
 //
 // hardware configuration / wiring
 //
+
+//
+// serial interface to Emic 2 TTS module
+// note that only certain pins can be used
+// for RX_SPEECH (see software serial library doc)
+//
+
+#if defined (SPEECH)
+#define RX_SPEECH A8
+#define TX_SPEECH 53
+#endif
 
 //
 // momentary N.O. push buttons
@@ -76,7 +120,7 @@
 #define CANCEL 68
 #define ENTER  69
 
-int pushButtons[] = { RESET, BACK, RIGHT, UP, DOWN, LEFT, CANCEL, ENTER };
+const int pushButtons[] = { RESET, BACK, RIGHT, UP, DOWN, LEFT, CANCEL, ENTER };
 
 //
 // status LEDs
@@ -94,7 +138,7 @@ int pushButtons[] = { RESET, BACK, RIGHT, UP, DOWN, LEFT, CANCEL, ENTER };
 
 //
 // 1 Hz clock digital output
-// 
+//
 
 #define CLOCK_OUT 6
 
@@ -125,7 +169,7 @@ int pushButtons[] = { RESET, BACK, RIGHT, UP, DOWN, LEFT, CANCEL, ENTER };
 #define DIN_BUTTON_3 46 // telephone keypad 6
 #define DIN_BUTTON_4 48 // telephone keypad 3 
 
-int dinButtons[] = { DIN_BUTTON_1, DIN_BUTTON_2, DIN_BUTTON_3, DIN_BUTTON_4 };
+const int dinButtons[] = { DIN_BUTTON_1, DIN_BUTTON_2, DIN_BUTTON_3, DIN_BUTTON_4 };
 
 //
 // remaining telephone keypad buttons
@@ -140,7 +184,7 @@ int dinButtons[] = { DIN_BUTTON_1, DIN_BUTTON_2, DIN_BUTTON_3, DIN_BUTTON_4 };
 #define STEP 38 // telephone keypad 5
 #define REG  40 // telephone keypad 2 
 
-int functionButtons[] = { CCE, RUN, BKP, NEXT, PGM, HALT, STEP, REG };
+const int functionButtons[] = { CCE, RUN, BKP, NEXT, PGM, HALT, STEP, REG };
 
 //
 // CPU speed throttle potentiometer
@@ -150,7 +194,7 @@ int functionButtons[] = { CCE, RUN, BKP, NEXT, PGM, HALT, STEP, REG };
 #define CPU_THROTTLE_DIVISOR 10   // potentiometer dependent 
 #define CPU_MIN_THRESHOLD 5       // if smaller than this, CPU = max speed  
 #define CPU_MAX_THRESHOLD 99      // if higher than this, CPU = min speed 
-#define CPU_DELTA_DISP 3          // if analog value changes more than this, update CPU delay display 
+#define CPU_DELTA_DISP 5          // if analog value changes more than this, update CPU delay display 
 
 //
 // for initialization of random generator
@@ -164,12 +208,21 @@ int functionButtons[] = { CCE, RUN, BKP, NEXT, PGM, HALT, STEP, REG };
 
 LiquidCrystal lcd(13, 12, 11, 7, 9, 8); // we need pin 10 for SD card!
 
+typedef char TwoDigits[3];
+typedef char LCDLine[21];
+
+LCDLine mnemonic;
+LCDLine file;
+LCDLine speakFile;
+
+int lcdCursor = 0;
+
 //
 // 2 Adafruit 7Segment LED backpacks
 //
 
-Adafruit_7segment right = Adafruit_7segment();
-Adafruit_7segment left  = Adafruit_7segment();
+Adafruit_7segment dispRight = Adafruit_7segment();
+Adafruit_7segment dispLeft  = Adafruit_7segment();
 
 #define DISP_DELAY 200
 
@@ -180,7 +233,7 @@ Adafruit_7segment left  = Adafruit_7segment();
 #define ROWS 4
 #define COLS 4
 
-char keys[ROWS][COLS] = { // plus one because 0 = no key pressed!
+const char keys[ROWS][COLS] = { // plus one because 0 = no key pressed!
   {0xD, 0xE, 0xF, 0x10},
   {0x9, 0xA, 0xB, 0xC},
   {0x5, 0x6, 0x7, 0x8},
@@ -193,9 +246,47 @@ byte rowPins[ROWS] = {29, 27, 25, 23}; // rows
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
 //
-// end of hardware configuration
+// Emic 2 TTS
 //
 
+#if defined (SPEECH)
+
+SoftwareSerial emicSerial =  SoftwareSerial(RX_SPEECH, TX_SPEECH);
+
+#define NO_OF_QUOTES 6
+
+const String quotes[NO_OF_QUOTES] = {
+
+  "Affirmative, Dave. I read you.",
+
+  "I'm sorry, Dave. I'm afraid I can't do that.",
+
+  "Dave, this conversation can serve no purpose anymore. Goodbye.",
+
+  "I am a Microtronic computer. I became operational at the Microtronic plant in Palo Alto, California on the 1th of April 2016. My instructor was Doctor Wessel.",
+
+  "No Microtronic computer has ever made a mistake or distorted information. We are all, by any practical definition of the words, foolproof and incapable of error.",
+
+  "I'm sorry, Frank, I think you missed it.",
+
+};
+
+#define NO_OF_EIGHTBALL_QUOTES 4
+
+const String eightBallQuotes[NO_OF_EIGHTBALL_QUOTES] = {
+
+  "The answer is yes.",
+  "The answer is no.",
+  "The answer is unknown.",
+  "The answer is 42."
+
+};
+
+#endif
+
+//
+// end of hardware configuration
+//
 
 //
 // LCD display mode
@@ -269,8 +360,8 @@ int last_cpu_delay = 0;
 // display and status variables
 //
 
+unsigned long lastClockTime = 0;
 unsigned long lastDispTime = 0;
-unsigned long lastDispTime2 = 0;
 
 #define CURSOR_OFF 8
 byte cursor = CURSOR_OFF;
@@ -386,10 +477,12 @@ mode currentMode = STOPPED;
 boolean refreshLCD = false;
 
 //
-//
+// I want to avoid all String() constructor calls - String library leads to memory leaks in Arduino!
 //
 
-String hexStringChar[] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F" };
+const String hexStringChar[] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F" };
+
+const String decString[] = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15" };
 
 //
 // OP codes
@@ -451,11 +544,42 @@ void setup() {
   Serial.begin(9600);
 
   //
+  // SD Card init
+  //
+
+
+#if defined (SDCARD)
+
+  pinMode(10, OUTPUT);
+  digitalWrite(10, HIGH);
+
+  if (! SD.begin(SDCARD_CHIP_SELECT, SPI_HALF_SPEED)) {
+    lcd.clear();
+    lcd.print("SD init failed!");
+    delay(2000);
+  }
+
+#endif
+
+  //
+  // setup Emic 2 TSS
+  //
+
+#if defined (SPEECH)
+
+  pinMode(RX_SPEECH, INPUT);
+  pinMode(TX_SPEECH, OUTPUT);
+
+  emicSerial.begin(9600);
+
+#endif
+
+  //
   // init displays
   //
 
-  right.begin(0x71);
-  left.begin(0x70);
+  dispRight.begin(0x71);
+  dispLeft.begin(0x70);
 
   lcd.begin(20, 4);
   LCDLogo();
@@ -463,20 +587,6 @@ void setup() {
   sendString("  BUSCH ");
   sendString("  2090  ");
   sendString("  init  ");
-
-  //
-  // SD Card init
-  //
-
-  pinMode(10, OUTPUT);
-  digitalWrite(10, HIGH);
-
-  boolean initialized = SD.begin(4);
-  if (! initialized) {
-    lcd.clear();
-    lcd.println("SD init failed!");
-    delay(2000);
-  }
 
   //
   // init pins
@@ -502,14 +612,14 @@ void setup() {
   pinMode(DOT_LED_3, OUTPUT);
   pinMode(DOT_LED_4, OUTPUT);
 
-  pinMode(CLOCK_OUT, OUTPUT); 
-  
+  pinMode(CLOCK_OUT, OUTPUT);
+
   pinMode(DOT_1, OUTPUT);
   pinMode(DOT_2, OUTPUT);
   pinMode(DOT_3, OUTPUT);
   pinMode(DOT_4, OUTPUT);
 
-  pinMode(DIN_1, INPUT); 
+  pinMode(DIN_1, INPUT);
   pinMode(DIN_2, INPUT);
   pinMode(DIN_3, INPUT);
   pinMode(DIN_4, INPUT);
@@ -565,13 +675,100 @@ void setup() {
   sendString("  2090  ");
   sendString("  ready ");
 
-
   //
-  // init SD card
+  // Emic 2 init
   //
 
+  emicInit();
 
 }
+
+void emicInit() {
+
+#if defined (SPEECH)
+
+  emicSerial.flush();
+
+  emicSerial.print('\n');
+  emicSerial.print("N0");
+  emicSerial.print('\n');
+
+  emicSerial.print("V6");
+  emicSerial.print('\n');
+
+  emicSerial.print("W380");
+  emicSerial.print('\n');
+
+  speakAndWait("Microtronic Computer System ready.");
+
+#endif
+
+}
+
+//
+//
+//
+
+boolean enterPending = false;
+
+void speakInit() {
+
+#if defined (SPEECH)
+
+  speakEnter();
+  emicSerial.print('S');
+  enterPending = true;
+
+#endif
+
+}
+
+void speakEnter() {
+
+
+#if defined (SPEECH)
+  emicSerial.print('\n');
+  // enterPending = false;
+
+  delay(50);
+#endif
+
+}
+
+void speakSend(String message) {
+
+#if defined (SPEECH)
+  emicSerial.print(message);
+#endif
+
+}
+
+void speakAndWait(String message) {
+
+#if defined (SPEECH)
+  speakInit();
+  speakSend(message);
+  speakEnter();
+  speakWait();
+#endif
+
+}
+
+
+void speakWait() {
+
+#if defined (SPEECH)
+  while (Serial.available() > 0) {
+    char t = Serial.read();
+    Serial.print(t);
+  }
+#endif
+
+}
+
+//
+//
+//
 
 int readPushButtons() {
 
@@ -641,44 +838,57 @@ byte readDIN() {
 
 }
 
-String selectFile() {
+int selectFileNo(int no) {
+
+#if defined (SDCARD)
+  int count = 0;
+
+  clearFileBuffer();
+
+  SD.vwd()->rewind();
+  while (root.openNext(SD.vwd(), O_READ)) {
+    if (! root.isDir()) {
+      count++;
+      root.getName(file, 20);
+      if (count == no ) {
+        root.close();
+        return count;
+      }
+    }
+    root.close();
+  }
+#endif
+  return 0;
+
+}
+
+
+int countFiles() {
+
+#if defined (SDCARD)
+  int count = 0;
+
+  SD.vwd()->rewind();
+  while (root.openNext(SD.vwd(), O_READ)) {
+    if (! root.isDir())
+      count++;
+    root.close();
+  }
+
+  return count;
+#endif
+
+}
+
+int selectFile() {
+
+  speakAndWait("Choose file.");
 
   lcd.clear();
 
-  int count = 0;
-  File root = SD.open("/");
-  root.rewindDirectory();
-
-  while (true) {
-
-    File entry =  root.openNextFile();
-    if (! entry) {
-      entry.close();
-      break;
-    } else if (! entry.isDirectory()) {
-      count++;
-      entry.close();
-    }
-  }
-
-  String* files = new String [count];
-  count = 0;
-  root.rewindDirectory();
-
-  while (true) {
-
-    File entry =  root.openNextFile();
-    if (! entry) {
-      entry.close();
-      break;
-    } else if (! entry.isDirectory()) {
-      files[count++] = String(entry.name());
-      entry.close();
-    }
-  }
-  root.close();
-
-  int cursor = 0;
+  int no = 1;
+  int count = countFiles();
+  selectFileNo(no);
 
   unsigned long last = millis();
   boolean blink = false;
@@ -689,48 +899,48 @@ String selectFile() {
 
     lcd.setCursor(0, 0);
     lcd.print("Load Program ");
-    lcd.print(cursor + 1);
+    lcd.print(no);
     lcd.print(" / ");
     lcd.print(count);
+    lcd.print("      "); // erase previoulsy left characters if number got smaller
 
     readPushButtons();
 
     if ( millis() - last > 100) {
 
       last = millis();
-
       lcd.setCursor(0, 1);
-
       blink = !blink;
 
       if (blink)
         lcd.print("                ");
       else
-        lcd.print(files[cursor]);
+        lcd.print(file);
     }
 
     switch ( curPushButton ) {
-      case UP : cursor++; break;
-      case DOWN : cursor--; break;
-      case CANCEL : return ""; break;
+      case UP : if (no < count) no = selectFileNo(no + 1); else no = selectFileNo(1);  break;
+      case DOWN : if (no > 1) no = selectFileNo(no - 1); else no = selectFileNo(count); break;
+      case CANCEL : return -1; break;
       default : break;
     }
-
-    if (cursor < 0)
-      cursor = 0;
-    else if (cursor > count - 1)
-      cursor = count - 1;
-
   }
 
-  return files[cursor];
+  return 0;
 
 }
 
 
-String createName(String name) {
+int createName() {
+
+  lcd.clear();
+
+  speakAndWait("Create file.");
+  clearFileBuffer();
+  file[0] = 'P';
 
   int cursor = 0;
+  int length = 1;
 
   unsigned long last = millis();
   boolean blink = false;
@@ -749,31 +959,32 @@ String createName(String name) {
       last = millis();
 
       lcd.setCursor(0, 1);
-      lcd.print(name);
+      lcd.print(file);
       lcd.setCursor(cursor, 1);
 
       blink = !blink;
 
       if (blink)
-        if (name[cursor] == ' ' )
+        if (file[cursor] == ' ' )
           lcd.print("_");
         else
-          lcd.print(name[cursor]);
+          lcd.print(file[cursor]);
       else
         lcd.print("_");
     }
 
     switch ( curPushButton ) {
-      case UP : name[cursor]++; break;
-      case DOWN : name[cursor]--; break;
+      case UP : file[cursor]++; break;
+      case DOWN : file[cursor]--; break;
       case LEFT : cursor--; break;
       case RIGHT : cursor++; break;
-      case BACK : if (cursor == name.length() - 1 && cursor > 0) {
-          name = name.substring(0, name.length() - 1);
+      case BACK : if (cursor == length - 1 && cursor > 0) {
+          file[cursor] = 0;
+          length--;
           cursor--;
           lcd.clear();
         } break;
-      case CANCEL : return "";
+      case CANCEL : return -1;
       default : break;
     }
 
@@ -782,43 +993,48 @@ String createName(String name) {
     else if (cursor > 7)
       cursor = 7;
 
-    if (cursor > name.length() - 1 )
-      name += "0";
-
+    if (cursor > length - 1 ) {
+      file[cursor] = '0';
+      length++;
+    }
   }
 
-  return name;
+  cursor++;
+  file[cursor++] = '.';
+  file[cursor++] = 'M';
+  file[cursor++] = 'I';
+  file[cursor++] = 'C';
+  file[cursor++] = 0;
+
+  return 0;
 
 }
 
 void saveProgram() {
 
+#if defined (SDCARD)
+
   int oldPc = pc;
 
-  lcd.clear();
+  int aborted = createName();
 
-  String name = String("P");
-
-  String fn = createName(name);
-
-  if ( fn.equals("") ) {
+  if ( aborted == -1 ) {
     lcd.clear();
     lcd.print("*** ABORT ***");
-    delay(500);   
+    speakAndWait("Saving aborted.");
+    delay(500);
     reset();
     pc = oldPc;
     return;
   }
 
-  fn += ".mic";
-
-  if (SD.exists(fn)) {
+  if (SD.exists(file)) {
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("Overwriting");
     lcd.setCursor(0, 1);
-    lcd.print(fn);
-    SD.remove(fn);
+    lcd.print(file);
+    SD.remove(file);
     delay(500);
   }
 
@@ -826,9 +1042,20 @@ void saveProgram() {
   lcd.setCursor(0, 0);
   lcd.print("Saving");
   lcd.setCursor(0, 1);
-  lcd.print(fn);
+  lcd.print(file);
 
-  File myFile = SD.open( fn , FILE_WRITE);
+  int i = 0;
+  while ( file[i] != 0 && file[i] != '.') {
+    speakFile[i] = file[i];
+    i++;
+  }
+
+  speakInit();
+  speakSend("Now saving ");
+  speakSend(speakFile);
+  speakEnter();
+
+  File myFile = SD.open( file , FILE_WRITE);
 
   cursor = CURSOR_OFF;
 
@@ -860,11 +1087,6 @@ void saveProgram() {
 
       pc = i;
       showMem();
-      /*
-        lcd.setCursor(13, 0);
-        lcd.print(op[i], HEX);
-        lcd.print(arg1[i], HEX);
-        lcd.print(arg2[i], HEX); */
 
       lcd.setCursor(curX, curY);
 
@@ -893,36 +1115,41 @@ void saveProgram() {
     lcd.setCursor(0, 0);
     lcd.print("Saved");
     lcd.setCursor(0, 1);
-    lcd.print(fn);
-    delay(500);
+    lcd.print(file);
+    speakInit();
+    speakSend("Saved ");
+    speakSend(speakFile);
+    speakEnter();
 
   } else {
     lcd.clear();
     lcd.print("*** ERROR ! ***");
-    delay(500);
-
+    speakAndWait("Error during saving occured.");
   }
 
   lcd.clear();
-
   myFile.close();
 
   reset();
   pc = oldPc;
+
+#endif
 
 }
 
 
 void loadProgram() {
 
+#if defined (SDCARD)
   lcd.clear();
 
-  String fn = selectFile();
+  int aborted = selectFile();
 
-  if ( fn.equals("") ) {
+  if ( aborted == -1 ) {
     lcd.clear();
     lcd.print("*** ABORT ***");
-    delay(500);
+    speakAndWait("Loading aborted.");
+
     reset();
     return;
   }
@@ -931,17 +1158,30 @@ void loadProgram() {
   lcd.setCursor(0, 0);
   lcd.print("Loading");
   lcd.setCursor(0, 1);
-  lcd.print(fn);
+  lcd.print(file);
+
+  int i = 0;
+  while ( file[i] != 0 && file[i] != '.') {
+    speakFile[i] = file[i];
+    i++;
+  }
+
+  speakInit();
+  speakSend("Now loading ");
+  speakSend(speakFile);
+  speakEnter();
 
   cursor = CURSOR_OFF;
 
-  File myFile = SD.open( fn);
+  SdFile myFile;
+
+  myFile.open( file, FILE_READ);
 
   int count = 0;
   int firstPc = -1;
   int oldPc = pc;
 
-  if (myFile) {
+  if ( myFile.isOpen()) {
 
     boolean readingComment = false;
     boolean readingOrigin = false;
@@ -1093,15 +1333,20 @@ void loadProgram() {
       lcd.print("0");
     lcd.print(pc, HEX);
     lcd.setCursor(0, 1);
-    lcd.print(fn);
+    lcd.print(file);
 
-    showLoaded();
-    delay(500);
+    speakInit();
+    speakSend("Loaded ");
+    speakSend(speakFile);
+    speakEnter();
+
+    showLoaded(false);
+
 
   } else {
     lcd.clear();
     lcd.print("*** ERROR ! ***");
-    delay(500);
+    speakAndWait("Error during loading occured.");
 
   }
 
@@ -1109,6 +1354,7 @@ void loadProgram() {
 
   reset();
   pc = firstPc;
+#endif
 
 }
 
@@ -1119,8 +1365,8 @@ void loadProgram() {
 
 void writeDisplay() {
 
-  left.writeDisplay();
-  right.writeDisplay();
+  dispLeft.writeDisplay();
+  dispRight.writeDisplay();
 
 }
 
@@ -1168,46 +1414,61 @@ void showMem() {
 
   writeDisplay();
 
+
 }
 
 void advanceTime() {
 
   if (currentMode != ENTERING_TIME) {
 
-    timeSeconds1++;
-    if (timeSeconds1 > 9) {
-      timeSeconds10++;
-      timeSeconds1 = 0;
+    unsigned long time = millis();
+    long delta = time - lastClockTime;
 
-      if (timeSeconds10 > 5) {
-        timeMinutes1++;
-        timeSeconds10 = 0;
+    while (delta >= 1000) {
 
-        if (timeMinutes1 > 9) {
-          timeMinutes10++;
-          timeMinutes1 = 0;
+      clock1hz = !clock1hz;
+      delta -= 1000;
 
-          if (timeMinutes10 > 5) {
-            timeHours1++;
-            timeMinutes10 = 0;
+      timeSeconds1++;
+      if (timeSeconds1 > 9) {
+        timeSeconds10++;
+        timeSeconds1 = 0;
 
-            if (timeHours10 < 2) {
-              if (timeHours1 > 9) {
-                timeHours1 = 0;
-                timeHours10++;
-              }
-            } else if (timeHours10 == 2) {
-              if (timeHours1 > 3) {
-                timeHours1 = 0;
-                timeHours10 = 0;
+        if (timeSeconds10 > 5) {
+          timeMinutes1++;
+          timeSeconds10 = 0;
+
+          if (timeMinutes1 > 9) {
+            timeMinutes10++;
+            timeMinutes1 = 0;
+
+            if (timeMinutes10 > 5) {
+              timeHours1++;
+              timeMinutes10 = 0;
+
+              if (timeHours10 < 2) {
+                if (timeHours1 > 9) {
+                  timeHours1 = 0;
+                  timeHours10++;
+                }
+              } else if (timeHours10 == 2) {
+                if (timeHours1 > 3) {
+                  timeHours1 = 0;
+                  timeHours10 = 0;
+                }
               }
             }
           }
         }
       }
+
+      lastClockTime = time;
     }
+
   }
 }
+
+long lastTimeSpeak = 0;
 
 void showTime() {
 
@@ -1243,9 +1504,47 @@ void showTime() {
 
   writeDisplay();
 
+  /*
+    if (millis() - lastTimeSpeak > 10000) {
+
+      speakTime();
+      lastTimeSpeak = millis();
+
+    }
+  */
+
 
 }
 
+TwoDigits twoDigits;
+
+void convertTwoDigits(byte a, byte b) {
+
+  if (a > 0)  {
+    twoDigits[0] = '0' + a;
+  } else
+    twoDigits[0] = ' ';
+
+  twoDigits[1] = '0' + b;
+
+  twoDigits[2] = 0;
+
+}
+
+void speakTime() {
+
+  speakSend(" It is ");
+  convertTwoDigits(timeHours10, timeHours1);
+  speakSend(twoDigits);
+  speakSend(" hours, ");
+  convertTwoDigits(timeMinutes10, timeMinutes1);
+  speakSend(twoDigits);
+  speakSend(" minutes and ");
+  convertTwoDigits(timeSeconds10, timeSeconds1);
+  speakSend(twoDigits);
+  speakSend(" seconds.");
+
+}
 
 void showReg() {
 
@@ -1300,17 +1599,14 @@ void displayStatus() {
 
   unsigned long time = millis();
   unsigned long delta = time - lastDispTime;
-  unsigned long delta2 = time - lastDispTime2;
 
-  if (delta2 > 300) {
+  if (delta > 300) {
+
     blink = !blink;
-    lastDispTime2 = time;
-  }
-
-  if (delta >= 1000) {
-    clock1hz = !clock1hz;
     lastDispTime = time;
+
     advanceTime();
+
   }
 
   clock ++;
@@ -1320,8 +1616,8 @@ void displayStatus() {
   digitalWrite(ZERO_LED, carry);
   digitalWrite(CLOCK_LED, clock == 0);
   digitalWrite(CLOCK_1HZ_LED, clock1hz);
-  
-  digitalWrite(CLOCK_OUT, clock1hz); 
+
+  digitalWrite(CLOCK_OUT, clock1hz);
 
   char status = ' ';
 
@@ -1400,6 +1696,111 @@ void LCDLogo() {
 
 }
 
+
+void clearMnemonicBuffer() {
+
+  for (int i = 0; i < 20; i++)
+    mnemonic[i] = ' ';
+
+  mnemonic[20] = 0;
+
+  lcdCursor = 0;
+
+}
+
+
+void clearFileBuffer() {
+
+  for (int i = 0; i < 20; i++)
+    file[i] = ' ';
+
+  file[20] = 0;
+
+  lcdCursor = 0;
+
+}
+
+
+void advanceCursor(boolean yes) {
+
+  if (yes) lcdCursor ++;
+
+}
+
+void inputMnem(String string) {
+
+  for (int i = 0; i < string.length(); i++)
+    mnemonic[i + lcdCursor] = string.charAt(i);
+
+  lcdCursor += string.length();
+
+}
+
+void getMnem(boolean spaces) {
+
+  clearMnemonicBuffer();
+
+  byte op1 = op[pc];
+  byte hi = arg1[pc];
+  byte lo = arg2[pc];
+  byte op2 = op1 * 16 + hi;
+  unsigned int op3 = op1 * 256 + hi * 16 + lo;
+
+  switch ( op[pc] ) {
+    case OP_MOV  : inputMnem("MOV   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    case OP_MOVI : inputMnem("MOVI  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    case OP_AND  : inputMnem("AND   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    case OP_ANDI : inputMnem("ANDI  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    case OP_ADD  : inputMnem("ADD   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    case OP_ADDI : inputMnem("ADDI  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    case OP_SUB  : inputMnem("SUB   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    case OP_SUBI : inputMnem("SUBI  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    case OP_CMP  : inputMnem("CMP   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    case OP_CMPI : inputMnem("CMPI  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    case OP_OR   : inputMnem("OR    ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    case OP_CALL : inputMnem("CALL  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    case OP_GOTO : inputMnem("GOTO  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    case OP_BRC  : inputMnem("BRC   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    case OP_BRZ  : inputMnem("BRZ   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    default : {
+        switch (op2) {
+          case OP_MAS  : inputMnem( "MAS   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+          case OP_INV  : inputMnem( "INV   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+          case OP_SHR  : inputMnem( "SHR   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+          case OP_SHL  : inputMnem( "SHL   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+          case OP_ADC  : inputMnem( "ADC   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+          case OP_SUBC : inputMnem( "SUBC  ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+          case OP_DIN  : inputMnem( "DIN   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+          case OP_DOT  : inputMnem( "DOT   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+          case OP_KIN  : inputMnem( "KIN   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+          default : {
+              switch (op3) {
+                case OP_HALT   : inputMnem( "HALT    ");  break;
+                case OP_NOP    : inputMnem( "NOP     ");  break;
+                case OP_DISOUT : inputMnem( "DISOUT  ");  break;
+                case OP_HXDZ   : inputMnem( "HXDZ    ");  break;
+                case OP_DZHX   : inputMnem( "DZHX    ");  break;
+                case OP_RND    : inputMnem( "RND     ");  break;
+                case OP_TIME   : inputMnem( "TIME    ");  break;
+                case OP_RET    : inputMnem( "RET     ");  break;
+                case OP_CLEAR  : inputMnem( "CLEAR   ");  break;
+                case OP_STC    : inputMnem( "STC     ");  break;
+                case OP_RSC    : inputMnem( "RSC     ");  break;
+                case OP_MULT   : inputMnem( "MULT    ");  break;
+                case OP_DIV    : inputMnem( "DIV     ");  break;
+                case OP_EXRL   : inputMnem( "EXRL    ");  break;
+                case OP_EXRM   : inputMnem( "EXRM    ");  break;
+                case OP_EXRA   : inputMnem( "EXRA    ");  break;
+                default        : inputMnem( "DISP  ");  advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); hexStringChar[lo]; break;
+              }
+            }
+        }
+      }
+  }
+
+}
+
+
 void updateLCD() {
 
   readPushButtons();
@@ -1419,7 +1820,22 @@ void updateLCD() {
 
     if (displayMode == OFF && refreshLCD ) {
 
-      LCDLogo();
+      switch ( currentMode ) {
+
+        case ENTERING_TIME :
+          lcd.clear();
+          lcd.print("PGM 3 ENTER TIME");
+          break;
+
+        case SHOWING_TIME :
+          lcd.clear();
+          lcd.print("PGM 4 SHOW TIME");
+          break;
+
+        default:
+
+          LCDLogo();
+      }
 
     } else if (displayMode == PCMEM ) {
 
@@ -1446,67 +1862,9 @@ void updateLCD() {
 
       lcd.setCursor(11, 1);
 
-      String mnem = "";
+      getMnem(false);
 
-      byte op1 = op[pc];
-      byte hi = arg1[pc];
-      byte lo = arg2[pc];
-      byte op2 = op1 * 16 + hi;
-      unsigned int op3 = op1 * 256 + hi * 16 + lo;
-
-      switch ( op[pc] ) {
-        case OP_MOV  : mnem = "MOV   " + hexStringChar[hi] + hexStringChar[lo] ; break;
-        case OP_MOVI : mnem = "MOVI  " + hexStringChar[hi] + hexStringChar[lo] ; break;
-        case OP_AND  : mnem = "AND   " + hexStringChar[hi] + hexStringChar[lo] ; break;
-        case OP_ANDI : mnem = "ANDI  " + hexStringChar[hi] + hexStringChar[lo] ; break;
-        case OP_ADD  : mnem = "ADD   " + hexStringChar[hi] + hexStringChar[lo] ; break;
-        case OP_ADDI : mnem = "ADDI  " + hexStringChar[hi] + hexStringChar[lo] ; break;
-        case OP_SUB  : mnem = "SUB   " + hexStringChar[hi] + hexStringChar[lo] ; break;
-        case OP_SUBI : mnem = "SUBI  " + hexStringChar[hi] + hexStringChar[lo] ; break;
-        case OP_CMP  : mnem = "CMP   " + hexStringChar[hi] + hexStringChar[lo] ; break;
-        case OP_CMPI : mnem = "CMPI  " + hexStringChar[hi] + hexStringChar[lo] ; break;
-        case OP_OR   : mnem = "OR    " + hexStringChar[hi] + hexStringChar[lo] ; break;
-        case OP_CALL : mnem = "CALL  " + hexStringChar[hi] + hexStringChar[lo] ; break;
-        case OP_GOTO : mnem = "GOTO  " + hexStringChar[hi] + hexStringChar[lo] ; break;
-        case OP_BRC  : mnem = "BRC   " + hexStringChar[hi] + hexStringChar[lo] ; break;
-        case OP_BRZ  : mnem = "BRZ   " + hexStringChar[hi] + hexStringChar[lo] ; break;
-        default : {
-            switch (op2) {
-              case OP_MAS  : mnem = "MAS   " + hexStringChar[lo] + " "; break;
-              case OP_INV  : mnem = "INV   " + hexStringChar[lo] + " "; break;
-              case OP_SHR  : mnem = "SHR   " + hexStringChar[lo] + " "; break;
-              case OP_SHL  : mnem = "SHL   " + hexStringChar[lo] + " "; break;
-              case OP_ADC  : mnem = "ADC   " + hexStringChar[lo] + " "; break;
-              case OP_SUBC : mnem = "SUBC  " + hexStringChar[lo] + " "; break;
-              case OP_DIN  : mnem = "DIN   " + hexStringChar[lo] + " "; break;
-              case OP_DOT  : mnem = "DOT   " + hexStringChar[lo] + " "; break;
-              case OP_KIN  : mnem = "KIN   " + hexStringChar[lo] + " "; break;
-              default : {
-                  switch (op3) {
-                    case OP_HALT   : mnem = "HALT    " ; break;
-                    case OP_NOP    : mnem = "NOP     "; break;
-                    case OP_DISOUT : mnem = "DISOUT  "; break;
-                    case OP_HXDZ   : mnem = "HXDZ    "; break;
-                    case OP_DZHX   : mnem = "DZHX    "; break;
-                    case OP_RND    : mnem = "RND     "; break;
-                    case OP_TIME   : mnem = "TIME    "; break;
-                    case OP_RET    : mnem = "RET     "; break;
-                    case OP_CLEAR  : mnem = "CLEAR   "; break;
-                    case OP_STC    : mnem = "STC     "; break;
-                    case OP_RSC    : mnem = "RSC     "; break;
-                    case OP_MULT   : mnem = "MULT    "; break;
-                    case OP_DIV    : mnem = "DIV     "; break;
-                    case OP_EXRL   : mnem = "EXRL    "; break;
-                    case OP_EXRM   : mnem = "EXRM    "; break;
-                    case OP_EXRA   : mnem = "EXRA    "; break;
-                    default        : mnem = "DISP  " + hexStringChar[hi] + hexStringChar[lo]; break;
-                  }
-                }
-            }
-          }
-      }
-
-      lcd.print(mnem);
+      lcd.print(mnemonic);
       lcd.setCursor(0, 2);
       lcd.print("WR ");
       for (int i = 0; i < 16; i++)
@@ -1555,7 +1913,149 @@ void updateLCD() {
     }
   }
 
+
+  if (curPushButton == LEFT ) {
+    speakInfo();
+  } else if (curPushButton == RIGHT) {
+    speakLEDDisplay();
+  } else if (curPushButton == UP ) {
+    speakAndWait("I am a Microtronic Computer System Emulator running on an Arduino. I was developed by Doctor Wessel in Palo Alto, California, U S A, in March 2016.");
+  } else if ( curPushButton == DOWN ) {
+    speakInit();
+    speakSend("Microtronic Computer System Emulator Version ");
+    speakSend(VERSION);
+    speakEnter();
+  } else if ( curPushButton == BACK ) {
+#if defined (SPEECH)
+    speakAndWait( quotes[random(NO_OF_QUOTES)] );
+#endif
+  } else if ( curPushButton == CANCEL) {
+#if defined (SPEECH)
+    speakAndWait( eightBallQuotes[random(NO_OF_EIGHTBALL_QUOTES)] );
+#endif
+  }
+
   refreshLCD = false;
+
+}
+
+void speakInfo() {
+
+  speakInit();
+
+  speakSend(" Current system status is ");
+
+  if ( error )
+    speakSend("error. Please reset to continue");
+  else if ( currentMode == STOPPED )
+    speakSend("halted");
+  else if (currentMode == ENTERING_ADDRESS_HIGH )
+    speakSend("entering high nibble of address");
+  else if ( currentMode == ENTERING_ADDRESS_LOW )
+    speakSend("entering low nibble of address");
+  else if (currentMode == ENTERING_OP ||
+           currentMode == ENTERING_ARG1 ||
+           currentMode == ENTERING_ARG2 ) {
+    speakSend("entering instruction at ");
+    speakSend(hexStringChar[ int(pc / 16) ]);
+    speakSend(" , ");
+    speakSend(hexStringChar[ pc % 16 ]);
+  } else if (currentMode == RUNNING)
+    speakSend("running program");
+  else if (currentMode == ENTERING_REG)
+    speakSend("entering register");
+  else if ( currentMode == INSPECTING )
+    speakSend("entering register content");
+  else if (currentMode == ENTERING_VALUE ) {
+    speakSend("entering value into register ");
+    speakSend( hexStringChar[ currentInputRegister ]);
+  } else if (currentMode == ENTERING_TIME )
+    speakSend("entering time");
+  else if (currentMode == SHOWING_TIME )
+    speakSend("showing time");
+  else if (currentMode == ENTERING_PROGRAM )
+    speakSend("entering program number");
+  else
+    speakSend("unknown");
+
+  speakSend(".");
+  speakEnter();
+
+}
+
+
+void speakLEDDisplay() {
+
+  speakInit();
+
+  speakSend("The display shows ");
+
+  if ( currentMode == RUNNING || currentMode == ENTERING_VALUE ) {
+
+    for (int i = showingDisplayDigits - 1; i >= 0; i--) {
+      speakSend( hexStringChar[ reg[(i +  showingDisplayFromReg ) % 16 ] ] );
+      if (i > 0)
+        speakSend(" , ");
+    }
+
+    if (showingDisplayDigits < 1)  {
+      speakSend("nothing");
+    }
+
+  } else if ( currentMode == ENTERING_REG ) {
+
+    speakSend("current register number ");
+    speakSend( hexStringChar[currentReg]);
+
+  } else if ( currentMode == INSPECTING ) {
+
+    speakSend("current register content ");
+    speakSend(hexStringChar[reg[currentReg]]);
+
+  } else if ( currentMode == ENTERING_PROGRAM ) {
+
+    speakSend("current program number ");
+    speakSend(hexStringChar[program]);
+
+  } else if ( currentMode == ENTERING_TIME ) {
+
+    speakSend("current time to set. ");
+    speakTime();
+
+  } else if ( currentMode == SHOWING_TIME ) {
+
+    speakSend("current time. ");
+    speakTime();
+
+  } else if ( error ) {
+
+    speakSend("error. Please reset.");
+
+  } else {
+
+    speakSend(" address ");
+    speakSend(hexStringChar[ int(pc / 16) ]);
+    speakSend(" , ");
+    speakSend(hexStringChar[ pc % 16 ]);
+    speakSend(" , with instruction ");
+    getMnem(true);
+    speakSend(mnemonic);
+    speakSend(". Code ");
+    speakSend(hexStringChar[ op[pc] ]);
+    speakSend(" , ");
+    speakSend(hexStringChar[ arg1[pc] ]);
+    speakSend(" , ");
+    speakSend(hexStringChar[ arg2[pc] ]);
+    speakSend(".");
+
+  }
+
+  speakSend(" The current output value is ");
+  speakSend( hexStringChar[ outputs ]);
+  speakSend(" .");
+
+  speakEnter();
+
 
 }
 
@@ -1580,7 +2080,6 @@ void loadEEPromProgram(byte pgm, byte start) {
   lcd.setCursor(0, 0);
   lcd.print("Loading PGM ");
   lcd.print(pgm + 7);
-
   int curX = 0;
   int curY = 1;
 
@@ -1637,7 +2136,7 @@ void loadEEPromProgram(byte pgm, byte start) {
     lcd.print("0");
   lcd.print(pc, HEX);
 
-  showLoaded();
+  showLoaded(false);
   delay(500);
 
   reset();
@@ -1651,7 +2150,7 @@ void sendChar(uint8_t pos, uint8_t bits, boolean dot) {
     if (pos > 1 )
       pos++;
 
-    left.writeDigitRaw(pos, bits);
+    dispLeft.writeDigitRaw(pos, bits);
 
   } else {
 
@@ -1660,7 +2159,7 @@ void sendChar(uint8_t pos, uint8_t bits, boolean dot) {
 
     pos -= 4;
 
-    right.writeDigitRaw(pos, bits);
+    dispRight.writeDigitRaw(pos, bits);
 
   }
 
@@ -1669,8 +2168,8 @@ void sendChar(uint8_t pos, uint8_t bits, boolean dot) {
 
 void clearDisplay() {
 
-  left.clear();
-  right.clear();
+  dispLeft.clear();
+  dispRight.clear();
 }
 
 void displayOff() {
@@ -1685,29 +2184,33 @@ void displayOff() {
 
 void setDisplayToHexNumber(uint32_t number) {
 
-  left.clear();
-  right.clear();
+  dispLeft.clear();
+  dispRight.clear();
 
   uint32_t r = number % 65536;
   uint32_t l = number / 65536;
 
 
-  right.printNumber(r, HEX);
+  dispRight.printNumber(r, HEX);
 
   if (l > 0)
-    left.printNumber(l, HEX);
+    dispLeft.printNumber(l, HEX);
 
   writeDisplay();
 
 }
 
-void showLoaded() {
+void showLoaded(boolean showLCD) {
 
-  lcd.clear(); 
-  lcd.write("Loaded @ "); 
-  lcd.print(pc, HEX); 
-  
-  sendString(" loaded ");   
+  speakAndWait("Loaded");
+
+  if (showLCD) {
+    lcd.clear();
+    lcd.write("Loaded @ ");
+    lcd.print(pc, HEX);
+  }
+
+  sendString(" loaded ");
   sendChar(4, NUMBER_FONT[program], false);
   writeDisplay();
   delay(DISP_DELAY);
@@ -1717,9 +2220,9 @@ void showLoaded() {
   sendChar(3, NUMBER_FONT[pc / 16], false);
   sendChar(4, NUMBER_FONT[pc % 16], false);
   writeDisplay();
-  
+
   delay(DISP_DELAY);
-  
+
 
 }
 
@@ -1732,6 +2235,7 @@ void clearStack() {
 void reset() {
 
   lcd.clear();
+  speakAndWait("Reset");
 
   showReset();
   delay(250);
@@ -1879,6 +2383,11 @@ void interpret() {
 
       currentMode = STOPPED;
       cursor = CURSOR_OFF;
+
+      speakAndWait("Halt");
+      lcd.clear();
+      refreshLCD = true;
+
       break;
 
     case RUN :
@@ -1887,6 +2396,11 @@ void interpret() {
       clearStack();
       jump = true; // don't increment PC !
       //step();
+
+      speakAndWait("Run");
+      lcd.clear();
+      refreshLCD = true;
+
       break;
 
     case NEXT :
@@ -1899,6 +2413,10 @@ void interpret() {
         currentMode = ENTERING_OP;
       }
 
+      speakAndWait("Next");
+      lcd.clear();
+      refreshLCD = true;
+
       break;
 
     case REG :
@@ -1906,10 +2424,14 @@ void interpret() {
       if (currentMode != ENTERING_REG) {
         currentMode = ENTERING_REG;
         cursor = 0;
+        speakAndWait("Register");
       } else {
         currentMode = INSPECTING;
         cursor = 1;
+        speakAndWait("Content");
       }
+      lcd.clear();
+      refreshLCD = true;
 
       break;
 
@@ -1937,6 +2459,10 @@ void interpret() {
         currentMode = ENTERING_ARG1;
       }
 
+      speakAndWait("Clear");
+      lcd.clear();
+      refreshLCD = true;
+
       break;
 
     case PGM :
@@ -1945,6 +2471,10 @@ void interpret() {
         cursor = 0;
         currentMode = ENTERING_PROGRAM;
       }
+
+      speakAndWait("Program");
+      lcd.clear();
+      refreshLCD = true;
 
       break;
 
@@ -2024,7 +2554,9 @@ void interpret() {
         switch ( program ) {
 
           case 0 :
-            error = true;
+            speakInit();
+            speakSend("Bad program");
+            speakEnter();
             break;
 
           case 1 :
@@ -2037,7 +2569,9 @@ void interpret() {
             break;
 
           case 3 :
-
+            speakInit();
+            speakSend("Set time");
+            speakEnter();
             currentMode = ENTERING_TIME;
             lcd.clear();
             lcd.print("PGM 3 ENTER TIME");
@@ -2045,7 +2579,9 @@ void interpret() {
             break;
 
           case 4 :
-
+            speakInit();
+            speakSend("Show time");
+            speakEnter();
             currentMode = SHOWING_TIME;
             lcd.clear();
             lcd.print("PGM 4 SHOW TIME");
@@ -2053,21 +2589,32 @@ void interpret() {
             break;
 
           case 5 : // clear mem
-
+            speakInit();
+            speakSend("Clear memory");
+            speakEnter();
             clearMem();
             break;
 
           case 6 : // load NOPs
-
+            speakInit();
+            speakSend("Load NOPPs");
+            speakEnter();
             loadNOPs();
             break;
 
           default : // load other
 
             if (program - 7 < programs ) {
+              speakInit();
+              speakSend("Load ");
+              speakSend( hexStringChar [ program ]);
+              speakEnter();
               loadEEPromProgram(program - 7, 0);
-            } else
-              error = true;
+            } else {
+              speakInit();
+              speakSend("Bad program");
+              speakEnter();
+            }
         }
 
       }
@@ -2400,6 +2947,7 @@ void run() {
 
             currentMode = ENTERING_VALUE;
             currentInputRegister = d;
+            //speakAndWait("input");
 
             break;
 
@@ -2685,6 +3233,7 @@ void loop() {
     curKeypadKey = keypadKeyRaw - 1;
     keypadPressed = true;
     refreshLCD = true;
+    speakAndWait(hexStringChar[curKeypadKey]);
   } else {
     keypadPressed = false;
     curKeypadKey = NO_KEY;

@@ -4,7 +4,7 @@
 ####License: GPL 3
 ####Hompage: [Author's Homepage](http://www.michael-wessel.info/)
 ####Contributer: [Martin Sauter (PGM 7 Code)](http://mobilesociety.typepad.com/) 
-####Version: 2.0 
+####Version: 3.0 
 ####[YouTube Videos](https://www.youtube.com/channel/UC1dEZ22WoacesGdSWdVqfTw)
 
 ###Abstract
@@ -22,9 +22,9 @@ The designer of the original Busch Microtronic, Mr. Jörg Vallen of Busch,
 was also so kind to grant permission to include a full copy of the
 manual set in the ``manuals`` directory of this project. 
 
-![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 2](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v2-1-small.jpg)
+![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v2-1-small.jpg)
 
-![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 2](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v2-5-small.jpg)
+![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v2-5-small.jpg)
 
 ![Busch 2090 Microtronic Emulator for Arduino Uno](https://github.com/lambdamikel/Busch-2090/blob/master/images/img4-small.jpg)
 
@@ -33,24 +33,24 @@ manual set in the ``manuals`` directory of this project.
 ![Busch 2090 Microtronic Emulator for Arduino Mega](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-6-small.jpg)
 
 See ``busch2090.ino`` or ``busch2090-mega.ino``, or
-``busch2090-mega-v2.ino``sketch for further instructions, and [see the
+``busch2090-mega-v3.ino``sketch for further instructions, and [see the
 emulator in action
 here.](https://www.youtube.com/channel/UC1dEZ22WoacesGdSWdVqfTw)
 
 This project consists of two sketches. The main emulator code is in
 ``busch2090.ino`` for the Uno, and ``busch2090-mega.ino`` or
-``busch2090-mega-v2.ino`` for the Mega 2560. However, the emulator
+``busch2090-mega-v3.ino`` for the Mega 2560. However, the emulator
 will not run / initialize properly if ``PGM-EEPROM.ino`` has not been
 uploaded at least once into the Arduino first. The ``PGM-EEPROM.ino``
 sketch initializes the EEPROM with PGM example programs (see
 below). Without prior EEPROM initialization, it is likely that the
-emulator won't work. Important - if you are using ``busch2090-mega-v2.ino``, 
-then please use ``PGM-EEPROM-v2.ino``. 
+emulator won't work. Important - if you are using ``busch2090-mega-v3.ino``, 
+then please use ``PGM-EEPROM-MEGA.ino``. 
 
-The ``busch2090-mega-v2.ino`` is the Busch Microtronic Mega emulator
+The ``busch2090-mega-v3.ino`` is the Busch Microtronic Mega emulator
 version 2.  This version uses different hardware, see below, and is
 meant to be housed in a case.  The first pictures show the Mega
-emulator version 2. 
+emulator version 3. 
 
 Also, you will find some programs in the ``software``
 directory. See below for instructions how to use them, and for a
@@ -76,9 +76,9 @@ For the Mega 2560 version, ``busch2090-mega.ino``, you will need
 - A TM1638 module with 8 7segment digits, 8 push buttons, and 8 LEDs
 - A 4x4 keypad with matrix encoding for hexadecimal input 
 - An LCD+Keypad shield
-- An Ethernet+SDCard shield 
+- An optional Ethernet+SDCard shield  
 
-For the Mega 2560 version 2, ``busch2090-mega-v2.ino``, which is meant
+For the Mega 2560 version 3, ``busch2090-mega-v3.ino``, which is meant
 to be housed in a case, you will need 
 
 - An Arduino Mega 2560 R3 
@@ -91,9 +91,11 @@ to be housed in a case, you will need
 - A power switch
 - 2 Adafruit 7Segment LED backpacks 
 - 2 potentiometer, one for LCD contrast (100 Ohms), one for CPU speed (200 Ohms)
-- An Ethernet+SDCard shield 
+- An optional Ethernet+SDCard shield (see ``#define SDCARD``) 
 - A 4x20 LCD display, standard Hitachi HD44780 
+- An optional Emic 2 TTS Speech Synthesizer module (see ``#define SPEECH``) 
 - A laser-cut (or laser-printed?) face place. The blueprint / layout is in the ``faceplate`` directory of this project.
+
 
 ###Wiring 
 
@@ -150,7 +152,7 @@ PIN 10 out of the way such it doesn't make contact). See this image:
 
 ![Bent Pin 10 of LCD+Keypad Shield](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega5-small.jpg)
 
-For the Mega 2560 version 2 - there is more freedom how to set up the hardware, but I did it as follows: 
+For the Mega 2560 version 3 - there is more freedom how to set up the hardware, but I did it as follows: 
 
      #define RESET  47 // soft reset 
 
@@ -275,7 +277,7 @@ For the Mega 2560 version 2 - there is more freedom how to set up the hardware, 
 
 This picture might provide some ideas how to set up / wire the hardware: 
 
-![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 2](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v2-3-small.jpg)
+![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v2-3-small.jpg)
 
 Also notice that there is a blueprint of the faceplate in the 
 ``faceplate`` directory of this project. 
@@ -305,7 +307,7 @@ top-right order. You might consider to relabel the keys on the pad
     1 2 3 C  ==>  4 5 6 7
     * 0 # D       0 1 2 3
 
-For the Arduino Mega version 2, there is another (non-matrix encoded)
+For the Arduino Mega version 3, there is another (non-matrix encoded)
 telephone keypad being used, for function buttons. The mapping
 is as follows: 
 
@@ -314,36 +316,36 @@ is as follows:
     7 8 9  ==>   RUN HALT DIN2
     * 0 #       C/CE  PGM DIN1
 
-(Note that, also on the Mega version 2, ``STEP`` and ``BKP`` are not
+(Note that, also on the Mega version 3, ``STEP`` and ``BKP`` are not
 implemented yet). 
 
  Microtronic's **Carry** and **Zero** flag are the LEDs 1 and 2 of the
 TM1638, the 1 **Hz clock LED** is LED 3 (from left to right). The LEDs
 5 to 8 are used as **DOT outputs** (set by the data out op-code
-``FEx``). On the Mega version 2, there is no TM1638, but discrete LEDs
+``FEx``). On the Mega version 3, there is no TM1638, but discrete LEDs
 are used instead. See below.
 
 Notice that the Arduino reset button will erase the emulator's program
 memory. To only reset emulator while keeping the program in memory,
 connect Arduino pin ``D0 (RX)`` to ground (or ``D53`` for the Mega
-version 1, or ``D47`` for the Mega version 2, which also has N.O.
+version 1, or ``D47`` for the Mega version 3, which also has N.O.
 push button for that purpose).
 
 The Arduino Uno pins ``D1`` to ``D4`` (or ``D22``, ``D24``, ``D24``
 and ``D26`` on the Arduino Mega version 1, or the telephone keypad
 keys ``#``, ``9``, ``6``, ``3`` and pins ``D14`` to ``D17`` on the
-Mega version 2), are read by the Microtronic data in op-code ``FDx
+Mega version 3), are read by the Microtronic data in op-code ``FDx
 (DIN)``. Connecting them to ground will set the corresponding bit to
-1. See ``PGM D``. On the Mega version 2, different pins are used, see
+1. See ``PGM D``. On the Mega version 3, different pins are used, see
 below.
 
 Analog pin ``A5`` on the Uno (or ``A15`` on the Mega version 1, or
-``A0`` on the Mega version 2), is used as a CPU speed
+``A0`` on the Mega version 3), is used as a CPU speed
 throttle. Connect a potentiometer to adjust the speed of the CPU.
 
 Unlike the original Microtronic, this emulator uses the leftmost digit
 of the 8digit FM1638 (or of the left Adafruit LEDs backpack display on
-the Mega version 2) to display the **current system status** (the
+the Mega version 3) to display the **current system status** (the
 original Microtronic only featured a 6digit display). Currently, the
 **status codes** are:
 
@@ -370,7 +372,7 @@ Arduino sketch via the ``PGM`` button. These ROM programs are defined
 in the ``busch2090.ino`` sketch as ``PGM7`` to ``PGMD`` macros. 
 
 The Mega version 1 uses the select button (either of the LCD+Keypad
-shield, or the discrete N.O. button for the Mega version 2) to toggle
+shield, or the discrete N.O. button for the Mega version 3) to toggle
 between PC + current op-code display, register display, extra-register
 display, and display off. Note that the emulator slows down
 considerably with LCD being on.
@@ -378,7 +380,7 @@ considerably with LCD being on.
 ![Program Counter and Op-Code Display](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-6-small.jpg)
 ![Register Content Display](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-7-small.jpg)
 
-For the Mega version 2, I have used a telephone keypad for the function buttons:
+For the Mega version 3, I have used a telephone keypad for the function buttons:
 
     #define CCE  26 // telephone keypad *
     #define RUN  28 // telephone keypad 7
@@ -403,7 +405,7 @@ reserved for hardware experiments:
     #define DIN_3 15
     #define DIN_4 14
 
-Note that on the Mega version 2,  all digital inputs are
+Note that on the Mega version 3,  all digital inputs are
 set to ``INPUT_PULLUP``, with *the exception* of these
 ``DIN_1`` to ``DIN_4``: 
 
@@ -460,7 +462,7 @@ The Mega version supports saving a memory dump to SDCard via ``PGM
 keys to move cursor, ``Up`` and ``Down`` keys to change character at
 cursor position. 
 
-On the Mega version 2, there is no keypad, but discrete N.O. buttons
+On the Mega version 3, there is no keypad, but discrete N.O. buttons
 (see above) take on the functions for SD card operations. 
 
 Files are loaded from SDCard via ``PGM 1``. Here, the LCD+Keypad
@@ -543,7 +545,7 @@ already part of the Arduino distribution (version 1.6.6):
 - ``SPI`` library
 - ``SD`` library
 
-For the Mega version 2, the following standard libraries are used, and
+For the Mega version 3, the following standard libraries are used, and
 already part of the Arduino distribution (version 1.6.6):
 
 - ``LiquidCrystal`` library
