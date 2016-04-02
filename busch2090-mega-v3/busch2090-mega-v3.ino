@@ -263,7 +263,7 @@ const String quotes[NO_OF_QUOTES] = {
 
   "Dave, this conversation can serve no purpose anymore. Goodbye.",
 
-  "I am a Microtronic computer. I became operational at the Microtronic plant in Palo Alto, California on the 1th of April 2016. My instructor was Doctor Wessel.",
+  "I am a Microtronic computer. I became operational at the Microtronic plant in Palo Alto, California on the first of April 2016. My instructor was Doctor Wessel.",
 
   "No Microtronic computer has ever made a mistake or distorted information. We are all, by any practical definition of the words, foolproof and incapable of error.",
 
@@ -1919,7 +1919,7 @@ void updateLCD() {
   } else if (curPushButton == RIGHT) {
     speakLEDDisplay();
   } else if (curPushButton == UP ) {
-    speakAndWait("I am a Microtronic Computer System Emulator running on an Arduino. I was developed by Doctor Wessel in Palo Alto, California, U S A, in March 2016.");
+    speakAndWait("I am a Microtronic Computer System Emulator running on an Arduino. I was developed by Doctor Wessel from Palo Alto, California, U S A, in April 2016.");
   } else if ( curPushButton == DOWN ) {
     speakInit();
     speakSend("Microtronic Computer System Emulator Version ");
