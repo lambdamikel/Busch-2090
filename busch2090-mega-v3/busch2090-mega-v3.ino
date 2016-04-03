@@ -8,7 +8,7 @@
   See #define SDCARD
   See #define SPEECH
 
-  Version 3.0 (c) Michael Wessel, April 1 2016
+  Version 3.1 (c) Michael Wessel, April 3 2016
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -57,7 +57,7 @@
 
 */
 
-#define VERSION "3.0"
+#define VERSION "3.1"
 
 #define SPEECH // comment out if no Emic 2 present
 #define SDCARD // comment out if no SDCard shield present 
@@ -342,6 +342,14 @@ int curPushButtonRaw = NO_KEY;
 byte programs = 0;
 int startAddresses[16];
 int programLengths[16];
+
+
+//
+// current nibble for Emic 2 
+//
+
+byte nibbleLo = 255;
+byte nibbleHi = 255;
 
 //
 // current PGM program
@@ -683,11 +691,23 @@ void setup() {
 
 }
 
-void emicInit() {
-
+void emicStop() {
+    
 #if defined (SPEECH)
 
-  emicSerial.flush();
+  emicSerial.flush(); 
+  emicSerial.print('X');
+  emicSerial.print('\r'); 
+
+#endif 
+
+}
+
+void emicInit() {
+
+emicStop(); 
+
+#if defined (SPEECH)
 
   emicSerial.print('\n');
   emicSerial.print("N0");
@@ -739,6 +759,14 @@ void speakSend(String message) {
 
 #if defined (SPEECH)
   emicSerial.print(message);
+#endif
+
+}
+
+void speakSendChar(char c) {
+
+#if defined (SPEECH)
+  emicSerial.print(c);
 #endif
 
 }
@@ -2235,6 +2263,9 @@ void clearStack() {
 void reset() {
 
   lcd.clear();
+  
+  emicStop(); 
+  
   speakAndWait("Reset");
 
   showReset();
@@ -2260,6 +2291,9 @@ void reset() {
   curInput = 0;
   inputs = 0;
   outputs = 0;
+
+  nibbleLo = 255; 
+  nibbleHi = 255; 
 
   displayMode = OFF;
   showingDisplayFromReg = 0;
@@ -2721,15 +2755,25 @@ void run() {
 
       reg[d] = reg[s];
       zero = reg[d] == 0;
-      ;
+
+      if (d == s) 
+        if ( nibbleHi == 255) 
+           nibbleHi = d;
+        else {
+            nibbleLo = d; 
+            char c = char(nibbleHi*10 + nibbleLo); 
+            if (c == 13 || c >= 32 && c <= 125 ) {                               
+               speakSendChar(c);                   
+            }
+            nibbleHi = 255;     
+        }             
 
       break;
 
     case OP_MOVI :
 
       reg[d] = n;
-      zero = reg[d] == 0;
-      ;
+      zero = reg[d] == 0;     
 
       break;
 
@@ -2738,8 +2782,7 @@ void run() {
       reg[d] &= reg[s];
       carry = false;
       zero = reg[d] == 0;
-      ;
-
+  
       break;
 
     case OP_ANDI :
@@ -2747,8 +2790,7 @@ void run() {
       reg[d] &= n;
       carry = false;
       zero = reg[d] == 0;
-      ;
-
+   
       break;
 
     case OP_ADD :
@@ -2757,8 +2799,7 @@ void run() {
       carry = reg[d] > 15;
       reg[d] &= 15;
       zero = reg[d] == 0;
-      ;
-
+  
       break;
 
     case OP_ADDI :
@@ -2767,8 +2808,7 @@ void run() {
       carry = reg[d] > 15;
       reg[d] &= 15;
       zero =  reg[d] == 0;
-      ;
-
+    
       break;
 
     case OP_SUB :
@@ -2777,8 +2817,7 @@ void run() {
       carry = reg[d] > 15;
       reg[d] &= 15;
       zero =  reg[d] == 0;
-      ;
-
+   
       break;
 
     case OP_SUBI :
@@ -2787,24 +2826,21 @@ void run() {
       carry = reg[d] > 15;
       reg[d] &= 15;
       zero =  reg[d] == 0;
-      ;
-
+  
       break;
 
     case OP_CMP :
 
       carry = reg[s] < reg[d];
       zero = reg[s] == reg[d];
-      ;
-
+    
       break;
 
     case OP_CMPI :
 
       carry = n < reg[d];
       zero = reg[d] == n;
-      ;
-
+    
       break;
 
     case OP_OR :
@@ -2812,8 +2848,7 @@ void run() {
       reg[d] |= reg[s];
       carry = false;
       zero = reg[d] == 0;
-      ;
-
+    
       break;
 
     //
@@ -2880,7 +2915,6 @@ void run() {
 
             reg[d] ^= 15;
 
-
             break;
 
           case OP_SHR :
@@ -2889,7 +2923,6 @@ void run() {
             carry = reg[d] & 16;
             reg[d] &= 15;
             zero = reg[d] == 0;
-
 
             break;
 
@@ -2900,7 +2933,6 @@ void run() {
             reg[d] &= 15;
             zero = reg[d] == 0;
 
-
             break;
 
           case OP_ADC :
@@ -2910,7 +2942,6 @@ void run() {
             reg[d] &= 15;
             zero = reg[d] == 0;
 
-
             break;
 
           case OP_SUBC :
@@ -2919,7 +2950,6 @@ void run() {
             carry = reg[d] > 15;
             reg[d] &= 15;
             zero = reg[d] == 0;
-
 
             break;
 
@@ -2966,7 +2996,6 @@ void run() {
 
                 case OP_NOP :
 
-
                   break;
 
                 case OP_DISOUT :
@@ -2992,8 +3021,6 @@ void run() {
                   reg[0xE] = ( num / 10 ) % 10;
                   reg[0xF] = ( num / 100 ) % 10;
 
-
-
                   break;
 
                 case OP_DZHX :
@@ -3010,8 +3037,6 @@ void run() {
                   reg[0xE] = ( num / 16 ) % 16;
                   reg[0xF] = ( num / 256 ) % 16;
 
-
-
                   break;
 
                 case OP_RND :
@@ -3019,8 +3044,6 @@ void run() {
                   reg[0xD] = random(16);
                   reg[0xE] = random(16);
                   reg[0xF] = random(16);
-
-
 
                   break;
 
@@ -3032,8 +3055,6 @@ void run() {
                   reg[0xD] = timeMinutes10;
                   reg[0xE] = timeHours1;
                   reg[0xF] = timeHours10;
-
-
 
                   break;
 
@@ -3056,14 +3077,12 @@ void run() {
                 case OP_STC :
 
                   carry = true;
-
-
+                  
                   break;
 
                 case OP_RSC :
 
                   carry = false;
-
 
                   break;
 
@@ -3107,7 +3126,6 @@ void run() {
                     reg[4] = ( num / 10000 ) % 10;
                     reg[5] = ( num / 100000 ) % 10;
                   }
-
 
                   for (int i = 0; i < 6; i++) // not documented in manual, but true!
                     regEx[i] = 0;
@@ -3172,7 +3190,6 @@ void run() {
                     regEx[i] = aux;
                   }
 
-
                   break;
 
                 case OP_EXRM :
@@ -3182,7 +3199,6 @@ void run() {
                     reg[i] = regEx[i];
                     regEx[i] = aux;
                   }
-
 
                   break;
 
@@ -3194,7 +3210,6 @@ void run() {
                     reg[i + 8] = aux;
                   }
 
-
                   break;
 
                 default : // DISP!
@@ -3202,7 +3217,6 @@ void run() {
                   displayOff();
                   showingDisplayDigits = disp_n;
                   showingDisplayFromReg = disp_s;
-
 
                   break;
 
