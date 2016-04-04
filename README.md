@@ -307,7 +307,7 @@ For the Mega 2560 version 3 - there is more freedom how to set up the hardware, 
 
 This picture might provide some ideas how to set up / wire the hardware: 
 
-![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v3-3-small.jpg)
+![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v3-2-small.jpg)
 
 Also notice that there is a blueprint of the faceplate in the 
 ``faceplate`` directory of this project. 
@@ -577,6 +577,8 @@ of the file browser trigger the following functions:
 
 Also, activities such as loading a PGM or SDCard program, clearing the
 program memory, displaying or setting the time, are spoken.
+
+![Emic 2 Built-In TTS Module / Mega Version 3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v3-3-small.jpg)
 
 Occasionally, the Emic 2 crashes and simply stops talking. Then, only a
 full power-cycle will revive it.
