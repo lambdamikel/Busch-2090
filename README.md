@@ -581,6 +581,28 @@ program memory, displaying or setting the time, are spoken.
 Occasionally, the Emic 2 crashes and simply stops talking. Then, only a
 full power-cycle will revive it.
 
+The built-in Emic can also be accessed programmatically be means of
+Microtronic machine instructions, and hence be made to speak arbitrary
+sentences. The ``MOV xx`` / code ``0xx`` instructions are being used
+for this purpose. The effect of a ``MOV xx`` instruction is to copy
+the contents of register ``x`` onto itself, so these instructions are
+basically vacuous, redundant NO-OPs. An extra meaning / extra effect
+is given to them in the Mega version 3. Here, a ``MOV xx`` sends a
+(high- or low) nibble ``x`` to the built-in Emic 2.  A full ASCII
+character with decimal code ``xy`` (e.g., 65 for character ``A``) is
+thus sent via ``0xx, 0yy`` (e.g., ``066, 055`` for character ``A``),
+in ``most significant nibble first`` order. Notice that these nibbles
+are decimal nibbles though, not hexadecimal nibbles. Hence, ``x`` can
+take values from 0 to C (ASCII goes from 0 to 127, and 12 = C - not
+all ASCII characters are speakable, of course - in fact, all
+characters below 32 are ignored, with the exception of carriage
+return, ASCII code 13).  Decimal coding is used in order to make entry
+of ASCII character codes more convenient. Notice that Emic requires a
+heading ``S`` as well as a trailing carriage return (ASCII code 13).
+An ``ABC`` from the Emic 2 hence takes the program ``088 033 066 055
+066 066 066 077 011 0033``.  Consequently, the Microtronic program
+memory can store 126 characters max.
+
 ###Required Third-Party Libraries 
 
 The emulator requires the following libraries, which are the work of
