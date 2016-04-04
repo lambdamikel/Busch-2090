@@ -22,7 +22,7 @@ The designer of the original Busch Microtronic, Mr. Jörg Vallen of Busch,
 was also so kind to grant permission to include a full copy of the
 manual set in the ``manuals`` directory of this project. 
 
-![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v2-1-small.jpg)
+![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v3-1-small.jpg)
 
 ![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v2-5-small.jpg)
 
@@ -307,7 +307,7 @@ For the Mega 2560 version 3 - there is more freedom how to set up the hardware, 
 
 This picture might provide some ideas how to set up / wire the hardware: 
 
-![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v2-3-small.jpg)
+![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v3-3-small.jpg)
 
 Also notice that there is a blueprint of the faceplate in the 
 ``faceplate`` directory of this project. 
@@ -591,7 +591,7 @@ is given to them in the Mega version 3. Here, a ``MOV xx`` sends a
 (high- or low) nibble ``x`` to the built-in Emic 2.  A full ASCII
 character with decimal code ``xy`` (e.g., 65 for character ``A``) is
 thus sent via ``0xx, 0yy`` (e.g., ``066, 055`` for character ``A``),
-in ``most significant nibble first`` order. Notice that these nibbles
+in "most significant nibble first" order. Notice that these nibbles
 are decimal nibbles though, not hexadecimal nibbles. Hence, ``x`` can
 take values from 0 to C (ASCII goes from 0 to 127, and 12 = C - not
 all ASCII characters are speakable, of course - in fact, all
