@@ -435,6 +435,7 @@ byte lastPc = 1;
 byte breakAt = 0; // != 0 -> breakpoint set
 
 boolean oneStepOnly = false;
+boolean ignoreBreakpointOnce = false;
 
 //
 // stack
@@ -2461,6 +2462,7 @@ void interpret() {
       cursor = CURSOR_OFF;
       oneStepOnly = false;
       dispOff = false;
+      ignoreBreakpointOnce = true;
 
       clearStack();
       jump = true; // don't increment PC !
@@ -2807,15 +2809,16 @@ void interpret() {
 
 void run() {
 
-  lastInstructionWasDisp = false;
-
   if (!jump && ! oneStepOnly)
     pc++;
 
-  if ( ! oneStepOnly && breakAt == pc && breakAt > 0) {
+  if ( ! oneStepOnly && breakAt == pc && breakAt > 0 && ! ignoreBreakpointOnce )  {
     currentMode = STOPPED;
     return;
   }
+
+  lastInstructionWasDisp = false;
+  ignoreBreakpointOnce = false;
 
   jump = false;
 
