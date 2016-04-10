@@ -391,9 +391,13 @@ differently, but editing should be comfortable enough.
 
 Typical operation sequences such as ``HALT-NEXT-00-RUN`` and
 ``HALT-NEXT-00-F10-NEXT-510-NEXT-C00-NEXT`` etc. will work as expected.
-Also, try to load a demo program: ``HALT-PGM-7-RUN``. The single step
-execution and breakpoint functionalities are also implemented 
-(function keys ``STEP`` and ``BKP``). 
+Also, try to load a demo program: ``HALT-PGM-7-RUN``. 
+
+On the Mega Version 3.2., also the single step execution and
+breakpoint functionalities are also implemented (function keys
+``STEP`` and ``BKP``). These functions are not yet implemented on the
+older Mega Version 1 and Uno version (I still have to sync back some
+changes from Mega Version 3 to these older code bases).
 
 Note that programs can be entered manually, using the keypad and
 function keys, or you can load a fixed ROM program specified in the
