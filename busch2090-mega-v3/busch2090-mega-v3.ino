@@ -8,7 +8,7 @@
   See #define SDCARD
   See #define SPEECH
 
-  Version 3.1 (c) Michael Wessel, April 3 2016
+  Version 3.2 (c) Michael Wessel, April 9 2016
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -57,7 +57,7 @@
 
 */
 
-#define VERSION "3.1"
+#define VERSION "3.2"
 
 #define SPEECH // comment out if no Emic 2 present
 #define SDCARD // comment out if no SDCard shield present 
@@ -192,7 +192,7 @@ const int functionButtons[] = { CCE, RUN, BKP, NEXT, PGM, HALT, STEP, REG };
 
 #define CPU_THROTTLE_ANALOG_PIN A0
 #define CPU_THROTTLE_DIVISOR 10   // potentiometer dependent 
-#define CPU_MIN_THRESHOLD 5       // if smaller than this, CPU = max speed  
+#define CPU_MIN_THRESHOLD 8       // if smaller than this, CPU = max speed  
 #define CPU_MAX_THRESHOLD 99      // if higher than this, CPU = min speed 
 #define CPU_DELTA_DISP 5          // if analog value changes more than this, update CPU delay display 
 
@@ -345,7 +345,7 @@ int programLengths[16];
 
 
 //
-// current nibble for Emic 2 
+// current nibble for Emic 2
 //
 
 byte nibbleLo = 255;
@@ -375,6 +375,8 @@ unsigned long lastDispTime = 0;
 byte cursor = CURSOR_OFF;
 boolean blink = true;
 
+boolean dispOff = false;
+boolean lastInstructionWasDisp = false;
 byte showingDisplayFromReg = 0;
 byte showingDisplayDigits = 0;
 
@@ -432,6 +434,8 @@ byte pc = 0; // program counter
 byte lastPc = 1;
 byte breakAt = 0; // != 0 -> breakpoint set
 
+boolean oneStepOnly = false;
+
 //
 // stack
 //
@@ -467,7 +471,6 @@ enum mode {
   ENTERING_ARG2,
 
   RUNNING,
-  STEPING,
 
   ENTERING_REG,
   INSPECTING,
@@ -692,20 +695,20 @@ void setup() {
 }
 
 void emicStop() {
-    
+
 #if defined (SPEECH)
 
-  emicSerial.flush(); 
+  emicSerial.flush();
   emicSerial.print('X');
-  emicSerial.print('\r'); 
+  emicSerial.print('\r');
 
-#endif 
+#endif
 
 }
 
 void emicInit() {
 
-emicStop(); 
+  emicStop();
 
 #if defined (SPEECH)
 
@@ -718,6 +721,8 @@ emicStop();
 
   emicSerial.print("W380");
   emicSerial.print('\n');
+
+  delay(100);
 
   speakAndWait("Microtronic Computer System ready.");
 
@@ -1415,33 +1420,38 @@ void sendString(String string) {
 
 void showMem() {
 
+  int adr = pc;
+
+  if ( currentMode == ENTERING_BREAKPOINT_HIGH || currentMode == ENTERING_BREAKPOINT_LOW )
+    adr = breakAt;
+
   if (cursor == 0)
-    sendChar(2, blink ? NUMBER_FONT[pc / 16 ] : 0, true);
+    sendChar(2, blink ? NUMBER_FONT[adr / 16 ] : 0, true);
   else
-    sendChar(2, NUMBER_FONT[pc / 16 ], false);
+    sendChar(2, NUMBER_FONT[adr / 16 ], false);
 
   if (cursor == 1)
-    sendChar(3, blink ? NUMBER_FONT[pc % 16]  : 0, true);
+    sendChar(3, blink ? NUMBER_FONT[adr % 16]  : 0, true);
   else
-    sendChar(3, NUMBER_FONT[pc % 16], false);
+    sendChar(3, NUMBER_FONT[adr % 16], false);
+
 
   if (cursor == 2)
-    sendChar(5, blink ? NUMBER_FONT[op[pc]] : 0, true);
+    sendChar(5, blink ? NUMBER_FONT[op[adr]] : 0, true);
   else
-    sendChar(5, NUMBER_FONT[op[pc]], false);
+    sendChar(5, NUMBER_FONT[op[adr]], false);
 
   if (cursor == 3)
-    sendChar(6, blink ? NUMBER_FONT[arg1[pc]] : 0, true);
+    sendChar(6, blink ? NUMBER_FONT[arg1[adr]] : 0, true);
   else
-    sendChar(6, NUMBER_FONT[arg1[pc]], false);
+    sendChar(6, NUMBER_FONT[arg1[adr]], false);
 
   if (cursor == 4)
-    sendChar(7, blink ? NUMBER_FONT[arg2[pc]] : 0, true);
+    sendChar(7, blink ? NUMBER_FONT[arg2[adr]] : 0, true);
   else
-    sendChar(7, NUMBER_FONT[arg2[pc]], false);
+    sendChar(7, NUMBER_FONT[arg2[adr]], false);
 
   writeDisplay();
-
 
 }
 
@@ -1656,6 +1666,11 @@ void displayStatus() {
            currentMode ==
            ENTERING_ADDRESS_LOW )
     status = 'A';
+  else if (currentMode ==
+           ENTERING_BREAKPOINT_HIGH ||
+           currentMode ==
+           ENTERING_BREAKPOINT_LOW )
+    status = 'b';
   else if (currentMode == ENTERING_OP ||
            currentMode == ENTERING_ARG1 ||
            currentMode == ENTERING_ARG2 )
@@ -1690,9 +1705,11 @@ void displayStatus() {
   clearDisplay();
   sendChar(0, FONT_DEFAULT[status - 32], false);
 
-  if ( currentMode == RUNNING || currentMode == ENTERING_VALUE )
+  if ( currentMode == RUNNING && ! dispOff && showingDisplayDigits > 0 || currentMode == ENTERING_VALUE )
     showDISP();
-  else if ( currentMode == ENTERING_REG || currentMode == INSPECTING )
+  else if  ( currentMode == RUNNING && dispOff ) {
+    // nothing
+  } else if ( currentMode == ENTERING_REG || currentMode == INSPECTING )
     showReg();
   else if ( currentMode == ENTERING_PROGRAM )
     showProgram();
@@ -1700,7 +1717,7 @@ void displayStatus() {
     showTime();
   else if ( error )
     showError();
-  else
+  else if ( ! dispOff && ! lastInstructionWasDisp )
     showMem();
 
   //
@@ -1868,20 +1885,18 @@ void updateLCD() {
     } else if (displayMode == PCMEM ) {
 
       lcd.setCursor(0, 0);
-      lcd.print("PC     OP  MNEM");
+      lcd.print("PC BKP OP  MNEM");
       lcd.setCursor(0, 1);
 
       if (pc < 16)
         lcd.print(0);
       lcd.print(pc, HEX);
 
-      lcd.setCursor(3, 1);
+      lcd.setCursor(4, 1);
 
-      if (pc < 100)
+      if (breakAt < 16)
         lcd.print(0);
-      if (pc < 10)
-        lcd.print(0);
-      lcd.print(pc);
+      lcd.print(breakAt, HEX);
 
       lcd.setCursor(7, 1);
       lcd.print(op[pc], HEX);
@@ -1981,6 +1996,10 @@ void speakInfo() {
     speakSend("entering high nibble of address");
   else if ( currentMode == ENTERING_ADDRESS_LOW )
     speakSend("entering low nibble of address");
+  else if (currentMode == ENTERING_BREAKPOINT_HIGH )
+    speakSend("entering high nibble of breakpoint");
+  else if ( currentMode == ENTERING_BREAKPOINT_LOW )
+    speakSend("entering low nibble of breakpoint");
   else if (currentMode == ENTERING_OP ||
            currentMode == ENTERING_ARG1 ||
            currentMode == ENTERING_ARG2 ) {
@@ -2061,7 +2080,10 @@ void speakLEDDisplay() {
 
   } else {
 
-    speakSend(" address ");
+    if ( currentMode == ENTERING_BREAKPOINT_HIGH || currentMode == ENTERING_BREAKPOINT_LOW )
+      speakSend(" breakpoint at address ");
+    else
+      speakSend(" address ");
     speakSend(hexStringChar[ int(pc / 16) ]);
     speakSend(" , ");
     speakSend(hexStringChar[ pc % 16 ]);
@@ -2198,12 +2220,15 @@ void clearDisplay() {
 
   dispLeft.clear();
   dispRight.clear();
+
 }
 
 void displayOff() {
 
   clearDisplay();
+  writeDisplay();
 
+  dispOff = true;
   showingDisplayFromReg = 0;
   showingDisplayDigits = 0;
 
@@ -2263,9 +2288,9 @@ void clearStack() {
 void reset() {
 
   lcd.clear();
-  
-  emicStop(); 
-  
+
+  emicStop();
+
   speakAndWait("Reset");
 
   showReset();
@@ -2286,16 +2311,20 @@ void reset() {
   zero = false;
   error = false;
   pc = 0;
+  oneStepOnly = false;
+
   clearStack();
 
   curInput = 0;
   inputs = 0;
   outputs = 0;
 
-  nibbleLo = 255; 
-  nibbleHi = 255; 
+  nibbleLo = 255;
+  nibbleHi = 255;
 
   displayMode = OFF;
+
+  dispOff = false;
   showingDisplayFromReg = 0;
   showingDisplayDigits = 0;
 
@@ -2415,8 +2444,10 @@ void interpret() {
 
     case HALT :
 
+      jump = true;
       currentMode = STOPPED;
       cursor = CURSOR_OFF;
+      dispOff = false;
 
       speakAndWait("Halt");
       lcd.clear();
@@ -2425,8 +2456,12 @@ void interpret() {
       break;
 
     case RUN :
+
       currentMode = RUNNING;
-      displayOff();
+      cursor = CURSOR_OFF;
+      oneStepOnly = false;
+      dispOff = false;
+
       clearStack();
       jump = true; // don't increment PC !
       //step();
@@ -2450,6 +2485,7 @@ void interpret() {
       speakAndWait("Next");
       lcd.clear();
       refreshLCD = true;
+      jump = true;
 
       break;
 
@@ -2471,9 +2507,27 @@ void interpret() {
 
     case STEP :
 
+      currentMode = RUNNING;
+      oneStepOnly = true;
+      dispOff = false;
+
+      speakAndWait("Step");
+      refreshLCD = true;
+
       break;
 
     case BKP :
+
+      if (currentMode != ENTERING_BREAKPOINT_LOW ) {
+        currentMode = ENTERING_BREAKPOINT_HIGH;
+        cursor = 0;
+      } else {
+        cursor = 1;
+        currentMode = ENTERING_BREAKPOINT_LOW;
+      }
+
+      speakAndWait("Breakpoint");
+      refreshLCD = true;
 
       break;
 
@@ -2675,6 +2729,30 @@ void interpret() {
 
       break;
 
+    case ENTERING_BREAKPOINT_HIGH :
+
+      if (keypadPressed) {
+        cursor = 1;
+        breakAt = curKeypadKey * 16;
+        currentMode = ENTERING_BREAKPOINT_LOW;
+      }
+
+      refreshLCD = true;
+
+      break;
+
+    case ENTERING_BREAKPOINT_LOW :
+
+      if (keypadPressed) {
+        cursor = 0;
+        breakAt += curKeypadKey;
+        currentMode = ENTERING_BREAKPOINT_HIGH;
+      }
+
+      refreshLCD = true;
+
+      break;
+
     case ENTERING_OP :
 
       if (keypadPressed) {
@@ -2729,8 +2807,16 @@ void interpret() {
 
 void run() {
 
-  if (!jump)
+  lastInstructionWasDisp = false;
+
+  if (!jump && ! oneStepOnly)
     pc++;
+
+  if ( ! oneStepOnly && breakAt == pc && breakAt > 0) {
+    currentMode = STOPPED;
+    return;
+  }
+
   jump = false;
 
   byte op1 = op[pc];
@@ -2756,24 +2842,24 @@ void run() {
       reg[d] = reg[s];
       zero = reg[d] == 0;
 
-      if (d == s) 
-        if ( nibbleHi == 255) 
-           nibbleHi = d;
+      if (d == s)
+        if ( nibbleHi == 255)
+          nibbleHi = d;
         else {
-            nibbleLo = d; 
-            char c = char(nibbleHi*10 + nibbleLo); 
-            if (c == 13 || c >= 32 && c <= 125 ) {                               
-               speakSendChar(c);                   
-            }
-            nibbleHi = 255;     
-        }             
+          nibbleLo = d;
+          char c = char(nibbleHi * 10 + nibbleLo);
+          if (c == 13 || c >= 32 && c <= 125 ) {
+            speakSendChar(c);
+          }
+          nibbleHi = 255;
+        }
 
       break;
 
     case OP_MOVI :
 
       reg[d] = n;
-      zero = reg[d] == 0;     
+      zero = reg[d] == 0;
 
       break;
 
@@ -2782,7 +2868,7 @@ void run() {
       reg[d] &= reg[s];
       carry = false;
       zero = reg[d] == 0;
-  
+
       break;
 
     case OP_ANDI :
@@ -2790,7 +2876,7 @@ void run() {
       reg[d] &= n;
       carry = false;
       zero = reg[d] == 0;
-   
+
       break;
 
     case OP_ADD :
@@ -2799,7 +2885,7 @@ void run() {
       carry = reg[d] > 15;
       reg[d] &= 15;
       zero = reg[d] == 0;
-  
+
       break;
 
     case OP_ADDI :
@@ -2808,7 +2894,7 @@ void run() {
       carry = reg[d] > 15;
       reg[d] &= 15;
       zero =  reg[d] == 0;
-    
+
       break;
 
     case OP_SUB :
@@ -2817,7 +2903,7 @@ void run() {
       carry = reg[d] > 15;
       reg[d] &= 15;
       zero =  reg[d] == 0;
-   
+
       break;
 
     case OP_SUBI :
@@ -2826,21 +2912,21 @@ void run() {
       carry = reg[d] > 15;
       reg[d] &= 15;
       zero =  reg[d] == 0;
-  
+
       break;
 
     case OP_CMP :
 
       carry = reg[s] < reg[d];
       zero = reg[s] == reg[d];
-    
+
       break;
 
     case OP_CMPI :
 
       carry = n < reg[d];
       zero = reg[d] == n;
-    
+
       break;
 
     case OP_OR :
@@ -2848,7 +2934,7 @@ void run() {
       reg[d] |= reg[s];
       carry = false;
       zero = reg[d] == 0;
-    
+
       break;
 
     //
@@ -3077,7 +3163,7 @@ void run() {
                 case OP_STC :
 
                   carry = true;
-                  
+
                   break;
 
                 case OP_RSC :
@@ -3215,8 +3301,14 @@ void run() {
                 default : // DISP!
 
                   displayOff();
+
+                  dispOff = false;
                   showingDisplayDigits = disp_n;
                   showingDisplayFromReg = disp_s;
+                  lastInstructionWasDisp = true;
+
+                  if (oneStepOnly)
+                    showDISP();
 
                   break;
 
@@ -3231,6 +3323,11 @@ void run() {
   }
 
 
+  if (oneStepOnly) {
+    currentMode = STOPPED;
+    if (!jump)
+      pc++;
+  }
 }
 
 //
@@ -3273,7 +3370,7 @@ void loop() {
   //
   //
 
-  cpu_delay = analogRead(CPU_THROTTLE_ANALOG_PIN) / CPU_THROTTLE_DIVISOR;
+  cpu_delay = (analogRead(CPU_THROTTLE_ANALOG_PIN) / CPU_THROTTLE_DIVISOR) / 10  * 10;
   boolean update = false;
 
   if (cpu_delay < CPU_MIN_THRESHOLD) {
