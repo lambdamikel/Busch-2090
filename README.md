@@ -4,7 +4,7 @@
 ####License: GPL 3
 ####Hompage: [Author's Homepage](http://www.michael-wessel.info/)
 ####Contributer: [Martin Sauter (PGM 7 Code)](http://mobilesociety.typepad.com/) 
-####Version: 3.0 
+####Version: 3.2
 ####[YouTube Videos](https://www.youtube.com/channel/UC1dEZ22WoacesGdSWdVqfTw)
 
 ###Abstract
@@ -346,9 +346,6 @@ is as follows:
     7 8 9  ==>   RUN HALT DIN2
     * 0 #       C/CE  PGM DIN1
 
-(Note that, also on the Mega version 3, ``STEP`` and ``BKP`` are not
-implemented yet). 
-
  Microtronic's **Carry** and **Zero** flag are the LEDs 1 and 2 of the
 TM1638, the 1 **Hz clock LED** is LED 3 (from left to right). The LEDs
 5 to 8 are used as **DOT outputs** (set by the data out op-code
@@ -394,7 +391,9 @@ differently, but editing should be comfortable enough.
 
 Typical operation sequences such as ``HALT-NEXT-00-RUN`` and
 ``HALT-NEXT-00-F10-NEXT-510-NEXT-C00-NEXT`` etc. will work as expected.
-Also, try to load a demo program: ``HALT-PGM-7-RUN``.
+Also, try to load a demo program: ``HALT-PGM-7-RUN``. The single step
+execution and breakpoint functionalities are also implemented 
+(function keys ``STEP`` and ``BKP``). 
 
 Note that programs can be entered manually, using the keypad and
 function keys, or you can load a fixed ROM program specified in the
@@ -650,9 +649,7 @@ In addition, instead of the ``SD`` card library, the
 
 ### Future Work 
 
-1. Implement ``BKP`` and ``STEP`` function keys (breakpoint and
-step). I did not really use them a lot in 1983.
-2. Sync back latest changes from Mega version 3 into Mega version 1 and
+1. Sync back latest changes from Mega version 3 into Mega version 1 and
 Uno version.
 
 
