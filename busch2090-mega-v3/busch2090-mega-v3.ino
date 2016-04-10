@@ -2325,9 +2325,11 @@ void reset() {
 
   displayMode = OFF;
 
-  dispOff = false;
   showingDisplayFromReg = 0;
   showingDisplayDigits = 0;
+
+  dispOff = false;
+  lastInstructionWasDisp = false;
 
   refreshLCD = true;
 
@@ -2448,7 +2450,9 @@ void interpret() {
       jump = true;
       currentMode = STOPPED;
       cursor = CURSOR_OFF;
+
       dispOff = false;
+      lastInstructionWasDisp = false;
 
       speakAndWait("Halt");
       lcd.clear();
@@ -2512,9 +2516,12 @@ void interpret() {
       currentMode = RUNNING;
       oneStepOnly = true;
       dispOff = false;
+      jump = true; // don't increment PC !
 
       speakAndWait("Step");
       refreshLCD = true;
+
+      displayStatus();
 
       break;
 
@@ -2809,10 +2816,10 @@ void interpret() {
 
 void run() {
 
-  if (!jump && ! oneStepOnly)
+  if (!jump )
     pc++;
 
-  if ( ! oneStepOnly && breakAt == pc && breakAt > 0 && ! ignoreBreakpointOnce )  {
+  if ( !oneStepOnly && breakAt == pc && breakAt > 0 && ! ignoreBreakpointOnce )  {
     currentMode = STOPPED;
     return;
   }
@@ -3089,7 +3096,6 @@ void run() {
 
                 case OP_DISOUT :
 
-                  showingDisplayDigits = 0;
                   displayOff();
 
                   break;
@@ -3303,15 +3309,16 @@ void run() {
 
                 default : // DISP!
 
-                  displayOff();
-
                   dispOff = false;
                   showingDisplayDigits = disp_n;
                   showingDisplayFromReg = disp_s;
                   lastInstructionWasDisp = true;
 
-                  if (oneStepOnly)
+                  if (oneStepOnly) {
+                    clearDisplay();
+                    writeDisplay();
                     showDISP();
+                  }
 
                   break;
 
@@ -3325,12 +3332,13 @@ void run() {
       }
   }
 
-
   if (oneStepOnly) {
     currentMode = STOPPED;
-    if (!jump)
+    if (! jump) {
       pc++;
+    }
   }
+
 }
 
 //
