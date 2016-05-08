@@ -98,6 +98,9 @@ The following components are optional for the Mega version 3:
 - Ethernet+SDCard shield (see ``#define SDCARD``) 
 - Emic 2 TTS Speech Synthesizer module (see ``#define SPEECH``) 
 
+Please refer to this image for an explanations of the layout and functionality of the front panel: 
+
+![Mega Emulator V3 Front Panel Explanation](https://github.com/lambdamikel/Busch-2090/blob/master/images/panel-explanation.png)
 
 ###Wiring 
 
