@@ -1,13 +1,13 @@
-#Busch-2090
-##An emulator of the Busch 2090 Microtronic Computer System for Arduino Uno R3 and Arduino Mega 2560 
-####Author: Michael Wessel
-####License: GPL 3
-####Hompage: [Author's Homepage](http://www.michael-wessel.info/)
-####Contributer: [Martin Sauter (PGM 7 Code)](http://mobilesociety.typepad.com/) 
-####Version: 3.2
-####[YouTube Videos](https://www.youtube.com/channel/UC1dEZ22WoacesGdSWdVqfTw)
+# Busch-2090
+## An emulator of the Busch 2090 Microtronic Computer System for Arduino Uno R3 and Arduino Mega 2560 
+#### Author: Michael Wessel
+#### License: GPL 3
+#### Hompage: [Author's Homepage](http://www.michael-wessel.info/)
+#### Contributer: [Martin Sauter (PGM 7 Code)](http://mobilesociety.typepad.com/) 
+#### Version: 3.2
+#### [YouTube Videos](https://www.youtube.com/channel/UC1dEZ22WoacesGdSWdVqfTw)
 
-###Abstract
+### Abstract
 
 This is an emulator of the Busch 2090 Microtronic Computer System for
 the Arduino Uno R3 and Arduino Mega 2560. 
@@ -56,13 +56,13 @@ Also, you will find some programs in the ``software`` directory. See
 below for instructions how to use them, and for a brief explanation of
 the ``.MIC`` file format.
 
-###Acknowledgements
+### Acknowledgements
 
 Many thanks to [Martin Sauter](http://mobilesociety.typepad.com/) for
 retrieving and entering the original code of ``PGM 7``, the Nim
 game. It works!
 
-###Hardware Requirements
+### Hardware Requirements
 
 For the Uno version, ``busch2090.ino``: 
 
@@ -102,7 +102,7 @@ Please refer to this image for an explanations of the layout and functionality o
 
 ![Mega Emulator V3 Front Panel Explanation](https://github.com/lambdamikel/Busch-2090/blob/master/images/panel-explanation.png)
 
-###Wiring 
+### Wiring 
 
 For the Uno version:
 
@@ -315,7 +315,7 @@ This picture might provide some ideas how to set up / wire the hardware:
 Also notice that there is a blueprint of the faceplate in the 
 ``faceplate`` directory of this project. 
 
-###Description 
+### Description 
 
 For the Arduino Uno and Mega version 1, the TM1638 module is used.
 The **push buttons of the TM1638 are the function keys of the
@@ -491,7 +491,7 @@ N.O. buttons that take on these functions (SD card):
     #define CANCEL 68
     #define ENTER  69
 
-###Load and Save Files to SDCard (Mega versions only) 
+### Load and Save Files to SDCard (Mega versions only) 
 
 The Mega version supports saving a memory dump to SDCard via ``PGM
 2``. Currently, the SDCard+Ethernet card shield is mandatory in Mega
@@ -510,7 +510,7 @@ key to confirm selection, and ``Left`` key to abort loading.
 ![Load Program from SDCard](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-2-small.jpg)
 ![Save Program to SDCard](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-8-small.jpg)
 
-###The ``.MIC`` File Format and Example Programs 
+### The ``.MIC`` File Format and Example Programs 
 
 The ``software`` directory contains some programs from the
 Microtronic manuals and from the book "Computer Games (2094)". With
@@ -543,7 +543,7 @@ artifacts, the ``.MIC`` loader recognizes an extended character set
 for hexadecimal input, e.g., not only 1, but also I and l are accepted
 for 1, the O character is accepted for 0, etc.
 
-###``PGM`` Demo Programs are Stored in EEPROM  
+### ``PGM`` Demo Programs are Stored in EEPROM  
 
 For the Uno version, please run the ``PGM-EEPROM.ino`` sketch first,
 and use ``PGM-EEPROM-MEGA.ino`` for the Mega versions. This will load
@@ -568,7 +568,7 @@ retrieving the code from an original Busch Microtronic and contributing it to th
 - ``PGM B`` : moving LED light from Manul Vol. 1, page 48 
 - ``PGM C`` : digitial input ``DIN`` test (port input output echo)
 
-###Optional Emic 2 TTS Speech Module for Mega Version 3 
+### Optional Emic 2 TTS Speech Module for Mega Version 3 
 
 If enabled, the Emic 2 speech module will echo back and confirm
 function and HEX keypad presses. In addition, the navigation buttons
@@ -611,7 +611,7 @@ An ``ABC`` from the Emic 2 hence takes the program ``088 033 066 055
 066 066 066 077 011 0033``.  Consequently, the Microtronic program
 memory can store 126 characters max.
 
-###Required Third-Party Libraries 
+### Required Third-Party Libraries 
 
 The emulator requires the following libraries, which are the work of
 others, and which are included in the ``library`` subdirectory: 
