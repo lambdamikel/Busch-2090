@@ -124,19 +124,6 @@ Adafruit_PCD8544 display = Adafruit_PCD8544(6, 5, 4, 3, 2);
 
 #define NO_KEY 0 
 
-int curPushButton    = NO_KEY;
-int curPushButtonRaw = NO_KEY;
-
-#define BACK   63
-#define RIGHT  64
-#define UP     65
-#define DOWN   66
-#define LEFT   67
-#define CANCEL 68
-#define ENTER  69
-
-
-
 //
 // HEX 4x4 matrix keypad 
 //
@@ -159,6 +146,15 @@ byte hex_keypad_row_pins[HEX_KEYPAD_ROWS] = {15, 13, 11, 9}; // rows
 //
 // Function 4x3 matrix keypad 
 //
+
+#define BACK   17
+#define RIGHT  18
+#define UP     19
+#define DOWN   20
+#define LEFT   21
+#define CANCEL 22
+#define ENTER  23
+
 
 #define CCE  1 
 #define PGM  2 
@@ -184,15 +180,16 @@ byte hex_keypad_row_pins[HEX_KEYPAD_ROWS] = {15, 13, 11, 9}; // rows
 #define F7 15
 #define F8 16
 
+int curPushButton = NO_KEY;
 
 #define FN_KEYPAD_ROWS 4
 #define FN_KEYPAD_COLS 4 
-
+ 
 byte fn_keys[FN_KEYPAD_ROWS][FN_KEYPAD_COLS] = { 
-  {NEXT, REG,  F7, F8 },
-  {BKP,  STEP, F5, F6 },
-  {RUN,  HALT, F3, F4 },
-  {CCE,  PGM,  F1, F2 }
+  {NEXT, REG,  RIGHT, UP },
+  {BKP,  STEP, LEFT, DOWN },
+  {RUN,  HALT, F3, BACK },
+  {CCE,  PGM,  CANCEL, ENTER }
 };
 
 byte fn_keypad_row_pins[FN_KEYPAD_ROWS] = {23, 21, 19, 17}; 
@@ -208,17 +205,18 @@ byte fn_keypad_col_pins[FN_KEYPAD_COLS] = {22, 20, 18, 16};
 
 enum LCDmode {
   OFF,
+  OFF3, 
   PCMEM,
-  REGD
+  REGWR, 
+  REGAR
 };
 
-LCDmode displayMode = OFF;
+LCDmode displayMode = OFF3;
 
-typedef char LCDLine[21];
+typedef char LCDLine[15]; // +1 for End of String!
 
 LCDLine mnemonic;
 LCDLine file;
-LCDLine speakFile;
 
 int lcdCursor = 0;
 
@@ -451,7 +449,7 @@ const String decString[] = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "
 //
 
 void displaySetCursor(int x, int y) {
-     display.setCursor(x*8, 8*y); 
+     display.setCursor(x*6, 8*y); 
 }
 
 //
@@ -639,14 +637,8 @@ void setup() {
 
 boolean enterPending = false;
 
-
 int readPushButtons() {
-
-  curPushButton = NO_KEY;
-  curPushButtonRaw = NO_KEY;
-
-  return curPushButton;
-
+    return readFunctionKeys(); 
 }
 
 int readFunctionKeys() {
@@ -655,14 +647,17 @@ int readFunctionKeys() {
 
   if ( button != curFuncKeyRaw ) {
     if (( millis() - funcKeyTime) > DEBOUNCE_TIME ) {
-      curFuncKey = button;
       funcKeyTime = millis();
       if (button != NO_KEY)
         displayCurFuncKey = button;
+	curFuncKey = button;
+	curPushButton = button; 
         refreshLCD = true;
     }
-  } else
+  } else {
     curFuncKey = NO_KEY;
+    curPushButton = NO_KEY; 
+  }
 
   curFuncKeyRaw = button;
 
@@ -1227,7 +1222,6 @@ void showMem() {
   else
     sendHex(3, adr % 16, false);
 
-
   if (cursor == 2)
     sendHex(5, op[adr], blink);
   else
@@ -1243,9 +1237,68 @@ void showMem() {
   else
     sendHex(7, arg2[adr], false);
 
-  display.display();
+}
+
+
+void showMemMore() {
+
+  int adr = pc;
+  int adr0 = pc == 0 ? 255 : pc-1; 
+  int adr1 = pc == 255 ? 0 : pc+1; 
+
+  if ( currentMode == ENTERING_BREAKPOINT_HIGH || currentMode == ENTERING_BREAKPOINT_LOW )
+    adr = breakAt;
+
+  display.setTextColor(WHITE, BLACK); // 'inverted' text
+
+  if (cursor == 0)
+    sendHexCol(2, 4, adr / 16, blink); 
+  else
+    sendHexCol(2, 4, adr / 16 , false);
+
+  if (cursor == 1)
+    sendHexCol(3, 4, adr % 16, blink);
+  else
+    sendHexCol(3, 4, adr % 16, false);
+
+  if (cursor == 2)
+    sendHexCol(5, 4, op[adr], blink);
+  else
+    sendHexCol(5, 4, op[adr], false);
+
+  if (cursor == 3)
+    sendHexCol(6, 4, arg1[adr], blink);
+  else
+    sendHexCol(6, 4, arg1[adr], false);
+
+  if (cursor == 4)
+    sendHexCol(7, 4, arg2[adr], blink);
+  else
+    sendHexCol(7, 4, arg2[adr], false);
+
+  //
+  //
+
+  display.setTextColor(BLACK, WHITE); // 'inverted' text
+
+  sendHexCol(2, 3, adr0 / 16, false);
+  sendHexCol(3, 3, adr0 % 16, false);
+
+  sendHexCol(5, 3, op[adr0]  , false);
+  sendHexCol(6, 3, arg1[adr0], false);
+  sendHexCol(7, 3, arg2[adr0], false);
+
+  sendHexCol(2, 5, adr1 / 16, false);
+  sendHexCol(3, 5, adr1 % 16, false);
+
+  sendHexCol(5, 5, op[adr1]  , false);
+  sendHexCol(6, 5, arg1[adr1], false);
+  sendHexCol(7, 5, arg2[adr1], false);
+
 
 }
+
+
 
 void advanceTime() {
 
@@ -1422,20 +1475,20 @@ void displayStatus() {
            ENTERING_BREAKPOINT_HIGH ||
            currentMode ==
            ENTERING_BREAKPOINT_LOW )
-    status = 'b';
+    status = 'B';
   else if (currentMode == ENTERING_OP ||
            currentMode == ENTERING_ARG1 ||
            currentMode == ENTERING_ARG2 )
     status = 'P';
   else if (currentMode == RUNNING)
-    status = 'r';
+    status = 'R';
   else if (currentMode == ENTERING_REG ||
            currentMode == INSPECTING )
-    status = 'i';
+    status = 'I';
   else if (currentMode == ENTERING_VALUE )
     status = '?';
   else if (currentMode == ENTERING_TIME )
-    status = 't';
+    status = 'T';
   else if (currentMode == SHOWING_TIME )
     status = 'C';
   else status = ' ' ;
@@ -1454,43 +1507,176 @@ void displayStatus() {
   //
   //
 
-  clearStatus(); 
- 
-  sendChar(0, status, false); 
-
-  if ( currentMode == RUNNING && ! dispOff && showingDisplayDigits > 0 || currentMode == ENTERING_VALUE )
+  if ( currentMode == RUNNING && ! dispOff && showingDisplayDigits > 0 || currentMode == ENTERING_VALUE ) {
+    sendCharCol(0, 5, status, false);      
     showDISP();
-  else if  ( currentMode == RUNNING && dispOff ) {
+  } else if  ( currentMode == RUNNING && dispOff ) {
     // nothing
-  } else if ( currentMode == ENTERING_REG || currentMode == INSPECTING )
+    sendCharCol(0, 5, status, false);      
+  } else if ( currentMode == ENTERING_REG || currentMode == INSPECTING ) {
+    sendCharCol(0, 5, status, false);      
     showReg();
-  else if ( currentMode == ENTERING_PROGRAM )
+  } else if ( currentMode == ENTERING_PROGRAM ) {
+    sendCharCol(0, 5, status, false);      
     showProgram();
-  else if ( currentMode == ENTERING_TIME || currentMode == SHOWING_TIME )
+  } else if ( currentMode == ENTERING_TIME || currentMode == SHOWING_TIME ) {
+    sendCharCol(0, 5, status, false);      
     showTime();
-  else if ( error )
+  } else if ( error ) {
+    sendCharCol(0, 5, status, false);      
     showError();
-  else if ( ! dispOff && ! lastInstructionWasDisp )
-    showMem();
+  } else if ( ! dispOff && ! lastInstructionWasDisp ) {     
+    if (displayMode == OFF3 || displayMode == PCMEM ) { 
+      sendCharCol(0, 4, status, false);  
+      showMemMore(); 
+    } else {
+      sendCharCol(0, 5, status, false);  
+      showMem(); 
+    } 
+  }
 
   //
   //
   //
 
-  updateLCD();
+  if (curPushButton == ENTER ) {
+    refreshLCD = true;
+    switch ( displayMode  ) {
+      case OFF    : displayMode = OFF3; display.clearDisplay();; break;
+      case OFF3   : displayMode = PCMEM; display.clearDisplay();; break;
+      case PCMEM  : displayMode = REGWR; display.clearDisplay();; break;
+      case REGWR  : displayMode = REGAR; display.clearDisplay();; break;
+      default     : displayMode = OFF; display.clearDisplay();; break;
+    }
+  }
 
+  //
+  //
+  //
+
+  if ( pc != lastPc || refreshLCD ) {
+
+    lastPc = pc;
+
+    if ((displayMode == OFF || displayMode == OFF3 ) && refreshLCD ) {
+
+      switch ( currentMode ) {
+
+        case ENTERING_TIME :
+          display.clearDisplay();; 
+          display.print("ENTER TIME");
+          break;
+
+        case SHOWING_TIME :
+	  display.clearDisplay();; 
+          display.print("SHOW TIME");
+          break;
+
+        default:
+	  break; 	  
+      }
+
+    } else if (displayMode == PCMEM ) {
+
+      display.clearDisplay();; 
+
+      displaySetCursor(0, 0);
+      display.print("BP MNEMONICS");
+
+      displaySetCursor(0, 1);
+      if (breakAt < 16)
+        display.print(0);
+      display.print(breakAt, HEX);
+     
+      getMnem(1);
+
+      displaySetCursor(3, 1);     
+      display.print(mnemonic);
+
+      displaySetCursor(0, 2); 
+      sep(); 
+
+      showMemMore(); 
+
+    } else if (displayMode == REGWR ) {
+
+      displaySetCursor(0, 0);
+      display.print("WR 0123456789");
+      displaySetCursor(0, 1);
+      display.print("   "); 
+      for (int i = 0; i < 10; i++)
+        display.print(reg[i], HEX);
+      displaySetCursor(0, 2);
+      display.print("WR ABCDEF");
+      displaySetCursor(0, 3);
+      display.print("   "); 
+      for (int i = 10; i < 16; i++)
+        display.print(reg[i], HEX);      
+      displaySetCursor(0, 4);
+      sep(); 
+      
+    } else if (displayMode == REGAR ) {
+
+      displaySetCursor(0, 0);
+      display.print("ER 0123456789");
+      displaySetCursor(0, 1);
+      display.print("   "); 
+      for (int i = 0; i < 10; i++)
+        display.print(regEx[i], HEX);
+      displaySetCursor(0, 2);
+      display.print("ER ABCDEF");
+      displaySetCursor(0, 3);
+      display.print("   "); 
+      for (int i = 10; i < 16; i++)
+        display.print(regEx[i], HEX);      
+      displaySetCursor(0, 4);
+      sep(); 
+      
+    }
+  }
+
+  if (displayMode != REGWR && displayCurFuncKey != NO_KEY) {
+
+    displaySetCursor(9, 4);
+
+    switch ( displayCurFuncKey ) {
+      case CCE  : display.print("C/CE"); break;
+      case RUN  : display.print(" RUN"); break;
+      case BKP  : display.print(" BKP"); break;
+      case NEXT : display.print("NEXT"); break;
+      case PGM  : display.print(" PGM"); break;
+      case HALT : display.print("HALT"); break;
+      case STEP : display.print("STEP"); break;
+      case REG  : display.print(" REG"); break;
+      default: break;
+    }
+
+    if (millis() - funcKeyTime > 500) {
+      displayCurFuncKey = NO_KEY;
+      clearLine(5); 
+    }
+  }
+
+  display.display(); 
+  refreshLCD = false;
+
+}
+
+void sep() {
+  display.print("--------------");
 }
 
 void LCDLogo() {
 
-  clearLCD(); 
+  display.clearDisplay();; 
 
-  displaySetCursor(0, 0);
-  display.print("Busch 2090");
+  sep(); 
   displaySetCursor(0, 1);
-  display.print(" Microtronic");
+  display.print("Busch 2090");
   displaySetCursor(0, 2);
-  display.print("  Mega 2560");
+  display.print(" Microtronic");
+  displaySetCursor(0, 3);
+  sep(); 
 
 }
 
@@ -1499,24 +1685,15 @@ void clearLine(int line) {
 }
 
 void clearStatus() {
-     clearLine(5); 
-}
-
-void clearLCD() {
-     clearLine(0); 
-     clearLine(1); 
-     clearLine(2); 
-     clearLine(3); 
      clearLine(4); 
 }
 
-
 void clearMnemonicBuffer() {
 
-  for (int i = 0; i < 20; i++)
+  for (int i = 0; i < 15; i++)
     mnemonic[i] = ' ';
 
-  mnemonic[20] = 0;
+  mnemonic[15] = 0;
 
   lcdCursor = 0;
 
@@ -1525,10 +1702,10 @@ void clearMnemonicBuffer() {
 
 void clearFileBuffer() {
 
-  for (int i = 0; i < 20; i++)
+  for (int i = 0; i < 15; i++)
     file[i] = ' ';
 
-  file[20] = 0;
+  file[15] = 0;
 
   lcdCursor = 0;
 
@@ -1572,10 +1749,10 @@ void getMnem(boolean spaces) {
     case OP_CMP  : inputMnem("CMP   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
     case OP_CMPI : inputMnem("CMPI  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
     case OP_OR   : inputMnem("OR    ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-    case OP_CALL : inputMnem("CALL  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-    case OP_GOTO : inputMnem("GOTO  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-    case OP_BRC  : inputMnem("BRC   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-    case OP_BRZ  : inputMnem("BRZ   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    case OP_CALL : inputMnem("CALL  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); inputMnem( hexStringChar[lo] ); break;
+    case OP_GOTO : inputMnem("GOTO  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); inputMnem( hexStringChar[lo] ); break;
+    case OP_BRC  : inputMnem("BRC   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); inputMnem( hexStringChar[lo] ); break;
+    case OP_BRZ  : inputMnem("BRZ   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); inputMnem( hexStringChar[lo] ); break;
     default : {
         switch (op2) {
           case OP_MAS  : inputMnem( "MAS   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
@@ -1589,22 +1766,22 @@ void getMnem(boolean spaces) {
           case OP_KIN  : inputMnem( "KIN   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
           default : {
               switch (op3) {
-                case OP_HALT   : inputMnem( "HALT    ");  break;
-                case OP_NOP    : inputMnem( "NOP     ");  break;
-                case OP_DISOUT : inputMnem( "DISOUT  ");  break;
-                case OP_HXDZ   : inputMnem( "HXDZ    ");  break;
-                case OP_DZHX   : inputMnem( "DZHX    ");  break;
-                case OP_RND    : inputMnem( "RND     ");  break;
-                case OP_TIME   : inputMnem( "TIME    ");  break;
-                case OP_RET    : inputMnem( "RET     ");  break;
-                case OP_CLEAR  : inputMnem( "CLEAR   ");  break;
-                case OP_STC    : inputMnem( "STC     ");  break;
-                case OP_RSC    : inputMnem( "RSC     ");  break;
-                case OP_MULT   : inputMnem( "MULT    ");  break;
-                case OP_DIV    : inputMnem( "DIV     ");  break;
-                case OP_EXRL   : inputMnem( "EXRL    ");  break;
-                case OP_EXRM   : inputMnem( "EXRM    ");  break;
-                case OP_EXRA   : inputMnem( "EXRA    ");  break;
+                case OP_HALT   : inputMnem( "HALT  ");  break;
+                case OP_NOP    : inputMnem( "NOP   ");  break;
+                case OP_DISOUT : inputMnem( "DISOUT");  break;
+                case OP_HXDZ   : inputMnem( "HXDZ  ");  break;
+                case OP_DZHX   : inputMnem( "DZHX  ");  break;
+                case OP_RND    : inputMnem( "RND   ");  break;
+                case OP_TIME   : inputMnem( "TIME  ");  break;
+                case OP_RET    : inputMnem( "RET   ");  break;
+                case OP_CLEAR  : inputMnem( "CLEAR ");  break;
+                case OP_STC    : inputMnem( "STC   ");  break; 
+                case OP_RSC    : inputMnem( "RSC   ");  break;
+                case OP_MULT   : inputMnem( "MULT  ");  break;
+                case OP_DIV    : inputMnem( "DIV   ");  break;
+                case OP_EXRL   : inputMnem( "EXRL  ");  break;
+                case OP_EXRM   : inputMnem( "EXRM  ");  break;
+                case OP_EXRA   : inputMnem( "EXRA  ");  break;
                 default        : inputMnem( "DISP  ");  advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); hexStringChar[lo]; break;
               }
             }
@@ -1614,123 +1791,6 @@ void getMnem(boolean spaces) {
 
 }
 
-
-void updateLCD() {
-
-  readPushButtons();
-
-  if (curPushButton == ENTER ) {
-    refreshLCD = true;
-    switch ( displayMode  ) {
-      case OFF    : displayMode = PCMEM; clearLCD(); break;
-      case PCMEM  : displayMode = REGD; clearLCD(); break;
-      default     : displayMode = OFF; clearLCD(); break;
-    }
-  }
-
-  if ( pc != lastPc || refreshLCD ) {
-
-    lastPc = pc;
-
-    if (displayMode == OFF && refreshLCD ) {
-
-      switch ( currentMode ) {
-
-        case ENTERING_TIME :
-          clearLCD(); 
-          display.print("PGM 3 ENTER TIME");
-          break;
-
-        case SHOWING_TIME :
-	  clearLCD(); 
-          display.print("PGM 4 SHOW TIME");
-          break;
-
-        default:
-
-          // LCDLogo();
-	  break; 
-	  
-      }
-
-    } else if (displayMode == PCMEM ) {
-
-      displaySetCursor(0, 0);
-      display.print("PC BKP OP  MNEM");
-      displaySetCursor(0, 1);
-
-      if (pc < 16)
-        display.print(0);
-      display.print(pc, HEX);
-
-      displaySetCursor(4, 1);
-
-      if (breakAt < 16)
-        display.print(0);
-      display.print(breakAt, HEX);
-
-      displaySetCursor(7, 1);
-      display.print(op[pc], HEX);
-      display.print(arg1[pc], HEX);
-      display.print(arg2[pc], HEX);
-
-      displaySetCursor(11, 1);
-
-      getMnem(false);
-
-      display.print(mnemonic);
-      displaySetCursor(0, 2);
-      display.print("WR ");
-      for (int i = 0; i < 16; i++)
-        display.print(reg[i], HEX);
-      displaySetCursor(0, 3);
-      display.print("SR ");
-      for (int i = 0; i < 16; i++)
-        display.print(regEx[i], HEX);
-
-    } else if (displayMode == REGD ) {
-
-      displaySetCursor(0, 0);
-      display.print("WR 0123456789ABCDEF");
-      displaySetCursor(3, 1);
-      for (int i = 0; i < 16; i++)
-        display.print(reg[i], HEX);
-
-      displaySetCursor(0, 2);
-      display.print("SR 0123456789ABCDEF");
-      displaySetCursor(3, 3);
-      for (int i = 0; i < 16; i++)
-        display.print(regEx[i], HEX);
-    }
-  }
-
-  if (displayMode != REGD && displayCurFuncKey != NO_KEY) {
-
-    displaySetCursor(7, 4);
-
-    switch ( displayCurFuncKey ) {
-      case CCE  : display.print("C/CE"); break;
-      case RUN  : display.print(" RUN"); break;
-      case BKP  : display.print(" BKP"); break;
-      case NEXT : display.print("NEXT"); break;
-      case PGM  : display.print(" PGM"); break;
-      case HALT : display.print("HALT"); break;
-      case STEP : display.print("STEP"); break;
-      case REG  : display.print(" REG"); break;
-      default: break;
-    }
-
-    if (millis() - funcKeyTime > 500) {
-      displayCurFuncKey = NO_KEY;
-      clearLine(4); 
-    }
-  }
-
-
-  display.display(); 
-  refreshLCD = false;
-
-}
 
 
 int decodeHex(char c) {
@@ -1825,6 +1885,13 @@ void sendChar(uint8_t pos, char c, boolean blink) {
 
 }
 
+void sendCharCol(uint8_t pos, uint8_t col, char c, boolean blink) {
+   
+  displaySetCursor(pos, col); 
+  display.print(blink ? ' ' : c); 
+
+}
+
 
 void sendHex(uint8_t pos, uint8_t c, boolean blink) {
    
@@ -1836,6 +1903,19 @@ void sendHex(uint8_t pos, uint8_t c, boolean blink) {
   }
 
 }
+
+void sendHexCol(uint8_t pos, uint8_t col, uint8_t c, boolean blink) {
+   
+  displaySetCursor(pos, col); 
+  if (blink) {
+    display.print(' '); 
+  } else {
+    display.print(c, HEX);	
+  }
+
+}
+
+
 
 
 void displayOff() {
@@ -2087,6 +2167,7 @@ void interpret() {
       break;
 
     case NEXT :
+    case UP :
       if (currentMode == STOPPED) {
         currentMode = ENTERING_ADDRESS_HIGH;
         cursor = 0;
@@ -2101,6 +2182,23 @@ void interpret() {
       jump = true;
 
       break;
+
+    case DOWN :
+      if (currentMode == STOPPED) {
+        currentMode = ENTERING_ADDRESS_HIGH;
+        cursor = 0;
+      } else {
+        pc--; 
+        cursor = 2;
+        currentMode = ENTERING_OP;
+      }
+
+      display.clearDisplay();
+      refreshLCD = true;
+      jump = true;
+
+      break;
+
 
     case REG :
 
