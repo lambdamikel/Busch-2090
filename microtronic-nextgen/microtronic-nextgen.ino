@@ -1368,43 +1368,6 @@ void displayStatus() {
   //
   //
 
-  char status = ' ';
-
-  if ( currentMode == STOPPED && ! error)
-    status = 'H';
-  else if (currentMode ==
-           ENTERING_ADDRESS_HIGH ||
-           currentMode ==
-           ENTERING_ADDRESS_LOW )
-    status = 'A';
-  else if (currentMode ==
-           ENTERING_BREAKPOINT_HIGH ||
-           currentMode ==
-           ENTERING_BREAKPOINT_LOW )
-    status = 'B';
-  else if (currentMode == ENTERING_OP ||
-           currentMode == ENTERING_ARG1 ||
-           currentMode == ENTERING_ARG2 )
-    status = 'P';
-  else if (currentMode == RUNNING)
-    status = 'R';
-  else if (currentMode == ENTERING_REG ||
-           currentMode == INSPECTING )
-    status = 'I';
-  else if (currentMode == ENTERING_VALUE )
-    status = '?';
-  else if (currentMode == ENTERING_TIME )
-    status = 'T';
-  else if (currentMode == SHOWING_TIME )
-    status = 'C';
-  else if (currentMode == ENTERING_PROGRAM )
-    status = 'X';
-  else status = ' ' ;
-
-  //
-  //	
-  //	
-
   digitalWrite(CARRY_LED, carry);
   digitalWrite(ZERO_LED, carry);
   digitalWrite(CLOCK_1HZ_LED, clock1hz);
@@ -1432,66 +1395,112 @@ void displayStatus() {
   if (curPushButton == ENTER ) {
     refreshLCD = true;
     switch ( displayMode  ) {
-      case OFF    : displayMode = OFF1; display.clearDisplay(); break;
-      case OFF1   : displayMode = OFF3; display.clearDisplay(); break;
-      case OFF3   : displayMode = PCMEM; display.clearDisplay(); break;
-      case PCMEM  : displayMode = REGWR; display.clearDisplay(); break;
-      case REGWR  : displayMode = REGAR; display.clearDisplay(); break;
-      default     : displayMode = OFF; display.clearDisplay(); break;
+    case OFF    : displayMode = OFF1; display.clearDisplay(); break;
+    case OFF1   : displayMode = OFF3; display.clearDisplay(); break;
+    case OFF3   : displayMode = PCMEM; display.clearDisplay(); break;
+    case PCMEM  : displayMode = REGWR; display.clearDisplay(); break;
+    case REGWR  : displayMode = REGAR; display.clearDisplay(); break;
+    default     : displayMode = OFF; display.clearDisplay(); break;
     }
   }
 
-  switch ( displayMode ) {
+  //
+  //
+  //
+
+  if ( currentMode == RUNNING && dispOff ) { 
+
+
+  } else {
+
+    char status = ' ';
+
+    if ( currentMode == STOPPED && ! error)
+      status = 'H';
+    else if (currentMode ==
+	     ENTERING_ADDRESS_HIGH ||
+	     currentMode ==
+	     ENTERING_ADDRESS_LOW )
+      status = 'A';
+    else if (currentMode ==
+	     ENTERING_BREAKPOINT_HIGH ||
+	     currentMode ==
+	     ENTERING_BREAKPOINT_LOW )
+      status = 'B';
+    else if (currentMode == ENTERING_OP ||
+	     currentMode == ENTERING_ARG1 ||
+	     currentMode == ENTERING_ARG2 )
+      status = 'P';
+    else if (currentMode == RUNNING)
+      status = 'R';
+    else if (currentMode == ENTERING_REG ||
+	     currentMode == INSPECTING )
+      status = 'I';
+    else if (currentMode == ENTERING_VALUE )
+      status = '?';
+    else if (currentMode == ENTERING_TIME )
+      status = 'T';
+    else if (currentMode == SHOWING_TIME )
+      status = 'C';
+    else if (currentMode == ENTERING_PROGRAM )
+      status = 'X';
+    else status = ' ' ;
+
+    //
+    //	
+    //	
+
+    switch ( displayMode ) {
     case OFF3 :
     case PCMEM : setTextSize(1); status_row = 4; status_col = 2; clearLines(3,5); refreshLCD = true; break; 
     case OFF1 : setTextSize(2); status_row = 1; status_col = 1; clearLine(3); break; 
     default : setTextSize(1); status_row = 5; status_col = 2; clearLine(5); 
-  }
+    }
 
-  //
-  // this is updated with every call to displayStatus() 
-  // hence, we only clear parts of the display as necessary 
-  // (1 or 3 lines) 
-  // 
+    //
+    // this is updated with every call to displayStatus() 
+    // hence, we only clear parts of the display as necessary 
+    // (1 or 3 lines) 
+    // 
 
-  if ( currentMode == RUNNING && ! dispOff && showingDisplayDigits > 0 || currentMode == ENTERING_VALUE ) {
-    sendCharRow(0, status_row, status, false);      
-    showDISP(status_col);
-  } else if  ( currentMode == RUNNING && dispOff ) {
-    // nothing
-    sendCharRow(0, status_row, status, false);      
-  } else if ( currentMode == ENTERING_REG || currentMode == INSPECTING ) {
-    sendCharRow(0, status_row, status, false);      
-    showReg(status_col);
-  } else if ( currentMode == ENTERING_PROGRAM ) {
-    sendCharRow(0, status_row, status, false);      
-    showProgram(status_col);
-  } else if ( currentMode == ENTERING_TIME || currentMode == SHOWING_TIME ) {
-    sendCharRow(0, status_row, status, false);      
-    showTime(status_col);
-  } else if ( error ) {
-    sendCharRow(0, status_row, status, false);      
-    showError(status_col);
-  } else if ( ! dispOff && ! lastInstructionWasDisp ) {     
-    sendCharRow(0, status_row, status, false);  
-    if (displayMode == OFF3 || displayMode == PCMEM ) { 
-      showMemMore(status_col); 
-    } else {
-      showMem(status_col); 
-    } 
-  }
+    if ( currentMode == RUNNING && ! dispOff && showingDisplayDigits > 0 || currentMode == ENTERING_VALUE ) {
+      sendCharRow(0, status_row, status, false);      
+      showDISP(status_col);
+    } else if  ( currentMode == RUNNING && dispOff ) {
+      // nothing
+      // sendCharRow(0, status_row, status, false);      
+    } else if ( currentMode == ENTERING_REG || currentMode == INSPECTING ) {
+      sendCharRow(0, status_row, status, false);      
+      showReg(status_col);
+    } else if ( currentMode == ENTERING_PROGRAM ) {
+      sendCharRow(0, status_row, status, false);      
+      showProgram(status_col);
+    } else if ( currentMode == ENTERING_TIME || currentMode == SHOWING_TIME ) {
+      sendCharRow(0, status_row, status, false);      
+      showTime(status_col);
+    } else if ( error ) {
+      sendCharRow(0, status_row, status, false);      
+      showError(status_col);
+    } else if ( ! dispOff && ! lastInstructionWasDisp ) {     
+      sendCharRow(0, status_row, status, false);  
+      if (displayMode == OFF3 || displayMode == PCMEM ) { 
+	showMemMore(status_col); 
+      } else {
+	showMem(status_col); 
+      } 
+    }
 
-  //
-  // this is only updated if needed (change in display mode or address) 
-  //
+    //
+    // this is only updated if needed (change in display mode or address) 
+    //
 
-  if ( refreshLCD ) {
+    if ( refreshLCD ) {
 
-    lastPc = pc;
+      lastPc = pc;
 
-    if (displayMode == OFF || displayMode == OFF3 || displayMode == OFF1 ) {
+      if (displayMode == OFF || displayMode == OFF3 || displayMode == OFF1 ) {
 
-      switch ( currentMode ) {
+	switch ( currentMode ) {
 
         case ENTERING_TIME :
 	  displaySetCursor(0, 0);	
@@ -1505,85 +1514,85 @@ void displayStatus() {
 
         default:
 	  break; 	  
-      }
+	}
 
-    } else if (displayMode == PCMEM ) {
+      } else if (displayMode == PCMEM ) {
 
-      displaySetCursor(0, 0);
-      display.print("PC MNEMONICS");
+	displaySetCursor(0, 0);
+	display.print("PC MNEMONICS");
 
-      displaySetCursor(0, 1);
-      if (pc < 16)
-	display.print(0, HEX);
-      display.print(pc, HEX);
+	displaySetCursor(0, 1);
+	if (pc < 16)
+	  display.print(0, HEX);
+	display.print(pc, HEX);
      
-      getMnem(1);
+	getMnem(1);
 
-      displaySetCursor(3, 1);     
-      display.print(mnemonic);
+	displaySetCursor(3, 1);     
+	display.print(mnemonic);
 
-      displaySetCursor(0, 2); 
-      sep(); 
+	displaySetCursor(0, 2); 
+	sep(); 
 
-      //showMemMore(status_col); 
+	//showMemMore(status_col); 
 
-    } else if (displayMode == REGWR ) {
+      } else if (displayMode == REGWR ) {
 
-      displaySetCursor(0, 0);
-      display.print("WR 0123456789");
+	displaySetCursor(0, 0);
+	display.print("WR 0123456789");
 
-      displaySetCursor(0, 1);
-      display.print("   "); 
-      for (int i = 0; i < 10; i++)
-        display.print(reg[i], HEX);
+	displaySetCursor(0, 1);
+	display.print("   "); 
+	for (int i = 0; i < 10; i++)
+	  display.print(reg[i], HEX);
 
-      displaySetCursor(0, 2);
-      display.print("WR ABCDEF");
+	displaySetCursor(0, 2);
+	display.print("WR ABCDEF");
 
-      displaySetCursor(0, 3);
-      display.print("   "); 
-      for (int i = 10; i < 16; i++)
-        display.print(reg[i], HEX);      
+	displaySetCursor(0, 3);
+	display.print("   "); 
+	for (int i = 10; i < 16; i++)
+	  display.print(reg[i], HEX);      
 
-      displaySetCursor(0, 4);
-      sep(); 
+	displaySetCursor(0, 4);
+	sep(); 
       
-    } else if (displayMode == REGAR ) {
+      } else if (displayMode == REGAR ) {
 
-      displaySetCursor(0, 0);
-      display.print("ER 0123456789");
+	displaySetCursor(0, 0);
+	display.print("ER 0123456789");
 
-      displaySetCursor(0, 1);
-      display.print("   "); 
-      for (int i = 0; i < 10; i++)
-        display.print(regEx[i], HEX);
+	displaySetCursor(0, 1);
+	display.print("   "); 
+	for (int i = 0; i < 10; i++)
+	  display.print(regEx[i], HEX);
 
-      displaySetCursor(0, 2);
-      display.print("ER ABCDEF");
+	displaySetCursor(0, 2);
+	display.print("ER ABCDEF");
 
-      displaySetCursor(0, 3);
-      display.print("   "); 
-      for (int i = 10; i < 16; i++)
-        display.print(regEx[i], HEX);      
+	displaySetCursor(0, 3);
+	display.print("   "); 
+	for (int i = 10; i < 16; i++)
+	  display.print(regEx[i], HEX);      
 
-      displaySetCursor(0, 4);
-      sep(); 
+	displaySetCursor(0, 4);
+	sep(); 
       
+      }
     }
-  }
 
-  //
-  //
-  //
+    //
+    //
+    //
 
-  if (displayCurFuncKey != NO_KEY) {
+    if (displayCurFuncKey != NO_KEY) {
 
-    if (displayMode == OFF1) 
-      displaySetCursor(0, status_row+1);
-    else 
-      displaySetCursor(9, status_row);
+      if (displayMode == OFF1) 
+	displaySetCursor(0, status_row+1);
+      else 
+	displaySetCursor(9, status_row);
 
-    switch ( displayCurFuncKey ) {
+      switch ( displayCurFuncKey ) {
       case CCE  : display.print("C/CE"); break;
       case RUN  : display.print("RUN"); break;
       case BKP  : display.print("BKP"); break;
@@ -1593,18 +1602,21 @@ void displayStatus() {
       case STEP : display.print("STEP"); break;
       case REG  : display.print("REG"); break;
       default: break;
+      }
+
+      if (millis() - funcKeyTime > 500) {
+	displayCurFuncKey = NO_KEY;
+	if (displayMode == OFF1) 
+	  clearLine(status_row+1); 
+	else 
+	  clearLine(status_row); 
+      }
     }
 
-    if (millis() - funcKeyTime > 500) {
-      displayCurFuncKey = NO_KEY;
-      if (displayMode == OFF1) 
-	clearLine(status_row+1); 
-      else 
-	clearLine(status_row); 
-    }
+    display.display(); 
+
   }
 
-  display.display(); 
   refreshLCD = false;
 
 }
@@ -1704,16 +1716,6 @@ void sendHexCol(uint8_t pos, uint8_t col, uint8_t c, boolean blink) {
 
 }
 
-void displayOff() {
-
-  display.clearDisplay();
-  display.display();
-
-  dispOff = true;
-  showingDisplayFromReg = 0;
-  showingDisplayDigits = 0;
-
-}
 
 void setDisplayToHexNumber(uint32_t number) {
 
@@ -2160,6 +2162,7 @@ void interpret() {
         switch ( program ) {
 
           case 0 :
+	    announce(0,1,"NO TEST");
             break;
 
           case 1 :
@@ -2195,7 +2198,9 @@ void interpret() {
 
             if (program - 7 < PROGRAMS ) {
               enterProgram(PGMROM[program - 7], 0);
+	      announce(0,1,"LOADED");
             } else {
+	      announce(0,1,"NO PROG");
             }
         }
 
@@ -2498,7 +2503,12 @@ void run() {
 
   } else if (op3 == OP_DISOUT ) {
 
-    displayOff();
+    display.clearDisplay();
+    display.display();
+
+    dispOff = true;
+    showingDisplayFromReg = 0;
+    showingDisplayDigits = 0;
 
   } else if (op3 == OP_HXDZ ) {
     
