@@ -46,7 +46,7 @@
 #include <SPI.h>
 //#include <Adafruit_GFX.h>
 #include <Adafruit_PCD8544.h>
-#include <EEPROM.h>
+// #include <EEPROM.h>
 //#include <SoftwareSerial.h> 
 
 //
@@ -250,23 +250,12 @@ int curFuncKeyRaw = NO_KEY;
 
 int displayCurFuncKey = NO_KEY; // for LCD display feedback only
 
-//
-// EEPROM PGM read
-// Please first use the sketch PGM-EEPROM
-// to set up the PGM Microtronic ROM!
-// otherwise, PGM 7 - PGM B cannot be loaded
-// properly!
-//
-
-byte programs = 0;
-int startAddresses[16];
-int programLengths[16];
 
 //
 // current PGM program
 //
 
-byte program;
+byte program = 7;
 
 //
 // display and status variables
@@ -323,6 +312,37 @@ byte timeHours10 = 0;
 unsigned long num = 0;
 unsigned long num2 = 0;
 unsigned long num3 = 0;
+
+//
+// PGM ROM Programs 
+//
+
+#define PROGRAMS 6
+
+String PGMROM[PROGRAMS] = {
+
+  // PGM 7 - NIM GAME 
+  "F08 FE0 F41 FF2 FF1 FF4 045 046 516 FF4 854 D19 904 E19 \
+B3F F03 0D1 0E2 911 E15 C1A 902 D1A 1F0 FE0 F00 F02 064 10C 714 B3F \
+11A 10B C24 46A FBB 8AD E27 C29 8BE E2F 51C E2C C22 914 E2F C1C F03 \
+0D1 0E2 F41 902 D09 911 E38 C09 1E2 1E3 1F5 FE5 105 FE5 C3A 01D 02E \
+F04 64D FCE F07 ",
+
+  // PGM 8 - crazy counter
+  "F60 510 521 532 543 554 565 FE0 C00 ",
+
+  // PGM 9 - electronic die 
+  "F05 90D E00 96D D00 F1D FF0 C00 ",
+
+  // PGM A - three digit counter with carry
+  "F30 510 FB1 FB2 FE1 FE1 C00 ",
+
+  // PGM B - scrolling LED light
+  "110 F10 FE0 FA0 FB0 C02 ", 
+
+  // PGM C - DIN digital input test
+  "F10 FD0 FE0 C00 ", 
+};
 
 //
 // RAM program memory
@@ -605,25 +625,6 @@ void setup() {
   //
   // read EEPROM PGMs meta data
   //
-
-/*
-  int adr = 0;
-  programs = EEPROM.read(adr++);
-  setDisplayToHexNumber(programs);
-  delay(100);
-
-  int start = 1;
-
-  for (int n = 0; n < programs; n++) {
-    startAddresses[n] = start + programs;
-    programLengths[n] = EEPROM.read(adr++);
-    start += programLengths[n];
-    setDisplayToHexNumber( startAddresses[n]);
-    delay(50);
-  }
-
-*/
-
 
 }
 
@@ -1153,28 +1154,18 @@ void loadProgram() {
 
     pc = firstPc;
 
-    display.clearDisplay();
-    displaySetCursor(0, 0);
-    display.print("Loaded @ ");
-    if (pc < 16)
-      display.print("0");
-    display.print(pc, HEX);
-    displaySetCursor(0, 1);
-    display.print(file);
-
-    showLoaded(false);
+    announce("LOADED");
 
 
   } else {
-    display.clearDisplay();
-    display.print("*** ERROR ! ***");
+
+    announce("ERROR"); 
 
   }
-
-  // display.clearDisplay();
-
+  
   reset();
   pc = firstPc;
+
 #endif
 
 }
@@ -1185,14 +1176,6 @@ void loadProgram() {
 //
 
 
-void sendString(String string, uint8_t col) {
-
-  for (int i = 0; i < string.length(); i++) {
-    sendChar(i + col, string[i], false);
-  }
-
-}
-
 void showMem(uint8_t col) {
 
   int adr = pc;
@@ -1200,32 +1183,14 @@ void showMem(uint8_t col) {
   if ( currentMode == ENTERING_BREAKPOINT_HIGH || currentMode == ENTERING_BREAKPOINT_LOW )
     adr = breakAt;
 
-  if (cursor == 0)
-    sendHex(col++, adr / 16, blink); 
-  else
-    sendHex(col++, adr / 16 , false);
-
-  if (cursor == 1)
-    sendHex(col++, adr % 16, blink);
-  else
-    sendHex(col++, adr % 16, false);
+  sendHex(col++, adr / 16, blink & (cursor == 0));  
+  sendHex(col++, adr % 16, blink & (cursor == 1));
 
   col++;
 
-  if (cursor == 2)
-    sendHex(col++, op[adr], blink);
-  else
-    sendHex(col++, op[adr], false);
-
-  if (cursor == 3)
-    sendHex(col++, arg1[adr], blink);
-  else
-    sendHex(col++, arg1[adr], false);
-
-  if (cursor == 4)
-    sendHex(col++, arg2[adr], blink);
-  else
-    sendHex(col++, arg2[adr], false);
+  sendHex(col++, op[adr], blink & (cursor == 2));
+  sendHex(col++, arg1[adr], blink & (cursor == 3));
+  sendHex(col++, arg2[adr], blink & (cursor == 4));
 
 }
 
@@ -1243,32 +1208,14 @@ void showMemMore(uint8_t col) {
 
   uint8_t col0 = col; 
 
-  if (cursor == 0)
-    sendHexCol(col++, 4, adr / 16, blink); 
-  else
-    sendHexCol(col++, 4, adr / 16 , false);
-
-  if (cursor == 1)
-    sendHexCol(col++, 4, adr % 16, blink);
-  else
-    sendHexCol(col++, 4, adr % 16, false);
+  sendHexCol(col++, 4, adr / 16, blink & (cursor == 0));   
+  sendHexCol(col++, 4, adr % 16, blink & (cursor == 1));
 
   col++;
 
-  if (cursor == 2)
-    sendHexCol(col++, 4, op[adr], blink);
-  else
-    sendHexCol(col++, 4, op[adr], false);
-
-  if (cursor == 3)
-    sendHexCol(col++, 4, arg1[adr], blink);
-  else
-    sendHexCol(col++, 4, arg1[adr], false);
-
-  if (cursor == 4)
-    sendHexCol(col++, 4, arg2[adr], blink);
-  else
-    sendHexCol(col++, 4, arg2[adr], false);
+  sendHexCol(col++, 4, op[adr], blink & (cursor == 2));
+  sendHexCol(col++, 4, arg1[adr], blink & (cursor == 3));
+  sendHexCol(col++, 4, arg2[adr], blink & (cursor == 4));
 
   //
   //
@@ -1296,7 +1243,6 @@ void showMemMore(uint8_t col) {
   sendHexCol(col++, 5, op[adr1]  , false);
   sendHexCol(col++, 5, arg1[adr1], false);
   sendHexCol(col++, 5, arg2[adr1], false);
-
 
 }
 
@@ -1354,50 +1300,19 @@ void advanceTime() {
 
 void showTime(uint8_t col) {
 
-  if (cursor == 0)
-    sendHex(col++, timeHours10, blink);
-  else
-    sendHex(col++, timeHours10, false);
-
-  if (cursor == 1)
-    sendHex(col++, timeHours1, blink);
-  else
-    sendHex(col++, timeHours1, false);
-
-  if (cursor == 2)
-    sendHex(col++, timeMinutes10, blink);
-  else
-    sendHex(col++, timeMinutes10, false);
-
-  if (cursor == 3)
-    sendHex(col++, timeMinutes1, blink);
-  else
-    sendHex(col++, timeMinutes1, false);
-
-  if (cursor == 4)
-    sendHex(col++, timeSeconds10, blink);
-  else
-    sendHex(col++, timeSeconds10, false);
-
-  if (cursor == 5)
-    sendHex(col++, timeSeconds1, blink);
-  else
-    sendHex(col++, timeSeconds1 , false);
-
+  sendHex(col++, timeHours10, blink & (cursor == 0));
+  sendHex(col++, timeHours1, blink & (cursor == 1));
+  sendHex(col++, timeMinutes10, blink & (cursor == 2));
+  sendHex(col++, timeMinutes1, blink & (cursor == 3));
+  sendHex(col++, timeSeconds10, blink & (cursor == 4));
+  sendHex(col++, timeSeconds1, blink & (cursor == 5));
 
 }
 
 void showReg(uint8_t col) {
 
-  if (cursor == 0)
-    sendHex(col++, currentReg, blink);
-  else
-    sendHex(col++, currentReg, false);
-
-  if (cursor == 1)
-    sendHex(col+3, reg[currentReg], blink);
-  else
-    sendHex(col+3, reg[currentReg], false);
+  sendHex(col++, currentReg, blink & (cursor == 0));
+  sendHex(col+3, reg[currentReg], blink & (cursor == 1));
 
 }
 
@@ -1406,13 +1321,21 @@ void showProgram(uint8_t col) {
 }
 
 void showError(uint8_t col) {
-  if (blink)
-    sendString("ERROR", col);
-
+  //if (blink)
+  //    sendString("ERROR", col);
 }
 
-void showReset(uint8_t col) {
-  sendString("RESET", col);
+void announce(uint8_t x, uint8_t y, String message ) {
+
+  display.clearDisplay();
+  setTextSize(2); 
+  displaySetCursor(x, y);	
+  display.print(message);
+  display.display(); 
+  delay(250);
+  display.clearDisplay();
+  display.display(); 
+
 }
 
 void showDISP(uint8_t col) {
@@ -1431,7 +1354,6 @@ void displayStatus() {
 
   unsigned long time = millis();
   unsigned long delta = time - lastDispTime;
-
 
   if (delta > 300) {
     blink = !blink;
@@ -1472,6 +1394,8 @@ void displayStatus() {
     status = 'T';
   else if (currentMode == SHOWING_TIME )
     status = 'C';
+  else if (currentMode == ENTERING_PROGRAM )
+    status = 'X';
   else status = ' ' ;
 
   //
@@ -1567,11 +1491,13 @@ void displayStatus() {
       switch ( currentMode ) {
 
         case ENTERING_TIME :
-          display.print("ENTER TIME");
+	  displaySetCursor(0, 0);	
+          display.print("SET CLK");
           break;
 
         case SHOWING_TIME :
-          display.print("SHOW TIME");
+	  displaySetCursor(0, 0);	
+          display.print("TIME");
           break;
 
         default:
@@ -1788,22 +1714,6 @@ void displayOff() {
 
 void setDisplayToHexNumber(uint32_t number) {
 
-/*
-  dispLeft.clear();
-  dispRight.clear();
-
-  uint32_t r = number % 65536;
-  uint32_t l = number / 65536;
-
-
-  dispRight.printNumber(r, HEX);
-
-  if (l > 0)
-    dispLeft.printNumber(l, HEX);
-
-  display.display();
-*/ 
-
   displaySetCursor(0,5); 
   display.print(number, HEX); 
 
@@ -1919,110 +1829,20 @@ int decodeHex(char c) {
 
 }
 
-void loadEEPromProgram(byte pgm, byte start) {
-
-  cursor = CURSOR_OFF;
-  int origin = start;
-  int adr  = startAddresses[pgm];
-  int end = adr + programLengths[pgm];
-
-  display.clearDisplay();
-  displaySetCursor(0, 0);
-  display.print("Loading PGM ");
-  display.print(pgm + 7);
-  int curX = 0;
-  int curY = 1;
-
-  while (adr < end) {
-
-    displaySetCursor(15, 0);
-    display.print("@ ");
-    if (pc < 16)
-      display.print("0");
-    display.print(pc, HEX);
-
-    delay(10);
-
-    op[start] = EEPROM.read(adr++);
-    arg1[start] = EEPROM.read(adr++);
-    arg2[start] = EEPROM.read(adr++);
-
-    displaySetCursor(curX, curY);
-    display.print(op[start], HEX);
-    display.print(arg1[start], HEX);
-    display.print(arg2[start], HEX);
-    display.print("-");
-
-    curX += 4;
-    if (curX == 20) {
-      curX = 0;
-      curY ++;
-      if (curY == 4) {
-        curY = 1;
-        displaySetCursor(0, 1);
-        display.print("                    ");
-        displaySetCursor(0, 2);
-        display.print("                    ");
-        displaySetCursor(0, 3);
-        display.print("                    ");
-      }
-    }
-
-    pc = start;
-    start++;
-    currentMode = STOPPED;
-    outputs = pc;
-    showMem(2);
-
-  }
-
-  pc = origin;
-  currentMode = STOPPED;
-
-  display.clearDisplay();
-  displaySetCursor(0, 0);
-  display.print("Loaded @ ");
-  if (pc < 16)
-    display.print("0");
-  display.print(pc, HEX);
-
-  showLoaded(false);
-  delay(500);
-
-  reset();
-
-}
-
 //
 //
 //
-
-
-void showLoaded(boolean showLCD) {
-
-  if (showLCD) {
-    display.clearDisplay();
-    display.write("Loaded @ ");
-    display.print(pc, HEX);
-  }
-
-}
 
 void clearStack() {
-
   sp = 0;
-
 }
 
 void reset() {
 
-  display.clearDisplay();
-
-  showReset(0);
-  delay(250);
-
   currentMode = STOPPED;
   cursor = CURSOR_OFF;
+
+  announce(1, 1, "RESET"); 
 
   for (currentReg = 0; currentReg < 16; currentReg++) {
     reg[currentReg] = 0;
@@ -2042,9 +1862,9 @@ void reset() {
 
   curInput = 0;
   inputs = 0;
-  outputs = 0;
+  outputs = 0;  
 
-  displayMode = OFF;
+  displayMode = OFF3;
 
   showingDisplayFromReg = 0;
   showingDisplayDigits = 0;
@@ -2058,52 +1878,35 @@ void reset() {
 
 void clearMem() {
 
+  announce(0, 1, "RAM 000"); 
+
+  currentMode = STOPPED;
   cursor = CURSOR_OFF;
+  status_row = 1; 
 
-  display.clearDisplay();
-  displaySetCursor(0, 0);
-  display.print("PGM 5 LOAD 000");
-
-  int curX = 0;
-  int curY = 1;
-
+  // prevent overflow, loop termination! pc is byte...
   for (pc = 0; pc < 255; pc++) {
-
-    displaySetCursor(15, 0);
-    display.print("@ ");
-    if (pc < 16)
-      display.print("0");
-    display.print(pc, HEX);
 
     op[pc] = 0;
     arg1[pc] = 0;
     arg2[pc] = 0;
 
-    displaySetCursor(curX, curY);
-    display.print("000-");
-
-    curX += 4;
-    if (curX == 20) {
-      curX = 0;
-      curY ++;
-      if (curY == 4) {
-        curY = 1;
-        displaySetCursor(0, 1);
-        display.print("                    ");
-        displaySetCursor(0, 2);
-        display.print("                    ");
-        displaySetCursor(0, 3);
-        display.print("                    ");
-      }
-    }
-
-    showMem(2);
-
+    /*
+    clearLine(3);
+    showMem(0);
+    display.display(); 
+    */
   }
 
-  op[255] = 0;
-  arg1[255] = 0;
-  arg2[255] = 0;
+  op[pc] = 0;
+  arg1[pc] = 0;
+  arg2[pc] = 0;
+
+  /*
+  clearLine(3);
+  showMem(0);
+  display.display(); 
+  */
 
   reset();
 
@@ -2111,56 +1914,28 @@ void clearMem() {
 
 void loadNOPs() {
 
+  currentMode = STOPPED;
   cursor = CURSOR_OFF;
 
-  display.clearDisplay();
-  displaySetCursor(0, 0);
-  display.print("PGM 6 LOAD F01");
-
-  int curX = 0;
-  int curY = 1;
+  announce(0, 1, "RAM F01"); 
 
   for (pc = 0; pc < 255; pc++) {
-
-    displaySetCursor(15, 0);
-    display.print("@ ");
-    if (pc < 16)
-      display.print("0");
-    display.print(pc, HEX);
-
     op[pc] = 15;
     arg1[pc] = 0;
     arg2[pc] = 1;
-
-    displaySetCursor(curX, curY);
-    display.print("F01-");
-
-    curX += 4;
-    if (curX == 20) {
-      curX = 0;
-      curY ++;
-      if (curY == 4) {
-        curY = 1;
-        displaySetCursor(0, 1);
-        display.print("                    ");
-        displaySetCursor(0, 2);
-        display.print("                    ");
-        displaySetCursor(0, 3);
-        display.print("                    ");
-      }
-    }
-
-    showMem(2);
-
   }
 
-  op[255] = 15;
-  arg1[255] = 0;
-  arg2[255] = 1;
+  op[pc] = 15;
+  arg1[pc] = 0;
+  arg2[pc] = 1;
 
   reset();
 
 }
+
+//
+//
+//
 
 void interpret() {
 
@@ -2395,14 +2170,12 @@ void interpret() {
           case 3 :
             currentMode = ENTERING_TIME;
             display.clearDisplay();
-            display.print("PGM 3 ENTER TIME");
             cursor = 0;
             break;
 
           case 4 :
             currentMode = SHOWING_TIME;
             display.clearDisplay();
-            display.print("PGM 4 SHOW TIME");
             cursor = CURSOR_OFF;
             break;
 
@@ -2416,8 +2189,8 @@ void interpret() {
 
           default : // load other
 
-            if (program - 7 < programs ) {
-              loadEEPromProgram(program - 7, 0);
+            if (program - 7 < PROGRAMS ) {
+              enterProgram(PGMROM[program - 7], 0);
             } else {
             }
         }
@@ -3037,6 +2810,28 @@ void run() {
   }
 
 }
+
+void enterProgram(String string, int start) {
+
+  int i = 0; 
+
+  while ( string[i] ) {
+
+    op[start]   = decodeHex(string[i++]);
+    arg1[start] = decodeHex(string[i++]);
+    arg2[start] = decodeHex(string[i++]);
+
+    if (start == 255) {
+      exit(1);
+    }
+
+    i++; // skip over space 
+    start++; 
+
+  };
+
+}
+
 
 //
 // main loop / emulator / shell
