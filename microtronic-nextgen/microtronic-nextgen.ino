@@ -205,6 +205,7 @@ byte fn_keypad_col_pins[FN_KEYPAD_COLS] = {22, 20, 18, 16};
 
 enum LCDmode {
   OFF,
+  OFF1, 
   OFF3, 
   PCMEM,
   REGWR, 
@@ -219,6 +220,12 @@ LCDLine mnemonic;
 LCDLine file;
 
 int lcdCursor = 0;
+
+int textSize = 1; 
+
+uint8_t status_row = 0; 
+uint8_t status_col = 0; 
+
 
 //
 // Hex keypad
@@ -280,7 +287,6 @@ byte showingDisplayDigits = 0;
 byte currentReg = 0;
 byte currentInputRegister = 0;
 
-int clock = 0;
 boolean clock1hz = false;
 boolean carry = false;
 boolean zero = false;
@@ -444,13 +450,6 @@ const String decString[] = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "
 
 #define OP_DISP 0xF
 
-//
-// 
-//
-
-void displaySetCursor(int x, int y) {
-     display.setCursor(x*6, 8*y); 
-}
 
 //
 //
@@ -530,14 +529,11 @@ void setup() {
 
   display.clearDisplay();
 
-  display.setTextSize(1);
+  setTextSize(1);
   display.setTextColor(BLACK);
   displaySetCursor(0,0);
 
   LCDLogo();
-  display.display(); 
-
-  delay(2000);   
 
   //
   //
@@ -933,7 +929,7 @@ void saveProgram() {
         myFile.println();
 
       pc = i;
-      showMem();
+      showMem(2);
 
       displaySetCursor(curX, curY);
 
@@ -1081,7 +1077,7 @@ void loadProgram() {
             case 0 : pc = decoded * 16; count = 1; break;
             case 1 :
               pc += decoded;
-              showMem();
+              showMem(2);
               count = 0;
               readingOrigin = false;
               displaySetCursor(curX, curY);
@@ -1121,7 +1117,7 @@ void loadProgram() {
             case 1 : arg1[pc] = decoded; count = 2; break;
             case 2 :
               arg2[pc] = decoded;
-              showMem();
+              showMem(2);
               count = 0;
               if (firstPc == -1) firstPc = pc;
               pc++;
@@ -1189,23 +1185,15 @@ void loadProgram() {
 //
 
 
-void sendString(String string) {
-
-  clearStatus(); 
+void sendString(String string, uint8_t col) {
 
   for (int i = 0; i < string.length(); i++) {
-    sendChar(i, string[i], false);
+    sendChar(i + col, string[i], false);
   }
-
-  display.display();
-
-  delay(DISP_DELAY);
 
 }
 
-
-
-void showMem() {
+void showMem(uint8_t col) {
 
   int adr = pc;
 
@@ -1213,34 +1201,36 @@ void showMem() {
     adr = breakAt;
 
   if (cursor == 0)
-    sendHex(2, adr / 16, blink); 
+    sendHex(col++, adr / 16, blink); 
   else
-    sendHex(2, adr / 16 , false);
+    sendHex(col++, adr / 16 , false);
 
   if (cursor == 1)
-    sendHex(3, adr % 16, blink);
+    sendHex(col++, adr % 16, blink);
   else
-    sendHex(3, adr % 16, false);
+    sendHex(col++, adr % 16, false);
+
+  col++;
 
   if (cursor == 2)
-    sendHex(5, op[adr], blink);
+    sendHex(col++, op[adr], blink);
   else
-    sendHex(5, op[adr], false);
+    sendHex(col++, op[adr], false);
 
   if (cursor == 3)
-    sendHex(6, arg1[adr], blink);
+    sendHex(col++, arg1[adr], blink);
   else
-    sendHex(6, arg1[adr], false);
+    sendHex(col++, arg1[adr], false);
 
   if (cursor == 4)
-    sendHex(7, arg2[adr], blink);
+    sendHex(col++, arg2[adr], blink);
   else
-    sendHex(7, arg2[adr], false);
+    sendHex(col++, arg2[adr], false);
 
 }
 
 
-void showMemMore() {
+void showMemMore(uint8_t col) {
 
   int adr = pc;
   int adr0 = pc == 0 ? 255 : pc-1; 
@@ -1251,54 +1241,64 @@ void showMemMore() {
 
   display.setTextColor(WHITE, BLACK); // 'inverted' text
 
+  uint8_t col0 = col; 
+
   if (cursor == 0)
-    sendHexCol(2, 4, adr / 16, blink); 
+    sendHexCol(col++, 4, adr / 16, blink); 
   else
-    sendHexCol(2, 4, adr / 16 , false);
+    sendHexCol(col++, 4, adr / 16 , false);
 
   if (cursor == 1)
-    sendHexCol(3, 4, adr % 16, blink);
+    sendHexCol(col++, 4, adr % 16, blink);
   else
-    sendHexCol(3, 4, adr % 16, false);
+    sendHexCol(col++, 4, adr % 16, false);
+
+  col++;
 
   if (cursor == 2)
-    sendHexCol(5, 4, op[adr], blink);
+    sendHexCol(col++, 4, op[adr], blink);
   else
-    sendHexCol(5, 4, op[adr], false);
+    sendHexCol(col++, 4, op[adr], false);
 
   if (cursor == 3)
-    sendHexCol(6, 4, arg1[adr], blink);
+    sendHexCol(col++, 4, arg1[adr], blink);
   else
-    sendHexCol(6, 4, arg1[adr], false);
+    sendHexCol(col++, 4, arg1[adr], false);
 
   if (cursor == 4)
-    sendHexCol(7, 4, arg2[adr], blink);
+    sendHexCol(col++, 4, arg2[adr], blink);
   else
-    sendHexCol(7, 4, arg2[adr], false);
+    sendHexCol(col++, 4, arg2[adr], false);
 
   //
   //
+
+  col = col0; 
 
   display.setTextColor(BLACK, WHITE); // 'inverted' text
 
-  sendHexCol(2, 3, adr0 / 16, false);
-  sendHexCol(3, 3, adr0 % 16, false);
+  sendHexCol(col++, 3, adr0 / 16, false);
+  sendHexCol(col++, 3, adr0 % 16, false);
 
-  sendHexCol(5, 3, op[adr0]  , false);
-  sendHexCol(6, 3, arg1[adr0], false);
-  sendHexCol(7, 3, arg2[adr0], false);
+  col++; 
 
-  sendHexCol(2, 5, adr1 / 16, false);
-  sendHexCol(3, 5, adr1 % 16, false);
+  sendHexCol(col++, 3, op[adr0]  , false);
+  sendHexCol(col++, 3, arg1[adr0], false);
+  sendHexCol(col++, 3, arg2[adr0], false);
 
-  sendHexCol(5, 5, op[adr1]  , false);
-  sendHexCol(6, 5, arg1[adr1], false);
-  sendHexCol(7, 5, arg2[adr1], false);
+  col = col0; 
+
+  sendHexCol(col++, 5, adr1 / 16, false);
+  sendHexCol(col++, 5, adr1 % 16, false);
+
+  col++;
+
+  sendHexCol(col++, 5, op[adr1]  , false);
+  sendHexCol(col++, 5, arg1[adr1], false);
+  sendHexCol(col++, 5, arg2[adr1], false);
 
 
 }
-
-
 
 void advanceTime() {
 
@@ -1352,115 +1352,96 @@ void advanceTime() {
 }
 
 
-void showTime() {
+void showTime(uint8_t col) {
 
   if (cursor == 0)
-    sendHex(2, timeHours10, blink);
+    sendHex(col++, timeHours10, blink);
   else
-    sendHex(2, timeHours10, false);
+    sendHex(col++, timeHours10, false);
 
   if (cursor == 1)
-    sendHex(3, timeHours1, blink);
+    sendHex(col++, timeHours1, blink);
   else
-    sendHex(3, timeHours1, false);
+    sendHex(col++, timeHours1, false);
 
   if (cursor == 2)
-    sendHex(4, timeMinutes10, blink);
+    sendHex(col++, timeMinutes10, blink);
   else
-    sendHex(4, timeMinutes10, false);
+    sendHex(col++, timeMinutes10, false);
 
   if (cursor == 3)
-    sendHex(5, timeMinutes1, blink);
+    sendHex(col++, timeMinutes1, blink);
   else
-    sendHex(5, timeMinutes1, false);
+    sendHex(col++, timeMinutes1, false);
 
   if (cursor == 4)
-    sendHex(6, timeSeconds10, blink);
+    sendHex(col++, timeSeconds10, blink);
   else
-    sendHex(6, timeSeconds10, false);
+    sendHex(col++, timeSeconds10, false);
 
   if (cursor == 5)
-    sendHex(7, timeSeconds1, blink);
+    sendHex(col++, timeSeconds1, blink);
   else
-    sendHex(7, timeSeconds1 , false);
-
-  display.display();
+    sendHex(col++, timeSeconds1 , false);
 
 
 }
 
-
-void showReg() {
+void showReg(uint8_t col) {
 
   if (cursor == 0)
-    sendHex(3, currentReg, blink);
+    sendHex(col++, currentReg, blink);
   else
-    sendHex(3, currentReg, false);
+    sendHex(col++, currentReg, false);
 
   if (cursor == 1)
-    sendHex(7, reg[currentReg], blink);
+    sendHex(col+3, reg[currentReg], blink);
   else
-    sendHex(7, reg[currentReg], false);
-
-  display.display();
+    sendHex(col+3, reg[currentReg], false);
 
 }
 
-void showProgram() {
-
-  sendHex(7, program, blink);
-  display.display();
-
+void showProgram(uint8_t col) {
+  sendHex(col, program, blink);
 }
 
-void showError() {
-
+void showError(uint8_t col) {
   if (blink)
-    sendString("  Error  ");
-
-  display.display();
+    sendString("ERROR", col);
 
 }
 
-
-void showReset() {
-
-  sendString("  reset ");
-  display.display();
-
+void showReset(uint8_t col) {
+  sendString("RESET", col);
 }
 
-void showDISP() {
-
+void showDISP(uint8_t col) {
   for (int i = 0; i < showingDisplayDigits; i++)
-    sendHex(7 - i, reg[(i +  showingDisplayFromReg ) % 16], false);
-
-  display.display();
-
+    sendHex(5 - i + col, reg[(i +  showingDisplayFromReg ) % 16], false);
 }
+
+
+//
+//
+//
 
 void displayStatus() {
+
+  refreshLCD = pc != lastPc;
 
   unsigned long time = millis();
   unsigned long delta = time - lastDispTime;
 
-  if (delta > 300) {
 
+  if (delta > 300) {
     blink = !blink;
     lastDispTime = time;
-
     advanceTime();
-
   }
 
-  clock ++;
-  clock %= 10;
-
-  digitalWrite(CARRY_LED, carry);
-  digitalWrite(ZERO_LED, carry);
-  digitalWrite(CLOCK_1HZ_LED, clock1hz);
-
-  digitalWrite(CLOCK_OUT, clock1hz);
+  //
+  //
+  //
 
   char status = ' ';
 
@@ -1493,10 +1474,24 @@ void displayStatus() {
     status = 'C';
   else status = ' ' ;
 
+  //
+  //	
+  //	
+
+  digitalWrite(CARRY_LED, carry);
+  digitalWrite(ZERO_LED, carry);
+  digitalWrite(CLOCK_1HZ_LED, clock1hz);
+
   digitalWrite(DOT_LED_1, outputs & 1);
   digitalWrite(DOT_LED_2, outputs & 2);
   digitalWrite(DOT_LED_3, outputs & 4);
   digitalWrite(DOT_LED_4, outputs & 8);
+
+  //
+  //
+  //
+
+  digitalWrite(CLOCK_OUT, clock1hz);
 
   digitalWrite(DOT_1, outputs & 1);
   digitalWrite(DOT_2, outputs & 2);
@@ -1507,68 +1502,75 @@ void displayStatus() {
   //
   //
 
+  if (curPushButton == ENTER ) {
+    refreshLCD = true;
+    switch ( displayMode  ) {
+      case OFF    : displayMode = OFF1; display.clearDisplay(); break;
+      case OFF1   : displayMode = OFF3; display.clearDisplay(); break;
+      case OFF3   : displayMode = PCMEM; display.clearDisplay(); break;
+      case PCMEM  : displayMode = REGWR; display.clearDisplay(); break;
+      case REGWR  : displayMode = REGAR; display.clearDisplay(); break;
+      default     : displayMode = OFF; display.clearDisplay(); break;
+    }
+  }
+
+  switch ( displayMode ) {
+    case OFF3 :
+    case PCMEM : setTextSize(1); status_row = 4; status_col = 2; clearLines(3,5); break; 
+    case OFF1 : setTextSize(2); status_row = 1; status_col = 1; clearLine(3); break; 
+    default : setTextSize(1); status_row = 5; status_col = 2; clearLine(5); 
+  }
+
+  //
+  // this is updated with every call to displayStatus() 
+  // hence, we only clear parts of the display as necessary 
+  // (1 or 3 lines) 
+  // 
+
   if ( currentMode == RUNNING && ! dispOff && showingDisplayDigits > 0 || currentMode == ENTERING_VALUE ) {
-    sendCharCol(0, 5, status, false);      
-    showDISP();
+    sendCharRow(0, status_row, status, false);      
+    showDISP(status_col);
   } else if  ( currentMode == RUNNING && dispOff ) {
     // nothing
-    sendCharCol(0, 5, status, false);      
+    sendCharRow(0, status_row, status, false);      
   } else if ( currentMode == ENTERING_REG || currentMode == INSPECTING ) {
-    sendCharCol(0, 5, status, false);      
-    showReg();
+    sendCharRow(0, status_row, status, false);      
+    showReg(status_col);
   } else if ( currentMode == ENTERING_PROGRAM ) {
-    sendCharCol(0, 5, status, false);      
-    showProgram();
+    sendCharRow(0, status_row, status, false);      
+    showProgram(status_col);
   } else if ( currentMode == ENTERING_TIME || currentMode == SHOWING_TIME ) {
-    sendCharCol(0, 5, status, false);      
-    showTime();
+    sendCharRow(0, status_row, status, false);      
+    showTime(status_col);
   } else if ( error ) {
-    sendCharCol(0, 5, status, false);      
-    showError();
+    sendCharRow(0, status_row, status, false);      
+    showError(status_col);
   } else if ( ! dispOff && ! lastInstructionWasDisp ) {     
+    sendCharRow(0, status_row, status, false);  
     if (displayMode == OFF3 || displayMode == PCMEM ) { 
-      sendCharCol(0, 4, status, false);  
-      showMemMore(); 
+      showMemMore(status_col); 
     } else {
-      sendCharCol(0, 5, status, false);  
-      showMem(); 
+      showMem(status_col); 
     } 
   }
 
   //
-  //
-  //
-
-  if (curPushButton == ENTER ) {
-    refreshLCD = true;
-    switch ( displayMode  ) {
-      case OFF    : displayMode = OFF3; display.clearDisplay();; break;
-      case OFF3   : displayMode = PCMEM; display.clearDisplay();; break;
-      case PCMEM  : displayMode = REGWR; display.clearDisplay();; break;
-      case REGWR  : displayMode = REGAR; display.clearDisplay();; break;
-      default     : displayMode = OFF; display.clearDisplay();; break;
-    }
-  }
-
-  //
-  //
+  // this is only updated if needed (change in display mode or address) 
   //
 
-  if ( pc != lastPc || refreshLCD ) {
+  if ( refreshLCD ) {
 
     lastPc = pc;
 
-    if ((displayMode == OFF || displayMode == OFF3 ) && refreshLCD ) {
+    if (displayMode == OFF || displayMode == OFF3 || displayMode == OFF1 ) {
 
       switch ( currentMode ) {
 
         case ENTERING_TIME :
-          display.clearDisplay();; 
           display.print("ENTER TIME");
           break;
 
         case SHOWING_TIME :
-	  display.clearDisplay();; 
           display.print("SHOW TIME");
           break;
 
@@ -1577,8 +1579,6 @@ void displayStatus() {
       }
 
     } else if (displayMode == PCMEM ) {
-
-      display.clearDisplay();; 
 
       displaySetCursor(0, 0);
       display.print("BP MNEMONICS");
@@ -1596,22 +1596,26 @@ void displayStatus() {
       displaySetCursor(0, 2); 
       sep(); 
 
-      showMemMore(); 
+      //showMemMore(status_col); 
 
     } else if (displayMode == REGWR ) {
 
       displaySetCursor(0, 0);
       display.print("WR 0123456789");
+
       displaySetCursor(0, 1);
       display.print("   "); 
       for (int i = 0; i < 10; i++)
         display.print(reg[i], HEX);
+
       displaySetCursor(0, 2);
       display.print("WR ABCDEF");
+
       displaySetCursor(0, 3);
       display.print("   "); 
       for (int i = 10; i < 16; i++)
         display.print(reg[i], HEX);      
+
       displaySetCursor(0, 4);
       sep(); 
       
@@ -1619,41 +1623,55 @@ void displayStatus() {
 
       displaySetCursor(0, 0);
       display.print("ER 0123456789");
+
       displaySetCursor(0, 1);
       display.print("   "); 
       for (int i = 0; i < 10; i++)
         display.print(regEx[i], HEX);
+
       displaySetCursor(0, 2);
       display.print("ER ABCDEF");
+
       displaySetCursor(0, 3);
       display.print("   "); 
       for (int i = 10; i < 16; i++)
         display.print(regEx[i], HEX);      
+
       displaySetCursor(0, 4);
       sep(); 
       
     }
   }
 
-  if (displayMode != REGWR && displayCurFuncKey != NO_KEY) {
+  //
+  //
+  //
 
-    displaySetCursor(9, 4);
+  if (displayCurFuncKey != NO_KEY) {
+
+    if (displayMode == OFF1) 
+      displaySetCursor(0, status_row+1);
+    else 
+      displaySetCursor(9, status_row);
 
     switch ( displayCurFuncKey ) {
       case CCE  : display.print("C/CE"); break;
-      case RUN  : display.print(" RUN"); break;
-      case BKP  : display.print(" BKP"); break;
+      case RUN  : display.print("RUN"); break;
+      case BKP  : display.print("BKP"); break;
       case NEXT : display.print("NEXT"); break;
-      case PGM  : display.print(" PGM"); break;
+      case PGM  : display.print("PGM"); break;
       case HALT : display.print("HALT"); break;
       case STEP : display.print("STEP"); break;
-      case REG  : display.print(" REG"); break;
+      case REG  : display.print("REG"); break;
       default: break;
     }
 
     if (millis() - funcKeyTime > 500) {
       displayCurFuncKey = NO_KEY;
-      clearLine(5); 
+      if (displayMode == OFF1) 
+	clearLine(status_row+1); 
+      else 
+	clearLine(status_row); 
     }
   }
 
@@ -1662,9 +1680,9 @@ void displayStatus() {
 
 }
 
-void sep() {
-  display.print("--------------");
-}
+//
+//
+//
 
 void LCDLogo() {
 
@@ -1672,21 +1690,128 @@ void LCDLogo() {
 
   sep(); 
   displaySetCursor(0, 1);
-  display.print("Busch 2090");
+  display.print("Busch 2090    ");
   displaySetCursor(0, 2);
-  display.print(" Microtronic");
+  display.print(" Microtronic  ");
   displaySetCursor(0, 3);
+  display.print(" 2560 Emulator");
+  displaySetCursor(0, 4);
   sep(); 
+  displaySetCursor(0, 5);
+  display.print("Baukastenforum");
 
+  
+  display.display(); 
+
+  delay(2000);   
+
+  display.clearDisplay();; 
+  display.display(); 
+
+}
+
+//
+//
+//
+
+void sep() {
+  display.print("--------------");
+}
+
+void setTextSize(int n) {
+  textSize = n; 
+  display.setTextSize(n); 
 }
 
 void clearLine(int line) {
-     display.fillRect(0, 8*line, 8*12, 8,WHITE);		
+     display.fillRect(0, 8*textSize*line, 6*textSize*14, 8*textSize,WHITE);		
 }
 
-void clearStatus() {
-     clearLine(4); 
+void clearLines(int from, int to) {
+  display.fillRect(0, 8*from*textSize, 6*14*textSize, ((to-from)+1)*8*textSize,WHITE);		
 }
+
+void displaySetCursor(int x, int y) {
+     display.setCursor(x*6*textSize, 8*y*textSize); 
+}
+
+void advanceCursor(boolean yes) {
+  if (yes) lcdCursor ++;
+}
+
+void sendChar(uint8_t pos, char c, boolean blink) {
+   
+  displaySetCursor(pos, status_row); 
+  display.print(blink ? ' ' : c); 
+
+}
+
+void sendCharRow(uint8_t pos, uint8_t row, char c, boolean blink) {
+   
+  displaySetCursor(pos, row); 
+  display.print(blink ? ' ' : c); 
+
+}
+
+void sendHex(uint8_t pos, uint8_t c, boolean blink) {
+   
+  displaySetCursor(pos, status_row); 
+  if (blink) {
+    display.print(' '); 
+  } else {
+    display.print(c, HEX);	
+  }
+
+}
+
+void sendHexCol(uint8_t pos, uint8_t col, uint8_t c, boolean blink) {
+   
+  displaySetCursor(pos, col); 
+  if (blink) {
+    display.print(' '); 
+  } else {
+    display.print(c, HEX);	
+  }
+
+}
+
+void displayOff() {
+
+  display.clearDisplay();
+  display.display();
+
+  dispOff = true;
+  showingDisplayFromReg = 0;
+  showingDisplayDigits = 0;
+
+}
+
+void setDisplayToHexNumber(uint32_t number) {
+
+/*
+  dispLeft.clear();
+  dispRight.clear();
+
+  uint32_t r = number % 65536;
+  uint32_t l = number / 65536;
+
+
+  dispRight.printNumber(r, HEX);
+
+  if (l > 0)
+    dispLeft.printNumber(l, HEX);
+
+  display.display();
+*/ 
+
+  displaySetCursor(0,5); 
+  display.print(number, HEX); 
+
+}
+
+//
+//
+//
 
 void clearMnemonicBuffer() {
 
@@ -1708,13 +1833,6 @@ void clearFileBuffer() {
   file[15] = 0;
 
   lcdCursor = 0;
-
-}
-
-
-void advanceCursor(boolean yes) {
-
-  if (yes) lcdCursor ++;
 
 }
 
@@ -1791,8 +1909,6 @@ void getMnem(boolean spaces) {
 
 }
 
-
-
 int decodeHex(char c) {
 
   if (c >= 65 && c <= 70 )
@@ -1856,7 +1972,7 @@ void loadEEPromProgram(byte pgm, byte start) {
     start++;
     currentMode = STOPPED;
     outputs = pc;
-    showMem();
+    showMem(2);
 
   }
 
@@ -1877,81 +1993,10 @@ void loadEEPromProgram(byte pgm, byte start) {
 
 }
 
+//
+//
+//
 
-void sendChar(uint8_t pos, char c, boolean blink) {
-   
-  displaySetCursor(pos, 5); 
-  display.print(blink ? ' ' : c); 
-
-}
-
-void sendCharCol(uint8_t pos, uint8_t col, char c, boolean blink) {
-   
-  displaySetCursor(pos, col); 
-  display.print(blink ? ' ' : c); 
-
-}
-
-
-void sendHex(uint8_t pos, uint8_t c, boolean blink) {
-   
-  displaySetCursor(pos, 5); 
-  if (blink) {
-    display.print(' '); 
-  } else {
-    display.print(c, HEX);	
-  }
-
-}
-
-void sendHexCol(uint8_t pos, uint8_t col, uint8_t c, boolean blink) {
-   
-  displaySetCursor(pos, col); 
-  if (blink) {
-    display.print(' '); 
-  } else {
-    display.print(c, HEX);	
-  }
-
-}
-
-
-
-
-void displayOff() {
-
-  display.clearDisplay();
-  display.display();
-
-  dispOff = true;
-  showingDisplayFromReg = 0;
-  showingDisplayDigits = 0;
-
-}
-
-
-void setDisplayToHexNumber(uint32_t number) {
-
-/*
-  dispLeft.clear();
-  dispRight.clear();
-
-  uint32_t r = number % 65536;
-  uint32_t l = number / 65536;
-
-
-  dispRight.printNumber(r, HEX);
-
-  if (l > 0)
-    dispLeft.printNumber(l, HEX);
-
-  display.display();
-*/ 
-
-  displaySetCursor(0,5); 
-  display.print(number, HEX); 
-
-}
 
 void showLoaded(boolean showLCD) {
 
@@ -1960,20 +2005,6 @@ void showLoaded(boolean showLCD) {
     display.write("Loaded @ ");
     display.print(pc, HEX);
   }
-
-  sendString(" loaded ");
-  sendHex(4, program, false);
-  display.display();
-  delay(DISP_DELAY);
-
-  sendString("   at   ");
-
-  sendHex(3, pc / 16, false);
-  sendHex(4, pc % 16, false);
-  display.display();
-
-  delay(DISP_DELAY);
-
 
 }
 
@@ -1987,7 +2018,7 @@ void reset() {
 
   display.clearDisplay();
 
-  showReset();
+  showReset(0);
   delay(250);
 
   currentMode = STOPPED;
@@ -2066,7 +2097,7 @@ void clearMem() {
       }
     }
 
-    showMem();
+    showMem(2);
 
   }
 
@@ -2119,7 +2150,7 @@ void loadNOPs() {
       }
     }
 
-    showMem();
+    showMem(2);
 
   }
 
@@ -2983,7 +3014,7 @@ void run() {
                   if (oneStepOnly) {
                     display.clearDisplay();
                     display.display();
-                    showDISP();
+                    showDISP(status_col);
                   }
 
                   break;
