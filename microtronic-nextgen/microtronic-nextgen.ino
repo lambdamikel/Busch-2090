@@ -1516,7 +1516,7 @@ void displayStatus() {
 
   switch ( displayMode ) {
     case OFF3 :
-    case PCMEM : setTextSize(1); status_row = 4; status_col = 2; clearLines(3,5); break; 
+    case PCMEM : setTextSize(1); status_row = 4; status_col = 2; clearLines(3,5); refreshLCD = true; break; 
     case OFF1 : setTextSize(2); status_row = 1; status_col = 1; clearLine(3); break; 
     default : setTextSize(1); status_row = 5; status_col = 2; clearLine(5); 
   }
@@ -1900,7 +1900,7 @@ void getMnem(boolean spaces) {
                 case OP_EXRL   : inputMnem( "EXRL  ");  break;
                 case OP_EXRM   : inputMnem( "EXRM  ");  break;
                 case OP_EXRA   : inputMnem( "EXRA  ");  break;
-                default        : inputMnem( "DISP  ");  advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); hexStringChar[lo]; break;
+  	        default        : inputMnem( "DISP  ");  advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo]); break;
               }
             }
         }
