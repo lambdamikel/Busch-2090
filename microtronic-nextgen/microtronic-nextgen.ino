@@ -236,6 +236,7 @@ uint8_t status_col = 0;
 boolean keypadPressed = false;
 
 unsigned long hexKeyTime = 0;
+
 int curHexKey    = NO_KEY;
 int curHexKeyRaw = NO_KEY;
 
@@ -666,21 +667,23 @@ int readFunctionKeys() {
 int readHexKeys() {
 
   int button = hex_keypad_getKey(); 
-  keypadPressed = false; 
 
+  keypadPressed = false; 
+      
+  // button change? check if pressed long enough -> change butotn state 
   if ( button != curHexKeyRaw ) {
     if (( millis() - hexKeyTime) > DEBOUNCE_TIME ) {
       hexKeyTime = millis();
       if (button != NO_KEY) {
         curHexKey = button-1;
         keypadPressed = true; 
-       }
+      } else {
+        curHexKey = NO_KEY; 
+      }
     }
-  } else {
-    curHexKey = NO_KEY;
   }
 
-  curHexKeyRaw = button;
+  curHexKeyRaw = button; 
 
   return curHexKey;
 
@@ -1507,12 +1510,12 @@ void displayStatus() {
     } else if (displayMode == PCMEM ) {
 
       displaySetCursor(0, 0);
-      display.print("BP MNEMONICS");
+      display.print("PC MNEMONICS");
 
       displaySetCursor(0, 1);
-      if (breakAt < 16)
-        display.print(0);
-      display.print(breakAt, HEX);
+      if (pc < 16)
+	display.print(0, HEX);
+      display.print(pc, HEX);
      
       getMnem(1);
 
@@ -2095,6 +2098,7 @@ void interpret() {
     case ENTERING_VALUE :
 
       if (keypadPressed) {
+
         curInput = curHexKey;
         reg[currentInputRegister] = curInput;
         carry = false;
@@ -2207,7 +2211,7 @@ void interpret() {
         currentMode = ENTERING_ADDRESS_LOW;
       }
 
-      break;
+       break;
 
     case ENTERING_ADDRESS_LOW :
 
@@ -2329,101 +2333,77 @@ void run() {
   byte op2 = op1 * 16 + hi;
   unsigned int op3 = op1 * 256 + hi * 16 + lo;
 
-  switch (op1) {
-    case OP_MOV :
+  //
+  // case switch doesn't work for such long case statements!! 
+  // 
 
-      reg[d] = reg[s];
-      zero = reg[d] == 0;
+  if (op1 == OP_MOV) {
 
-      break;
-
-    case OP_MOVI :
+    reg[d] = reg[s];
+    zero = reg[d] == 0;
+    
+  } else if (op1 == OP_MOVI) {
 
       reg[d] = n;
       zero = reg[d] == 0;
 
-      break;
-
-    case OP_AND :
+  } else if (op1 == OP_AND ) {
 
       reg[d] &= reg[s];
       carry = false;
       zero = reg[d] == 0;
 
-      break;
-
-    case OP_ANDI :
+  } else if (op1 == OP_ANDI ) {
 
       reg[d] &= n;
       carry = false;
       zero = reg[d] == 0;
 
-      break;
-
-    case OP_ADD :
+  } else if (op1 == OP_ADD ) {
 
       reg[d] += reg[s];
       carry = reg[d] > 15;
       reg[d] &= 15;
       zero = reg[d] == 0;
 
-      break;
-
-    case OP_ADDI :
+  } else if (op1 == OP_ADDI ) {
 
       reg[d] += n;
       carry = reg[d] > 15;
       reg[d] &= 15;
       zero =  reg[d] == 0;
 
-      break;
-
-    case OP_SUB :
+  } else if (op1 == OP_SUB ) {
 
       reg[d] -= reg[s];
       carry = reg[d] > 15;
       reg[d] &= 15;
       zero =  reg[d] == 0;
 
-      break;
-
-    case OP_SUBI :
+  } else if (op1 == OP_SUBI ) {
 
       reg[d] -= n;
       carry = reg[d] > 15;
       reg[d] &= 15;
       zero =  reg[d] == 0;
-
-      break;
-
-    case OP_CMP :
+      
+  } else if (op1 == OP_CMP ) {
 
       carry = reg[s] < reg[d];
       zero = reg[s] == reg[d];
 
-      break;
-
-    case OP_CMPI :
+  } else if (op1 == OP_CMPI ) {
 
       carry = n < reg[d];
       zero = reg[d] == n;
 
-      break;
-
-    case OP_OR :
+  } else if (op1 == OP_OR ) {
 
       reg[d] |= reg[s];
       carry = false;
       zero = reg[d] == 0;
 
-      break;
-
-    //
-    //
-    //
-
-
-    case OP_CALL :
+  } else if (op1 == OP_CALL ) {
 
       if (sp < STACK_DEPTH - 1) {
         stack[sp] = pc;
@@ -2437,370 +2417,290 @@ void run() {
         currentMode = STOPPED;
 
       }
-      break;
 
-    case OP_GOTO :
+  } else if (op1 == OP_GOTO ) {
 
-      pc = adr;
-      jump = true;
-
-      break;
-
-    case OP_BRC :
+    pc = adr;
+    jump = true;
+    
+  } else if (op1 == OP_BRC ) {
 
       if (carry) {
         pc = adr;
         jump = true;
       }
 
-      break;
-
-    case OP_BRZ :
+  } else if (op1 == OP_BRZ ) {
 
       if (zero) {
         pc = adr;
         jump = true;
       }
 
-      break;
-
-    //
-    //
-    //
-
-    default : {
-
-        switch (op2) {
-
-          case OP_MAS :
-
-            regEx[d] = reg[d];
-
-            break;
-
-          case OP_INV :
-
-            reg[d] ^= 15;
-
-            break;
-
-          case OP_SHR :
-
-            reg[d] >>= 1;
-            carry = reg[d] & 16;
-            reg[d] &= 15;
-            zero = reg[d] == 0;
-
-            break;
-
-          case OP_SHL :
-
-            reg[d] <<= 1;
-            carry = reg[d] & 16;
-            reg[d] &= 15;
-            zero = reg[d] == 0;
-
-            break;
-
-          case OP_ADC :
-
-            if (carry) reg[d]++;
-            carry = reg[d] > 15;
-            reg[d] &= 15;
-            zero = reg[d] == 0;
-
-            break;
-
-          case OP_SUBC :
-
-            if (carry) reg[d]--;
-            carry = reg[d] > 15;
-            reg[d] &= 15;
-            zero = reg[d] == 0;
-
-            break;
-
-          //
-          //
-          //
-
-          case OP_DIN :
-
-            reg[d] = readDIN();
-            carry = false;
-            zero = reg[d] == 0;
-
-            break;
-
-          case OP_DOT :
-
-            outputs = reg[dot_s];
-            carry = false;
-            zero = reg[dot_s] == 0;
-
-            break;
-
-          case OP_KIN :
-
-            currentMode = ENTERING_VALUE;
-            currentInputRegister = d;
-
-            break;
-
-          //
-          //
-          //
-
-          default : {
-
-              switch (op3) {
-
-                case OP_HALT :
-
-                  currentMode = STOPPED;
-                  break;
-
-                case OP_NOP :
-
-                  break;
-
-                case OP_DISOUT :
-
-                  displayOff();
-
-                  break;
-
-                case OP_HXDZ :
-
-                  num =
-                    reg[0xD] +
-                    16 * reg[0xE] +
-                    256 * reg[0xF];
-
-                  zero = num > 999;
-                  carry = false;
-
-                  num %= 1000;
-
-                  reg[0xD] = num % 10;
-                  reg[0xE] = ( num / 10 ) % 10;
-                  reg[0xF] = ( num / 100 ) % 10;
-
-                  break;
-
-                case OP_DZHX :
-
-                  num =
-                    reg[0xD] +
-                    10 * reg[0xE] +
-                    100 * reg[0xF];
-
-                  carry = false;
-                  zero = false;
-
-                  reg[0xD] = num % 16;
-                  reg[0xE] = ( num / 16 ) % 16;
-                  reg[0xF] = ( num / 256 ) % 16;
-
-                  break;
-
-                case OP_RND :
-
-                  reg[0xD] = random(16);
-                  reg[0xE] = random(16);
-                  reg[0xF] = random(16);
-
-                  break;
-
-                case OP_TIME :
-
-                  reg[0xA] = timeSeconds1;
-                  reg[0xB] = timeSeconds10;
-                  reg[0xC] = timeMinutes1;
-                  reg[0xD] = timeMinutes10;
-                  reg[0xE] = timeHours1;
-                  reg[0xF] = timeHours10;
-
-                  break;
-
-                case OP_RET :
-
-                  pc = stack[--sp] + 1;
-                  jump = true;
-                  break;
-
-                case OP_CLEAR :
-
-                  for (byte i = 0; i < 16; i ++)
-                    reg[i] = 0;
-
-                  carry = false;
-                  zero = true;
-
-                  break;
-
-                case OP_STC :
-
-                  carry = true;
-
-                  break;
-
-                case OP_RSC :
-
-                  carry = false;
-
-                  break;
-
-                case OP_MULT :
-
-                  num =
-                    reg[0] + 10 * reg[1] + 100 * reg[2] +
-                    1000 * reg[3] + 10000 * reg[4] + 100000 * reg[5];
-
-                  num2 =
-                    regEx[0] + 10 * regEx[1] + 100 * regEx[2] +
-                    1000 * regEx[3] + 10000 * regEx[4] + 100000 * regEx[5];
-
-                  num *= num2;
-
-                  carry = num > 999999;
-
-                  for (int i = 0; i < 6; i++) {
-                    carry |= ( reg[i] > 9 || regEx[i] > 9 );
-                  }
-
-                  zero  = false;
-
-                  num = num % 1000000;
-
-                  if (carry) {
-
-                    reg[0] = 0xE;
-                    reg[1] = 0xE;
-                    reg[2] = 0xE;
-                    reg[3] = 0xE;
-                    reg[4] = 0xE;
-                    reg[5] = 0xE;
-
-                  } else {
-
-                    reg[0] = num % 10;
-                    reg[1] = ( num / 10 ) % 10;
-                    reg[2] = ( num / 100 ) % 10;
-                    reg[3] = ( num / 1000 ) % 10;
-                    reg[4] = ( num / 10000 ) % 10;
-                    reg[5] = ( num / 100000 ) % 10;
-                  }
-
-                  for (int i = 0; i < 6; i++) // not documented in manual, but true!
-                    regEx[i] = 0;
-
-                  break;
-
-                case OP_DIV :
-
-                  num2 =
-                    reg[0] + 10 * reg[1] + 100 * reg[2] +
-                    1000 * reg[3];
-
-                  num =
-                    regEx[0] + 10 * regEx[1] + 100 * regEx[2] +
-                    1000 * regEx[3];
-
-                  carry = false;
-
-                  for (int i = 0; i < 6; i++) {
-                    carry |= ( reg[i] > 9 || regEx[i] > 9 );
-                  }
-
-                  if (num2 == 0 || carry ) {
-
-                    carry = true;
-                    zero = false,
-
-                    reg[0] = 0xE;
-                    reg[1] = 0xE;
-                    reg[2] = 0xE;
-                    reg[3] = 0xE;
-                    reg[4] = 0xE;
-                    reg[5] = 0xE;
-
-                  } else {
-
-                    carry = false;
-                    num3 = num / num2;
-
-                    reg[0] = num3 % 10;
-                    reg[1] = ( num3 / 10 ) % 10;
-                    reg[2] = ( num3 / 100 ) % 10;
-                    reg[3] = ( num3 / 1000 ) % 10;
-
-                    num3 = num % num2;
-                    zero = num3 > 0;
-
-                    regEx[0] = num3 % 10;
-                    regEx[1] = ( num3 / 10 ) % 10;
-                    regEx[2] = ( num3 / 100 ) % 10;
-                    regEx[3] = ( num3 / 1000 ) % 10;
-
-                  }
-
-                  break;
-
-                case OP_EXRL :
-
-                  for (int i = 0; i < 8; i++) {
-                    byte aux = reg[i];
-                    reg[i] = regEx[i];
-                    regEx[i] = aux;
-                  }
-
-                  break;
-
-                case OP_EXRM :
-
-                  for (int i = 8; i < 16; i++) {
-                    byte aux = reg[i];
-                    reg[i] = regEx[i];
-                    regEx[i] = aux;
-                  }
-
-                  break;
-
-                case OP_EXRA :
-
-                  for (int i = 0; i < 8; i++) {
-                    byte aux = reg[i];
-                    reg[i]   = reg[i + 8];
-                    reg[i + 8] = aux;
-                  }
-
-                  break;
-
-                default : // DISP!
-
-                  dispOff = false;
-                  showingDisplayDigits = disp_n;
-                  showingDisplayFromReg = disp_s;
-                  lastInstructionWasDisp = true;
-
-                  if (oneStepOnly) {
-                    display.clearDisplay();
-                    display.display();
-                    showDISP(status_col);
-                  }
-
-                  break;
-
-                  //
-                  //
-                  //
-
-              }
-            }
-        }
-      }
+  } else if ( op2 == OP_MAS ) {
+
+    regEx[d] = reg[d];
+
+  } else if  (op2 == OP_INV ) {
+    
+    reg[d] ^= 15;
+    
+  } else if (op2 == OP_SHR ) {
+    
+    reg[d] >>= 1;
+    carry = reg[d] & 16;
+    reg[d] &= 15;
+    zero = reg[d] == 0;
+    
+  } else if (op2 == OP_SHL ) {
+    
+    reg[d] <<= 1;
+    carry = reg[d] & 16;
+    reg[d] &= 15;
+    zero = reg[d] == 0;
+    
+  } else if (op2 == OP_ADC ) {
+    
+    if (carry) reg[d]++;
+    carry = reg[d] > 15;
+    reg[d] &= 15;
+    zero = reg[d] == 0;
+    
+  } else if (op2 == OP_SUBC ) {
+    
+    if (carry) reg[d]--;
+    carry = reg[d] > 15;
+    reg[d] &= 15;
+    zero = reg[d] == 0;
+    
+  } else if (op2 == OP_DIN ) {
+    
+    reg[d] = readDIN();
+    carry = false;
+    zero = reg[d] == 0;
+    
+  } else if (op2 == OP_DOT ) {
+    
+    outputs = reg[dot_s];
+    carry = false;
+    zero = reg[dot_s] == 0;
+    
+  } else if (op2 == OP_KIN ) {
+    
+    currentMode = ENTERING_VALUE;
+    currentInputRegister = d;
+        	      
+  } else if (op3 == OP_HALT ) {
+
+    currentMode = STOPPED;
+
+  } else if (op3 == OP_NOP ) {
+
+  } else if (op3 == OP_DISOUT ) {
+
+    displayOff();
+
+  } else if (op3 == OP_HXDZ ) {
+    
+    num =
+      reg[0xD] +
+      16 * reg[0xE] +
+      256 * reg[0xF];
+    
+    zero = num > 999;
+    carry = false;
+    
+    num %= 1000;
+    
+    reg[0xD] = num % 10;
+    reg[0xE] = ( num / 10 ) % 10;
+    reg[0xF] = ( num / 100 ) % 10;
+    
+  } else if (op3 == OP_DZHX ) {
+
+    num =
+      reg[0xD] +
+      10 * reg[0xE] +
+      100 * reg[0xF];
+    
+    carry = false;
+    zero = false;
+    
+    reg[0xD] = num % 16;
+    reg[0xE] = ( num / 16 ) % 16;
+    reg[0xF] = ( num / 256 ) % 16;
+    
+  } else if (op3 == OP_RND ) {
+
+    reg[0xD] = random(16);
+    reg[0xE] = random(16);
+    reg[0xF] = random(16);
+    
+  } else if (op3 == OP_TIME ) {
+
+    reg[0xA] = timeSeconds1;
+    reg[0xB] = timeSeconds10;
+    reg[0xC] = timeMinutes1;
+    reg[0xD] = timeMinutes10;
+    reg[0xE] = timeHours1;
+    reg[0xF] = timeHours10;
+    
+  } else if (op3 == OP_RET ) {
+
+    pc = stack[--sp] + 1;
+    jump = true;
+
+  } else if (op3 == OP_CLEAR ) {
+
+    for (byte i = 0; i < 16; i ++)
+      reg[i] = 0;
+    
+    carry = false;
+    zero = true;
+    
+  } else if (op3 == OP_STC ) {
+
+    carry = true;
+
+  } else if (op3 == OP_RSC ) {
+
+    carry = false;
+
+  } else if (op3 == OP_MULT ) {
+
+    num =
+      reg[0] + 10 * reg[1] + 100 * reg[2] +
+      1000 * reg[3] + 10000 * reg[4] + 100000 * reg[5];
+    
+    num2 =
+      regEx[0] + 10 * regEx[1] + 100 * regEx[2] +
+      1000 * regEx[3] + 10000 * regEx[4] + 100000 * regEx[5];
+    
+    num *= num2;
+    
+    carry = num > 999999;
+    
+    for (int i = 0; i < 6; i++) {
+      carry |= ( reg[i] > 9 || regEx[i] > 9 );
+    }
+    
+    zero  = false;
+    
+    num = num % 1000000;
+    
+    if (carry) {
+      
+      reg[0] = 0xE;
+      reg[1] = 0xE;
+      reg[2] = 0xE;
+      reg[3] = 0xE;
+      reg[4] = 0xE;
+      reg[5] = 0xE;
+      
+    } else {
+      
+      reg[0] = num % 10;
+      reg[1] = ( num / 10 ) % 10;
+      reg[2] = ( num / 100 ) % 10;
+      reg[3] = ( num / 1000 ) % 10;
+      reg[4] = ( num / 10000 ) % 10;
+      reg[5] = ( num / 100000 ) % 10;
+    }
+    
+    for (int i = 0; i < 6; i++) // not documented in manual, but true!
+      regEx[i] = 0;
+
+  } else if (op3 == OP_DIV ) {
+
+    num2 =
+      reg[0] + 10 * reg[1] + 100 * reg[2] +
+      1000 * reg[3];
+    
+    num =
+      regEx[0] + 10 * regEx[1] + 100 * regEx[2] +
+      1000 * regEx[3];
+    
+    carry = false;
+    
+    for (int i = 0; i < 6; i++) {
+      carry |= ( reg[i] > 9 || regEx[i] > 9 );
+    }
+    
+    if (num2 == 0 || carry ) {
+      
+      carry = true;
+      zero = false; 
+	
+      reg[0] = 0xE;
+      reg[1] = 0xE;
+      reg[2] = 0xE;
+      reg[3] = 0xE;
+      reg[4] = 0xE;
+      reg[5] = 0xE;
+      
+    } else {
+
+      carry = false;
+      num3 = num / num2;
+      
+      reg[0] = num3 % 10;
+      reg[1] = ( num3 / 10 ) % 10;
+      reg[2] = ( num3 / 100 ) % 10;
+      reg[3] = ( num3 / 1000 ) % 10;
+      
+      num3 = num % num2;
+      zero = num3 > 0;
+      
+      regEx[0] = num3 % 10;
+      regEx[1] = ( num3 / 10 ) % 10;
+      regEx[2] = ( num3 / 100 ) % 10;
+      regEx[3] = ( num3 / 1000 ) % 10;
+      
+    }
+    
+  } else if (op3 == OP_EXRL ) {
+
+    for (int i = 0; i < 8; i++) {
+      byte aux = reg[i];
+      reg[i] = regEx[i];
+      regEx[i] = aux;
+    }
+
+  } else if (op3 == OP_EXRM ) {
+
+    for (int i = 8; i < 16; i++) {
+      byte aux = reg[i];
+      reg[i] = regEx[i];
+      regEx[i] = aux;
+    }
+    
+  } else if (op3 == OP_EXRA ) {
+
+    for (int i = 0; i < 8; i++) {
+      byte aux = reg[i];
+      reg[i]   = reg[i + 8];
+      reg[i + 8] = aux;
+    }
+    
+  } else { 
+
+    // DISP!
+
+    dispOff = false;
+    showingDisplayDigits = disp_n;
+    showingDisplayFromReg = disp_s;
+    lastInstructionWasDisp = true;
+    
+    if (oneStepOnly) {
+      display.clearDisplay();
+      display.display();
+      showDISP(status_col);
+    }
   }
+
+  //
+  //
+  //
 
   if (oneStepOnly) {
     currentMode = STOPPED;
