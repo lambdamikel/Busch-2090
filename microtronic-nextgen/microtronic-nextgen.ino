@@ -1716,24 +1716,16 @@ void sendHexCol(uint8_t pos, uint8_t col, uint8_t c, boolean blink) {
 
 }
 
-
-void setDisplayToHexNumber(uint32_t number) {
-
-  displaySetCursor(0,5); 
-  display.print(number, HEX); 
-
-}
-
 //
 //
 //
 
 void clearMnemonicBuffer() {
 
-  for (int i = 0; i < 15; i++)
+  for (int i = 0; i < 14; i++)
     mnemonic[i] = ' ';
 
-  mnemonic[15] = 0;
+  mnemonic[14] = 0;
 
   lcdCursor = 0;
 
@@ -1742,10 +1734,10 @@ void clearMnemonicBuffer() {
 
 void clearFileBuffer() {
 
-  for (int i = 0; i < 15; i++)
+  for (int i = 0; i < 14; i++)
     file[i] = ' ';
 
-  file[15] = 0;
+  file[14] = 0;
 
   lcdCursor = 0;
 
@@ -1944,9 +1936,7 @@ void loadNOPs() {
 
 void interpret() {
 
-  switch ( curFuncKey ) {
-
-    case HALT :
+  if ( curFuncKey == HALT ) {
 
       jump = true;
       currentMode = STOPPED;
@@ -1958,9 +1948,7 @@ void interpret() {
       display.clearDisplay();
       refreshLCD = true;
 
-      break;
-
-    case RUN :
+  } else if  (curFuncKey == RUN ) {
 
       currentMode = RUNNING;
       cursor = CURSOR_OFF;
@@ -1975,10 +1963,29 @@ void interpret() {
       display.clearDisplay();
       refreshLCD = true;
 
-      break;
+  } else if ( curFuncKey == DOWN ) {
+      if (currentMode != RUNNING ) {
+        pc--;
+        cursor = 0;
+        currentMode = ENTERING_ADDRESS_HIGH;
+      }
 
-    case NEXT :
-    case UP :
+      display.clearDisplay();
+      refreshLCD = true;
+      jump = true;
+
+  } else if ( curFuncKey == UP ) {
+      if (currentMode != RUNNING ) {
+        pc++;
+        cursor = 0;
+        currentMode = ENTERING_ADDRESS_HIGH;
+      }
+
+      display.clearDisplay();
+      refreshLCD = true;
+      jump = true;
+
+  } else if ( curFuncKey == NEXT ) {
       if (currentMode == STOPPED) {
         currentMode = ENTERING_ADDRESS_HIGH;
         cursor = 0;
@@ -1992,26 +1999,7 @@ void interpret() {
       refreshLCD = true;
       jump = true;
 
-      break;
-
-    case DOWN :
-      if (currentMode == STOPPED) {
-        currentMode = ENTERING_ADDRESS_HIGH;
-        cursor = 0;
-      } else {
-        pc--; 
-        cursor = 2;
-        currentMode = ENTERING_OP;
-      }
-
-      display.clearDisplay();
-      refreshLCD = true;
-      jump = true;
-
-      break;
-
-
-    case REG :
+  } else if ( curFuncKey == REG ) {
 
       if (currentMode != ENTERING_REG) {
         currentMode = ENTERING_REG;
@@ -2023,9 +2011,7 @@ void interpret() {
       display.clearDisplay();
       refreshLCD = true;
 
-      break;
-
-    case STEP :
+  } else if ( curFuncKey == STEP ) {
 
       currentMode = RUNNING;
       oneStepOnly = true;
@@ -2036,9 +2022,7 @@ void interpret() {
 
       displayStatus();
 
-      break;
-
-    case BKP :
+  } else if ( curFuncKey == BKP ) {
 
       if (currentMode != ENTERING_BREAKPOINT_LOW ) {
         currentMode = ENTERING_BREAKPOINT_HIGH;
@@ -2050,9 +2034,7 @@ void interpret() {
 
       refreshLCD = true;
 
-      break;
-
-    case CCE :
+  } else if ( curFuncKey == CCE ) {
 
       if (cursor == 2) {
         cursor = 4;
@@ -2071,11 +2053,9 @@ void interpret() {
       display.clearDisplay();
       refreshLCD = true;
 
-      break;
+  } else if ( curFuncKey == PGM ) {
 
-    case PGM :
-
-      if ( currentMode != ENTERING_PROGRAM ) {
+    if ( currentMode != ENTERING_PROGRAM ) {
         cursor = 0;
         currentMode = ENTERING_PROGRAM;
       }
@@ -2083,21 +2063,61 @@ void interpret() {
       display.clearDisplay();
       refreshLCD = true;
 
-      break;
-
   }
 
   //
   //
   //
 
-  switch (currentMode) {
+  if ( currentMode == RUNNING ) {
 
-    case STOPPED :
+      run();
+
+  } else if (currentMode == STOPPED ) {
+
       cursor = CURSOR_OFF;
-      break;
 
-    case ENTERING_VALUE :
+  } else if (currentMode == ENTERING_ADDRESS_HIGH ) {
+
+      if (keypadPressed) {
+        cursor = 1;
+        pc = curHexKey * 16;
+        currentMode = ENTERING_ADDRESS_LOW;
+      }
+
+  } else if ( currentMode == ENTERING_ADDRESS_LOW ) {
+
+      if (keypadPressed) {
+        cursor = 2;
+        pc += curHexKey;
+        currentMode = ENTERING_OP;
+      }
+      
+  } else if ( currentMode == ENTERING_OP ) {
+
+      if (keypadPressed) {
+        cursor = 3;
+        op[pc] = curHexKey;
+        currentMode = ENTERING_ARG1;
+      }
+
+  } else if ( currentMode == ENTERING_ARG1 ) {
+
+      if (keypadPressed) {
+        cursor = 4;
+        arg1[pc] = curHexKey;
+        currentMode = ENTERING_ARG2;
+      }
+
+  } else if ( currentMode == ENTERING_ARG2 ) {
+
+      if (keypadPressed) {
+        cursor = 2;
+        arg2[pc] = curHexKey;
+        currentMode = ENTERING_OP;
+      }
+
+  } else if (currentMode == ENTERING_VALUE ) {
 
       if (keypadPressed) {
 
@@ -2108,9 +2128,7 @@ void interpret() {
         currentMode = RUNNING;
       }
 
-      break;
-
-    case ENTERING_TIME :
+  } else if (currentMode == ENTERING_TIME ) {
 
       if (keypadPressed ) {
 
@@ -2149,9 +2167,7 @@ void interpret() {
 
       }
 
-      break;
-
-    case ENTERING_PROGRAM :
+  } else if (currentMode == ENTERING_PROGRAM ) {
 
       if (keypadPressed) {
 
@@ -2206,29 +2222,7 @@ void interpret() {
 
       }
 
-      break;
-
-    case ENTERING_ADDRESS_HIGH :
-
-      if (keypadPressed) {
-        cursor = 1;
-        pc = curHexKey * 16;
-        currentMode = ENTERING_ADDRESS_LOW;
-      }
-
-       break;
-
-    case ENTERING_ADDRESS_LOW :
-
-      if (keypadPressed) {
-        cursor = 2;
-        pc += curHexKey;
-        currentMode = ENTERING_OP;
-      }
-
-      break;
-
-    case ENTERING_BREAKPOINT_HIGH :
+  } else if ( currentMode == ENTERING_BREAKPOINT_HIGH ) {
 
       if (keypadPressed) {
         cursor = 1;
@@ -2238,9 +2232,7 @@ void interpret() {
 
       refreshLCD = true;
 
-      break;
-
-    case ENTERING_BREAKPOINT_LOW :
+  } else if ( currentMode == ENTERING_BREAKPOINT_LOW ) {
 
       if (keypadPressed) {
         cursor = 0;
@@ -2250,57 +2242,15 @@ void interpret() {
 
       refreshLCD = true;
 
-      break;
-
-    case ENTERING_OP :
-
-      if (keypadPressed) {
-        cursor = 3;
-        op[pc] = curHexKey;
-        currentMode = ENTERING_ARG1;
-      }
-
-      break;
-
-    case ENTERING_ARG1 :
-
-      if (keypadPressed) {
-        cursor = 4;
-        arg1[pc] = curHexKey;
-        currentMode = ENTERING_ARG2;
-      }
-
-      break;
-
-    case ENTERING_ARG2 :
-
-      if (keypadPressed) {
-        cursor = 2;
-        arg2[pc] = curHexKey;
-        currentMode = ENTERING_OP;
-      }
-
-      break;
-
-    case RUNNING:
-
-      run();
-
-      break;
-
-    case ENTERING_REG:
+  } else if ( currentMode == ENTERING_REG ) {
 
       if (keypadPressed)
         currentReg = curHexKey;
 
-      break;
-
-    case INSPECTING :
+  } else if ( currentMode == INSPECTING ) {
 
       if (keypadPressed)
         reg[currentReg] = curHexKey;
-
-      break;
 
   }
 
@@ -2497,6 +2447,8 @@ void run() {
         	      
   } else if (op3 == OP_HALT ) {
 
+    display.clearDisplay();
+    display.display();
     currentMode = STOPPED;
 
   } else if (op3 == OP_NOP ) {
