@@ -225,7 +225,7 @@ uint8_t status_col = 0;
 // Hex keypad
 //
 
-#define DEBOUNCE_TIME 100
+#define DEBOUNCE_TIME 50
 
 boolean keypadPressed = false;
 
@@ -483,6 +483,7 @@ byte hex_keypad_getKey() {
 	return hex_keys[x][y]; 
       }
     }
+    digitalWrite(fn_keypad_row_pins[x],HIGH);
   }
 
   return 0; 
@@ -503,6 +504,7 @@ byte fn_keypad_getKey() {
 	return fn_keys[x][y]; 
       }
     }
+    digitalWrite(fn_keypad_row_pins[x],HIGH);
   }
 
   return 0; 
@@ -718,8 +720,8 @@ int selectFileNo(int no) {
   while (root.openNext(SD.vwd(), O_READ)) {
     if (! root.isDir()) {
       count++;
-      root.getName(file, 14);
       if (count == no ) {
+	root.getName(file, 14);
         root.close();
         return count;
       }
@@ -753,6 +755,7 @@ int selectFile() {
 
   int no = 1;
   int count = countFiles(); 
+  int lastNo = 0; 
 
   selectFileNo(no);
 
@@ -761,42 +764,68 @@ int selectFile() {
 
   readPushButtons();
 
-  while ( curPushButton != ENTER ) {
+  while ( true ) {
 
-    display.clearDisplay();
+    if ( lastNo != no || ( millis() - last ) > 500 ) {
 
-    displaySetCursor(0, 0);
-    display.print("Load ");
-    display.print(no);
-    display.print("/");
-    display.print(count);
-    display.print(" "); // erase previoulsy left characters if number got smaller
+      last = millis();
+
+      display.clearDisplay(); 
+      setTextSize(1); 
+      displaySetCursor(0, 0);
+      display.print("Load ");
+      display.print(no);
+      display.print("/");
+      display.print(count);
+
+      displaySetCursor(0, 2);
+      sep(); 
+
+      blink = !blink;
+
+      if (blink) {
+	display.setTextColor(WHITE, BLACK); 
+      } else {
+	display.setTextColor(BLACK, WHITE); 
+      }
+
+      displaySetCursor(0, 3);
+      display.print(file);
+
+      display.setTextColor(BLACK, WHITE); 
+
+      displaySetCursor(0, 4);
+      sep(); 
+   
+      display.display(); 
+
+    }
 
     readPushButtons();
 
-    if ( millis() - last > 100) {
-
-      last = millis();
-      displaySetCursor(0, 1);
-      blink = !blink;
-
-      if (blink)
-        display.print("                ");
-      else
-        display.print(file);
-    }
-
-    display.display(); 
-
-    switch ( curPushButton ) {
-      case UP : if (no < count) no = selectFileNo(no + 1); else no = selectFileNo(1);  break;
-      case DOWN : if (no > 1) no = selectFileNo(no - 1); else no = selectFileNo(count); break;
-      case CANCEL : return -1; break;
-      default : break;
-    }
+    if (keypadPressed) {
+    if ( curPushButton == UP) {
+      if (no < count) 
+	no = selectFileNo(no + 1); 
+      else 
+	no = selectFileNo(1); 
+    } else if (curPushButton == DOWN) {
+      if (no > 1) 
+	no = selectFileNo(no - 1); 
+      else 
+	no = selectFileNo(count); 
+    } else if (curPushButton == CANCEL) {
+      announce(1,1,"CANCEL"); 
+      return -1; 
+    } else if (curPushButton == ENTER) {
+      announce(0,1,"LOADING"); 
+      return no; 
+    } 
   }
 
-  return 0;
+  lastNo = no; 
+
+  }
 
 }
 
