@@ -33,15 +33,11 @@
 
 #define VERSION "4"
 
-// #define SDCARD // comment out if no SDCard shield present 
-
 //
 //
 //
 
-#if defined (SDCARD)
 #include <SdFat.h>
-#endif
 
 #include <SPI.h>
 //#include <Adafruit_GFX.h>
@@ -53,12 +49,10 @@
 // SD Card
 //
 
-#if defined (SDCARD)
-#define SDCARD_CHIP_SELECT 4
+#define SDCARD_CHIP_SELECT 53
 
 SdFat SD;
 SdFile root;
-#endif
 
 //
 // hardware configuration / wiring
@@ -69,10 +63,10 @@ SdFile root;
 //
 // status LEDs
 //
-
-#define CLOCK_1HZ_LED 48
-#define CARRY_LED     50
-#define ZERO_LED      52
+ 
+#define CARRY_LED     38
+#define ZERO_LED      36
+#define CLOCK_1HZ_LED 34
 
 //
 // 1 Hz clock digital output
@@ -521,25 +515,15 @@ byte fn_keypad_getKey() {
 
 void setup() {
 
-  Serial.begin(9600);
+  //Serial.begin(9600);
 
-  //
-  // SD Card init
-  //
+  pinMode(CLOCK_1HZ_LED, OUTPUT);
+  pinMode(CARRY_LED,     OUTPUT);
+  pinMode(ZERO_LED,      OUTPUT);
 
-
-#if defined (SDCARD)
-
-  pinMode(10, OUTPUT);
-  digitalWrite(10, HIGH);
-
-  if (! SD.begin(SDCARD_CHIP_SELECT, SPI_HALF_SPEED)) {
-    display.clearDisplay();
-    display.print("SD init failed!");
-    delay(2000);
-  }
-
-#endif
+  digitalWrite(CLOCK_1HZ_LED, HIGH); 
+  digitalWrite(CARRY_LED, HIGH); 
+  digitalWrite(ZERO_LED, HIGH); 
 
   //
   // init displays
@@ -557,12 +541,37 @@ void setup() {
   LCDLogo();
 
   //
+  // SD Card init
+  //
+
+  setTextSize(2);
+
+  if (! SD.begin(SDCARD_CHIP_SELECT)) {
+    display.clearDisplay();
+    displaySetCursor(0,1);
+    display.print("SD BAD!");
+    display.display(); 
+    delay(2000);
+  } else {
+    display.clearDisplay();
+    displaySetCursor(0,1);
+    display.print("SD OK!");
+    display.display(); 
+    delay(2000);
+  }
+
+  //
   //
   //
 
-  pinMode(CLOCK_1HZ_LED, OUTPUT);
-  pinMode(CARRY_LED,     OUTPUT);
-  pinMode(ZERO_LED,      OUTPUT);
+
+  display.clearDisplay();
+  setTextSize(1);
+
+  //
+  //
+  //
+
 
   //
   // Configure keypads 
@@ -701,7 +710,6 @@ byte readDIN() {
 
 int selectFileNo(int no) {
 
-#if defined (SDCARD)
   int count = 0;
 
   clearFileBuffer();
@@ -710,7 +718,7 @@ int selectFileNo(int no) {
   while (root.openNext(SD.vwd(), O_READ)) {
     if (! root.isDir()) {
       count++;
-      root.getName(file, 20);
+      root.getName(file, 14);
       if (count == no ) {
         root.close();
         return count;
@@ -718,7 +726,7 @@ int selectFileNo(int no) {
     }
     root.close();
   }
-#endif
+
   return 0;
 
 }
@@ -726,27 +734,26 @@ int selectFileNo(int no) {
 
 int countFiles() {
 
-#if defined (SDCARD)
-  int count = 0;
+  int count = 0; 
 
   SD.vwd()->rewind();
+
   while (root.openNext(SD.vwd(), O_READ)) {
-    if (! root.isDir())
-      count++;
+    if (  !root.isDir()) {      
+      count++; 
+    }
     root.close();
   }
 
   return count;
-#endif
 
 }
 
 int selectFile() {
 
-  display.clearDisplay();
-
   int no = 1;
-  int count = countFiles();
+  int count = countFiles(); 
+
   selectFileNo(no);
 
   unsigned long last = millis();
@@ -756,12 +763,14 @@ int selectFile() {
 
   while ( curPushButton != ENTER ) {
 
+    display.clearDisplay();
+
     displaySetCursor(0, 0);
-    display.print("Load Program ");
+    display.print("Load ");
     display.print(no);
-    display.print(" / ");
+    display.print("/");
     display.print(count);
-    display.print("      "); // erase previoulsy left characters if number got smaller
+    display.print(" "); // erase previoulsy left characters if number got smaller
 
     readPushButtons();
 
@@ -776,6 +785,8 @@ int selectFile() {
       else
         display.print(file);
     }
+
+    display.display(); 
 
     switch ( curPushButton ) {
       case UP : if (no < count) no = selectFileNo(no + 1); else no = selectFileNo(1);  break;
@@ -869,8 +880,6 @@ int createName() {
 }
 
 void saveProgram() {
-
-#if defined (SDCARD)
 
   int oldPc = pc;
 
@@ -975,22 +984,16 @@ void saveProgram() {
   reset();
   pc = oldPc;
 
-#endif
-
 }
 
 
 void loadProgram() {
-
-#if defined (SDCARD)
-  display.clearDisplay();
 
   int aborted = selectFile();
 
   if ( aborted == -1 ) {
     display.clearDisplay();
     display.print("*** ABORT ***");
-
     reset();
     return;
   }
@@ -1000,7 +1003,6 @@ void loadProgram() {
   display.print("Loading");
   displaySetCursor(0, 1);
   display.print(file);
-
 
   cursor = CURSOR_OFF;
 
@@ -1021,13 +1023,6 @@ void loadProgram() {
     int curY = 1;
 
     while (true) {
-
-      displaySetCursor(8, 0);
-      display.print("@ ");
-      if (pc < 16)
-        display.print("0");
-      display.print(pc, HEX);
-      delay(10);
 
       int b = myFile.read();
       if (b == -1)
@@ -1065,7 +1060,7 @@ void loadProgram() {
 
         if ( decoded == -1) {
           display.clearDisplay();
-          display.print("*** ERROR ! ***");
+          display.print("ERROR");
           displaySetCursor(0, 1);
           display.print("Byte ");
           display.print(count);
@@ -1084,35 +1079,11 @@ void loadProgram() {
               showMem(2);
               count = 0;
               readingOrigin = false;
-              displaySetCursor(curX, curY);
-              display.write("@");
-              if (pc < 16)
-                display.print("0");
-              display.print(pc, HEX);
-              display.print("-");
-              curX += 4;
-              if (curX == 20) {
-                curX = 0;
-                curY ++;
-                if (curY == 4) {
-                  curY = 1;
-                  displaySetCursor(0, 1);
-                  display.print("                    ");
-                  displaySetCursor(0, 2);
-                  display.print("                    ");
-                  displaySetCursor(0, 3);
-                  display.print("                    ");
-                }
-              }
-
               break;
             default : break;
           }
 
         } else {
-
-          displaySetCursor(curX, curY);
-          display.write(b);
 
           curX++;
 
@@ -1125,51 +1096,25 @@ void loadProgram() {
               count = 0;
               if (firstPc == -1) firstPc = pc;
               pc++;
-
-              displaySetCursor(curX, curY);
-              display.write("-");
-
-              curX++;
-              if (curX == 20) {
-                curX = 0;
-                curY++;
-                if (curY == 4) {
-                  curY = 1;
-                  displaySetCursor(0, 1);
-                  display.print("                    ");
-                  displaySetCursor(0, 2);
-                  display.print("                    ");
-                  displaySetCursor(0, 3);
-                  display.print("                    ");
-                }
-              }
-
               break;
-
             default : break;
           }
-
         }
       }
     }
 
     myFile.close();
-
     pc = firstPc;
-
-    announce("LOADED");
-
+    announce(0, 1, "LOADED");
 
   } else {
 
-    announce("ERROR"); 
+    announce(0, 1, "ERROR"); 
 
   }
   
   reset();
   pc = firstPc;
-
-#endif
 
 }
 
@@ -2175,49 +2120,41 @@ void interpret() {
         currentMode = STOPPED;
         cursor = CURSOR_OFF;
 
-        switch ( program ) {
+	if ( program == 0 ) {
 
-          case 0 :
-	    announce(0,1,"NO TEST");
-            break;
+	  announce(0,1,"NO TEST");
+	  
+	} else if ( program == 1 ) {
 
-          case 1 :
             loadProgram();
-            break;
 
-          case 2 :
+	} else if ( program == 2) {
 
             saveProgram();
-            break;
 
-          case 3 :
+	} else if (program == 3 ) {
             currentMode = ENTERING_TIME;
             display.clearDisplay();
             cursor = 0;
-            break;
 
-          case 4 :
+	} else if ( program == 4 ) {
             currentMode = SHOWING_TIME;
             display.clearDisplay();
             cursor = CURSOR_OFF;
-            break;
 
-          case 5 : // clear mem
+	} else if ( program == 5) {
             clearMem();
-            break;
 
-          case 6 : // load NOPs
+	} else if ( program == 6) {
             loadNOPs();
-            break;
 
-          default : // load other
+	} else if (program - 7 < PROGRAMS ) {
 
-            if (program - 7 < PROGRAMS ) {
-              enterProgram(PGMROM[program - 7], 0);
-	      announce(0,1,"LOADED");
-            } else {
-	      announce(0,1,"NO PROG");
-            }
+	  enterProgram(PGMROM[program - 7], 0);
+	  announce(0,1,"LOADED");
+
+	} else {
+	  announce(0,1,"NO PROG");
         }
 
       }
