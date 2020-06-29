@@ -915,9 +915,6 @@ void saveProgram() {
   int aborted = createName();
 
   if ( aborted == -1 ) {
-    display.clearDisplay();
-    display.print("*** ABORT ***");
-    delay(500);
     reset();
     pc = oldPc;
     return;
@@ -1021,17 +1018,20 @@ void loadProgram() {
   int aborted = selectFile();
 
   if ( aborted == -1 ) {
-    display.clearDisplay();
-    display.print("*** ABORT ***");
     reset();
     return;
   }
 
   display.clearDisplay();
+  setTextSize(1); 
   displaySetCursor(0, 0);
   display.print("Loading");
   displaySetCursor(0, 1);
+  sep(); 
+  displaySetCursor(0, 2);
   display.print(file);
+  displaySetCursor(0, 3);
+  sep(); 
 
   cursor = CURSOR_OFF;
 
@@ -1047,9 +1047,6 @@ void loadProgram() {
 
     boolean readingComment = false;
     boolean readingOrigin = false;
-
-    int curX = 0;
-    int curY = 1;
 
     while (true) {
 
@@ -1089,15 +1086,20 @@ void loadProgram() {
 
         if ( decoded == -1) {
           display.clearDisplay();
-          display.print("ERROR");
+	  setTextSize(2); 
+          displaySetCursor(0, 0);
+          display.print("ERROR@");
           displaySetCursor(0, 1);
-          display.print("Byte ");
-          display.print(count);
-          display.print(" ");
-          display.print((char) b);
-          delay(2000);
-          display.clearDisplay();
-          break;
+          display.print(pc, HEX);
+          display.print(':');
+          display.print(count, HEX);
+          displaySetCursor(0, 2);
+          display.print((char) b, HEX);
+	  display.display(); 
+          delay(3000);
+	  reset();
+	  pc = firstPc;
+	  return; 
         }
 
         if ( readingOrigin ) {
@@ -1105,7 +1107,6 @@ void loadProgram() {
             case 0 : pc = decoded * 16; count = 1; break;
             case 1 :
               pc += decoded;
-              showMem(2);
               count = 0;
               readingOrigin = false;
               break;
@@ -1114,14 +1115,11 @@ void loadProgram() {
 
         } else {
 
-          curX++;
-
           switch ( count ) {
             case 0 : op[pc] = decoded; count = 1;  break;
             case 1 : arg1[pc] = decoded; count = 2; break;
             case 2 :
               arg2[pc] = decoded;
-              showMem(2);
               count = 0;
               if (firstPc == -1) firstPc = pc;
               pc++;
@@ -1129,7 +1127,15 @@ void loadProgram() {
             default : break;
           }
         }
+
+	setTextSize(2); 
+	status_row = 2; 
+	showMem(0); 
+	display.display(); 
+
       }
+
+
     }
 
     myFile.close();
@@ -1382,8 +1388,11 @@ void displayStatus() {
   //
   //
 
-  if ( currentMode == RUNNING && dispOff ) { 
+  if ( currentMode == RUNNING && dispOff && 
+       displayMode != REGWR && displayMode != REGAR && displayMode != PCMEM ) { 
 
+    // no refresh / display updates when RUNNING and DISOUT and neither register nor mnemonics display mode
+    // in these cases, we want to see what's going on, even with DISOUT 
 
   } else {
 
@@ -1437,31 +1446,39 @@ void displayStatus() {
     // (1 or 3 lines) 
     // 
 
-    if ( currentMode == RUNNING && ! dispOff && showingDisplayDigits > 0 || currentMode == ENTERING_VALUE ) {
-      sendCharRow(0, status_row, status, false);      
-      showDISP(status_col);
-    } else if  ( currentMode == RUNNING && dispOff ) {
-      // nothing
-      // sendCharRow(0, status_row, status, false);      
-    } else if ( currentMode == ENTERING_REG || currentMode == INSPECTING ) {
-      sendCharRow(0, status_row, status, false);      
-      showReg(status_col);
-    } else if ( currentMode == ENTERING_PROGRAM ) {
-      sendCharRow(0, status_row, status, false);      
-      showProgram(status_col);
-    } else if ( currentMode == ENTERING_TIME || currentMode == SHOWING_TIME ) {
-      sendCharRow(0, status_row, status, false);      
-      showTime(status_col);
-    } else if ( error ) {
-      sendCharRow(0, status_row, status, false);      
-      showError(status_col);
-    } else if ( ! dispOff && ! lastInstructionWasDisp ) {     
+    if (dispOff) {
+      // we are in MNEMONICS or REGISTER DISPLAY mode -> show memory! 
       sendCharRow(0, status_row, status, false);  
       if (displayMode == OFF3 || displayMode == PCMEM ) { 
 	showMemMore(status_col); 
       } else {
 	showMem(status_col); 
-      } 
+      }       
+    } else {
+      // display is on 
+      if ( currentMode == RUNNING && showingDisplayDigits > 0 || currentMode == ENTERING_VALUE ) {
+	sendCharRow(0, status_row, status, false);      
+	showDISP(status_col);
+      } else if ( currentMode == ENTERING_REG || currentMode == INSPECTING ) {
+	sendCharRow(0, status_row, status, false);      
+	showReg(status_col);
+      } else if ( currentMode == ENTERING_PROGRAM ) {
+	sendCharRow(0, status_row, status, false);      
+	showProgram(status_col);
+      } else if ( currentMode == ENTERING_TIME || currentMode == SHOWING_TIME ) {
+	sendCharRow(0, status_row, status, false);      
+	showTime(status_col);
+      } else if ( error ) {
+	sendCharRow(0, status_row, status, false);      
+	showError(status_col);
+      } else if ( ! lastInstructionWasDisp ) {     
+	sendCharRow(0, status_row, status, false);  
+	if (displayMode == OFF3 || displayMode == PCMEM ) { 
+	  showMemMore(status_col); 
+	} else {
+	  showMem(status_col); 
+	} 
+      }    
     }
 
     //
@@ -1671,22 +1688,28 @@ void sendCharRow(uint8_t pos, uint8_t row, char c, boolean blink) {
 void sendHex(uint8_t pos, uint8_t c, boolean blink) {
    
   displaySetCursor(pos, status_row); 
+  
   if (blink) {
-    display.print(' '); 
+    display.setTextColor(WHITE, BLACK); 
   } else {
-    display.print(c, HEX);	
+    display.setTextColor(BLACK, WHITE); 
   }
+  display.print(c, HEX);	
+  display.setTextColor(BLACK, WHITE); 
 
 }
 
 void sendHexCol(uint8_t pos, uint8_t col, uint8_t c, boolean blink) {
    
   displaySetCursor(pos, col); 
+
   if (blink) {
-    display.print(' '); 
+    display.setTextColor(WHITE, BLACK); 
   } else {
-    display.print(c, HEX);	
-  }
+    display.setTextColor(BLACK, WHITE); 
+ }
+  display.print(c, HEX);	
+  display.setTextColor(BLACK, WHITE); 
 
 }
 
