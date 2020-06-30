@@ -64,6 +64,12 @@ SdFile root;
 #define CLOCK_1HZ_LED 34
 
 //
+// LCD Backlight
+// 
+
+#define LIGHT_LED 35
+
+//
 // 1 Hz clock digital output
 //
 
@@ -131,43 +137,31 @@ byte hex_keys[HEX_KEYPAD_ROWS][HEX_KEYPAD_COLS] = { // plus one because 0 = no k
 byte hex_keypad_col_pins[HEX_KEYPAD_COLS] = {14, 12, 10, 8}; // columns
 byte hex_keypad_row_pins[HEX_KEYPAD_ROWS] = {15, 13, 11, 9}; // rows
 
-
 //
-// Function 4x3 matrix keypad 
+// Function 4x4 matrix keypad 
 //
-
-#define BACK   17
-#define RIGHT  18
-#define UP     19
-#define DOWN   20
-#define LEFT   21
-#define CANCEL 22
-#define ENTER  23
-
 
 #define CCE  1 
 #define PGM  2 
+#define RUN  3
+#define HALT 4  
+#define BKP  5
+#define STEP 6  
+#define NEXT 7
+#define REG  8 
 
-#define F1 3
-#define F2 4
+#define LEFT   9
+#define RIGHT  10
+#define UP     11
+#define DOWN   12
+#define ENTER  13
+#define CANCEL 14
+#define BACK   15
+#define LIGHT  16
 
-#define RUN  5
-#define HALT 6  
-
-#define F3 7
-#define F4 8
-
-#define BKP  9
-#define STEP 10  
-
-#define F5 11
-#define F6 12
-
-#define NEXT 13
-#define REG  14 
-
-#define F7 15
-#define F8 16
+//
+//
+//
 
 int curPushButton = NO_KEY;
 
@@ -175,10 +169,10 @@ int curPushButton = NO_KEY;
 #define FN_KEYPAD_COLS 4 
  
 byte fn_keys[FN_KEYPAD_ROWS][FN_KEYPAD_COLS] = { 
-  {NEXT, REG,  RIGHT, UP },
-  {BKP,  STEP, LEFT, DOWN },
-  {RUN,  HALT, F3, BACK },
-  {CCE,  PGM,  CANCEL, ENTER }
+  {NEXT, REG,  LEFT,  RIGHT },
+  {BKP,  STEP, UP,    DOWN },
+  {RUN,  HALT, ENTER, CANCEL },
+  {CCE,  PGM,  BACK,  LIGHT }
 };
 
 byte fn_keypad_row_pins[FN_KEYPAD_ROWS] = {23, 21, 19, 17}; 
@@ -270,6 +264,8 @@ boolean clock1hz = false;
 boolean carry = false;
 boolean zero = false;
 boolean error = false;
+
+boolean light_led = true;
 
 //
 // DIN / DOT
@@ -523,6 +519,13 @@ void setup() {
   digitalWrite(ZERO_LED, HIGH); 
 
   //
+  //
+  // 
+
+  pinMode(LIGHT_LED, OUTPUT);
+  digitalWrite(LIGHT_LED, light_led);
+
+  //
   // init displays
   //
 
@@ -561,14 +564,8 @@ void setup() {
   //
   //
 
-
   display.clearDisplay();
   setTextSize(1);
-
-  //
-  //
-  //
-
 
   //
   // Configure keypads 
@@ -582,7 +579,6 @@ void setup() {
       pinMode(hex_keypad_col_pins[x],INPUT_PULLUP);          
   }     						       
 	
-
   for (int x = 0; x < FN_KEYPAD_ROWS; x++) {
       pinMode(fn_keypad_row_pins[x],OUTPUT);          
       digitalWrite(fn_keypad_row_pins[x],HIGH);          
@@ -599,8 +595,7 @@ void setup() {
 
   //
   //
-  // 
-
+    
   pinMode(DOT_LED_1, OUTPUT);
   pinMode(DOT_LED_2, OUTPUT);
   pinMode(DOT_LED_3, OUTPUT);
@@ -1402,6 +1397,15 @@ void displayStatus() {
     default     : displayMode = OFF; display.clearDisplay(); break;
     }
   }
+
+  //
+  //
+  //
+
+  if (curPushButton == LIGHT ) {
+    light_led = ! light_led; 
+    digitalWrite(LIGHT_LED, light_led); 
+  } 
 
   //
   //
