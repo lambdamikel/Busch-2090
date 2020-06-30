@@ -710,6 +710,10 @@ byte readDIN() {
 
 }
 
+//
+//
+//
+
 int selectFileNo(int no) {
 
   int count = 0;
@@ -842,70 +846,101 @@ int createName() {
 
   unsigned long last = millis();
   boolean blink = false;
+  boolean change = true; 
 
-  readPushButtons();
+  while ( true ) {
 
-  while ( curPushButton != ENTER ) {
+    change = false; 
 
-    displaySetCursor(0, 0);
-    display.print("Save Program");
-
-    readPushButtons();
-
-    if ( millis() - last > 100) {
+    if ( change || ( millis() - last ) > 500 ) {
 
       last = millis();
 
+      display.clearDisplay(); 
+      setTextSize(1); 
+      displaySetCursor(0, 0);
+      display.print("Create File");
       displaySetCursor(0, 1);
-      display.print(file);
-      displaySetCursor(cursor, 1);
-
+      display.print("Save Prog");
+      displaySetCursor(0, 2);
+      sep(); 
+      displaySetCursor(0, 3);
+      display.print(file); 
+      
       blink = !blink;
+      if (blink) {
+	display.setTextColor(WHITE, BLACK); 
+      } else {
+	display.setTextColor(BLACK, WHITE); 
+      }
+      displaySetCursor(cursor, 3);
+      display.print(file[cursor]); 
+      display.setTextColor(BLACK, WHITE); 
 
-      if (blink)
-        if (file[cursor] == ' ' )
-          display.print("_");
-        else
-          display.print(file[cursor]);
-      else
-        display.print("_");
+      displaySetCursor(0, 4);
+      sep(); 
+
+      display.display(); 
+
     }
 
-    switch ( curPushButton ) {
-      case UP : file[cursor]++; break;
-      case DOWN : file[cursor]--; break;
-      case LEFT : cursor--; break;
-      case RIGHT : cursor++; break;
-      case BACK : if (cursor == length - 1 && cursor > 0) {
+    readPushButtons();
+
+    if (keypadPressed) {
+      switch ( curPushButton ) {
+      case UP : 
+	file[cursor]++; 
+	change = true;  
+	break;
+      case DOWN : 
+	file[cursor]--; 
+	change = true; 
+	break;
+      case LEFT : 
+	cursor--; 
+	change = true; 
+	break;
+      case RIGHT : 
+	cursor++; 
+	change = true; 
+	break;
+      case BACK : 
+	if (cursor == length - 1 && cursor > 0) {
           file[cursor] = 0;
           length--;
           cursor--;
-          display.clearDisplay();
-        } break;
-      case CANCEL : return -1;
+	  change = true; 
+        } 
+	break;
+      case CANCEL : 
+	announce(1,1,"CANCEL"); 
+	return -1;
+	break; 
+      case ENTER : 	
+	cursor++;
+	file[cursor++] = '.';
+	file[cursor++] = 'M';
+	file[cursor++] = 'I';
+	file[cursor++] = 'C';
+	file[cursor++] = 0;	
+	announce(0,1,"SAVING"); 
+
+	return 0;
+	break; 
       default : break;
-    }
+      }
+      
+      if (cursor < 0)
+	cursor = 0;
+      else if (cursor > 7)
+	cursor = 7;
 
-    if (cursor < 0)
-      cursor = 0;
-    else if (cursor > 7)
-      cursor = 7;
-
-    if (cursor > length - 1 ) {
-      file[cursor] = '0';
-      length++;
+      if (cursor > length - 1 && length < 9 ) {
+	file[cursor] = '0';
+	length++;	
+      }
     }
   }
-
-  cursor++;
-  file[cursor++] = '.';
-  file[cursor++] = 'M';
-  file[cursor++] = 'I';
-  file[cursor++] = 'C';
-  file[cursor++] = 0;
-
-  return 0;
-
 }
 
 void saveProgram() {
@@ -921,21 +956,8 @@ void saveProgram() {
   }
 
   if (SD.exists(file)) {
-    display.clearDisplay();
-    displaySetCursor(0, 0);
-    display.print("Overwriting");
-    displaySetCursor(0, 1);
-    display.print(file);
-    SD.remove(file);
-    delay(500);
+    announce(0,1,"REPLACE");
   }
-
-  display.clearDisplay();
-  displaySetCursor(0, 0);
-  display.print("Saving");
-  displaySetCursor(0, 1);
-  display.print(file);
-
 
   File myFile = SD.open( file , FILE_WRITE);
 
@@ -947,18 +969,18 @@ void saveProgram() {
     myFile.print(pc);
     myFile.println();
 
-    int curX = 0;
-    int curY = 1;
-
     for (int i = pc; i < 256; i++) {
 
-      delay(10);
-
-      displaySetCursor(8, 0);
-      display.print("@ ");
-      if ( i < 16)
-        display.print("0");
-      display.print(i, HEX);
+      display.clearDisplay();
+      setTextSize(1); 
+      displaySetCursor(0, 0);
+      display.print("Saving");
+      displaySetCursor(0, 1);
+      sep(); 
+      displaySetCursor(0, 2);
+      display.print(file);
+      displaySetCursor(0, 3);
+      sep(); 
 
       myFile.print(op[i], HEX);
       myFile.print(arg1[i], HEX);
@@ -968,43 +990,22 @@ void saveProgram() {
         myFile.println();
 
       pc = i;
-      showMem(2);
 
-      displaySetCursor(curX, curY);
+      setTextSize(2); 
+      status_row = 2; 
+      showMem(0); 
+      display.display(); 
 
-      display.print(op[i], HEX);
-      display.print(arg1[i], HEX);
-      display.print(arg2[i], HEX);
-      display.print("-");
-
-      curX += 4;
-      if (curX == 20) {
-        curX = 0;
-        curY ++;
-        if (curY == 4) {
-          curY = 1;
-          displaySetCursor(0, 1);
-          display.print("                    ");
-          displaySetCursor(0, 2);
-          display.print("                    ");
-          displaySetCursor(0, 3);
-          display.print("                    ");
-        }
-      }
     }
 
-    display.clearDisplay();
-    displaySetCursor(0, 0);
-    display.print("Saved");
-    displaySetCursor(0, 1);
-    display.print(file);
+    announce(0, 1, "SAVED");
 
   } else {
-    display.clearDisplay();
-    display.print("*** ERROR ! ***");
+
+    announce(0, 1, "ERROR");
+    
   }
 
-  display.clearDisplay();
   myFile.close();
 
   reset();
@@ -1304,8 +1305,17 @@ void showProgram(uint8_t col) {
 }
 
 void showError(uint8_t col) {
-  //if (blink)
-  //    sendString("ERROR", col);
+
+  displaySetCursor(col, status_row); 
+  
+  if (blink) {
+    display.setTextColor(WHITE, BLACK); 
+  } else {
+    display.setTextColor(BLACK, WHITE); 
+  }
+  display.print("ERROR"); 
+  display.setTextColor(BLACK, WHITE); 
+
 }
 
 void announce(uint8_t x, uint8_t y, String message ) {
@@ -1325,7 +1335,6 @@ void showDISP(uint8_t col) {
   for (int i = 0; i < showingDisplayDigits; i++)
     sendHex(5 - i + col, reg[(i +  showingDisplayFromReg ) % 16], false);
 }
-
 
 //
 //
