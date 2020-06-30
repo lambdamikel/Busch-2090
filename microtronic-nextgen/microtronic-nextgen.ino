@@ -2465,6 +2465,9 @@ void run() {
     zero = reg[dot_s] == 0;
     
   } else if (op2 == OP_KIN ) {
+
+    display.clearDisplay();
+    display.display();
     
     currentMode = ENTERING_VALUE;
     currentInputRegister = d;
