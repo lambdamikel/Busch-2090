@@ -9,12 +9,7 @@
   http://www.michael-wessel.info
 
   The Busch Microtronic 2090 is (C) Busch GmbH
-  See http://www.busch-model.com/online/?rubrik=82&=6&sprach_id=de
-
-  Please run the PGM-EEPROM.ino sketch before running / loading this
-  sketch into the Arduino. The emulator will not work properly
-  otherwise. Note that PGM-EEPROM-v2.ino stores example programs into the
-  EEPROM, and this sketch retrieve them from there.
+  See https://www.busch-model.info/service/historie-microtronic/
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -517,7 +512,7 @@ byte fn_keypad_getKey() {
 
 void setup() {
 
-  //Serial.begin(9600);
+  // Serial.begin(9600);
 
   pinMode(CLOCK_1HZ_LED, OUTPUT);
   pinMode(CARRY_LED,     OUTPUT);
@@ -661,7 +656,6 @@ int readFunctionKeys() {
         displayCurFuncKey = button;
 	curFuncKey = button;
 	curPushButton = button; 
-        refreshLCD = true;
     }
   } else {
     curFuncKey = NO_KEY;
@@ -1331,6 +1325,22 @@ void announce(uint8_t x, uint8_t y, String message ) {
 
 }
 
+void announce1(uint8_t x, uint8_t y, String message, byte num) {
+
+  display.clearDisplay();
+  setTextSize(2); 
+  displaySetCursor(x, y);	
+  display.print(message);
+  if (num < 16)
+    display.print(0);
+  display.print(num,HEX);
+  display.display(); 
+  delay(500);
+  display.clearDisplay();
+  display.display(); 
+
+}
+
 void showDISP(uint8_t col) {
   for (int i = 0; i < showingDisplayDigits; i++)
     sendHex(5 - i + col, reg[(i +  showingDisplayFromReg ) % 16], false);
@@ -1342,7 +1352,7 @@ void showDISP(uint8_t col) {
 
 void displayStatus() {
 
-  refreshLCD = pc != lastPc;
+  refreshLCD = pc != lastPc || oneStepOnly;
 
   unsigned long time = millis();
   unsigned long delta = time - lastDispTime;
@@ -1465,6 +1475,7 @@ void displayStatus() {
       }       
     } else {
       // display is on 
+      
       if ( currentMode == RUNNING && showingDisplayDigits > 0 || currentMode == ENTERING_VALUE ) {
 	sendCharRow(0, status_row, status, false);      
 	showDISP(status_col);
@@ -1480,7 +1491,7 @@ void displayStatus() {
       } else if ( error ) {
 	sendCharRow(0, status_row, status, false);      
 	showError(status_col);
-      } else if ( ! lastInstructionWasDisp ) {     
+      } else if ( ! lastInstructionWasDisp || oneStepOnly ) {     
 	sendCharRow(0, status_row, status, false);  
 	if (displayMode == OFF3 || displayMode == PCMEM ) { 
 	  showMemMore(status_col); 
@@ -1585,7 +1596,7 @@ void displayStatus() {
     //
     //
 
-    if (displayCurFuncKey != NO_KEY) {
+    if (displayCurFuncKey != NO_KEY && ! ( oneStepOnly && lastInstructionWasDisp) ) {
 
       if (displayMode == OFF1) 
 	displaySetCursor(0, status_row+1);
@@ -1611,11 +1622,13 @@ void displayStatus() {
 	else 
 	  clearLine(status_row); 
       }
+
     }
 
     display.display(); 
 
   }
+
 
   refreshLCD = false;
 
@@ -1875,8 +1888,6 @@ void reset() {
   dispOff = false;
   lastInstructionWasDisp = false;
 
-  refreshLCD = true;
-
 }
 
 void clearMem() {
@@ -1944,6 +1955,9 @@ void interpret() {
 
   if ( curFuncKey == HALT ) {
 
+      display.clearDisplay();
+      display.display();
+
       jump = true;
       currentMode = STOPPED;
       cursor = CURSOR_OFF;
@@ -1951,10 +1965,10 @@ void interpret() {
       dispOff = false;
       lastInstructionWasDisp = false;
 
-      display.clearDisplay();
-      refreshLCD = true;
-
   } else if  (curFuncKey == RUN ) {
+
+      display.clearDisplay();
+      display.display();
 
       currentMode = RUNNING;
       cursor = CURSOR_OFF;
@@ -1966,32 +1980,37 @@ void interpret() {
       jump = true; // don't increment PC !
       //step();
 
-      display.clearDisplay();
-      refreshLCD = true;
-
   } else if ( curFuncKey == DOWN ) {
+
+      display.clearDisplay();
+      display.display();
+
       if (currentMode != RUNNING ) {
         pc--;
         cursor = 0;
         currentMode = ENTERING_ADDRESS_HIGH;
       }
 
-      display.clearDisplay();
-      refreshLCD = true;
       jump = true;
 
   } else if ( curFuncKey == UP ) {
+
+      display.clearDisplay();
+      display.display();
+
       if (currentMode != RUNNING ) {
         pc++;
         cursor = 0;
         currentMode = ENTERING_ADDRESS_HIGH;
       }
 
-      display.clearDisplay();
-      refreshLCD = true;
       jump = true;
 
   } else if ( curFuncKey == NEXT ) {
+
+      display.clearDisplay();
+      display.display();
+
       if (currentMode == STOPPED) {
         currentMode = ENTERING_ADDRESS_HIGH;
         cursor = 0;
@@ -2001,11 +2020,12 @@ void interpret() {
         currentMode = ENTERING_OP;
       }
 
-      display.clearDisplay();
-      refreshLCD = true;
       jump = true;
 
   } else if ( curFuncKey == REG ) {
+ 
+      display.clearDisplay();
+      display.display();
 
       if (currentMode != ENTERING_REG) {
         currentMode = ENTERING_REG;
@@ -2014,21 +2034,21 @@ void interpret() {
         currentMode = INSPECTING;
         cursor = 1;
       }
-      display.clearDisplay();
-      refreshLCD = true;
 
   } else if ( curFuncKey == STEP ) {
+
+      display.clearDisplay();
+      display.display();
 
       currentMode = RUNNING;
       oneStepOnly = true;
       dispOff = false;
       jump = true; // don't increment PC !
 
-      refreshLCD = true;
-
-      displayStatus();
-
   } else if ( curFuncKey == BKP ) {
+
+      display.clearDisplay();
+      display.display();
 
       if (currentMode != ENTERING_BREAKPOINT_LOW ) {
         currentMode = ENTERING_BREAKPOINT_HIGH;
@@ -2038,9 +2058,10 @@ void interpret() {
         currentMode = ENTERING_BREAKPOINT_LOW;
       }
 
-      refreshLCD = true;
-
   } else if ( curFuncKey == CCE ) {
+
+      display.clearDisplay();
+      display.display();
 
       if (cursor == 2) {
         cursor = 4;
@@ -2056,18 +2077,15 @@ void interpret() {
         currentMode = ENTERING_ARG1;
       }
 
-      display.clearDisplay();
-      refreshLCD = true;
-
   } else if ( curFuncKey == PGM ) {
 
-    if ( currentMode != ENTERING_PROGRAM ) {
+      display.clearDisplay();
+      display.display();
+
+      if ( currentMode != ENTERING_PROGRAM ) {
         cursor = 0;
         currentMode = ENTERING_PROGRAM;
       }
-
-      display.clearDisplay();
-      refreshLCD = true;
 
   }
 
@@ -2195,12 +2213,10 @@ void interpret() {
 
 	} else if (program == 3 ) {
             currentMode = ENTERING_TIME;
-            display.clearDisplay();
             cursor = 0;
 
 	} else if ( program == 4 ) {
             currentMode = SHOWING_TIME;
-            display.clearDisplay();
             cursor = CURSOR_OFF;
 
 	} else if ( program == 5) {
@@ -2226,9 +2242,13 @@ void interpret() {
         cursor = 1;
         breakAt = curHexKey * 16;
         currentMode = ENTERING_BREAKPOINT_LOW;
-      }
 
-      refreshLCD = true;
+	if (breakAt == 0) 
+	  announce(0,1,"NO BKP"); 
+	else
+	  announce1(0,1,"BKP@ ", breakAt); 
+
+      }
 
   } else if ( currentMode == ENTERING_BREAKPOINT_LOW ) {
 
@@ -2236,9 +2256,13 @@ void interpret() {
         cursor = 0;
         breakAt += curHexKey;
         currentMode = ENTERING_BREAKPOINT_HIGH;
-      }
+	
+	if (breakAt == 0) 
+	  announce(0,1,"NO BKP"); 
+	else
+	  announce1(0,1,"BKP@ ", breakAt); 
 
-      refreshLCD = true;
+      }
 
   } else if ( currentMode == ENTERING_REG ) {
 
@@ -2260,6 +2284,8 @@ void run() {
     pc++;
 
   if ( !oneStepOnly && breakAt == pc && breakAt > 0 && ! ignoreBreakpointOnce )  {
+    // breakpoint hit! 
+    announce1(0,1,"BKP@ ", breakAt); 
     currentMode = STOPPED;
     return;
   }
@@ -2447,6 +2473,7 @@ void run() {
 
     display.clearDisplay();
     display.display();
+
     currentMode = STOPPED;
 
   } else if (op3 == OP_NOP ) {
@@ -2653,8 +2680,11 @@ void run() {
     
     if (oneStepOnly) {
       display.clearDisplay();
-      display.display();
       showDISP(status_col);
+      display.display();
+      delay(2000); 
+      display.clearDisplay();
+      display.display();
     }
   }
 
