@@ -1374,7 +1374,7 @@ void displayStatus() {
   //
 
   digitalWrite(CARRY_LED, carry);
-  digitalWrite(ZERO_LED, carry);
+  digitalWrite(ZERO_LED, zero);
   digitalWrite(CLOCK_1HZ_LED, clock1hz);
 
   digitalWrite(DOT_LED_1, outputs & 1);
