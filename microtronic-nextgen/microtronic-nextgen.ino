@@ -26,7 +26,7 @@
 
 */
 
-#define VERSION "4"
+#define VERSION "5"
 
 //
 //
@@ -246,6 +246,7 @@ byte program = 7;
 //
 
 unsigned long lastClockTime = 0;
+unsigned long last1HzTime = 0;
 unsigned long lastDispTime = 0;
 
 #define CURSOR_OFF 8
@@ -625,8 +626,11 @@ void setup() {
   randomSeed(analogRead(RANDOM_ANALOG_PIN));
 
   //
-  // read EEPROM PGMs meta data
+  // 
   //
+
+  lastClockTime = millis();
+  last1HzTime = millis();
 
 }
 
@@ -1224,13 +1228,19 @@ void advanceTime() {
   if (currentMode != ENTERING_TIME) {
 
     unsigned long time = millis();
-    long delta = time - lastClockTime;
+    unsigned long delta = time - lastClockTime;
+    unsigned long delta2 = time - last1HzTime; 
+
+    while (delta2 >= 500) {
+      clock1hz = !clock1hz;
+      delta2 -= 500;
+      last1HzTime = time;
+    }
 
     while (delta >= 1000) {
 
-      clock1hz = !clock1hz;
       delta -= 1000;
-
+      
       timeSeconds1++;
       if (timeSeconds1 > 9) {
         timeSeconds10++;
@@ -1263,10 +1273,10 @@ void advanceTime() {
           }
         }
       }
+    
+    lastClockTime = time; 
 
-      lastClockTime = time;
-    }
-
+    } 
   }
 }
 
@@ -1347,7 +1357,7 @@ void showDISP(uint8_t col) {
 
 void displayStatus() {
 
-  refreshLCD = pc != lastPc || oneStepOnly;
+  refreshLCD = pc != lastPc || jump || oneStepOnly;
 
   unsigned long time = millis();
   unsigned long delta = time - lastDispTime;
@@ -1355,8 +1365,9 @@ void displayStatus() {
   if (delta > 300) {
     blink = !blink;
     lastDispTime = time;
-    advanceTime();
   }
+
+  advanceTime();	
 
   //
   //
@@ -2284,9 +2295,11 @@ void interpret() {
 
 void run() {
 
-  if (!jump )
+  if (!jump ) {
     pc++;
-
+    displayStatus();
+  }
+	
   if ( !oneStepOnly && breakAt == pc && breakAt > 0 && ! ignoreBreakpointOnce )  {
     // breakpoint hit! 
     announce1(0,1,"BKP@ ", breakAt); 
