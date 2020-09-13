@@ -690,16 +690,16 @@ int readHexKeys() {
   curHexKeyRaw = button; 
 
   return curHexKey;
-
+ 
 }
 
 
 byte readDIN() {
 
-  return ( digitalRead(DIN_1)      |
-           digitalRead(DIN_2) << 1 |
-           digitalRead(DIN_3) << 2 |
-           digitalRead(DIN_4) << 3   );
+  return ( ! digitalRead(DIN_1)      |
+           ! digitalRead(DIN_2) << 1 |
+           ! digitalRead(DIN_3) << 2 |
+           ! digitalRead(DIN_4) << 3   );
 
 }
 
