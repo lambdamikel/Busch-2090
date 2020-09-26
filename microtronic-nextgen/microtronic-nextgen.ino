@@ -1041,8 +1041,9 @@ void loadProgram() {
 
     boolean readingComment = false;
     boolean readingOrigin = false;
+    boolean done = false; 
 
-    while (true) {
+    while (! done) {
 
       int b = myFile.read();
       if (b == -1)
@@ -1115,9 +1116,15 @@ void loadProgram() {
             case 2 :
               arg2[pc] = decoded;
               count = 0;
-              if (firstPc == -1) firstPc = pc;
+
+	      if (pc == 255)    
+	        done = true; 
+              if (firstPc == -1) 
+                firstPc = pc;
+
               pc++;
               break;
+
             default : break;
           }
         }
@@ -1129,9 +1136,6 @@ void loadProgram() {
 
       }
 
-      if (count == 2 && pc == 255) 
-         break; 
-       
     }
 
     myFile.close();
