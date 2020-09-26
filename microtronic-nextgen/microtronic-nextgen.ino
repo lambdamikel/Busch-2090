@@ -1129,7 +1129,9 @@ void loadProgram() {
 
       }
 
-
+      if (count == 2 && pc == 255) 
+         break; 
+       
     }
 
     myFile.close();
