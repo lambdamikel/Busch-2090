@@ -85,10 +85,10 @@ SdFile root;
 #define DOT_LED_4 46
 
 
-#define DOT_1 25
-#define DOT_2 27
-#define DOT_3 29 
-#define DOT_4 31 
+#define DOT_1 31 
+#define DOT_2 29 
+#define DOT_3 27 
+#define DOT_4 25
 
 //
 // DIN digital input
@@ -613,10 +613,10 @@ void setup() {
   pinMode(DOT_3, OUTPUT);
   pinMode(DOT_4, OUTPUT);
 
-  pinMode(DIN_1, INPUT);
-  pinMode(DIN_2, INPUT);
-  pinMode(DIN_3, INPUT);
-  pinMode(DIN_4, INPUT);
+  pinMode(DIN_1, INPUT_PULLUP);
+  pinMode(DIN_2, INPUT_PULLUP);
+  pinMode(DIN_3, INPUT_PULLUP);
+  pinMode(DIN_4, INPUT_PULLUP);
 
   //
   //
@@ -1388,10 +1388,10 @@ void displayStatus() {
 
   digitalWrite(CLOCK_OUT, clock1hz);
 
-  digitalWrite(DOT_1, outputs & 1);
-  digitalWrite(DOT_2, outputs & 2);
-  digitalWrite(DOT_3, outputs & 4);
-  digitalWrite(DOT_4, outputs & 8);
+  digitalWrite(DOT_1, ! (outputs & 1));
+  digitalWrite(DOT_2, ! (outputs & 2));
+  digitalWrite(DOT_3, ! (outputs & 4));
+  digitalWrite(DOT_4, ! (outputs & 8));
 
   //
   //
