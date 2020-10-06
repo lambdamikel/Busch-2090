@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
 
-  Version 6 (c) Michael Wessel, October 2020
+  Version 7 (c) Michael Wessel, October 6th, 2020
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -26,7 +26,7 @@
 
 */
 
-#define VERSION "6"
+#define VERSION "7"
 
 //
 //
@@ -215,7 +215,7 @@ uint8_t status_col = 0;
 // Hex keypad
 //
 
-#define DEBOUNCE_TIME 100
+#define DEBOUNCE_TIME 200
 
 boolean keypadPressed = false;
 
@@ -1279,8 +1279,6 @@ void showDISP(uint8_t col) {
       }
   }
 
-  lastDisplayMode = displayMode; 
-  lastCurrentMode = currentMode; 
   lastShowingDisplayFromReg = showingDisplayFromReg; 
   lastShowingDisplayDigits = showingDisplayDigits; 
   lastDispOff = dispOff; 
@@ -1330,10 +1328,11 @@ void displayStatus() {
   digitalWrite(DOT_4, ! (outputs & 8));
 
   //
-  //
-  //
+  // 
+  // 
 
   if (curPushButton == ENTER ) {
+    curPushButton = NO_KEY; 
     refreshLCD = true;
     switch ( displayMode  ) {
     case DISP    : displayMode = DISP_LARGE; display.clearDisplay(); break;
@@ -1343,13 +1342,8 @@ void displayStatus() {
     case REGWR  : displayMode = REGAR; display.clearDisplay(); break;
     default     : displayMode = DISP; display.clearDisplay(); break;
     }
-  }
-
-  //
-  //
-  //
-
-  if (curPushButton == LIGHT ) {
+  } else if (curPushButton == LIGHT ) {
+    curPushButton = NO_KEY; 
     light_led = ! light_led; 
     digitalWrite(LIGHT_LED, light_led); 
   } 
@@ -1428,18 +1422,25 @@ void displayStatus() {
       // display is on 
       // Fnm was sent 
       
-      if ( currentMode == RUNNING && showingDisplayDigits > 0 || currentMode == ENTERING_VALUE ) {
+      if ( currentMode == RUNNING && showingDisplayDigits > 0 ) { 
+	showDISP(status_col);
+      } else if ( currentMode == ENTERING_VALUE ) { 
+        refreshLCD = true; 
 	showDISP(status_col);
       } else if ( currentMode == ENTERING_REG || currentMode == INSPECTING ) {
+        refreshLCD = true; 
 	sendCharRow(0, status_row, status, false);      
 	showReg(status_col);
       } else if ( currentMode == ENTERING_PROGRAM ) {
+	refreshLCD = true; 
 	sendCharRow(0, status_row, status, false);      
 	showProgram(status_col);
       } else if ( currentMode == ENTERING_TIME || currentMode == SHOWING_TIME ) {
+	refreshLCD = true; 
 	sendCharRow(0, status_row, status, false);      
 	showTime(status_col);
       } else if ( error ) {
+	refreshLCD = true; 
 	sendCharRow(0, status_row, status, false);      
 	showError(status_col);
       } else if ( ! lastInstructionWasDisp || oneStepOnly ) {     
@@ -1582,7 +1583,7 @@ void displayStatus() {
 	if (displayMode == DISP_LARGE) 
 	  clearLine(status_row+1); 
 	else 
-	  clearLine(status_row); 
+	  clearLineFrom(9, status_row); 
       }
     }
   }
@@ -1590,13 +1591,17 @@ void displayStatus() {
   //
   //
   //
-
-  if (refreshLCD) 
+ 
+  if (refreshLCD || lastCurrentMode != currentMode || lastDisplayMode != displayMode ) 
     display.display(); 
+
+  lastDisplayMode = displayMode; 
+  lastCurrentMode = currentMode; 
 
   //
   //
   // 
+
 
 }
 
@@ -1645,6 +1650,10 @@ void setTextSize(int n) {
 
 void clearLine(int line) {
      display.fillRect(0, 8*textSize*line, 6*textSize*14, 8*textSize,WHITE);		
+}
+
+void clearLineFrom(int x, int line) {
+     display.fillRect(x*6*textSize, 8*textSize*line, 6*textSize*14, 8*textSize,WHITE);		
 }
 
 void clearLines(int from, int to) {
