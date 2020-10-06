@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
 
-  Version 4 (c) Michael Wessel, June 2020
+  Version 6 (c) Michael Wessel, October 2020
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -26,7 +26,7 @@
 
 */
 
-#define VERSION "5"
+#define VERSION "6"
 
 //
 //
@@ -187,15 +187,16 @@ byte fn_keypad_col_pins[FN_KEYPAD_COLS] = {22, 20, 18, 16};
 //
 
 enum LCDmode {
-  OFF,
-  OFF1, 
-  OFF3, 
-  PCMEM,
+  UNDEFLCD, 
+  DISP,
+  DISP_LARGE, 
+  MEM, 
+  MEM_MNEM,
   REGWR, 
   REGAR
 };
 
-LCDmode displayMode = OFF3;
+LCDmode displayMode = MEM;
 
 typedef char LCDLine[15]; // +1 for End of String!
 
@@ -214,7 +215,7 @@ uint8_t status_col = 0;
 // Hex keypad
 //
 
-#define DEBOUNCE_TIME 50
+#define DEBOUNCE_TIME 100
 
 boolean keypadPressed = false;
 
@@ -257,6 +258,10 @@ boolean dispOff = false;
 boolean lastInstructionWasDisp = false;
 byte showingDisplayFromReg = 0;
 byte showingDisplayDigits = 0;
+boolean refreshLCD = false;
+
+char status = ' ';
+char last_status = '*';
 
 byte currentReg = 0;
 byte currentInputRegister = 0;
@@ -363,11 +368,15 @@ byte sp = 0; // stack pointer
 byte reg[16];
 byte regEx[16];
 
+// for detecting changes in showDisp
+byte dispReg[16]; 
+
 //
 // current mode / status of emulator
 //
 
 enum mode {
+  UNDEFINED, 
   STOPPED,
   RESETTING,
 
@@ -395,8 +404,6 @@ enum mode {
 };
 
 mode currentMode = STOPPED;
-
-boolean refreshLCD = false;
 
 //
 // I want to avoid all String() constructor calls - String library leads to memory leaks in Arduino!
@@ -503,136 +510,6 @@ byte fn_keypad_getKey() {
 
 }
 
-//
-// setup Arduino
-//
-
-void setup() {
-
-  // Serial.begin(9600);
-
-  pinMode(CLOCK_1HZ_LED, OUTPUT);
-  pinMode(CARRY_LED,     OUTPUT);
-  pinMode(ZERO_LED,      OUTPUT);
-
-  digitalWrite(CLOCK_1HZ_LED, HIGH); 
-  digitalWrite(CARRY_LED, HIGH); 
-  digitalWrite(ZERO_LED, HIGH); 
-
-  //
-  //
-  // 
-
-  pinMode(LIGHT_LED, OUTPUT);
-  digitalWrite(LIGHT_LED, light_led);
-
-  //
-  // init displays
-  //
-
-  display.begin(); 
-  display.setContrast(57);
-
-  display.clearDisplay();
-
-  setTextSize(1);
-  display.setTextColor(BLACK);
-  displaySetCursor(0,0);
-
-  LCDLogo();
-
-  //
-  // SD Card init
-  //
-
-  setTextSize(2);
-
-  if (! SD.begin(SDCARD_CHIP_SELECT)) {
-    display.clearDisplay();
-    displaySetCursor(0,1);
-    display.print("SD BAD!");
-    display.display(); 
-    delay(2000);
-  } else {
-    display.clearDisplay();
-    displaySetCursor(0,1);
-    display.print("SD OK!");
-    display.display(); 
-    delay(2000);
-  }
-
-  //
-  //
-  //
-
-  display.clearDisplay();
-  setTextSize(1);
-
-  //
-  // Configure keypads 
-  //
-
-  for (int x = 0; x < HEX_KEYPAD_ROWS; x++) {
-      pinMode(hex_keypad_row_pins[x],OUTPUT);          
-      digitalWrite(hex_keypad_row_pins[x],HIGH);          
-  }     						       
-  for (int x = 0; x < HEX_KEYPAD_COLS; x++) {
-      pinMode(hex_keypad_col_pins[x],INPUT_PULLUP);          
-  }     						       
-	
-  for (int x = 0; x < FN_KEYPAD_ROWS; x++) {
-      pinMode(fn_keypad_row_pins[x],OUTPUT);          
-      digitalWrite(fn_keypad_row_pins[x],HIGH);          
-  }     						       
-  for (int x = 0; x < FN_KEYPAD_COLS; x++) {
-      pinMode(fn_keypad_col_pins[x],INPUT_PULLUP);          
-  }     						       
-	
-  //
-  // Configure 
-  //
-
-  pinMode(RESET,  INPUT_PULLUP);
-
-  //
-  //
-    
-  pinMode(DOT_LED_1, OUTPUT);
-  pinMode(DOT_LED_2, OUTPUT);
-  pinMode(DOT_LED_3, OUTPUT);
-  pinMode(DOT_LED_4, OUTPUT);
-
-  //
-  //
-  // 
-
-  pinMode(CLOCK_OUT, OUTPUT);
-
-  pinMode(DOT_1, OUTPUT);
-  pinMode(DOT_2, OUTPUT);
-  pinMode(DOT_3, OUTPUT);
-  pinMode(DOT_4, OUTPUT);
-
-  pinMode(DIN_1, INPUT_PULLUP);
-  pinMode(DIN_2, INPUT_PULLUP);
-  pinMode(DIN_3, INPUT_PULLUP);
-  pinMode(DIN_4, INPUT_PULLUP);
-
-  //
-  //
-  //
-
-  pinMode(RANDOM_ANALOG_PIN,       INPUT);
-  randomSeed(analogRead(RANDOM_ANALOG_PIN));
-
-  //
-  // 
-  //
-
-  lastClockTime = millis();
-  last1HzTime = millis();
-
-}
 
 //
 //
@@ -1161,7 +1038,14 @@ void loadProgram() {
 
 void showMem(uint8_t col) {
 
+  // show one line of RAM at PC 
+
   int adr = pc;
+
+  clearLine(5); 
+  refreshLCD = true;
+
+  sendCharRow(0, status_row, status, false);  
 
   if ( currentMode == ENTERING_BREAKPOINT_HIGH || currentMode == ENTERING_BREAKPOINT_LOW )
     adr = breakAt;
@@ -1180,9 +1064,16 @@ void showMem(uint8_t col) {
 
 void showMemMore(uint8_t col) {
 
+  // show 3 lines of RAM (PC-1, PC, PC+1) 
+
   int adr = pc;
   int adr0 = pc == 0 ? 255 : pc-1; 
   int adr1 = pc == 255 ? 0 : pc+1; 
+  
+  clearLines(3,5); 
+  refreshLCD = true;
+
+  sendCharRow(0, status_row, status, false);  
 
   if ( currentMode == ENTERING_BREAKPOINT_HIGH || currentMode == ENTERING_BREAKPOINT_LOW )
     adr = breakAt;
@@ -1228,6 +1119,10 @@ void showMemMore(uint8_t col) {
   sendHexCol(col++, 5, arg2[adr1], false);
 
 }
+
+//
+//
+//
 
 void advanceTime() {
 
@@ -1352,9 +1247,44 @@ void announce1(uint8_t x, uint8_t y, String message, byte num) {
 
 }
 
+//
+// 
+//
+
+
+LCDmode lastDisplayMode = UNDEFLCD;
+mode lastCurrentMode = UNDEFINED;
+byte lastShowingDisplayFromReg = 0;
+byte lastShowingDisplayDigits = 0; 
+boolean lastDispOff = false;
+
 void showDISP(uint8_t col) {
-  for (int i = 0; i < showingDisplayDigits; i++)
-    sendHex(5 - i + col, reg[(i +  showingDisplayFromReg ) % 16], false);
+
+  boolean mode_change = 
+    lastDisplayMode != displayMode || 
+    lastCurrentMode != currentMode || 
+    lastShowingDisplayFromReg != showingDisplayFromReg || 
+    lastShowingDisplayDigits != showingDisplayDigits || 
+    lastDispOff != dispOff;
+
+  showStatus(); 
+  
+  for (int i = 0; i < showingDisplayDigits; i++) {
+      byte idx = (i +  showingDisplayFromReg ) % 16; 
+      byte dreg = reg[idx];
+      if ( mode_change || dispReg[idx] != dreg ) {
+	sendHex(5 - i + col, dreg, false);
+	dispReg[idx] = dreg; 
+	refreshLCD = true;
+      }
+  }
+
+  lastDisplayMode = displayMode; 
+  lastCurrentMode = currentMode; 
+  lastShowingDisplayFromReg = showingDisplayFromReg; 
+  lastShowingDisplayDigits = showingDisplayDigits; 
+  lastDispOff = dispOff; 
+  
 }
 
 //
@@ -1363,7 +1293,7 @@ void showDISP(uint8_t col) {
 
 void displayStatus() {
 
-  refreshLCD = pc != lastPc || jump || oneStepOnly;
+  refreshLCD = false;
 
   unsigned long time = millis();
   unsigned long delta = time - lastDispTime;
@@ -1406,12 +1336,12 @@ void displayStatus() {
   if (curPushButton == ENTER ) {
     refreshLCD = true;
     switch ( displayMode  ) {
-    case OFF    : displayMode = OFF1; display.clearDisplay(); break;
-    case OFF1   : displayMode = OFF3; display.clearDisplay(); break;
-    case OFF3   : displayMode = PCMEM; display.clearDisplay(); break;
-    case PCMEM  : displayMode = REGWR; display.clearDisplay(); break;
+    case DISP    : displayMode = DISP_LARGE; display.clearDisplay(); break;
+    case DISP_LARGE   : displayMode = MEM; display.clearDisplay(); break;
+    case MEM   : displayMode = MEM_MNEM; display.clearDisplay(); break;
+    case MEM_MNEM  : displayMode = REGWR; display.clearDisplay(); break;
     case REGWR  : displayMode = REGAR; display.clearDisplay(); break;
-    default     : displayMode = OFF; display.clearDisplay(); break;
+    default     : displayMode = DISP; display.clearDisplay(); break;
     }
   }
 
@@ -1429,16 +1359,18 @@ void displayStatus() {
   //
 
   if ( currentMode == RUNNING && dispOff && 
-       displayMode != REGWR && displayMode != REGAR && displayMode != PCMEM ) { 
+       displayMode != REGWR && displayMode != REGAR && displayMode != MEM_MNEM ) { 
 
     // no refresh / display updates when RUNNING and DISOUT and neither register nor mnemonics display mode
     // in these cases, we want to see what's going on, even with DISOUT 
 
   } else {
 
-    char status = ' ';
+    status = ' ';
 
-    if ( currentMode == STOPPED && ! error)
+    if (currentMode == RUNNING)
+      status = 'R';
+    else if ( currentMode == STOPPED && ! error)
       status = 'H';
     else if (currentMode ==
 	     ENTERING_ADDRESS_HIGH ||
@@ -1454,8 +1386,6 @@ void displayStatus() {
 	     currentMode == ENTERING_ARG1 ||
 	     currentMode == ENTERING_ARG2 )
       status = 'P';
-    else if (currentMode == RUNNING)
-      status = 'R';
     else if (currentMode == ENTERING_REG ||
 	     currentMode == INSPECTING )
       status = 'I';
@@ -1470,35 +1400,35 @@ void displayStatus() {
     else status = ' ' ;
 
     //
-    //	
-    //	
-
+    // set font size and cursor positions for potential display updates
+    // 
+    
     switch ( displayMode ) {
-    case OFF3 :
-    case PCMEM : setTextSize(1); status_row = 4; status_col = 2; clearLines(3,5); refreshLCD = true; break; 
-    case OFF1 : setTextSize(2); status_row = 1; status_col = 1; clearLine(3); break; 
-    default : setTextSize(1); status_row = 5; status_col = 2; clearLine(5); 
+      case MEM :
+      case MEM_MNEM : setTextSize(1); status_row = 4; status_col = 2; break; 
+      case DISP_LARGE : setTextSize(2); status_row = 1; status_col = 1; break; 
+      default : setTextSize(1); status_row = 5; status_col = 2; 
     }
 
     //
-    // this is updated with every call to displayStatus() 
-    // hence, we only clear parts of the display as necessary 
-    // (1 or 3 lines) 
     // 
+    //
 
     if (dispOff) {
+      // display = F02 (DISOUT) 
       // we are in MNEMONICS or REGISTER DISPLAY mode -> show memory! 
-      sendCharRow(0, status_row, status, false);  
-      if (displayMode == OFF3 || displayMode == PCMEM ) { 
+
+      if (displayMode == MEM || displayMode == MEM_MNEM ) { 
 	showMemMore(status_col); 
       } else {
 	showMem(status_col); 
       }       
     } else {
+
       // display is on 
+      // Fnm was sent 
       
       if ( currentMode == RUNNING && showingDisplayDigits > 0 || currentMode == ENTERING_VALUE ) {
-	sendCharRow(0, status_row, status, false);      
 	showDISP(status_col);
       } else if ( currentMode == ENTERING_REG || currentMode == INSPECTING ) {
 	sendCharRow(0, status_row, status, false);      
@@ -1513,8 +1443,7 @@ void displayStatus() {
 	sendCharRow(0, status_row, status, false);      
 	showError(status_col);
       } else if ( ! lastInstructionWasDisp || oneStepOnly ) {     
-	sendCharRow(0, status_row, status, false);  
-	if (displayMode == OFF3 || displayMode == PCMEM ) { 
+	if (displayMode == MEM || displayMode == MEM_MNEM ) { 
 	  showMemMore(status_col); 
 	} else {
 	  showMem(status_col); 
@@ -1526,20 +1455,26 @@ void displayStatus() {
     // this is only updated if needed (change in display mode or address) 
     //
 
-    if ( refreshLCD ) {
+    if ( pc != lastPc || jump || oneStepOnly ) {
 
       lastPc = pc;
 
-      if (displayMode == OFF || displayMode == OFF3 || displayMode == OFF1 ) {
+      if (displayMode == DISP || displayMode == MEM || displayMode == DISP_LARGE ) {
 
 	switch ( currentMode ) {
 
-        case ENTERING_TIME :
+        case ENTERING_TIME : 
+
+	  refreshLCD = true; 
+
 	  displaySetCursor(0, 0);	
           display.print("SET CLK");
           break;
 
         case SHOWING_TIME :
+
+	  refreshLCD = true; 
+
 	  displaySetCursor(0, 0);	
           display.print("TIME");
           break;
@@ -1548,7 +1483,9 @@ void displayStatus() {
 	  break; 	  
 	}
 
-      } else if (displayMode == PCMEM ) {
+      } else if (displayMode == MEM_MNEM ) {
+
+	refreshLCD = true; 
 
 	displaySetCursor(0, 0);
 	display.print("PC MNEMONICS");
@@ -1566,9 +1503,9 @@ void displayStatus() {
 	displaySetCursor(0, 2); 
 	sep(); 
 
-	//showMemMore(status_col); 
-
       } else if (displayMode == REGWR ) {
+
+	refreshLCD = true; 
 
 	displaySetCursor(0, 0);
 	display.print("WR 0123456789");
@@ -1590,6 +1527,8 @@ void displayStatus() {
 	sep(); 
       
       } else if (displayMode == REGAR ) {
+
+	refreshLCD = true; 
 
 	displaySetCursor(0, 0);
 	display.print("ER 0123456789");
@@ -1614,12 +1553,14 @@ void displayStatus() {
     }
 
     //
-    //
+    // process keypress feedback display 
     //
 
     if (displayCurFuncKey != NO_KEY && ! ( oneStepOnly && lastInstructionWasDisp) ) {
 
-      if (displayMode == OFF1) 
+      refreshLCD = true; 
+
+      if (displayMode == DISP_LARGE) 
 	displaySetCursor(0, status_row+1);
       else 
 	displaySetCursor(9, status_row);
@@ -1638,20 +1579,24 @@ void displayStatus() {
 
       if (millis() - funcKeyTime > 500) {
 	displayCurFuncKey = NO_KEY;
-	if (displayMode == OFF1) 
+	if (displayMode == DISP_LARGE) 
 	  clearLine(status_row+1); 
 	else 
 	  clearLine(status_row); 
       }
-
     }
-
-    display.display(); 
-
   }
 
+  //
+  //
+  //
 
-  refreshLCD = false;
+  if (refreshLCD) 
+    display.display(); 
+
+  //
+  //
+  // 
 
 }
 
@@ -1725,6 +1670,16 @@ void sendCharRow(uint8_t pos, uint8_t row, char c, boolean blink) {
    
   displaySetCursor(pos, row); 
   display.print(blink ? ' ' : c); 
+
+}
+
+void showStatus() {
+
+  if ( last_status != status ) {
+    sendCharRow(0, status_row, status, false);      
+    last_status = status; 
+    refreshLCD = true;
+  }
 
 }
 
@@ -1884,8 +1839,18 @@ void reset() {
   for (currentReg = 0; currentReg < 16; currentReg++) {
     reg[currentReg] = 0;
     regEx[currentReg] = 0;
+    dispReg[currentReg] = 255; 
   }
 
+  last_status = '*';
+  status = ' '; 
+
+  lastDisplayMode = UNDEFLCD;
+  lastCurrentMode = UNDEFINED;
+  lastShowingDisplayFromReg = 0;
+  lastShowingDisplayDigits = 0; 
+  lastDispOff = false;
+  
   currentReg = 0;
   currentInputRegister = 0;
 
@@ -1901,7 +1866,7 @@ void reset() {
   inputs = 0;
   outputs = 0;  
 
-  displayMode = OFF3;
+  displayMode = MEM;
 
   showingDisplayFromReg = 0;
   showingDisplayDigits = 0;
@@ -1926,22 +1891,11 @@ void clearMem() {
     arg1[pc] = 0;
     arg2[pc] = 0;
 
-    /*
-    clearLine(3);
-    showMem(0);
-    display.display(); 
-    */
   }
 
   op[pc] = 0;
   arg1[pc] = 0;
   arg2[pc] = 0;
-
-  /*
-  clearLine(3);
-  showMem(0);
-  display.display(); 
-  */
 
   reset();
 
@@ -2745,6 +2699,143 @@ void enterProgram(String string, int start) {
     start++; 
 
   };
+
+}
+
+//
+// setup Arduino
+//
+
+void setup() {
+
+  // Serial.begin(9600);
+
+  pinMode(CLOCK_1HZ_LED, OUTPUT);
+  pinMode(CARRY_LED,     OUTPUT);
+  pinMode(ZERO_LED,      OUTPUT);
+
+  digitalWrite(CLOCK_1HZ_LED, HIGH); 
+  digitalWrite(CARRY_LED, HIGH); 
+  digitalWrite(ZERO_LED, HIGH); 
+
+  //
+  //
+  // 
+
+  pinMode(LIGHT_LED, OUTPUT);
+  digitalWrite(LIGHT_LED, light_led);
+
+  //
+  // init displays
+  //
+
+  display.begin(); 
+  display.setContrast(57);
+
+  display.clearDisplay();
+
+  setTextSize(1);
+  display.setTextColor(BLACK);
+  displaySetCursor(0,0);
+
+  LCDLogo();
+
+  //
+  // SD Card init
+  //
+
+  setTextSize(2);
+
+  if (! SD.begin(SDCARD_CHIP_SELECT)) {
+    display.clearDisplay();
+    displaySetCursor(0,1);
+    display.print("SD BAD!");
+    display.display(); 
+    delay(2000);
+  } else {
+    display.clearDisplay();
+    displaySetCursor(0,1);
+    display.print("SD OK!");
+    display.display(); 
+    delay(2000);
+  }
+
+  //
+  //
+  //
+
+  display.clearDisplay();
+  setTextSize(1);
+
+  //
+  // Configure keypads 
+  //
+
+  for (int x = 0; x < HEX_KEYPAD_ROWS; x++) {
+      pinMode(hex_keypad_row_pins[x],OUTPUT);          
+      digitalWrite(hex_keypad_row_pins[x],HIGH);          
+  }     						       
+  for (int x = 0; x < HEX_KEYPAD_COLS; x++) {
+      pinMode(hex_keypad_col_pins[x],INPUT_PULLUP);          
+  }     						       
+	
+  for (int x = 0; x < FN_KEYPAD_ROWS; x++) {
+      pinMode(fn_keypad_row_pins[x],OUTPUT);          
+      digitalWrite(fn_keypad_row_pins[x],HIGH);          
+  }     						       
+  for (int x = 0; x < FN_KEYPAD_COLS; x++) {
+      pinMode(fn_keypad_col_pins[x],INPUT_PULLUP);          
+  }     						       
+	
+  //
+  // Configure 
+  //
+
+  pinMode(RESET,  INPUT_PULLUP);
+
+  //
+  //
+    
+  pinMode(DOT_LED_1, OUTPUT);
+  pinMode(DOT_LED_2, OUTPUT);
+  pinMode(DOT_LED_3, OUTPUT);
+  pinMode(DOT_LED_4, OUTPUT);
+
+  //
+  //
+  // 
+
+  pinMode(CLOCK_OUT, OUTPUT);
+
+  pinMode(DOT_1, OUTPUT);
+  pinMode(DOT_2, OUTPUT);
+  pinMode(DOT_3, OUTPUT);
+  pinMode(DOT_4, OUTPUT);
+
+  pinMode(DIN_1, INPUT_PULLUP);
+  pinMode(DIN_2, INPUT_PULLUP);
+  pinMode(DIN_3, INPUT_PULLUP);
+  pinMode(DIN_4, INPUT_PULLUP);
+
+  //
+  //
+  //
+
+  pinMode(RANDOM_ANALOG_PIN,       INPUT);
+  randomSeed(analogRead(RANDOM_ANALOG_PIN));
+
+  //
+  // 
+  //
+
+  lastClockTime = millis();
+  last1HzTime = millis();
+
+  //
+  //
+  //
+
+  reset(); 
 
 }
 
