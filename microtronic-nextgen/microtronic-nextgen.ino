@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
 
-  Version 7 (c) Michael Wessel, October 6th, 2020
+  Version 8 (c) Michael Wessel, October 6th, 2020
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -26,7 +26,7 @@
 
 */
 
-#define VERSION "7"
+#define VERSION "8"
 
 //
 //
@@ -215,7 +215,7 @@ uint8_t status_col = 0;
 // Hex keypad
 //
 
-#define DEBOUNCE_TIME 200
+#define DEBOUNCE_TIME 120
 
 boolean keypadPressed = false;
 
@@ -351,6 +351,14 @@ byte breakAt = 0; // != 0 -> breakpoint set
 
 boolean oneStepOnly = false;
 boolean ignoreBreakpointOnce = false;
+
+//
+// CPU Throttle
+//
+
+int cpu_delay = 0; 
+int cpu_speed = 0; 
+boolean cpu_changed = false; 
 
 //
 // stack
@@ -1257,10 +1265,12 @@ mode lastCurrentMode = UNDEFINED;
 byte lastShowingDisplayFromReg = 0;
 byte lastShowingDisplayDigits = 0; 
 boolean lastDispOff = false;
+boolean forceFullRefresh = false;
 
 void showDISP(uint8_t col) {
 
   boolean mode_change = 
+    forceFullRefresh ||
     lastDisplayMode != displayMode || 
     lastCurrentMode != currentMode || 
     lastShowingDisplayFromReg != showingDisplayFromReg || 
@@ -1282,6 +1292,7 @@ void showDISP(uint8_t col) {
   lastShowingDisplayFromReg = showingDisplayFromReg; 
   lastShowingDisplayDigits = showingDisplayDigits; 
   lastDispOff = dispOff; 
+  forceFullRefresh = false; 
   
 }
 
@@ -1334,6 +1345,7 @@ void displayStatus() {
   if (curPushButton == ENTER ) {
     curPushButton = NO_KEY; 
     refreshLCD = true;
+    forceFullRefresh = true; 
     switch ( displayMode  ) {
     case DISP    : displayMode = DISP_LARGE; display.clearDisplay(); break;
     case DISP_LARGE   : displayMode = MEM; display.clearDisplay(); break;
@@ -1557,7 +1569,7 @@ void displayStatus() {
     // process keypress feedback display 
     //
 
-    if (displayCurFuncKey != NO_KEY && ! ( oneStepOnly && lastInstructionWasDisp) ) {
+    if (displayCurFuncKey != NO_KEY && ! ( oneStepOnly && lastInstructionWasDisp)) {
 
       refreshLCD = true; 
 
@@ -1568,7 +1580,14 @@ void displayStatus() {
 
       switch ( displayCurFuncKey ) {
       case CCE  : display.print("C/CE"); break;
-      case RUN  : display.print("RUN"); break;
+      case RUN  : 
+	if (cpu_changed) {
+          display.print("CPU"); 
+	  display.print(cpu_speed); 
+	} else {
+	  display.print("RUN"); 
+	}
+	break;
       case BKP  : display.print("BKP"); break;
       case NEXT : display.print("NEXT"); break;
       case PGM  : display.print("PGM"); break;
@@ -1579,6 +1598,8 @@ void displayStatus() {
       }
 
       if (millis() - funcKeyTime > 500) {
+	cpu_changed = false; 
+
 	displayCurFuncKey = NO_KEY;
 	if (displayMode == DISP_LARGE) 
 	  clearLine(status_row+1); 
@@ -1615,7 +1636,8 @@ void LCDLogo() {
 
   sep(); 
   displaySetCursor(0, 1);
-  display.print("Busch 2090    ");
+  display.print("Busch 2090 V");
+  display.print(VERSION);
   displaySetCursor(0, 2);
   display.print(" Microtronic  ");
   displaySetCursor(0, 3);
@@ -1842,6 +1864,8 @@ void reset() {
 
   currentMode = STOPPED;
   cursor = CURSOR_OFF;
+
+  cpu_delay = 0; 
 
   announce(1, 1, "RESET"); 
 
@@ -2686,6 +2710,10 @@ void run() {
     if (! jump) {
       pc++;
     }
+  } else {
+
+     delay(cpu_delay); 
+
   }
 
 }
@@ -2858,6 +2886,13 @@ void loop() {
   readFunctionKeys();
   readHexKeys(); 
 
+  if (curFuncKeyRaw == RUN && curHexKeyRaw != NO_KEY) {
+     cpu_changed = true; 
+     cpu_speed = curHexKeyRaw - 1; 
+     cpu_delay = (curHexKeyRaw - 1)  * 20;
+     forceFullRefresh = true; 
+  }
+
   //
   //
   //
@@ -2872,16 +2907,5 @@ void loop() {
   if (!digitalRead(RESET)) {
     reset();
   }
-
-  //
-  //
-  //
-
-  //  cpu_delay = (analogRead(CPU_THROTTLE_ANALOG_PIN) / CPU_THROTTLE_DIVISOR) / 10  * 10;
-
-  int  cpu_delay = 0; 
-
-  if (cpu_delay > 0)
-    delay(cpu_delay);
 
 }
