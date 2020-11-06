@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
 
-  Version 8 (c) Michael Wessel, October 6th, 2020
+  Version 9 (c) Michael Wessel, November 5th, 2020
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -26,7 +26,7 @@
 
 */
 
-#define VERSION "8"
+#define VERSION "9"
 
 //
 //
@@ -1342,7 +1342,7 @@ void displayStatus() {
   // 
   // 
 
-  if (curPushButton == ENTER ) {
+  if (curPushButton == ENTER || curPushButton == RIGHT) {
     curPushButton = NO_KEY; 
     refreshLCD = true;
     forceFullRefresh = true; 
@@ -1353,6 +1353,18 @@ void displayStatus() {
     case MEM_MNEM  : displayMode = REGWR; display.clearDisplay(); break;
     case REGWR  : displayMode = REGAR; display.clearDisplay(); break;
     default     : displayMode = DISP; display.clearDisplay(); break;
+    }
+  } else if ( curPushButton == LEFT) {
+    curPushButton = NO_KEY; 
+    refreshLCD = true;
+    forceFullRefresh = true; 
+    switch ( displayMode  ) {
+    case DISP    : displayMode =  REGWR; display.clearDisplay(); break;
+    case DISP_LARGE   : displayMode = DISP; display.clearDisplay(); break;
+    case MEM   : displayMode = DISP_LARGE; display.clearDisplay(); break;
+    case MEM_MNEM  : displayMode = MEM; display.clearDisplay(); break;
+    case REGWR  : displayMode = MEM_MNEM; display.clearDisplay(); break;
+    default     : displayMode = REGWR; display.clearDisplay(); break;
     }
   } else if (curPushButton == LIGHT ) {
     curPushButton = NO_KEY; 
@@ -1580,13 +1592,14 @@ void displayStatus() {
 
       switch ( displayCurFuncKey ) {
       case CCE  : display.print("C/CE"); break;
-      case RUN  : 
+      case RUN  :  display.print("RUN"); break; 
+      case UP  : 
+      case DOWN  :       
 	if (cpu_changed) {
-          display.print("CPU"); 
-	  display.print(cpu_speed); 
-	} else {
-	  display.print("RUN"); 
-	}
+	  //display.print(cpu_speed); 
+	  display.print(cpu_delay); 
+          display.print("ms"); 
+	} 
 	break;
       case BKP  : display.print("BKP"); break;
       case NEXT : display.print("NEXT"); break;
@@ -2886,12 +2899,25 @@ void loop() {
   readFunctionKeys();
   readHexKeys(); 
 
+  /*
   if (curFuncKeyRaw == RUN && curHexKeyRaw != NO_KEY) {
      cpu_changed = true; 
      cpu_speed = curHexKeyRaw - 1; 
      cpu_delay = (curHexKeyRaw - 1)  * 20;
      forceFullRefresh = true; 
-  }
+  } */ 
+
+  if (currentMode == RUNNING && curFuncKey == UP) {
+     cpu_changed = true; 
+     cpu_delay += 5; 
+     forceFullRefresh = true; 
+  }		      
+
+  if (currentMode == RUNNING && curFuncKey == DOWN) {
+     cpu_changed = true; 
+     cpu_delay = cpu_delay < 5 ? 0 : cpu_delay - 5; 
+     forceFullRefresh = true; 
+  }		      
 
   //
   //
