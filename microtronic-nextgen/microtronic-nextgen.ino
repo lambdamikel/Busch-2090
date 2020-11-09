@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
 
-  Version 9 (c) Michael Wessel, November 5th, 2020
+  Version 9 (c) Michael Wessel, November 8th, 2020
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -26,11 +26,13 @@
 
 */
 
-#define VERSION "9"
+#define VERSION "A"
 
 //
 //
 //
+
+#include <avr/pgmspace.h>
 
 #include <SdFat.h>
 
@@ -48,6 +50,8 @@
 
 SdFat SD;
 SdFile root;
+
+boolean fastLoad = false; 
 
 //
 // hardware configuration / wiring
@@ -309,31 +313,37 @@ unsigned long num3 = 0;
 // PGM ROM Programs 
 //
 
-#define PROGRAMS 6
+// PGM 7 - NIM GAME 
+const char PGM7[] PROGMEM = "F08 FE0 F41 FF2 FF1 FF4 045 046 516 FF4 854 D19 904 E19 B3F F03 0D1 0E2 911 E15 C1A 902 D1A 1F0 FE0 F00 F02 064 10C 714 B3F 11A 10B C24 46A FBB 8AD E27 C29 8BE E2F 51C E2C C22 914 E2F C1C F03 0D1 0E2 F41 902 D09 911 E38 C09 1E2 1E3 1F5 FE5 105 FE5 C3A 01D 02E F04 64D FCE F07 "; 
 
-String PGMROM[PROGRAMS] = {
+// PGM 8 - crazy counter
+const char PGM8[] PROGMEM = "F60 510 521 532 543 554 565 FE0 C00 "; 
 
-  // PGM 7 - NIM GAME 
-  "F08 FE0 F41 FF2 FF1 FF4 045 046 516 FF4 854 D19 904 E19 \
-B3F F03 0D1 0E2 911 E15 C1A 902 D1A 1F0 FE0 F00 F02 064 10C 714 B3F \
-11A 10B C24 46A FBB 8AD E27 C29 8BE E2F 51C E2C C22 914 E2F C1C F03 \
-0D1 0E2 F41 902 D09 911 E38 C09 1E2 1E3 1F5 FE5 105 FE5 C3A 01D 02E \
-F04 64D FCE F07 ",
+// PGM 9 - electronic die 
+const char PGM9[] PROGMEM = "F05 90D E00 96D D00 F1D FF0 C00 "; 
 
-  // PGM 8 - crazy counter
-  "F60 510 521 532 543 554 565 FE0 C00 ",
+// PGM A - three digit counter with carry
+const char PGMA[] PROGMEM = "F30 510 FB1 FB2 FE1 FE1 C00 "; 
 
-  // PGM 9 - electronic die 
-  "F05 90D E00 96D D00 F1D FF0 C00 ",
+// PGM B - scrolling LED light
+const char PGMB[] PROGMEM = "110 F10 FE0 FA0 FB0 C02 "; 
 
-  // PGM A - three digit counter with carry
-  "F30 510 FB1 FB2 FE1 FE1 C00 ",
+// PGM C - DIN digital input test
+const char PGMC[] PROGMEM = "F10 FD0 FE0 C00 "; 
 
-  // PGM B - scrolling LED light
-  "110 F10 FE0 FA0 FB0 C02 ", 
+// PGM D - Lunar Lander 
+const char PGMD[] PROGMEM = "F02 F08 FE0 142 1F3 114 125 136 187 178 1A1 02D 03E 04F F03 F5D FFB F02 1B1 10F 05D 06E F03 F5D FFB F02 1C1 07D 08E F03 F5D FFB 10D 10E F2D FFB 99B D29 0DE 0BD C22 F02 10F F04 6D7 FC8 D69 6E8 D69 75D FCE D5A 4D2 FB3 FB4 4E3 FB4 652 FC3 FC4 D7B 663 FC4 D7B 6D5 FC6 D80 6E6 D80 904 D0A 903 D0A 952 D0A 906 D0A 955 D0A 1E0 1E1 1E2 1E3 1E4 1E5 1F6 FE6 F60 FF0 C00 6DF 6F2 FC3 FC4 D7B 652 FC3 FC4 D7B 663 FC4 D7B 4F5 FB6 C45 1E0 1A1 1E2 1A3 1FF 1FE FEF 71E D73 C70 F40 FEF 10D FED 71E D58 F02 C73 1A0 1A1 1A2 1A3 C6D 1F0 1A1 1F2 1A3 C6D "; 
 
-  // PGM C - DIN digital input test
-  "F10 FD0 FE0 C00 ", 
+// PGM E - Primes 
+const char PGME[] PROGMEM = "F08 FEF F50 FFE FE5 9BE D09 E0C C00 9CE D02 C16 FFF 9AF EDA D18 034 023 012 001 0F0 C0C F02 B77 F02 B90 F0D F08 168 F0D F0F B77 F0F 904 D2A 903 D33 902 D36 901 D3C C3F 92A D2D C41 909 D30 C41 958 D3F C41 90A D3F C41 929 D39 C41 918 D3F C41 909 D3F C41 1FF C01 F70 F71 F72 F73 F74 680 D49 C4C 760 711 D4F 691 D50 C53 691 761 712 D56 6A2 D57 C5D 6A2 762 713 D58 C5D 763 714 900 D65 010 021 032 043 104 C5D 904 D46 903 D46 82A D1D E6D C46 819 D1D E71 C46 808 D1D E75 C46 F0D C17 510 990 D7B C90 560 511 991 D80 C90 561 512 992 D85 C90 562 513 993 D8A C90 563 514 994 D8F C90 564 910 EA9 920 E9D 930 E9D 970 EA9 990 EA9 950 E9D C77 904 DA6 903 DA6 902 DA6 901 DA6 CCF 930 EA9 C77 F70 F71 F72 F73 F74 410 101 10F DD2 990 DD2 420 102 11F DD2 990 DD2 430 103 12F DD2 990 DD2 440 104 13F DD2 990 DD2 901 DAE 930 ED0 960 ED0 990 ED0 F0D F07 F0D C77 560 511 92F DC4 EBE 90F DB8 CB2 F08 C0C "; 
+
+// PGM F - 17+4 Black Jack 
+const char PGMF[] PROGMEM = "F08 FE0 14A 1DB 1DC 1AD 17E 11F F6A FFF F02 86C C12 F40 B6C FFF F02 E2C 80D E15 C1E 9A0 E18 C1E 902 E1B C1E 1A2 1A3 C5A 0D0 402 D24 992 D24 C26 513 562 923 E29 C2C 912 E5A D60 917 D33 E30 C36 966 D33 C36 90F E53 C0D 84E E39 C42 9A4 E3C C42 903 E3F C42 1A6 1A7 C60 0E4 446 D48 996 D48 C4A 566 517 927 E4F 90F E53 C0D 916 E60 D5A C4C 837 E57 D60 C5A 826 E60 D60 1DC l0D l0E 16F F4C C64 1DD 1AE 1BF F3D 1FB FEB FFB 104 FE4 F62 FF0 C00 F05 4FE 9AD D71 C73 57D C6E 9AE D76 F07 57E C73 "; 
+
+#define PROGRAMS 9 
+
+const char * const PGMROM[PROGRAMS] PROGMEM = {
+  PGM7, PGM8, PGM9, PGMA, PGMB, PGMC, PGMD, PGME, PGMF 
 };
 
 //
@@ -700,8 +710,12 @@ int selectFile() {
       announce(1,1,"CANCEL"); 
       return -1; 
     } else if (curPushButton == ENTER) {
+
+      fastLoad = ( askQuestion("Turbo?") == ENTER) ; 
       announce(0,1,"LOADING"); 
+
       return no; 
+
     } 
   }
 
@@ -711,6 +725,22 @@ int selectFile() {
 
 }
 
+int askQuestion(String q) {
+ 
+    display.clearDisplay();
+    setTextSize(2); 
+    displaySetCursor(0, 1);	
+    display.print(q);
+    display.display(); 
+
+    curFuncKey = NO_KEY;
+    while (curFuncKey != ENTER && curFuncKey != CANCEL) {
+      readFunctionKeys();      
+    }	
+    
+    return curFuncKey; 
+
+} 
 
 int createName() {
 
@@ -833,8 +863,25 @@ void saveProgram() {
     return;
   }
 
+  fastLoad = ( askQuestion("Turbo?") == ENTER) ; 
+
   if (SD.exists(file)) {
     announce(0,1,"REPLACE");
+  } else {
+    announce(0,1,"SAVING");
+  }
+
+  if (fastLoad) {
+    display.clearDisplay();
+    setTextSize(1); 
+    displaySetCursor(0, 0);
+    display.print("Saving");
+    displaySetCursor(0, 1);
+    sep(); 
+    displaySetCursor(0, 2);
+    display.print(file);
+    displaySetCursor(0, 3);
+    sep(); 
   }
 
   File myFile = SD.open( file , FILE_WRITE);
@@ -849,31 +896,35 @@ void saveProgram() {
 
     for (int i = pc; i < 256; i++) {
 
-      display.clearDisplay();
-      setTextSize(1); 
-      displaySetCursor(0, 0);
-      display.print("Saving");
-      displaySetCursor(0, 1);
-      sep(); 
-      displaySetCursor(0, 2);
-      display.print(file);
-      displaySetCursor(0, 3);
-      sep(); 
+      if (! fastLoad) {
+	display.clearDisplay();
+	setTextSize(1); 
+	displaySetCursor(0, 0);
+	display.print("Saving");
+	displaySetCursor(0, 1);
+	sep(); 
+	displaySetCursor(0, 2);
+	display.print(file);
+	displaySetCursor(0, 3);
+	sep(); 
+      }
 
       myFile.print(op[i], HEX);
       myFile.print(arg1[i], HEX);
       myFile.print(arg2[i], HEX);
       myFile.println();
+
       if (i % 16 == 15)
         myFile.println();
 
       pc = i;
-
-      setTextSize(2); 
-      status_row = 2; 
-      showMem(0); 
-      display.display(); 
-
+      
+      if (! fastLoad) {
+	setTextSize(2); 
+	status_row = 2; 
+	showMem(0); 
+	display.display(); 
+      }
     }
 
     announce(0, 1, "SAVED");
@@ -964,6 +1015,7 @@ void loadProgram() {
 
         int decoded = decodeHex(b);
 
+	
         if ( decoded == -1) {
           display.clearDisplay();
 	  setTextSize(2); 
@@ -1014,11 +1066,12 @@ void loadProgram() {
           }
         }
 
-	setTextSize(2); 
-	status_row = 2; 
-	showMem(0); 
-	display.display(); 
-
+	if (! fastLoad) {
+	  setTextSize(2); 
+	  status_row = 2; 
+	  showMem(0); 
+	  display.display(); 
+	}
       }
 
     }
@@ -2248,7 +2301,7 @@ void interpret() {
 
 	} else if (program - 7 < PROGRAMS ) {
 
-	  enterProgram(PGMROM[program - 7], 0);
+	  enterProgram(program - 7, 0);
 	  announce(0,1,"LOADED");
 
 	} else {
@@ -2731,21 +2784,21 @@ void run() {
 
 }
 
-void enterProgram(String string, int start) {
+void enterProgram(int pgm, int start) {
 
-  int i = 0; 
+  char* pgm_string = (char *) pgm_read_word(&PGMROM[pgm]); 
 
-  while ( string[i] ) {
+  while (pgm_read_byte(pgm_string)) {
 
-    op[start]   = decodeHex(string[i++]);
-    arg1[start] = decodeHex(string[i++]);
-    arg2[start] = decodeHex(string[i++]);
+    op[start]   = decodeHex(pgm_read_byte(pgm_string++)); 
+    arg1[start] = decodeHex(pgm_read_byte(pgm_string++)); 
+    arg2[start] = decodeHex(pgm_read_byte(pgm_string++)); 
 
     if (start == 255) {
       exit(1);
     }
 
-    i++; // skip over space 
+    pgm_string++; // skip over space 
     start++; 
 
   };
