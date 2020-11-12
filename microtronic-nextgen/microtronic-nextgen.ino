@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
 
-  Version 9 (c) Michael Wessel, November 8th, 2020
+  Version 11 (c) Michael Wessel, November 11th, 2020
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -26,107 +26,45 @@
 
 */
 
-#define VERSION "A"
+#define VERSION "B" 
+
+//
+//
+//
+
+// wiring 
+#include "hardware.h" 
 
 //
 //
 //
 
 #include <avr/pgmspace.h>
-
 #include <SdFat.h>
-
 #include <SPI.h>
-//#include <Adafruit_GFX.h>
 #include <Adafruit_PCD8544.h>
-// #include <EEPROM.h>
-//#include <SoftwareSerial.h> 
 
 //
 // SD Card
 //
 
-#define SDCARD_CHIP_SELECT 53
-
 SdFat SD;
 SdFile root;
+SdFile init_file;
 
 boolean fastLoad = false; 
 
 //
-// hardware configuration / wiring
+// Nokia Display 
 //
 
-#define RESET  49 // soft reset 
+Adafruit_PCD8544 display = Adafruit_PCD8544(NOKIA5, NOKIA4, NOKIA3, NOKIA2, NOKIA1); 
 
 //
-// status LEDs
-//
- 
-#define CARRY_LED     38
-#define ZERO_LED      36
-#define CLOCK_1HZ_LED 34
-
-//
-// LCD Backlight
-// 
-
-#define LIGHT_LED 35
-
-//
-// 1 Hz clock digital output
-//
-
-#define CLOCK_OUT 7 
-
-//
-// DOT digital output
-//
-
-#define DOT_LED_1 40
-#define DOT_LED_2 42
-#define DOT_LED_3 44
-#define DOT_LED_4 46
-
-
-#define DOT_1 31 
-#define DOT_2 29 
-#define DOT_3 27 
-#define DOT_4 25
-
-//
-// DIN digital input
-//
-
-#define DIN_1 24
-#define DIN_2 26
-#define DIN_3 28
-#define DIN_4 30
-
-//
-// for initialization of random generator
-//
-
-#define RANDOM_ANALOG_PIN A5
-
-//
-// Nokia display 
-//
-
-Adafruit_PCD8544 display = Adafruit_PCD8544(6, 5, 4, 3, 2);
-
-#define DISP_DELAY 200
-
-//
-// Function Push Buttons (not yet)
+// HEX 4x4 Matrix Keypad 
 //
 
 #define NO_KEY 0 
-
-//
-// HEX 4x4 matrix keypad 
-//
-
 
 #define HEX_KEYPAD_ROWS 4
 #define HEX_KEYPAD_COLS 4
@@ -138,11 +76,11 @@ byte hex_keys[HEX_KEYPAD_ROWS][HEX_KEYPAD_COLS] = { // plus one because 0 = no k
   {1, 2, 3, 4}
 };
 
-byte hex_keypad_col_pins[HEX_KEYPAD_COLS] = {14, 12, 10, 8}; // columns
-byte hex_keypad_row_pins[HEX_KEYPAD_ROWS] = {15, 13, 11, 9}; // rows
+byte hex_keypad_col_pins[HEX_KEYPAD_COLS] = HEX_COL_PINS; // columns
+byte hex_keypad_row_pins[HEX_KEYPAD_ROWS] = HEX_ROW_PINS; // rows
 
 //
-// Function 4x4 matrix keypad 
+// Function 4x4 Matrix Keypad 
 //
 
 #define CCE  1 
@@ -179,12 +117,8 @@ byte fn_keys[FN_KEYPAD_ROWS][FN_KEYPAD_COLS] = {
   {CCE,  PGM,  BACK,  LIGHT }
 };
 
-byte fn_keypad_row_pins[FN_KEYPAD_ROWS] = {23, 21, 19, 17}; 
-byte fn_keypad_col_pins[FN_KEYPAD_COLS] = {22, 20, 18, 16}; 
-
-//
-// end of hardware configuration
-//
+byte fn_keypad_col_pins[FN_KEYPAD_COLS] = FN_COL_PINS ; 
+byte fn_keypad_row_pins[FN_KEYPAD_ROWS] = FN_ROW_PINS ; 
 
 //
 // Display mode
@@ -200,12 +134,15 @@ enum LCDmode {
   REGAR
 };
 
-LCDmode displayMode = MEM;
+LCDmode init_displayMode = MEM;
+
+LCDmode displayMode = init_displayMode;
 
 typedef char LCDLine[15]; // +1 for End of String!
 
 LCDLine mnemonic;
 LCDLine file;
+LCDLine autoload_file;
 
 int lcdCursor = 0;
 
@@ -275,7 +212,9 @@ boolean carry = false;
 boolean zero = false;
 boolean error = false;
 
-boolean light_led = true;
+boolean init_light_led = true;
+
+boolean light_led = init_light_led;
 
 //
 // DIN / DOT
@@ -366,8 +305,12 @@ boolean ignoreBreakpointOnce = false;
 // CPU Throttle
 //
 
-int cpu_delay = 0; 
-int cpu_speed = 0; 
+int cpu_delay_delta = 5; 
+int init_cpu_delay = 0; 
+int cpu_delay = init_cpu_delay; 
+
+//int cpu_speed = 0; 
+
 boolean cpu_changed = false; 
 
 //
@@ -602,6 +545,18 @@ byte readDIN() {
 //
 //
 
+void clearFileBuffer() {
+
+  for (int i = 0; i < 14; i++)
+    file[i] = ' ';
+
+  file[14] = 0;
+
+  lcdCursor = 0;
+
+}
+
+
 int selectFileNo(int no) {
 
   int count = 0;
@@ -729,8 +684,16 @@ int askQuestion(String q) {
  
     display.clearDisplay();
     setTextSize(2); 
-    displaySetCursor(0, 1);	
+    displaySetCursor(0, 0);	
     display.print(q);
+    displaySetCursor(0, 1);
+    setTextSize(1); 
+    sep(); 
+    displaySetCursor(0, 4);	
+    display.print("  ENTER YES");
+    displaySetCursor(0, 5);	
+    display.print("  CANCEL NO");
+
     display.display(); 
 
     curFuncKey = NO_KEY;
@@ -952,6 +915,12 @@ void loadProgram() {
     return;
   }
 
+  loadProgram1(false); 
+
+}
+
+void loadProgram1(boolean load_autoload_file) {
+
   display.clearDisplay();
   setTextSize(1); 
   displaySetCursor(0, 0);
@@ -967,7 +936,8 @@ void loadProgram() {
 
   SdFile myFile;
 
-  myFile.open( file, FILE_READ);
+  myFile.open( load_autoload_file ? autoload_file : file, FILE_READ);
+  fastLoad |= load_autoload_file; 
 
   int count = 0;
   int firstPc = -1;
@@ -1014,7 +984,6 @@ void loadProgram() {
         }
 
         int decoded = decodeHex(b);
-
 	
         if ( decoded == -1) {
           display.clearDisplay();
@@ -1082,13 +1051,103 @@ void loadProgram() {
 
   } else {
 
-    announce(0, 1, "ERROR"); 
+    pc = oldPc; 
+
+    if (load_autoload_file) {
+      // no problem if autoload not found...
+    } else {
+      announce(0, 1, "ERROR"); 
+    }
+
+    reset(); 
+    return; 
 
   }
   
   reset();
   pc = firstPc;
 
+}
+
+
+
+int initfile_readInt() {   
+    int n = 0; 
+    while (true) {
+       int x = init_file.read(); 
+       if (x == -1)
+          return n; 
+       if ( x == ' ') {
+	 return n;
+       } else {
+          n = n*10 + decodeHex(x); 
+       }
+    }	      
+}
+
+void initfile_readAutorunFilename() {   
+    int n = 0; 
+    while (true) {
+       autoload_file[n] = 0; 
+       int x = init_file.read(); 
+       if (x == -1 || x == ' ' || n == 14) {
+	 return; 
+       } else {
+	 autoload_file[n++] = (char) x; 
+       }
+    }	      
+}
+
+void loadMicrotronicInitFile() {
+
+  init_file.open( "MICRO.INI", FILE_READ);
+
+  if ( init_file.isOpen()) {
+
+      init_cpu_delay = initfile_readInt();
+      cpu_delay_delta = initfile_readInt(); 
+      init_light_led = initfile_readInt(); 
+      init_displayMode = (LCDmode) initfile_readInt();       
+      initfile_readAutorunFilename();       
+      init_file.close();
+
+      display.clearDisplay();
+      setTextSize(1); 
+      displaySetCursor(0, 0);
+      display.print("* MICRO.INI *");
+      displaySetCursor(0, 1);
+      sep(); 
+      displaySetCursor(0, 2);
+      display.print("CPU ");
+      display.print(init_cpu_delay);
+      displaySetCursor(0, 3);
+      display.print("CPU DELTA ");
+      display.print(cpu_delay_delta);
+      displaySetCursor(0, 4);
+      display.print("LIGHT ");
+      display.print(init_light_led);
+      displaySetCursor(0, 5);
+      display.print(autoload_file);
+      display.display(); 
+      delay(2000); 
+  } else {
+    display.clearDisplay();
+    setTextSize(2); 
+    displaySetCursor(0,0);
+    display.print("SD OK!");
+    setTextSize(1); 
+    displaySetCursor(0, 2);
+    sep(); 
+    displaySetCursor(0, 3);
+    display.print("  INIT FILE");
+    displaySetCursor(0, 4);
+    display.print("* MICRO.INI *");
+    displaySetCursor(0, 5);
+    display.print("  NOT FOUND!");
+    display.display(); 
+    delay(2000);
+  }
+ 
 }
 
 
@@ -1384,12 +1443,14 @@ void displayStatus() {
   //
   //
 
+  #ifndef MICRO_SECOND_GEN_BOARD
   digitalWrite(CLOCK_OUT, clock1hz);
 
   digitalWrite(DOT_1, ! (outputs & 1));
   digitalWrite(DOT_2, ! (outputs & 2));
   digitalWrite(DOT_3, ! (outputs & 4));
   digitalWrite(DOT_4, ! (outputs & 8));
+  #endif 
 
   //
   // 
@@ -1702,7 +1763,7 @@ void LCDLogo() {
 
   sep(); 
   displaySetCursor(0, 1);
-  display.print("Busch 2090 V");
+  display.print("Busch 2090 V-");
   display.print(VERSION);
   displaySetCursor(0, 2);
   display.print(" Microtronic  ");
@@ -1824,16 +1885,6 @@ void clearMnemonicBuffer() {
 }
 
 
-void clearFileBuffer() {
-
-  for (int i = 0; i < 14; i++)
-    file[i] = ' ';
-
-  file[14] = 0;
-
-  lcdCursor = 0;
-
-}
 
 void inputMnem(String string) {
 
@@ -1928,10 +1979,13 @@ void clearStack() {
 
 void reset() {
 
+  light_led = init_light_led; 
+  digitalWrite(LIGHT_LED, light_led);		
+
   currentMode = STOPPED;
   cursor = CURSOR_OFF;
 
-  cpu_delay = 0; 
+  cpu_delay = init_cpu_delay; 
 
   announce(1, 1, "RESET"); 
 
@@ -1965,7 +2019,7 @@ void reset() {
   inputs = 0;
   outputs = 0;  
 
-  displayMode = MEM;
+  displayMode = init_displayMode;
 
   showingDisplayFromReg = 0;
   showingDisplayDigits = 0;
@@ -2811,6 +2865,8 @@ void enterProgram(int pgm, int start) {
 
 void setup() {
 
+  strcpy((char*) "AUTO.MIC", autoload_file); 
+
   // Serial.begin(9600);
 
   pinMode(CLOCK_1HZ_LED, OUTPUT);
@@ -2848,7 +2904,7 @@ void setup() {
   //
 
   setTextSize(2);
-
+  
   if (! SD.begin(SDCARD_CHIP_SELECT)) {
     display.clearDisplay();
     displaySetCursor(0,1);
@@ -2856,11 +2912,7 @@ void setup() {
     display.display(); 
     delay(2000);
   } else {
-    display.clearDisplay();
-    displaySetCursor(0,1);
-    display.print("SD OK!");
-    display.display(); 
-    delay(2000);
+    loadMicrotronicInitFile(); 
   }
 
   //
@@ -2908,12 +2960,18 @@ void setup() {
   //
   // 
 
+  #ifndef MICRO_SECOND_GEN_BOARD
   pinMode(CLOCK_OUT, OUTPUT);
 
   pinMode(DOT_1, OUTPUT);
   pinMode(DOT_2, OUTPUT);
   pinMode(DOT_3, OUTPUT);
   pinMode(DOT_4, OUTPUT);
+  #endif 
+
+  //
+  //
+  // 
 
   pinMode(DIN_1, INPUT_PULLUP);
   pinMode(DIN_2, INPUT_PULLUP);
@@ -2933,12 +2991,15 @@ void setup() {
 
   lastClockTime = millis();
   last1HzTime = millis();
-
+    
   //
   //
   //
 
   reset(); 
+
+  // attempt to load autoload file: 
+  loadProgram1(true); 
 
 }
 
@@ -2962,13 +3023,13 @@ void loop() {
 
   if (currentMode == RUNNING && curFuncKey == UP) {
      cpu_changed = true; 
-     cpu_delay += 5; 
+     cpu_delay += cpu_delay_delta; 
      forceFullRefresh = true; 
   }		      
 
   if (currentMode == RUNNING && curFuncKey == DOWN) {
      cpu_changed = true; 
-     cpu_delay = cpu_delay < 5 ? 0 : cpu_delay - 5; 
+     cpu_delay = cpu_delay < cpu_delay_delta ? 0 : cpu_delay - cpu_delay_delta; 
      forceFullRefresh = true; 
   }		      
 
