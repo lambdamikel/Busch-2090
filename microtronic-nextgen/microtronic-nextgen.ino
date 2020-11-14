@@ -147,7 +147,7 @@ LCDLine autoloadsave_file;
 
 boolean init_autorun = false; 
 byte init_autorun_address = 0; 
-int autosave_every_seconds = 60; 
+int autosave_every_seconds = 0; 
 int autosave_ticker = 0; 
 
 int lcdCursor = 0;
@@ -1357,8 +1357,9 @@ void advanceTime() {
       delta -= 1000;
       
       timeSeconds1++;
-      
-      autosave_ticker++;       
+
+      if (autosave_every_seconds) 
+	autosave_ticker++;       
 
       if (timeSeconds1 > 9) {
         timeSeconds10++;
@@ -2217,7 +2218,8 @@ void start_running() {
 
 void check_for_autosave() {
 
-  if (autosave_ticker >= autosave_every_seconds ) {
+  if (autosave_every_seconds && 
+      autosave_ticker >= autosave_every_seconds ) {
     saveProgram1(true, false); 
     autosave_ticker = 0; 
     displayStatus(true); 
