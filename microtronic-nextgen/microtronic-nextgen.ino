@@ -1539,10 +1539,21 @@ void displayStatus(boolean force_refresh) {
   digitalWrite(ZERO_LED, zero);
   digitalWrite(CLOCK_1HZ_LED, clock1hz);
 
+  // normal output for Microtronic Next Generation Board
+  #ifndef MICRO_SECOND_GEN_BOARD
   digitalWrite(DOT_LED_1, outputs & 1);
   digitalWrite(DOT_LED_2, outputs & 2);
   digitalWrite(DOT_LED_3, outputs & 4);
   digitalWrite(DOT_LED_4, outputs & 8);
+  #endif 
+
+  // inverted output for Microtronic 2nd Generation board
+  #ifdef MICRO_SECOND_GEN_BOARD
+  digitalWrite(DOT_LED_1, ! (outputs & 1));
+  digitalWrite(DOT_LED_2, ! (outputs & 2));
+  digitalWrite(DOT_LED_3, ! (outputs & 4));
+  digitalWrite(DOT_LED_4, ! (outputs & 8));
+  #endif 
 
   //
   //
