@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
 
-  Version 11 (c) Michael Wessel, November 11th, 2020
+  Version 12 (c) Michael Wessel, November 11th, 2020
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -26,7 +26,8 @@
 
 */
 
-#define VERSION "B" 
+#define VERSION "12" 
+#define DATE "11-13-2020" 
 
 //
 //
@@ -142,10 +143,14 @@ typedef char LCDLine[15]; // +1 for End of String!
 
 LCDLine mnemonic;
 LCDLine file;
-LCDLine autoload_file;
+LCDLine autoloadsave_file;
+
+boolean init_autorun = false; 
+byte init_autorun_address = 0; 
+int autosave_every_seconds = 60; 
+int autosave_ticker = 0; 
 
 int lcdCursor = 0;
-
 int textSize = 1; 
 
 uint8_t status_row = 0; 
@@ -821,35 +826,64 @@ void saveProgram() {
   int aborted = createName();
 
   if ( aborted == -1 ) {
-    reset();
+    reset(false);
     pc = oldPc;
     return;
   }
 
-  fastLoad = ( askQuestion("Turbo?") == ENTER) ; 
+  saveProgram1(false, false); 
 
-  if (SD.exists(file)) {
-    announce(0,1,"REPLACE");
-  } else {
-    announce(0,1,"SAVING");
-  }
+  // and also save once more, AUTO.MIC for recovery:
+  saveProgram1(true, true); 
 
-  if (fastLoad) {
-    display.clearDisplay();
-    setTextSize(1); 
+
+}
+
+void saveProgram1(boolean autosave, boolean quiet) {
+
+  int oldPc = pc;
+
+  fastLoad |= autosave; 
+
+  fastLoad = autosave ||( askQuestion("Turbo?") == ENTER) ; 
+
+  if (! autosave) {
+    if (SD.exists(file)) {
+      if ( askQuestion("Rplace?") == ENTER ) {      
+	announce(0,1,"REPLACE");
+      } else {
+	announce(1,1,"CANCEL"); 
+	reset(false);
+	pc = oldPc;
+	return;
+      }
+    } else {
+      announce(0,1,"SAVING");
+    }
+
+    if (fastLoad) {
+      display.clearDisplay();
+      setTextSize(1); 
+      displaySetCursor(0, 0);
+      display.print("Saving");
+      displaySetCursor(0, 1);
+      sep(); 
+      displaySetCursor(0, 2);
+      display.print(file);
+      displaySetCursor(0, 3);
+      sep(); 
+    }
+
+    cursor = CURSOR_OFF;
+
+  } else if (! quiet) {
     displaySetCursor(0, 0);
-    display.print("Saving");
-    displaySetCursor(0, 1);
-    sep(); 
-    displaySetCursor(0, 2);
-    display.print(file);
-    displaySetCursor(0, 3);
-    sep(); 
+    display.print("***");    
+    display.display();
+    delay(200); 
   }
 
-  File myFile = SD.open( file , FILE_WRITE);
-
-  cursor = CURSOR_OFF;
+  File myFile = SD.open( autosave ? autoloadsave_file : file , FILE_WRITE);
 
   if (myFile) {
 
@@ -890,7 +924,8 @@ void saveProgram() {
       }
     }
 
-    announce(0, 1, "SAVED");
+    if (! autosave) 
+      announce(0, 1, "SAVED");
 
   } else {
 
@@ -900,7 +935,9 @@ void saveProgram() {
 
   myFile.close();
 
-  reset();
+  if (! autosave) 
+    reset(false);
+
   pc = oldPc;
 
 }
@@ -911,33 +948,35 @@ void loadProgram() {
   int aborted = selectFile();
 
   if ( aborted == -1 ) {
-    reset();
+    reset(false);
     return;
   }
 
-  loadProgram1(false); 
+  loadProgram1(false, false); 
 
 }
 
-void loadProgram1(boolean load_autoload_file) {
+void loadProgram1(boolean load_autoloadsave_file, boolean quiet) {
 
-  display.clearDisplay();
-  setTextSize(1); 
-  displaySetCursor(0, 0);
-  display.print("Loading");
-  displaySetCursor(0, 1);
-  sep(); 
-  displaySetCursor(0, 2);
-  display.print(file);
-  displaySetCursor(0, 3);
-  sep(); 
+  if (! quiet) {
+    display.clearDisplay();
+    setTextSize(1); 
+    displaySetCursor(0, 0);
+    display.print("Loading");
+    displaySetCursor(0, 1);
+    sep(); 
+    displaySetCursor(0, 2);
+    display.print(file);
+    displaySetCursor(0, 3);
+    sep(); 
 
-  cursor = CURSOR_OFF;
+    cursor = CURSOR_OFF;
+  }
 
   SdFile myFile;
 
-  myFile.open( load_autoload_file ? autoload_file : file, FILE_READ);
-  fastLoad |= load_autoload_file; 
+  myFile.open( load_autoloadsave_file ? autoloadsave_file : file, FILE_READ);
+  fastLoad |= load_autoloadsave_file; 
 
   int count = 0;
   int firstPc = -1;
@@ -986,19 +1025,21 @@ void loadProgram1(boolean load_autoload_file) {
         int decoded = decodeHex(b);
 	
         if ( decoded == -1) {
-          display.clearDisplay();
-	  setTextSize(2); 
-          displaySetCursor(0, 0);
-          display.print("ERROR@");
-          displaySetCursor(0, 1);
-          display.print(pc, HEX);
-          display.print(':');
-          display.print(count, HEX);
-          displaySetCursor(0, 2);
-          display.print((char) b, HEX);
-	  display.display(); 
-          delay(3000);
-	  reset();
+	  if (! quiet) {
+	    display.clearDisplay();
+	    setTextSize(2); 
+	    displaySetCursor(0, 0);
+	    display.print("ERROR@");
+	    displaySetCursor(0, 1);
+	    display.print(pc, HEX);
+	    display.print(':');
+	    display.print(count, HEX);
+	    displaySetCursor(0, 2);
+	    display.print((char) b, HEX);
+	    display.display(); 
+	    delay(3000);
+	  }
+	  reset(quiet);
 	  pc = firstPc;
 	  return; 
         }
@@ -1042,30 +1083,34 @@ void loadProgram1(boolean load_autoload_file) {
 	  display.display(); 
 	}
       }
-
     }
 
     myFile.close();
     pc = firstPc;
-    announce(0, 1, "LOADED");
+
+    if (! quiet) 
+      announce(0, 1, "LOADED");
+
+    reset(quiet);
+    pc = firstPc;
+    return;
 
   } else {
 
+    if (! quiet) 
+      announce(0, 1, "ERROR");    
+
+    reset(quiet); 
     pc = oldPc; 
 
-    if (load_autoload_file) {
-      // no problem if autoload not found...
-    } else {
-      announce(0, 1, "ERROR"); 
-    }
-
-    reset(); 
-    return; 
+    return;
 
   }
-  
-  reset();
-  pc = firstPc;
+
+  // file couldn't be opened: 
+
+  reset(quiet); 
+  pc = oldPc; 
 
 }
 
@@ -1085,20 +1130,35 @@ int initfile_readInt() {
     }	      
 }
 
-void initfile_readAutorunFilename() {   
+
+int initfile_readHex() {   
     int n = 0; 
     while (true) {
-       autoload_file[n] = 0; 
        int x = init_file.read(); 
-       if (x == -1 || x == ' ' || n == 14) {
-	 return; 
+       if (x == -1)
+          return n; 
+       if ( x == ' ') {
+	 return n;
        } else {
-	 autoload_file[n++] = (char) x; 
+          n = n*16 + decodeHex(x); 
        }
     }	      
 }
 
-void loadMicrotronicInitFile() {
+void initfile_readAutorunFilename() {   
+    int n = 0; 
+    while (true) {
+       autoloadsave_file[n] = 0; 
+       int x = init_file.read(); 
+       if (x == -1 || x == ' ' || n == 14) {
+	 return; 
+       } else {
+	 autoloadsave_file[n++] = (char) x; 
+       }
+    }	      
+}
+
+boolean loadMicrotronicInitFile() {
 
   init_file.open( "MICRO.INI", FILE_READ);
 
@@ -1107,14 +1167,17 @@ void loadMicrotronicInitFile() {
       init_cpu_delay = initfile_readInt();
       cpu_delay_delta = initfile_readInt(); 
       init_light_led = initfile_readInt(); 
-      init_displayMode = (LCDmode) initfile_readInt();       
+      init_displayMode = (LCDmode) initfile_readInt(); 
+      autosave_every_seconds = initfile_readInt(); 
+      init_autorun = initfile_readInt(); 
+      init_autorun_address = initfile_readHex();       
       initfile_readAutorunFilename();       
       init_file.close();
 
       display.clearDisplay();
       setTextSize(1); 
       displaySetCursor(0, 0);
-      display.print("* MICRO.INI *");
+      display.print("MICRO.INI 1/2");
       displaySetCursor(0, 1);
       sep(); 
       displaySetCursor(0, 2);
@@ -1126,10 +1189,31 @@ void loadMicrotronicInitFile() {
       displaySetCursor(0, 4);
       display.print("LIGHT ");
       display.print(init_light_led);
-      displaySetCursor(0, 5);
-      display.print(autoload_file);
       display.display(); 
       delay(2000); 
+
+      display.clearDisplay();
+      setTextSize(1); 
+      displaySetCursor(0, 0);
+      display.print("MICRO.INI 2/2");
+      displaySetCursor(0, 1);
+      sep(); 
+      displaySetCursor(0, 2);
+      display.print("AUTOSAVE ");
+      display.print(autosave_every_seconds);
+      displaySetCursor(0, 3);
+      display.print("AUTORUN ");
+      display.print(init_autorun);
+      displaySetCursor(0, 4);
+      display.print("AUTO ADDR ");
+      display.print(init_autorun_address, HEX);
+      displaySetCursor(0, 5);
+      display.print(autoloadsave_file);
+      display.display(); 
+      delay(2000); 
+
+      return true; 
+
   } else {
     display.clearDisplay();
     setTextSize(2); 
@@ -1146,6 +1230,9 @@ void loadMicrotronicInitFile() {
     display.print("  NOT FOUND!");
     display.display(); 
     delay(2000);
+
+    return false; 
+
   }
  
 }
@@ -1263,6 +1350,9 @@ void advanceTime() {
       delta -= 1000;
       
       timeSeconds1++;
+      
+      autosave_ticker++;       
+
       if (timeSeconds1 > 9) {
         timeSeconds10++;
         timeSeconds1 = 0;
@@ -1412,9 +1502,16 @@ void showDISP(uint8_t col) {
 //
 //
 
-void displayStatus() {
+void displayStatus(boolean force_refresh) {
 
-  refreshLCD = false;
+  refreshLCD = force_refresh;
+
+  if (force_refresh) {
+    display.clearDisplay(); 
+    display.display(); 
+    refreshLCD = true;
+    forceFullRefresh = true; 
+  }
 
   unsigned long time = millis();
   unsigned long delta = time - lastDispTime;
@@ -1594,7 +1691,7 @@ void displayStatus() {
     // this is only updated if needed (change in display mode or address) 
     //
 
-    if ( pc != lastPc || jump || oneStepOnly ) {
+    if ( pc != lastPc || jump || oneStepOnly || force_refresh) {
 
       lastPc = pc;
 
@@ -1760,27 +1857,37 @@ void displayStatus() {
 void LCDLogo() {
 
   display.clearDisplay();; 
-
   sep(); 
   displaySetCursor(0, 1);
-  display.print("Busch 2090 V-");
-  display.print(VERSION);
+  display.print("    Busch     ");
   displaySetCursor(0, 2);
-  display.print(" Microtronic  ");
+  display.print("  Microtronic ");
   displaySetCursor(0, 3);
-  display.print(" 2560 Emulator");
+  display.print("2nd Generation");
   displaySetCursor(0, 4);
   sep(); 
   displaySetCursor(0, 5);
-  display.print("Baukastenforum");
-
-  
+  display.print("  Version ");
+  display.print(VERSION); 
   display.display(); 
-
   delay(2000);   
 
   display.clearDisplay();; 
+  displaySetCursor(0, 0);
+  display.print("(C) ");
+  display.print(DATE); 
+  sep();
+  displaySetCursor(0, 2);
+  display.print("Frank DeJaeger");
+  displaySetCursor(0, 3);
+  display.print("Manfred Henf");
+  displaySetCursor(0, 4);
+  display.print("Michael Wessel");
+  displaySetCursor(0, 5);
+  display.print("BAUKASTENFORUM");
+  sep();
   display.display(); 
+  delay(1000);   
 
 }
 
@@ -1977,7 +2084,7 @@ void clearStack() {
   sp = 0;
 }
 
-void reset() {
+void reset(boolean quiet) {
 
   light_led = init_light_led; 
   digitalWrite(LIGHT_LED, light_led);		
@@ -1987,7 +2094,8 @@ void reset() {
 
   cpu_delay = init_cpu_delay; 
 
-  announce(1, 1, "RESET"); 
+  if (! quiet) 
+    announce(1, 1, "RESET"); 
 
   for (currentReg = 0; currentReg < 16; currentReg++) {
     reg[currentReg] = 0;
@@ -2003,7 +2111,7 @@ void reset() {
   lastShowingDisplayFromReg = 0;
   lastShowingDisplayDigits = 0; 
   lastDispOff = false;
-  
+
   currentReg = 0;
   currentInputRegister = 0;
 
@@ -2026,6 +2134,10 @@ void reset() {
 
   dispOff = false;
   lastInstructionWasDisp = false;
+
+  autosave_ticker = 0; 
+
+  displayStatus(true); 
 
 }
 
@@ -2050,7 +2162,7 @@ void clearMem() {
   arg1[pc] = 0;
   arg2[pc] = 0;
 
-  reset();
+  reset(false);
 
 }
 
@@ -2071,7 +2183,7 @@ void loadNOPs() {
   arg1[pc] = 0;
   arg2[pc] = 1;
 
-  reset();
+  reset(false);
 
 }
 
@@ -2079,7 +2191,35 @@ void loadNOPs() {
 //
 //
 
+void start_running() {
+    
+  display.clearDisplay();
+  display.display();
+  
+  currentMode = RUNNING;
+  cursor = CURSOR_OFF;
+  oneStepOnly = false;
+  dispOff = false;
+  ignoreBreakpointOnce = true;
+  
+  clearStack();
+  jump = true; // don't increment PC !
+  //step();
+
+}
+
+void check_for_autosave() {
+
+  if (autosave_ticker >= autosave_every_seconds ) {
+    saveProgram1(true, false); 
+    autosave_ticker = 0; 
+    displayStatus(true); 
+  }
+
+}
+
 void interpret() {
+
 
   if ( curFuncKey == HALT ) {
 
@@ -2095,18 +2235,7 @@ void interpret() {
 
   } else if  (curFuncKey == RUN ) {
 
-      display.clearDisplay();
-      display.display();
-
-      currentMode = RUNNING;
-      cursor = CURSOR_OFF;
-      oneStepOnly = false;
-      dispOff = false;
-      ignoreBreakpointOnce = true;
-
-      clearStack();
-      jump = true; // don't increment PC !
-      //step();
+      start_running(); 
 
   } else if ( curFuncKey == DOWN ) {
 
@@ -2227,9 +2356,13 @@ void interpret() {
 
   } else if (currentMode == STOPPED ) {
 
+      check_for_autosave(); 
+
       cursor = CURSOR_OFF;
 
   } else if (currentMode == ENTERING_ADDRESS_HIGH ) {
+
+      check_for_autosave(); 
 
       if (keypadPressed) {
         cursor = 1;
@@ -2239,6 +2372,8 @@ void interpret() {
 
   } else if ( currentMode == ENTERING_ADDRESS_LOW ) {
 
+      check_for_autosave(); 
+
       if (keypadPressed) {
         cursor = 2;
         pc += curHexKey;
@@ -2246,6 +2381,8 @@ void interpret() {
       }
       
   } else if ( currentMode == ENTERING_OP ) {
+
+      check_for_autosave(); 
 
       if (keypadPressed) {
         cursor = 3;
@@ -2255,6 +2392,8 @@ void interpret() {
 
   } else if ( currentMode == ENTERING_ARG1 ) {
 
+      check_for_autosave(); 
+
       if (keypadPressed) {
         cursor = 4;
         arg1[pc] = curHexKey;
@@ -2262,6 +2401,8 @@ void interpret() {
       }
 
   } else if ( currentMode == ENTERING_ARG2 ) {
+
+      check_for_autosave(); 
 
       if (keypadPressed) {
         cursor = 2;
@@ -2410,7 +2551,7 @@ void run() {
 
   if (!jump ) {
     pc++;
-    displayStatus();
+    displayStatus(false);
   }
 	
   if ( !oneStepOnly && breakAt == pc && breakAt > 0 && ! ignoreBreakpointOnce )  {
@@ -2865,7 +3006,9 @@ void enterProgram(int pgm, int start) {
 
 void setup() {
 
-  strcpy((char*) "AUTO.MIC", autoload_file); 
+  boolean loaded_initfile = false; 
+
+  strcpy((char*) "AUTO.MIC", autoloadsave_file); 
 
   // Serial.begin(9600);
 
@@ -2912,7 +3055,7 @@ void setup() {
     display.display(); 
     delay(2000);
   } else {
-    loadMicrotronicInitFile(); 
+    loaded_initfile = loadMicrotronicInitFile();     
   }
 
   //
@@ -2985,21 +3128,39 @@ void setup() {
   pinMode(RANDOM_ANALOG_PIN,       INPUT);
   randomSeed(analogRead(RANDOM_ANALOG_PIN));
 
+    
+  //
+  //
+  //
+
+  // attempt to load autoload file: 
+  // this also ALWAYS does a quiet reset... 
+  loadProgram1(true, true); 
+
+  // run if specified in init file: 
+  if (loaded_initfile) {
+
+    pc = init_autorun_address; 
+    lastPc = pc + 1; 
+
+    //
+    // also force AUTORUN if RUN key is held down during boot! 
+    //
+
+    readFunctionKeys();
+
+    if (curFuncKeyRaw == RUN || init_autorun) {      
+      start_running();       
+    }
+  }
+
   //
   // 
   //
 
   lastClockTime = millis();
   last1HzTime = millis();
-    
-  //
-  //
-  //
 
-  reset(); 
-
-  // attempt to load autoload file: 
-  loadProgram1(true); 
 
 }
 
@@ -3037,7 +3198,7 @@ void loop() {
   //
   //
 
-  displayStatus();
+  displayStatus(false);
   interpret();
 
   //
@@ -3045,7 +3206,7 @@ void loop() {
   //
 
   if (!digitalRead(RESET)) {
-    reset();
+    reset(false);
   }
 
 }
