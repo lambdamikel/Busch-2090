@@ -1188,13 +1188,13 @@ boolean loadMicrotronicInitFile() {
       displaySetCursor(0, 1);
       sep(); 
       displaySetCursor(0, 2);
-      display.print("CPU ");
+      display.print("CPU       ");
       display.print(init_cpu_delay);
       displaySetCursor(0, 3);
       display.print("CPU DELTA ");
       display.print(cpu_delay_delta);
       displaySetCursor(0, 4);
-      display.print("LIGHT ");
+      display.print("LIGHT     ");
       display.print(init_light_led);
       display.display(); 
       delay(2000); 
@@ -1206,10 +1206,10 @@ boolean loadMicrotronicInitFile() {
       displaySetCursor(0, 1);
       sep(); 
       displaySetCursor(0, 2);
-      display.print("AUTOSAVE ");
+      display.print("AUTOSAVE  ");
       display.print(autosave_every_seconds);
       displaySetCursor(0, 3);
-      display.print("AUTORUN ");
+      display.print("AUTORUN   ");
       display.print(init_autorun);
       displaySetCursor(0, 4);
       display.print("AUTO ADDR ");
