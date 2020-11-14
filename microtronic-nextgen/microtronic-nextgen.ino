@@ -27,8 +27,8 @@
 */
 
 #define VERSION "12" 
-#define DATE "11-13-2020" 
-
+#define DATE "11-14-2020"  
+ 
 //
 //
 //
@@ -836,12 +836,13 @@ void saveProgram() {
   // and also save once more, AUTO.MIC for recovery:
   saveProgram1(true, true); 
 
-
 }
 
-void saveProgram1(boolean autosave, boolean quiet) {
+void saveProgram1(boolean autosave, boolean quiet) {   
 
   int oldPc = pc;
+  // always start at 0 for save! to confusing otherwise! 
+  pc = 0; 
 
   fastLoad |= autosave; 
 
@@ -851,6 +852,7 @@ void saveProgram1(boolean autosave, boolean quiet) {
     if (SD.exists(file)) {
       if ( askQuestion("Rplace?") == ENTER ) {      
 	announce(0,1,"REPLACE");
+	SD.remove(file); 
       } else {
 	announce(1,1,"CANCEL"); 
 	reset(false);
@@ -881,6 +883,12 @@ void saveProgram1(boolean autosave, boolean quiet) {
     display.print("***");    
     display.display();
     delay(200); 
+  }
+
+  if (autosave) {
+   if (SD.exists(autoloadsave_file)) {
+   	SD.remove(autoloadsave_file);
+   }	
   }
 
   File myFile = SD.open( autosave ? autoloadsave_file : file , FILE_WRITE);
@@ -941,7 +949,6 @@ void saveProgram1(boolean autosave, boolean quiet) {
   pc = oldPc;
 
 }
-
 
 void loadProgram() {
 
