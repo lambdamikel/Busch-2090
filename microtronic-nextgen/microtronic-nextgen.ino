@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
 
-  Version 15 (c) Michael Wessel, November 16th, 2020
+  Version 16 (c) Michael Wessel, November 16th, 2020
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -26,7 +26,7 @@
 
 */
 
-#define VERSION "15" 
+#define VERSION "16" 
 #define DATE "11-16-2020"  
  
 //
@@ -930,9 +930,7 @@ void saveProgram1(boolean autosave, boolean quiet) {
 
 	int nibble = bit;
 
-	// note: inverted here over original 2095 emulator sketch, 
-	// because of pullups! 
-	if ( digitalRead(BUSCH_OUT3) ) {
+	if ( ! digitalRead(BUSCH_OUT3) ) {
 	  break;
 	}
 
@@ -3152,9 +3150,7 @@ int clock(int pin) {
 
   delay(READ_CLOCK_DELAY);
 
-  // note: inverted here over original 2095 emulator sketch, 
-  // because of pullups! 
-  int bit = ! digitalRead(BUSCH_OUT1);
+  int bit = digitalRead(BUSCH_OUT1);
 
   return bit;
 
