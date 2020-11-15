@@ -3129,7 +3129,7 @@ void enterProgram(int pgm, int start) {
 
 //
 // Auxiliary Operations for 2095 Emulation 
-// PGM2 Save from Microtronic -> SDCard is not tested yet
+// Both PGM1 and PGM2 have been tested
 // 
 
 int clock(int pin) {
