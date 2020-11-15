@@ -1006,6 +1006,12 @@ void saveProgram1(boolean autosave, boolean quiet) {
 
 void loadProgram() {
 
+  // to enable loading via PGM1 Microtronic transfer... 
+  // note inverted logic otherwise, they have to start with 
+  // 0. First enter PGM1 on Microtronic 2nd Generation, 
+  // then PGM 1 on Microtronic!
+  resetPins();
+
   int aborted = selectFile();
 
   if ( aborted == -1 ) {
@@ -1147,25 +1153,25 @@ void loadProgram1(boolean load_autoloadsave_file, boolean quiet) {
 	      if (transfer_mode) { 
 		delay(WRITE_DELAY_NEXT_VALUE);
 		storeNibble(decoded, true);           
-	      } else 
-		op[pc] = decoded; 
+	      } 
+	      op[pc] = decoded; 
 	      count = 1; 
 	      break;
 
             case 1 : 
-	      if (transfer_mode) 
-		storeNibble(decoded, true);           
-	      else
-		arg1[pc] = decoded; 
+	      if (transfer_mode) {
+		storeNibble(decoded, false);           
+	      }
+	      arg1[pc] = decoded; 
 	      count = 2; 
 	      break;
 
             case 2 : 
 	      if (transfer_mode) {
-		storeNibble(decoded, true);           	      
+		storeNibble(decoded, false);           	      
 		delay(WRITE_CLOCK_DELAY);
-	      } else 
-		arg2[pc] = decoded; 
+	      }
+	      arg2[pc] = decoded; 
 	      count = 0;
 
 	      if (pc == 255)    
