@@ -105,10 +105,10 @@
 //
 
 #ifdef MICRO_SECOND_GEN_BOARD 
-#define BUSCH_IN1 DOT_1
-#define BUSCH_IN2 DOT_2
-#define BUSCH_IN3 DOT_3
-#define BUSCH_IN4 DOT_4
+#define BUSCH_IN1 DOT_LED_1
+#define BUSCH_IN2 DOT_LED_2
+#define BUSCH_IN3 DOT_LED_3
+#define BUSCH_IN4 DOT_LED_4
 #endif 
 
 #ifndef MICRO_SECOND_GEN_BOARD 

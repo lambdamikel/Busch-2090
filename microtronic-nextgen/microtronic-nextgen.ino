@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
 
-  Version 13 (c) Michael Wessel, November 15th, 2020
+  Version 14 (c) Michael Wessel, November 16th, 2020
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -26,8 +26,8 @@
 
 */
 
-#define VERSION "13" 
-#define DATE "11-15-2020"  
+#define VERSION "14" 
+#define DATE "11-16-2020"  
  
 //
 //
@@ -3147,12 +3147,26 @@ int clock(int pin) {
 
 void clockWrite(int pin, int bit) {
 
+#ifndef MICRO_SECOND_GEN_BOARD 
   digitalWrite(BUSCH_IN1, bit);
+#else
+  digitalWrite(BUSCH_IN1, ! bit);
+#endif
 
+#ifndef MICRO_SECOND_GEN_BOARD 
   digitalWrite(pin, HIGH);
+#else
+  digitalWrite(pin, LOW);
+#endif 
+
   delay(WRITE_CLOCK_DELAY);
 
+#ifndef MICRO_SECOND_GEN_BOARD 
   digitalWrite(pin, LOW);
+#else 
+  digitalWrite(pin, HIGH);
+#endif 
+
   delay(WRITE_CLOCK_DELAY);
 
 }
@@ -3161,32 +3175,63 @@ void storeNibble(byte nibble, boolean first) {
 
   if (first) {
 
+#ifndef MICRO_SECOND_GEN_BOARD 
     digitalWrite(BUSCH_IN1, nibble & 0b0001);
+#else 
+    digitalWrite(BUSCH_IN1, ! (nibble & 0b0001));
+#endif 
 
+#ifndef MICRO_SECOND_GEN_BOARD 
     digitalWrite(BUSCH_IN3, LOW);
+#else 
+    digitalWrite(BUSCH_IN3, HIGH);
+#endif 
+
     delay(WRITE_CLOCK_DELAY);
 
+#ifndef MICRO_SECOND_GEN_BOARD 
     digitalWrite(BUSCH_IN3, HIGH);
+#else 
+    digitalWrite(BUSCH_IN3, LOW);
+#endif 
+
     delay(WRITE_CLOCK_DELAY);
 
   } else {
 
+#ifndef MICRO_SECOND_GEN_BOARD 
     clockWrite(BUSCH_IN2, nibble & 0b0001);
+#else
+    clockWrite(BUSCH_IN2, ! (nibble & 0b0001));
+#endif 
 
   }
 
+#ifndef MICRO_SECOND_GEN_BOARD 
   clockWrite(BUSCH_IN2, nibble & 0b0010);
   clockWrite(BUSCH_IN2, nibble & 0b0100);
   clockWrite(BUSCH_IN2, nibble & 0b1000);
+#else 
+  clockWrite(BUSCH_IN2, ! (nibble & 0b0010));
+  clockWrite(BUSCH_IN2, ! (nibble & 0b0100));
+  clockWrite(BUSCH_IN2, ! (nibble & 0b1000));
+#endif 
 
 }
 
 void resetPins() {
 
+#ifndef MICRO_SECOND_GEN_BOARD 
   digitalWrite(BUSCH_IN4, LOW);
   digitalWrite(BUSCH_IN3, LOW);
   digitalWrite(BUSCH_IN2, LOW);
   digitalWrite(BUSCH_IN1, LOW);
+#else 
+  digitalWrite(BUSCH_IN4, HIGH);
+  digitalWrite(BUSCH_IN3, HIGH);
+  digitalWrite(BUSCH_IN2, HIGH);
+  digitalWrite(BUSCH_IN1, HIGH);
+#endif 
 
 }
 
