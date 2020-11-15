@@ -120,7 +120,8 @@
 
 
 #define BUSCH_OUT1 DIN_1
-#define BUSCH_OUT2 DIN_2
+//not needed
+//#define BUSCH_OUT2 DIN_2
 #define BUSCH_OUT3 DIN_3 
 
 
@@ -132,4 +133,3 @@
 #define WRITE_CLOCK_DELAY 10 // LOAD PGM1 Clock Delay 
 #define READ_DELAY_NEXT_VALUE 200  // SAVE PGM2 Next Word Delay 
 #define WRITE_DELAY_NEXT_VALUE 180 // LOAD PGM1 Next Word Delay
-
