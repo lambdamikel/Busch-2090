@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
 
-  Version 12 (c) Michael Wessel, November 11th, 2020
+  Version 13 (c) Michael Wessel, November 15th, 2020
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -26,8 +26,8 @@
 
 */
 
-#define VERSION "12" 
-#define DATE "11-14-2020"  
+#define VERSION "13" 
+#define DATE "11-15-2020"  
  
 //
 //
@@ -52,8 +52,6 @@
 SdFat SD;
 SdFile root;
 SdFile init_file;
-
-boolean fastLoad = false; 
 
 //
 // Nokia Display 
@@ -670,10 +668,6 @@ int selectFile() {
       announce(1,1,"CANCEL"); 
       return -1; 
     } else if (curPushButton == ENTER) {
-
-      fastLoad = ( askQuestion("Turbo?") == ENTER) ; 
-      announce(0,1,"LOADING"); 
-
       return no; 
 
     } 
@@ -799,7 +793,6 @@ int createName() {
 	file[cursor++] = 'I';
 	file[cursor++] = 'C';
 	file[cursor++] = 0;	
-	announce(0,1,"SAVING"); 
 
 	return 0;
 	break; 
@@ -844,9 +837,16 @@ void saveProgram1(boolean autosave, boolean quiet) {
   // always start at 0 for save! to confusing otherwise! 
   pc = 0; 
 
-  fastLoad |= autosave; 
+  boolean fastLoad = false; 
+  boolean transfer_mode = !autosave ? ( askQuestion("2095?") == ENTER ) : false; 
 
-  fastLoad = autosave ||( askQuestion("Turbo?") == ENTER) ; 
+  if (! transfer_mode ) {
+    if (autosave) 
+      fastLoad = true; 
+    else 
+      fastLoad = ( askQuestion("Turbo?") == ENTER) ; 
+  } else 
+    fastLoad = false;   
 
   if (! autosave) {
     if (SD.exists(file)) {
@@ -893,6 +893,11 @@ void saveProgram1(boolean autosave, boolean quiet) {
 
   File myFile = SD.open( autosave ? autoloadsave_file : file , FILE_WRITE);
 
+  if (transfer_mode) {
+    resetPins();  
+    delay(READ_DELAY_NEXT_VALUE);
+  }
+  
   if (myFile) {
 
     myFile.print("# PC = ");
@@ -914,21 +919,67 @@ void saveProgram1(boolean autosave, boolean quiet) {
 	sep(); 
       }
 
-      myFile.print(op[i], HEX);
-      myFile.print(arg1[i], HEX);
-      myFile.print(arg2[i], HEX);
-      myFile.println();
+      if (transfer_mode) {
+	// read data from Microtronic 
 
-      if (i % 16 == 15)
-        myFile.println();
+	delay(READ_DELAY_NEXT_VALUE);
 
-      pc = i;
-      
-      if (! fastLoad) {
+	int bit = clock(BUSCH_IN4);
+
+	delay(READ_CLOCK_DELAY);
+
+	int nibble = bit;
+
+	if ( digitalRead(BUSCH_OUT3) ) {
+	  break;
+	}
+
 	setTextSize(2); 
-	status_row = 2; 
-	showMem(0); 
-	display.display(); 
+	displaySetCursor(0, 2);
+	display.print(pc / 16, HEX);
+	display.print(pc % 16, HEX);
+	display.print(" ");
+
+	for (int ibit = 1; ibit < 12; ibit++) {
+	  bit = clock(BUSCH_IN2);
+	  int pos = ibit % 4;
+	  nibble |= (bit << pos);
+	  if (pos == 3) {
+	    // here we have the read nibble: 
+	    myFile.print(nibble, 16);
+	    display.print(nibble,HEX); 
+	    display.display(); 
+	    nibble = 0;
+	  }
+	}
+
+	clock(BUSCH_IN2);
+	clock(BUSCH_IN2);
+
+	myFile.println();
+
+	if (i % 16 == 15)
+	  myFile.println();
+
+	pc = i;
+
+      } else {
+	myFile.print(op[i], HEX);
+	myFile.print(arg1[i], HEX);
+	myFile.print(arg2[i], HEX);
+	myFile.println();
+
+	if (i % 16 == 15)
+	  myFile.println();
+
+	pc = i;
+      
+	if (! fastLoad) {
+	  setTextSize(2); 
+	  status_row = 2; 
+	  showMem(0); 
+	  display.display(); 
+	}
       }
     }
 
@@ -942,6 +993,9 @@ void saveProgram1(boolean autosave, boolean quiet) {
   }
 
   myFile.close();
+
+  if (transfer_mode) 
+    resetPins();  
 
   if (! autosave) 
     reset(false);
@@ -980,10 +1034,23 @@ void loadProgram1(boolean load_autoloadsave_file, boolean quiet) {
     cursor = CURSOR_OFF;
   }
 
+  boolean fastLoad = false; 
+  boolean transfer_mode = !load_autoloadsave_file ? ( askQuestion("2095?") == ENTER ) : false; 
+
+  if (! transfer_mode ) {
+    if (load_autoloadsave_file) 
+      fastLoad = true; 
+    else 
+      fastLoad = ( askQuestion("Turbo?") == ENTER) ; 
+  } else 
+    fastLoad = false;   
+
+  if (! quiet)
+    announce(0,1,"LOADING"); 
+
   SdFile myFile;
 
   myFile.open( load_autoloadsave_file ? autoloadsave_file : file, FILE_READ);
-  fastLoad |= load_autoloadsave_file; 
 
   int count = 0;
   int firstPc = -1;
@@ -994,6 +1061,11 @@ void loadProgram1(boolean load_autoloadsave_file, boolean quiet) {
     boolean readingComment = false;
     boolean readingOrigin = false;
     boolean done = false; 
+
+    if (transfer_mode) {
+      resetPins();  
+      delay(WRITE_DELAY_NEXT_VALUE);
+    }
 
     while (! done) {
 
@@ -1064,12 +1136,37 @@ void loadProgram1(boolean load_autoloadsave_file, boolean quiet) {
 
         } else {
 
+
+          //
+          // write data
+          //
+
           switch ( count ) {
-            case 0 : op[pc] = decoded; count = 1;  break;
-            case 1 : arg1[pc] = decoded; count = 2; break;
-            case 2 :
-              arg2[pc] = decoded;
-              count = 0;
+
+	    case 0 : 
+	      if (transfer_mode) { 
+		delay(WRITE_DELAY_NEXT_VALUE);
+		storeNibble(decoded, true);           
+	      } else 
+		op[pc] = decoded; 
+	      count = 1; 
+	      break;
+
+            case 1 : 
+	      if (transfer_mode) 
+		storeNibble(decoded, true);           
+	      else
+		arg1[pc] = decoded; 
+	      count = 2; 
+	      break;
+
+            case 2 : 
+	      if (transfer_mode) {
+		storeNibble(decoded, true);           	      
+		delay(WRITE_CLOCK_DELAY);
+	      } else 
+		arg2[pc] = decoded; 
+	      count = 0;
 
 	      if (pc == 255)    
 	        done = true; 
@@ -1093,6 +1190,10 @@ void loadProgram1(boolean load_autoloadsave_file, boolean quiet) {
     }
 
     myFile.close();
+
+    if (transfer_mode) 
+      resetPins();  
+
     pc = firstPc;
 
     if (! quiet) 
@@ -3021,7 +3122,70 @@ void enterProgram(int pgm, int start) {
 }
 
 //
-// setup Arduino
+// Auxiliary Operations for 2095 Emulation 
+//
+
+int clock(int pin) {
+
+  digitalWrite(pin, LOW);
+  delay(READ_CLOCK_DELAY);
+
+  digitalWrite(pin, HIGH);
+  delay(READ_CLOCK_DELAY);
+
+  int bit = ! digitalRead(BUSCH_OUT1);
+
+  return bit;
+
+}
+
+void clockWrite(int pin, int bit) {
+
+  digitalWrite(BUSCH_IN1, bit);
+
+  digitalWrite(pin, HIGH);
+  delay(WRITE_CLOCK_DELAY);
+
+  digitalWrite(pin, LOW);
+  delay(WRITE_CLOCK_DELAY);
+
+}
+
+void storeNibble(byte nibble, boolean first) {
+
+  if (first) {
+
+    digitalWrite(BUSCH_IN1, nibble & 0b0001);
+
+    digitalWrite(BUSCH_IN3, LOW);
+    delay(WRITE_CLOCK_DELAY);
+
+    digitalWrite(BUSCH_IN3, HIGH);
+    delay(WRITE_CLOCK_DELAY);
+
+  } else {
+
+    clockWrite(BUSCH_IN2, nibble & 0b0001);
+
+  }
+
+  clockWrite(BUSCH_IN2, nibble & 0b0010);
+  clockWrite(BUSCH_IN2, nibble & 0b0100);
+  clockWrite(BUSCH_IN2, nibble & 0b1000);
+
+}
+
+void resetPins() {
+
+  digitalWrite(BUSCH_IN4, LOW);
+  digitalWrite(BUSCH_IN3, LOW);
+  digitalWrite(BUSCH_IN2, LOW);
+  digitalWrite(BUSCH_IN1, LOW);
+
+}
+
+//
+// Setup Arduino
 //
 
 void setup() {
