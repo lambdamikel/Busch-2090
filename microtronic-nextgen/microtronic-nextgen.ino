@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
 
-  Version 16 (c) Michael Wessel, November 16th, 2020
+  Version 17 (c) Michael Wessel, November 22th, 2020
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -26,8 +26,8 @@
 
 */
 
-#define VERSION "16" 
-#define DATE "11-16-2020"  
+#define VERSION "17" 
+#define DATE "11-22-2020"  
  
 //
 //
@@ -3134,7 +3134,7 @@ void enterProgram(int pgm, int start) {
 
 int clock(int pin) {
 
-#ifndef MICRO_SECOND_GEN_BOARD 
+#ifndef INVERTED_OUTPUTS_FOR_2095_EMU
   digitalWrite(pin, LOW);
 #else 
   digitalWrite(pin, HIGH);
@@ -3142,7 +3142,7 @@ int clock(int pin) {
 
   delay(READ_CLOCK_DELAY);
 
-#ifndef MICRO_SECOND_GEN_BOARD 
+#ifndef INVERTED_OUTPUTS_FOR_2095_EMU
   digitalWrite(pin, HIGH);
 #else 
   digitalWrite(pin, LOW);
@@ -3158,13 +3158,13 @@ int clock(int pin) {
 
 void clockWrite(int pin, int bit) {
 
-#ifndef MICRO_SECOND_GEN_BOARD 
+#ifndef INVERTED_OUTPUTS_FOR_2095_EMU
   digitalWrite(BUSCH_IN1, bit);
 #else
   digitalWrite(BUSCH_IN1, ! bit);
 #endif
 
-#ifndef MICRO_SECOND_GEN_BOARD 
+#ifndef INVERTED_OUTPUTS_FOR_2095_EMU
   digitalWrite(pin, HIGH);
 #else
   digitalWrite(pin, LOW);
@@ -3172,7 +3172,7 @@ void clockWrite(int pin, int bit) {
 
   delay(WRITE_CLOCK_DELAY);
 
-#ifndef MICRO_SECOND_GEN_BOARD 
+#ifndef INVERTED_OUTPUTS_FOR_2095_EMU
   digitalWrite(pin, LOW);
 #else 
   digitalWrite(pin, HIGH);
@@ -3186,13 +3186,13 @@ void storeNibble(byte nibble, boolean first) {
 
   if (first) {
 
-#ifndef MICRO_SECOND_GEN_BOARD 
+#ifndef INVERTED_OUTPUTS_FOR_2095_EMU
     digitalWrite(BUSCH_IN1, nibble & 0b0001);
 #else 
     digitalWrite(BUSCH_IN1, ! (nibble & 0b0001));
 #endif 
 
-#ifndef MICRO_SECOND_GEN_BOARD 
+#ifndef INVERTED_OUTPUTS_FOR_2095_EMU
     digitalWrite(BUSCH_IN3, LOW);
 #else 
     digitalWrite(BUSCH_IN3, HIGH);
@@ -3200,7 +3200,7 @@ void storeNibble(byte nibble, boolean first) {
 
     delay(WRITE_CLOCK_DELAY);
 
-#ifndef MICRO_SECOND_GEN_BOARD 
+#ifndef INVERTED_OUTPUTS_FOR_2095_EMU
     digitalWrite(BUSCH_IN3, HIGH);
 #else 
     digitalWrite(BUSCH_IN3, LOW);
@@ -3222,7 +3222,7 @@ void storeNibble(byte nibble, boolean first) {
 
 void resetPins() {
 
-#ifndef MICRO_SECOND_GEN_BOARD 
+#ifndef INVERTED_OUTPUTS_FOR_2095_EMU
   digitalWrite(BUSCH_IN4, LOW);
   digitalWrite(BUSCH_IN3, LOW);
   digitalWrite(BUSCH_IN2, LOW);
@@ -3335,6 +3335,17 @@ void setup() {
   pinMode(DOT_LED_3, OUTPUT);
   pinMode(DOT_LED_4, OUTPUT);
 
+  // 
+  // 2095 Emulation Outputs 
+  // in case DOT_LED_x == BUSCH_INx, these are
+  // declared twice, but that doesn't matter really:
+  //   
+    
+  pinMode(BUSCH_IN1, OUTPUT);
+  pinMode(BUSCH_IN2, OUTPUT);
+  pinMode(BUSCH_IN3, OUTPUT);
+  pinMode(BUSCH_IN4, OUTPUT);
+
   //
   //
   // 
@@ -3356,6 +3367,13 @@ void setup() {
   pinMode(DIN_2, INPUT_PULLUP);
   pinMode(DIN_3, INPUT_PULLUP);
   pinMode(DIN_4, INPUT_PULLUP);
+
+  //
+  // 2095 Emulation Inputs
+  //
+
+  pinMode(BUSCH_OUT1, INPUT_PULLUP);
+  pinMode(BUSCH_OUT3, INPUT_PULLUP);
 
   //
   //

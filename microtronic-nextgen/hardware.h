@@ -3,6 +3,12 @@
 //#define MICRO_SECOND_GEN_BOARD 
 
 
+// Uncomment this if you are using inverted outputs for the 2095 
+// BUSCH_INx output ports (these connect to the 2090's INPUTs) 
+
+//#define INVERTED_OUTPUTS_FOR_2095_EMU
+
+
 //
 // SdCard CS Pin 
 //
@@ -120,8 +126,6 @@
 
 
 #define BUSCH_OUT1 DIN_1
-//not needed
-//#define BUSCH_OUT2 DIN_2
 #define BUSCH_OUT3 DIN_3 
 
 
