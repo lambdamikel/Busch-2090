@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
 
-  Version 17 (c) Michael Wessel, November 22th, 2020
+  Version 18 (c) Michael Wessel, November 30th, 2020
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -26,8 +26,8 @@
 
 */
 
-#define VERSION "17" 
-#define DATE "11-22-2020"  
+#define VERSION "18" 
+#define DATE "11-31-2020"  
  
 //
 //
@@ -44,6 +44,7 @@
 #include <SdFat.h>
 #include <SPI.h>
 #include <Adafruit_PCD8544.h>
+#include <NewTone.h>
 
 //
 // SD Card
@@ -77,6 +78,13 @@ byte hex_keys[HEX_KEYPAD_ROWS][HEX_KEYPAD_COLS] = { // plus one because 0 = no k
 
 byte hex_keypad_col_pins[HEX_KEYPAD_COLS] = HEX_COL_PINS; // columns
 byte hex_keypad_row_pins[HEX_KEYPAD_ROWS] = HEX_ROW_PINS; // rows
+
+//
+// 15 Notes (0 = Tone Off!) 
+// C4, C#4, D4, D#4, E4, F4, F#4, G4, A4, B#4, B4, C5, E5, G5, C6 
+//  1   2    3   4    5   6   7    8   9    A   B   C   D   E   F 
+
+int note_frequencies[] = { 262, 277, 294, 311, 329, 349, 370, 392, 415, 440, 466, 494, 523, 659, 784, 1047}; 
 
 //
 // Function 4x4 Matrix Keypad 
@@ -492,10 +500,12 @@ int readFunctionKeys() {
   if ( button != curFuncKeyRaw ) {
     if (( millis() - funcKeyTime) > DEBOUNCE_TIME ) {
       funcKeyTime = millis();
-      if (button != NO_KEY)
+      if (button != NO_KEY) {
+        NewTone(TONEPIN, FUNKEYTONE, FUNTONELENGTH); 
         displayCurFuncKey = button;
 	curFuncKey = button;
 	curPushButton = button; 
+      }
     }
   } else {
     curFuncKey = NO_KEY;
@@ -520,6 +530,7 @@ int readHexKeys() {
     if (( millis() - hexKeyTime) > DEBOUNCE_TIME ) {
       hexKeyTime = millis();
       if (button != NO_KEY) {
+        NewTone(TONEPIN, HEXKEYTONE, KEYTONELENGTH); 
         curHexKey = button-1;
         keypadPressed = true; 
       } else {
@@ -2718,6 +2729,13 @@ void run() {
 
     reg[d] = reg[s];
     zero = reg[d] == 0;
+    if (d == s) {
+      if (! d) {
+        noNewTone(TONEPIN); // Turn off the tone.
+      } else { 
+          NewTone(TONEPIN, note_frequencies[d-1]); 
+      }
+    }
     
   } else if (op1 == OP_MOVI) {
 
@@ -3259,6 +3277,13 @@ void setup() {
   //
   //
   // 
+
+  pinMode(TONEPIN, OUTPUT); 
+  NewTone(TONEPIN, 400, 100); 
+
+  //
+  //
+  //	
 
   pinMode(LIGHT_LED, OUTPUT);
   digitalWrite(LIGHT_LED, light_led);

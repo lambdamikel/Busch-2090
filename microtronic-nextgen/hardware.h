@@ -8,6 +8,15 @@
 
 //#define INVERTED_OUTPUTS_FOR_2095_EMU
 
+//
+// Keypad Tones
+// 
+
+#define TONEPIN A0 
+#define HEXKEYTONE 440 
+#define KEYTONELENGTH 50
+#define FUNKEYTONE 880
+#define FUNTONELENGTH 50 
 
 //
 // SdCard CS Pin 
