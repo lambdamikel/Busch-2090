@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
 
-  Version 21 (c) Michael Wessel, December 2th, 2020
+  Version 22 (c) Michael Wessel, December 2th, 2020
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -26,7 +26,7 @@
 
 */
 
-#define VERSION "21" 
+#define VERSION "22" 
 #define DATE "12-2-2020"  
  
 //
@@ -2045,6 +2045,7 @@ void LCDLogo() {
   displaySetCursor(0, 0);
   display.print("(C) ");
   display.print(DATE); 
+  displaySetCursor(0, 1);
   sep();
   displaySetCursor(0, 2);
   display.print("Frank DeJaeger");
@@ -2495,7 +2496,13 @@ void interpret() {
     display.clearDisplay();
     display.display();
 
-    if (cursor == 2) {
+    if (currentMode == ENTERING_ADDRESS_HIGH || 
+        currentMode == ENTERING_ADDRESS_LOW || 
+	currentMode == STOPPED ) {
+      cursor = 2;
+      op[pc] = 0;
+      currentMode = ENTERING_OP;
+    } else if (cursor == 2) {
       cursor = 4;
       arg2[pc] = 0;
       currentMode = ENTERING_ARG2;
