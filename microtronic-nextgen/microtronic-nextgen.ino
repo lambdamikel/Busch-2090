@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
 
-  Version 18 (c) Michael Wessel, November 30th, 2020
+  Version 20 (c) Michael Wessel, December 1th, 2020
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -26,8 +26,8 @@
 
 */
 
-#define VERSION "18" 
-#define DATE "11-31-2020"  
+#define VERSION "20" 
+#define DATE "12-1-2020"  
  
 //
 //
@@ -64,16 +64,16 @@ Adafruit_PCD8544 display = Adafruit_PCD8544(NOKIA5, NOKIA4, NOKIA3, NOKIA2, NOKI
 // HEX 4x4 Matrix Keypad 
 //
 
-#define NO_KEY 0 
+#define NO_KEY 255
 
 #define HEX_KEYPAD_ROWS 4
 #define HEX_KEYPAD_COLS 4
 
 byte hex_keys[HEX_KEYPAD_ROWS][HEX_KEYPAD_COLS] = { // plus one because 0 = no key pressed!
-  {13, 14, 15, 16},
-  {9, 10, 11, 12},
-  {5, 6, 7, 8},
-  {1, 2, 3, 4}
+  {12, 13, 14, 15},
+  {8, 9, 10, 11},
+  {4, 5, 6, 7},
+  {0, 1, 2, 3}
 };
 
 byte hex_keypad_col_pins[HEX_KEYPAD_COLS] = HEX_COL_PINS; // columns
@@ -83,6 +83,7 @@ byte hex_keypad_row_pins[HEX_KEYPAD_ROWS] = HEX_ROW_PINS; // rows
 // 15 Notes (0 = Tone Off!) 
 // C4, C#4, D4, D#4, E4, F4, F#4, G4, A4, B#4, B4, C5, E5, G5, C6 
 //  1   2    3   4    5   6   7    8   9    A   B   C   D   E   F 
+//
 
 int note_frequencies[] = { 262, 277, 294, 311, 329, 349, 370, 392, 415, 440, 466, 494, 523, 659, 784, 1047}; 
 
@@ -111,8 +112,6 @@ int note_frequencies[] = { 262, 277, 294, 311, 329, 349, 370, 392, 415, 440, 466
 //
 //
 //
-
-int curPushButton = NO_KEY;
 
 #define FN_KEYPAD_ROWS 4
 #define FN_KEYPAD_COLS 4 
@@ -167,11 +166,12 @@ uint8_t status_col = 0;
 // Hex keypad
 //
 
-#define DEBOUNCE_TIME 120
+#define REPEAT_TIME 200
+#define DEBOUNCE_TIME 20
 
-boolean keypadPressed = false;
-
-unsigned long hexKeyTime = 0;
+unsigned long funKeyTime  = 0;
+unsigned long funKeyTime0 = 0;
+unsigned long hexKeyTime  = 0;
 
 int curHexKey    = NO_KEY;
 int curHexKeyRaw = NO_KEY;
@@ -180,12 +180,10 @@ int curHexKeyRaw = NO_KEY;
 // Function keypad 
 //
 
+int curFunKey    = NO_KEY;
+int curFunKeyRaw = NO_KEY;
 
-unsigned long funcKeyTime = 0;
-int curFuncKey    = NO_KEY;
-int curFuncKeyRaw = NO_KEY;
-
-int displayCurFuncKey = NO_KEY; // for LCD display feedback only
+int displayCurFunKey = NO_KEY; // for LCD display feedback only
 
 
 //
@@ -219,13 +217,16 @@ byte currentReg = 0;
 byte currentInputRegister = 0;
 
 boolean clock1hz = false;
+
 boolean carry = false;
 boolean zero = false;
 boolean error = false;
 
 boolean init_light_led = true;
+boolean init_keybeep = true;
 
 boolean light_led = init_light_led;
+boolean keybeep = init_keybeep;
 
 //
 // DIN / DOT
@@ -457,7 +458,7 @@ byte hex_keypad_getKey() {
     digitalWrite(fn_keypad_row_pins[x],HIGH);
   }
 
-  return 0; 
+  return NO_KEY; 
 
 }
 
@@ -478,7 +479,7 @@ byte fn_keypad_getKey() {
     digitalWrite(fn_keypad_row_pins[x],HIGH);
   }
 
-  return 0; 
+  return NO_KEY; 
 
 }
 
@@ -487,64 +488,96 @@ byte fn_keypad_getKey() {
 //
 //
 
-boolean enterPending = false;
-
-int readPushButtons() {
-    return readFunctionKeys(); 
-}
-
-int readFunctionKeys() {
+void readFunKeys() {
 
   int button = fn_keypad_getKey(); 
+   
+  // some button currently pressed? 
+  if (button != NO_KEY) {
+    // button changed from NO_KEY to some key? 
+    if ( curFunKeyRaw == NO_KEY && ((millis() - funKeyTime0) > DEBOUNCE_TIME) || 
+         curFunKeyRaw != NO_KEY && ((millis() - funKeyTime) > REPEAT_TIME)) {
 
-  if ( button != curFuncKeyRaw ) {
-    if (( millis() - funcKeyTime) > DEBOUNCE_TIME ) {
-      funcKeyTime = millis();
-      if (button != NO_KEY) {
-        NewTone(TONEPIN, FUNKEYTONE, FUNTONELENGTH); 
-        displayCurFuncKey = button;
-	curFuncKey = button;
-	curPushButton = button; 
-      }
+ 	  if (keybeep) 
+	    NewTone(TONEPIN, FUNKEYTONE, KEYTONELENGTH); 
+
+	  curFunKeyRaw = button; 
+	  curFunKey = button;
+
+	  displayCurFunKey = button;
+	  funKeyTime = millis(); 
     }
   } else {
-    curFuncKey = NO_KEY;
-    curPushButton = NO_KEY; 
+    curFunKeyRaw = NO_KEY; 
+    funKeyTime0 = millis(); 
+  }
+}
+
+boolean funKeyPressed(int key) {
+  // check for key and consume it when found 
+
+  if (curFunKey == key) {
+    curFunKey = NO_KEY; 
+    return true; 
   }
 
-  curFuncKeyRaw = button;
-
-  return curFuncKey;
+  return false; 
 
 }
 
-
-int readHexKeys() {
+void readHexKeys() {
 
   int button = hex_keypad_getKey(); 
+   
+  // some button currently pressed? 
+  if (button != NO_KEY) {
+    // button changed from NO_KEY to some key? 
+    if ( curHexKeyRaw == NO_KEY && ((millis() - hexKeyTime) > DEBOUNCE_TIME)) {
+ 	  if (keybeep) 
+	    NewTone(TONEPIN, HEXKEYTONE, KEYTONELENGTH); 
 
-  keypadPressed = false; 
-      
-  // button change? check if pressed long enough -> change butotn state 
-  if ( button != curHexKeyRaw ) {
-    if (( millis() - hexKeyTime) > DEBOUNCE_TIME ) {
-      hexKeyTime = millis();
-      if (button != NO_KEY) {
-        NewTone(TONEPIN, HEXKEYTONE, KEYTONELENGTH); 
-        curHexKey = button-1;
-        keypadPressed = true; 
-      } else {
-        curHexKey = NO_KEY; 
-      }
+	  curHexKeyRaw = button; 
+	  curHexKey = button;
     }
+  } else {
+    curHexKeyRaw = NO_KEY; 
+    hexKeyTime = millis(); 
   }
 
-  curHexKeyRaw = button; 
-
-  return curHexKey;
- 
 }
 
+boolean hexKeyPressed(int key) {
+  // check for key and consume it when found 
+
+  if (curHexKey == key) {
+    curHexKey = NO_KEY; 
+    return true; 
+  }
+
+  return false; 
+
+}
+
+boolean someHexKeyPressed() {
+  return (curHexKey != NO_KEY); 
+}
+
+int getCurHexKey() {
+  // check for key and consume it when found 
+
+  if (curHexKey != NO_KEY) {
+    int x = curHexKey; 
+    curHexKey = NO_KEY; 
+    return x; 
+  }
+  
+  return NO_KEY; 
+
+}
+
+//
+//
+//
 
 byte readDIN() {
 
@@ -623,7 +656,7 @@ int selectFile() {
   unsigned long last = millis();
   boolean blink = false;
 
-  readPushButtons();
+  readFunKeys();
 
   while ( true ) {
 
@@ -660,32 +693,28 @@ int selectFile() {
    
       display.display(); 
 
+      lastNo = no; 
+
     }
 
-    readPushButtons();
+    readFunKeys();
 
-    if (keypadPressed) {
-    if ( curPushButton == UP) {
+    if ( funKeyPressed(UP)) {
       if (no < count) 
 	no = selectFileNo(no + 1); 
       else 
 	no = selectFileNo(1); 
-    } else if (curPushButton == DOWN) {
+    } else if (funKeyPressed(DOWN)) {
       if (no > 1) 
 	no = selectFileNo(no - 1); 
       else 
 	no = selectFileNo(count); 
-    } else if (curPushButton == CANCEL) {
-      announce(1,1,"CANCEL"); 
-      return -1; 
-    } else if (curPushButton == ENTER) {
-      return no; 
-
-    } 
-  }
-
-  lastNo = no; 
-
+    } else if (funKeyPressed(CANCEL)) {
+	announce(1,1,"CANCEL"); 
+	return -1; 
+    } else if (funKeyPressed(ENTER)) {
+	return no; 
+    }
   }
 
 }
@@ -706,12 +735,12 @@ int askQuestion(String q) {
 
     display.display(); 
 
-    curFuncKey = NO_KEY;
-    while (curFuncKey != ENTER && curFuncKey != CANCEL) {
-      readFunctionKeys();      
+    curFunKey = NO_KEY;
+    while ( curFunKey != ENTER && curFunKey != CANCEL) {
+      readFunKeys();      
     }	
     
-    return curFuncKey; 
+    return curFunKey; 
 
 } 
 
@@ -730,8 +759,6 @@ int createName() {
   boolean change = true; 
 
   while ( true ) {
-
-    change = false; 
 
     if ( change || ( millis() - last ) > 500 ) {
 
@@ -763,41 +790,36 @@ int createName() {
 
       display.display(); 
 
+      change = false; 
+
     }
 
-    readPushButtons();
+    readFunKeys();
 
-    if (keypadPressed) {
-      switch ( curPushButton ) {
-      case UP : 
+    if ( funKeyPressed(UP)) {
 	file[cursor]++; 
 	change = true;  
-	break;
-      case DOWN : 
+    } else if ( funKeyPressed(DOWN)) {
 	file[cursor]--; 
 	change = true; 
-	break;
-      case LEFT : 
+    } else if ( funKeyPressed(LEFT)) {
 	cursor--; 
 	change = true; 
-	break;
-      case RIGHT : 
+    } else if ( funKeyPressed(RIGHT)) {
 	cursor++; 
+	file[cursor] = file[cursor-1]; 
 	change = true; 
-	break;
-      case BACK : 
+    } else if ( funKeyPressed(BACK)) {
 	if (cursor == length - 1 && cursor > 0) {
           file[cursor] = 0;
           length--;
           cursor--;
 	  change = true; 
         } 
-	break;
-      case CANCEL : 
+    } else if ( funKeyPressed(CANCEL)) {
 	announce(1,1,"CANCEL"); 
 	return -1;
-	break; 
-      case ENTER : 	
+    } else if ( funKeyPressed(ENTER)) {
 	cursor++;
 	file[cursor++] = '.';
 	file[cursor++] = 'M';
@@ -806,21 +828,19 @@ int createName() {
 	file[cursor++] = 0;	
 
 	return 0;
-	break; 
-      default : break;
-      }
-      
-      if (cursor < 0)
-	cursor = 0;
-      else if (cursor > 7)
-	cursor = 7;
+    } 
+    
+    if (cursor < 0)
+      cursor = 0;
+    else if (cursor > 7)
+      cursor = 7;
 
-      if (cursor > length - 1 && length < 9 ) {
-	file[cursor] = '0';
-	length++;	
-      }
-    }
+    if (cursor > length - 1 && length < 9 ) {
+      file[cursor] = file[cursor-1];
+      length++;	
+    }    
   }
+
 }
 
 void saveProgram() {
@@ -1292,6 +1312,7 @@ boolean loadMicrotronicInitFile() {
       init_cpu_delay = initfile_readInt();
       cpu_delay_delta = initfile_readInt(); 
       init_light_led = initfile_readInt(); 
+      init_keybeep = initfile_readInt(); 
       init_displayMode = (LCDmode) initfile_readInt(); 
       autosave_every_seconds = initfile_readInt(); 
       init_autorun = initfile_readInt(); 
@@ -1314,6 +1335,11 @@ boolean loadMicrotronicInitFile() {
       displaySetCursor(0, 4);
       display.print("LIGHT     ");
       display.print(init_light_led);
+      displaySetCursor(0, 5);
+      display.print("KEYBEEP   ");
+      display.print(init_keybeep);
+      display.display(); 
+
       display.display(); 
       delay(2000); 
 
@@ -1464,9 +1490,11 @@ void advanceTime() {
     unsigned long delta = time - lastClockTime;
     unsigned long delta2 = time - last1HzTime; 
 
-    while (delta2 >= 500) {
-      clock1hz = !clock1hz;
-      delta2 -= 500;
+    if (delta2 >= 500) {
+      while (delta2 >= 500) {
+	clock1hz = !clock1hz;
+	delta2 -= 500;
+      }
       last1HzTime = time;
     }
 
@@ -1645,9 +1673,9 @@ void displayStatus(boolean force_refresh) {
   if (delta > 300) {
     blink = !blink;
     lastDispTime = time;
+    advanceTime();	
   }
 
-  advanceTime();	
 
   //
   //
@@ -1690,8 +1718,7 @@ void displayStatus(boolean force_refresh) {
   // 
   // 
 
-  if (curPushButton == ENTER || curPushButton == RIGHT) {
-    curPushButton = NO_KEY; 
+  if ( funKeyPressed(ENTER) || funKeyPressed(RIGHT)) {
     refreshLCD = true;
     forceFullRefresh = true; 
     switch ( displayMode  ) {
@@ -1702,8 +1729,7 @@ void displayStatus(boolean force_refresh) {
     case REGWR  : displayMode = REGAR; display.clearDisplay(); break;
     default     : displayMode = DISP; display.clearDisplay(); break;
     }
-  } else if ( curPushButton == LEFT) {
-    curPushButton = NO_KEY; 
+  } else if ( funKeyPressed(LEFT)) {
     refreshLCD = true;
     forceFullRefresh = true; 
     switch ( displayMode  ) {
@@ -1714,8 +1740,7 @@ void displayStatus(boolean force_refresh) {
     case REGWR  : displayMode = MEM_MNEM; display.clearDisplay(); break;
     default     : displayMode = REGWR; display.clearDisplay(); break;
     }
-  } else if (curPushButton == LIGHT ) {
-    curPushButton = NO_KEY; 
+  } else if ( funKeyPressed(LIGHT)) {
     light_led = ! light_led; 
     digitalWrite(LIGHT_LED, light_led); 
   } 
@@ -1929,7 +1954,7 @@ void displayStatus(boolean force_refresh) {
     // process keypress feedback display 
     //
 
-    if (displayCurFuncKey != NO_KEY && ! ( oneStepOnly && lastInstructionWasDisp)) {
+    if (displayCurFunKey != NO_KEY && ! ( oneStepOnly && lastInstructionWasDisp)) {
 
       refreshLCD = true; 
 
@@ -1938,7 +1963,7 @@ void displayStatus(boolean force_refresh) {
       else 
 	displaySetCursor(9, status_row);
 
-      switch ( displayCurFuncKey ) {
+      switch ( displayCurFunKey ) {
       case CCE  : display.print("C/CE"); break;
       case RUN  :  display.print("RUN"); break; 
       case UP  : 
@@ -1946,7 +1971,7 @@ void displayStatus(boolean force_refresh) {
 	if (cpu_changed) {
 	  //display.print(cpu_speed); 
 	  display.print(cpu_delay); 
-          display.print("ms"); 
+          display.print("ms "); 
 	} 
 	break;
       case BKP  : display.print("BKP"); break;
@@ -1958,10 +1983,10 @@ void displayStatus(boolean force_refresh) {
       default: break;
       }
 
-      if (millis() - funcKeyTime > 500) {
+      if (millis() - funKeyTime > 500) {
 	cpu_changed = false; 
 
-	displayCurFuncKey = NO_KEY;
+	displayCurFunKey = NO_KEY;
 	if (displayMode == DISP_LARGE) 
 	  clearLine(status_row+1); 
 	else 
@@ -2223,7 +2248,12 @@ void clearStack() {
 
 void reset(boolean quiet) {
 
+  curHexKeyRaw = NO_KEY; 
+  curFunKeyRaw = NO_KEY; 
+
   light_led = init_light_led; 
+  keybeep = init_keybeep; 
+
   digitalWrite(LIGHT_LED, light_led);		
 
   currentMode = STOPPED;
@@ -2359,7 +2389,7 @@ void check_for_autosave() {
 void interpret() {
 
 
-  if ( curFuncKey == HALT ) {
+  if ( funKeyPressed(HALT) ) {
 
       display.clearDisplay();
       display.display();
@@ -2371,37 +2401,37 @@ void interpret() {
       dispOff = false;
       lastInstructionWasDisp = false;
 
-  } else if  (curFuncKey == RUN ) {
+  } else if  (funKeyPressed(RUN)) {
 
       start_running(); 
 
-  } else if ( curFuncKey == DOWN ) {
+  } else if ( funKeyPressed(DOWN)) {
 
       display.clearDisplay();
       display.display();
 
       if (currentMode != RUNNING ) {
         pc--;
-        cursor = 0;
-        currentMode = ENTERING_ADDRESS_HIGH;
+        //cursor = 0;
+        //currentMode = ENTERING_ADDRESS_HIGH;
       }
 
       jump = true;
 
-  } else if ( curFuncKey == UP ) {
+  } else if ( funKeyPressed(UP)) {
 
       display.clearDisplay();
       display.display();
 
       if (currentMode != RUNNING ) {
         pc++;
-        cursor = 0;
-        currentMode = ENTERING_ADDRESS_HIGH;
+        //cursor = 0;
+        //currentMode = ENTERING_ADDRESS_HIGH;
       }
 
       jump = true;
 
-  } else if ( curFuncKey == NEXT ) {
+  } else if ( funKeyPressed(NEXT)) {
 
       display.clearDisplay();
       display.display();
@@ -2417,7 +2447,7 @@ void interpret() {
 
       jump = true;
 
-  } else if ( curFuncKey == REG ) {
+  } else if ( funKeyPressed(REG)) {
  
       display.clearDisplay();
       display.display();
@@ -2430,7 +2460,7 @@ void interpret() {
         cursor = 1;
       }
 
-  } else if ( curFuncKey == STEP ) {
+  } else if ( funKeyPressed(STEP) ) {
 
       display.clearDisplay();
       display.display();
@@ -2440,7 +2470,7 @@ void interpret() {
       dispOff = false;
       jump = true; // don't increment PC !
 
-  } else if ( curFuncKey == BKP ) {
+  } else if ( funKeyPressed(BKP) ) {
 
       display.clearDisplay();
       display.display();
@@ -2453,7 +2483,7 @@ void interpret() {
         currentMode = ENTERING_BREAKPOINT_LOW;
       }
 
-  } else if ( curFuncKey == CCE ) {
+  } else if ( funKeyPressed(CCE) ) {
 
       display.clearDisplay();
       display.display();
@@ -2472,7 +2502,7 @@ void interpret() {
         currentMode = ENTERING_ARG1;
       }
 
-  } else if ( curFuncKey == PGM ) {
+  } else if ( funKeyPressed(PGM) ) {
 
       display.clearDisplay();
       display.display();
@@ -2502,9 +2532,9 @@ void interpret() {
 
       check_for_autosave(); 
 
-      if (keypadPressed) {
+      if (someHexKeyPressed()) {
         cursor = 1;
-        pc = curHexKey * 16;
+        pc = getCurHexKey() * 16;
         currentMode = ENTERING_ADDRESS_LOW;
       }
 
@@ -2512,9 +2542,9 @@ void interpret() {
 
       check_for_autosave(); 
 
-      if (keypadPressed) {
+      if (someHexKeyPressed()) {
         cursor = 2;
-        pc += curHexKey;
+        pc += getCurHexKey();
         currentMode = ENTERING_OP;
       }
       
@@ -2522,9 +2552,9 @@ void interpret() {
 
       check_for_autosave(); 
 
-      if (keypadPressed) {
+      if (someHexKeyPressed()) {
         cursor = 3;
-        op[pc] = curHexKey;
+        op[pc] = getCurHexKey();
         currentMode = ENTERING_ARG1;
       }
 
@@ -2532,9 +2562,9 @@ void interpret() {
 
       check_for_autosave(); 
 
-      if (keypadPressed) {
+      if (someHexKeyPressed()) {
         cursor = 4;
-        arg1[pc] = curHexKey;
+        arg1[pc] = getCurHexKey();
         currentMode = ENTERING_ARG2;
       }
 
@@ -2542,28 +2572,27 @@ void interpret() {
 
       check_for_autosave(); 
 
-      if (keypadPressed) {
+      if (someHexKeyPressed()) {
         cursor = 2;
-        arg2[pc] = curHexKey;
+        arg2[pc] = getCurHexKey();
         currentMode = ENTERING_OP;
       }
 
   } else if (currentMode == ENTERING_VALUE ) {
 
-      if (keypadPressed) {
-
-        curInput = curHexKey;
-        reg[currentInputRegister] = curInput;
-        carry = false;
-        zero = reg[currentInputRegister] == 0;
-        currentMode = RUNNING;
-      }
+    if (someHexKeyPressed()) {
+      curInput = getCurHexKey();
+      reg[currentInputRegister] = curInput;
+      carry = false;
+      zero = reg[currentInputRegister] == 0;
+      currentMode = RUNNING;
+    }
 
   } else if (currentMode == ENTERING_TIME ) {
 
-      if (keypadPressed ) {
+    if (someHexKeyPressed()) {
 
-        curInput = curHexKey;
+      curInput = getCurHexKey();
 
         switch (cursor) {
           case 0 : if (curInput < 3) {
@@ -2600,9 +2629,9 @@ void interpret() {
 
   } else if (currentMode == ENTERING_PROGRAM ) {
 
-      if (keypadPressed) {
+    if (someHexKeyPressed()) {
 
-        program = curHexKey;
+      program = getCurHexKey();
         currentMode = STOPPED;
         cursor = CURSOR_OFF;
 
@@ -2645,9 +2674,9 @@ void interpret() {
 
   } else if ( currentMode == ENTERING_BREAKPOINT_HIGH ) {
 
-      if (keypadPressed) {
+    if (someHexKeyPressed()) {
         cursor = 1;
-        breakAt = curHexKey * 16;
+        breakAt = getCurHexKey() * 16;
         currentMode = ENTERING_BREAKPOINT_LOW;
 
 	if (breakAt == 0) 
@@ -2659,9 +2688,9 @@ void interpret() {
 
   } else if ( currentMode == ENTERING_BREAKPOINT_LOW ) {
 
-      if (keypadPressed) {
+    if (someHexKeyPressed()) {
         cursor = 0;
-        breakAt += curHexKey;
+        breakAt += getCurHexKey();
         currentMode = ENTERING_BREAKPOINT_HIGH;
 	
 	if (breakAt == 0) 
@@ -2673,13 +2702,13 @@ void interpret() {
 
   } else if ( currentMode == ENTERING_REG ) {
 
-      if (keypadPressed)
-        currentReg = curHexKey;
+    if (someHexKeyPressed())
+      currentReg = getCurHexKey();
 
   } else if ( currentMode == INSPECTING ) {
 
-      if (keypadPressed)
-        reg[currentReg] = curHexKey;
+    if (someHexKeyPressed())
+      reg[currentReg] = getCurHexKey();
 
   }
 
@@ -3422,15 +3451,6 @@ void setup() {
     pc = init_autorun_address; 
     lastPc = pc + 1; 
 
-    //
-    // also force AUTORUN if RUN key is held down during boot! 
-    //
-
-    readFunctionKeys();
-
-    if (curFuncKeyRaw == RUN || init_autorun) {      
-      start_running();       
-    }
   }
 
   //
@@ -3450,24 +3470,17 @@ void setup() {
 
 void loop() {
 
-  readFunctionKeys();
+  readFunKeys();
   readHexKeys(); 
 
-  /*
-  if (curFuncKeyRaw == RUN && curHexKeyRaw != NO_KEY) {
-     cpu_changed = true; 
-     cpu_speed = curHexKeyRaw - 1; 
-     cpu_delay = (curHexKeyRaw - 1)  * 20;
-     forceFullRefresh = true; 
-  } */ 
-
-  if (currentMode == RUNNING && curFuncKey == UP) {
+  if (currentMode == RUNNING && funKeyPressed(UP)) {
+    
      cpu_changed = true; 
      cpu_delay += cpu_delay_delta; 
      forceFullRefresh = true; 
   }		      
 
-  if (currentMode == RUNNING && curFuncKey == DOWN) {
+  if (currentMode == RUNNING && funKeyPressed(DOWN)) {
      cpu_changed = true; 
      cpu_delay = cpu_delay < cpu_delay_delta ? 0 : cpu_delay - cpu_delay_delta; 
      forceFullRefresh = true; 
