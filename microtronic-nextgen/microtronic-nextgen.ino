@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
 
-  Version 20 (c) Michael Wessel, December 1th, 2020
+  Version 21 (c) Michael Wessel, December 2th, 2020
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -26,8 +26,8 @@
 
 */
 
-#define VERSION "20" 
-#define DATE "12-1-2020"  
+#define VERSION "21" 
+#define DATE "12-2-2020"  
  
 //
 //
@@ -171,6 +171,8 @@ uint8_t status_col = 0;
 
 unsigned long funKeyTime  = 0;
 unsigned long funKeyTime0 = 0;
+unsigned long dispFunKeyTime = 0;
+
 unsigned long hexKeyTime  = 0;
 
 int curHexKey    = NO_KEY;
@@ -498,14 +500,19 @@ void readFunKeys() {
     if ( curFunKeyRaw == NO_KEY && ((millis() - funKeyTime0) > DEBOUNCE_TIME) || 
          curFunKeyRaw != NO_KEY && ((millis() - funKeyTime) > REPEAT_TIME)) {
 
- 	  if (keybeep) 
-	    NewTone(TONEPIN, FUNKEYTONE, KEYTONELENGTH); 
+      if (keybeep) 
+	NewTone(TONEPIN, FUNKEYTONE, KEYTONELENGTH); 
 
-	  curFunKeyRaw = button; 
-	  curFunKey = button;
+      if (curFunKeyRaw == NO_KEY) 
+	dispFunKeyTime = millis(); 
 
-	  displayCurFunKey = button;
-	  funKeyTime = millis(); 
+      curFunKeyRaw = button; 
+      curFunKey = button;
+
+      displayCurFunKey = button;
+      funKeyTime = millis(); 
+	  
+
     }
   } else {
     curFunKeyRaw = NO_KEY; 
@@ -533,11 +540,11 @@ void readHexKeys() {
   if (button != NO_KEY) {
     // button changed from NO_KEY to some key? 
     if ( curHexKeyRaw == NO_KEY && ((millis() - hexKeyTime) > DEBOUNCE_TIME)) {
- 	  if (keybeep) 
-	    NewTone(TONEPIN, HEXKEYTONE, KEYTONELENGTH); 
+      if (keybeep & currentMode != ENTERING_VALUE) 
+	NewTone(TONEPIN, HEXKEYTONE, KEYTONELENGTH); 
 
-	  curHexKeyRaw = button; 
-	  curHexKey = button;
+      curHexKeyRaw = button; 
+      curHexKey = button;
     }
   } else {
     curHexKeyRaw = NO_KEY; 
@@ -710,10 +717,10 @@ int selectFile() {
       else 
 	no = selectFileNo(count); 
     } else if (funKeyPressed(CANCEL)) {
-	announce(1,1,"CANCEL"); 
-	return -1; 
+      announce(1,1,"CANCEL"); 
+      return -1; 
     } else if (funKeyPressed(ENTER)) {
-	return no; 
+      return no; 
     }
   }
 
@@ -721,26 +728,26 @@ int selectFile() {
 
 int askQuestion(String q) {
  
-    display.clearDisplay();
-    setTextSize(2); 
-    displaySetCursor(0, 0);	
-    display.print(q);
-    displaySetCursor(0, 1);
-    setTextSize(1); 
-    sep(); 
-    displaySetCursor(0, 4);	
-    display.print("  ENTER YES");
-    displaySetCursor(0, 5);	
-    display.print("  CANCEL NO");
+  display.clearDisplay();
+  setTextSize(2); 
+  displaySetCursor(0, 0);	
+  display.print(q);
+  displaySetCursor(0, 1);
+  setTextSize(1); 
+  sep(); 
+  displaySetCursor(0, 4);	
+  display.print("  ENTER YES");
+  displaySetCursor(0, 5);	
+  display.print("  CANCEL NO");
 
-    display.display(); 
+  display.display(); 
 
-    curFunKey = NO_KEY;
-    while ( curFunKey != ENTER && curFunKey != CANCEL) {
-      readFunKeys();      
-    }	
+  curFunKey = NO_KEY;
+  while ( curFunKey != ENTER && curFunKey != CANCEL) {
+    readFunKeys();      
+  }	
     
-    return curFunKey; 
+  return curFunKey; 
 
 } 
 
@@ -797,37 +804,37 @@ int createName() {
     readFunKeys();
 
     if ( funKeyPressed(UP)) {
-	file[cursor]++; 
-	change = true;  
+      file[cursor]++; 
+      change = true;  
     } else if ( funKeyPressed(DOWN)) {
-	file[cursor]--; 
-	change = true; 
+      file[cursor]--; 
+      change = true; 
     } else if ( funKeyPressed(LEFT)) {
-	cursor--; 
-	change = true; 
+      cursor--; 
+      change = true; 
     } else if ( funKeyPressed(RIGHT)) {
-	cursor++; 
-	file[cursor] = file[cursor-1]; 
-	change = true; 
+      cursor++; 
+      file[cursor] = file[cursor-1]; 
+      change = true; 
     } else if ( funKeyPressed(BACK)) {
-	if (cursor == length - 1 && cursor > 0) {
-          file[cursor] = 0;
-          length--;
-          cursor--;
-	  change = true; 
-        } 
+      if (cursor == length - 1 && cursor > 0) {
+	file[cursor] = 0;
+	length--;
+	cursor--;
+	change = true; 
+      } 
     } else if ( funKeyPressed(CANCEL)) {
-	announce(1,1,"CANCEL"); 
-	return -1;
+      announce(1,1,"CANCEL"); 
+      return -1;
     } else if ( funKeyPressed(ENTER)) {
-	cursor++;
-	file[cursor++] = '.';
-	file[cursor++] = 'M';
-	file[cursor++] = 'I';
-	file[cursor++] = 'C';
-	file[cursor++] = 0;	
+      cursor++;
+      file[cursor++] = '.';
+      file[cursor++] = 'M';
+      file[cursor++] = 'I';
+      file[cursor++] = 'C';
+      file[cursor++] = 0;	
 
-	return 0;
+      return 0;
     } 
     
     if (cursor < 0)
@@ -917,9 +924,9 @@ void saveProgram1(boolean autosave, boolean quiet) {
   }
 
   if (autosave) {
-   if (SD.exists(autoloadsave_file)) {
-   	SD.remove(autoloadsave_file);
-   }	
+    if (SD.exists(autoloadsave_file)) {
+      SD.remove(autoloadsave_file);
+    }	
   }
 
   File myFile = SD.open( autosave ? autoloadsave_file : file , FILE_WRITE);
@@ -1122,11 +1129,11 @@ void loadProgram1(boolean load_autoloadsave_file, boolean quiet) {
       if (!readingComment && b != '\r' && b != '\n' && b != '\t' && b != ' ' && b != '@' ) { // skip whitespace
 
         switch ( b ) {
-          case 'I' : b = '1'; break; // correct for some common OCR errors
-          case 'l' : b = '1'; break;
-          case 'P' : b = 'D'; break;
-          case 'Q' : b = '0'; break;
-          case 'O' : b = '0'; break;
+	case 'I' : b = '1'; break; // correct for some common OCR errors
+	case 'l' : b = '1'; break;
+	case 'P' : b = 'D'; break;
+	case 'Q' : b = '0'; break;
+	case 'O' : b = '0'; break;
 
           /*
             case 'a' : b = 'A'; break; // also allow lowercase hex
@@ -1135,7 +1142,7 @@ void loadProgram1(boolean load_autoloadsave_file, boolean quiet) {
             case 'd' : b = 'D'; break;
             case 'e' : b = 'E'; break;
             case 'f' : b = 'F'; break; */
-          default : break;
+	default : break;
         }
 
         int decoded = decodeHex(b);
@@ -1162,13 +1169,13 @@ void loadProgram1(boolean load_autoloadsave_file, boolean quiet) {
 
         if ( readingOrigin ) {
           switch ( count ) {
-            case 0 : pc = decoded * 16; count = 1; break;
-            case 1 :
-              pc += decoded;
-              count = 0;
-              readingOrigin = false;
-              break;
-            default : break;
+	  case 0 : pc = decoded * 16; count = 1; break;
+	  case 1 :
+	    pc += decoded;
+	    count = 0;
+	    readingOrigin = false;
+	    break;
+	  default : break;
           }
 
         } else {
@@ -1180,40 +1187,40 @@ void loadProgram1(boolean load_autoloadsave_file, boolean quiet) {
 
           switch ( count ) {
 
-	    case 0 : 
-	      if (transfer_mode) { 
-		delay(WRITE_DELAY_NEXT_VALUE);
-		storeNibble(decoded, true);           
-	      } 
-	      op[pc] = decoded; 
-	      count = 1; 
-	      break;
+	  case 0 : 
+	    if (transfer_mode) { 
+	      delay(WRITE_DELAY_NEXT_VALUE);
+	      storeNibble(decoded, true);           
+	    } 
+	    op[pc] = decoded; 
+	    count = 1; 
+	    break;
 
-            case 1 : 
-	      if (transfer_mode) {
-		storeNibble(decoded, false);           
-	      }
-	      arg1[pc] = decoded; 
-	      count = 2; 
-	      break;
+	  case 1 : 
+	    if (transfer_mode) {
+	      storeNibble(decoded, false);           
+	    }
+	    arg1[pc] = decoded; 
+	    count = 2; 
+	    break;
 
-            case 2 : 
-	      if (transfer_mode) {
-		storeNibble(decoded, false);           	      
-		delay(WRITE_CLOCK_DELAY);
-	      }
-	      arg2[pc] = decoded; 
-	      count = 0;
+	  case 2 : 
+	    if (transfer_mode) {
+	      storeNibble(decoded, false);           	      
+	      delay(WRITE_CLOCK_DELAY);
+	    }
+	    arg2[pc] = decoded; 
+	    count = 0;
 
-	      if (pc == 255)    
-	        done = true; 
-              if (firstPc == -1) 
-                firstPc = pc;
+	    if (pc == 255)    
+	      done = true; 
+	    if (firstPc == -1) 
+	      firstPc = pc;
 
-              pc++;
-              break;
+	    pc++;
+	    break;
 
-            default : break;
+	  default : break;
           }
         }
 
@@ -1262,45 +1269,45 @@ void loadProgram1(boolean load_autoloadsave_file, boolean quiet) {
 
 
 int initfile_readInt() {   
-    int n = 0; 
-    while (true) {
-       int x = init_file.read(); 
-       if (x == -1)
-          return n; 
-       if ( x == ' ') {
-	 return n;
-       } else {
-          n = n*10 + decodeHex(x); 
-       }
-    }	      
+  int n = 0; 
+  while (true) {
+    int x = init_file.read(); 
+    if (x == -1)
+      return n; 
+    if ( x == ' ') {
+      return n;
+    } else {
+      n = n*10 + decodeHex(x); 
+    }
+  }	      
 }
 
 
 int initfile_readHex() {   
-    int n = 0; 
-    while (true) {
-       int x = init_file.read(); 
-       if (x == -1)
-          return n; 
-       if ( x == ' ') {
-	 return n;
-       } else {
-          n = n*16 + decodeHex(x); 
-       }
-    }	      
+  int n = 0; 
+  while (true) {
+    int x = init_file.read(); 
+    if (x == -1)
+      return n; 
+    if ( x == ' ') {
+      return n;
+    } else {
+      n = n*16 + decodeHex(x); 
+    }
+  }	      
 }
 
 void initfile_readAutorunFilename() {   
-    int n = 0; 
-    while (true) {
-       autoloadsave_file[n] = 0; 
-       int x = init_file.read(); 
-       if (x == -1 || x == ' ' || n == 14) {
-	 return; 
-       } else {
-	 autoloadsave_file[n++] = (char) x; 
-       }
-    }	      
+  int n = 0; 
+  while (true) {
+    autoloadsave_file[n] = 0; 
+    int x = init_file.read(); 
+    if (x == -1 || x == ' ' || n == 14) {
+      return; 
+    } else {
+      autoloadsave_file[n++] = (char) x; 
+    }
+  }	      
 }
 
 boolean loadMicrotronicInitFile() {
@@ -1309,61 +1316,61 @@ boolean loadMicrotronicInitFile() {
 
   if ( init_file.isOpen()) {
 
-      init_cpu_delay = initfile_readInt();
-      cpu_delay_delta = initfile_readInt(); 
-      init_light_led = initfile_readInt(); 
-      init_keybeep = initfile_readInt(); 
-      init_displayMode = (LCDmode) initfile_readInt(); 
-      autosave_every_seconds = initfile_readInt(); 
-      init_autorun = initfile_readInt(); 
-      init_autorun_address = initfile_readHex();       
-      initfile_readAutorunFilename();       
-      init_file.close();
+    init_cpu_delay = initfile_readInt();
+    cpu_delay_delta = initfile_readInt(); 
+    init_light_led = initfile_readInt(); 
+    init_keybeep = initfile_readInt(); 
+    init_displayMode = (LCDmode) initfile_readInt(); 
+    autosave_every_seconds = initfile_readInt(); 
+    init_autorun = initfile_readInt(); 
+    init_autorun_address = initfile_readHex();       
+    initfile_readAutorunFilename();       
+    init_file.close();
 
-      display.clearDisplay();
-      setTextSize(1); 
-      displaySetCursor(0, 0);
-      display.print("MICRO.INI 1/2");
-      displaySetCursor(0, 1);
-      sep(); 
-      displaySetCursor(0, 2);
-      display.print("CPU       ");
-      display.print(init_cpu_delay);
-      displaySetCursor(0, 3);
-      display.print("CPU DELTA ");
-      display.print(cpu_delay_delta);
-      displaySetCursor(0, 4);
-      display.print("LIGHT     ");
-      display.print(init_light_led);
-      displaySetCursor(0, 5);
-      display.print("KEYBEEP   ");
-      display.print(init_keybeep);
-      display.display(); 
+    display.clearDisplay();
+    setTextSize(1); 
+    displaySetCursor(0, 0);
+    display.print("MICRO.INI 1/2");
+    displaySetCursor(0, 1);
+    sep(); 
+    displaySetCursor(0, 2);
+    display.print("CPU       ");
+    display.print(init_cpu_delay);
+    displaySetCursor(0, 3);
+    display.print("CPU DELTA ");
+    display.print(cpu_delay_delta);
+    displaySetCursor(0, 4);
+    display.print("LIGHT     ");
+    display.print(init_light_led);
+    displaySetCursor(0, 5);
+    display.print("KEYBEEP   ");
+    display.print(init_keybeep);
+    display.display(); 
 
-      display.display(); 
-      delay(2000); 
+    display.display(); 
+    delay(2000); 
 
-      display.clearDisplay();
-      setTextSize(1); 
-      displaySetCursor(0, 0);
-      display.print("MICRO.INI 2/2");
-      displaySetCursor(0, 1);
-      sep(); 
-      displaySetCursor(0, 2);
-      display.print("AUTOSAVE  ");
-      display.print(autosave_every_seconds);
-      displaySetCursor(0, 3);
-      display.print("AUTORUN   ");
-      display.print(init_autorun);
-      displaySetCursor(0, 4);
-      display.print("AUTO ADDR ");
-      display.print(init_autorun_address, HEX);
-      displaySetCursor(0, 5);
-      display.print(autoloadsave_file);
-      display.display(); 
-      delay(2000); 
+    display.clearDisplay();
+    setTextSize(1); 
+    displaySetCursor(0, 0);
+    display.print("MICRO.INI 2/2");
+    displaySetCursor(0, 1);
+    sep(); 
+    displaySetCursor(0, 2);
+    display.print("AUTOSAVE  ");
+    display.print(autosave_every_seconds);
+    displaySetCursor(0, 3);
+    display.print("AUTORUN   ");
+    display.print(init_autorun);
+    displaySetCursor(0, 4);
+    display.print("AUTO ADDR ");
+    display.print(init_autorun_address, HEX);
+    displaySetCursor(0, 5);
+    display.print(autoloadsave_file);
+    display.display(); 
+    delay(2000); 
 
-      return true; 
+    return true; 
 
   } else {
     display.clearDisplay();
@@ -1539,7 +1546,7 @@ void advanceTime() {
         }
       }
     
-    lastClockTime = time; 
+      lastClockTime = time; 
 
     } 
   }
@@ -1636,13 +1643,13 @@ void showDISP(uint8_t col) {
   showStatus(); 
   
   for (int i = 0; i < showingDisplayDigits; i++) {
-      byte idx = (i +  showingDisplayFromReg ) % 16; 
-      byte dreg = reg[idx];
-      if ( mode_change || dispReg[idx] != dreg ) {
-	sendHex(5 - i + col, dreg, false);
-	dispReg[idx] = dreg; 
-	refreshLCD = true;
-      }
+    byte idx = (i +  showingDisplayFromReg ) % 16; 
+    byte dreg = reg[idx];
+    if ( mode_change || dispReg[idx] != dreg ) {
+      sendHex(5 - i + col, dreg, false);
+      dispReg[idx] = dreg; 
+      refreshLCD = true;
+    }
   }
 
   lastShowingDisplayFromReg = showingDisplayFromReg; 
@@ -1686,33 +1693,33 @@ void displayStatus(boolean force_refresh) {
   digitalWrite(CLOCK_1HZ_LED, clock1hz);
 
   // normal output for Microtronic Next Generation Board
-  #ifndef MICRO_SECOND_GEN_BOARD
+#ifndef MICRO_SECOND_GEN_BOARD
   digitalWrite(DOT_LED_1, outputs & 1);
   digitalWrite(DOT_LED_2, outputs & 2);
   digitalWrite(DOT_LED_3, outputs & 4);
   digitalWrite(DOT_LED_4, outputs & 8);
-  #endif 
+#endif 
 
   // inverted output for Microtronic 2nd Generation board
-  #ifdef MICRO_SECOND_GEN_BOARD
+#ifdef MICRO_SECOND_GEN_BOARD
   digitalWrite(DOT_LED_1, ! (outputs & 1));
   digitalWrite(DOT_LED_2, ! (outputs & 2));
   digitalWrite(DOT_LED_3, ! (outputs & 4));
   digitalWrite(DOT_LED_4, ! (outputs & 8));
-  #endif 
+#endif 
 
   //
   //
   //
 
-  #ifndef MICRO_SECOND_GEN_BOARD
+#ifndef MICRO_SECOND_GEN_BOARD
   digitalWrite(CLOCK_OUT, clock1hz);
 
   digitalWrite(DOT_1, ! (outputs & 1));
   digitalWrite(DOT_2, ! (outputs & 2));
   digitalWrite(DOT_3, ! (outputs & 4));
   digitalWrite(DOT_4, ! (outputs & 8));
-  #endif 
+#endif 
 
   //
   // 
@@ -1795,10 +1802,10 @@ void displayStatus(boolean force_refresh) {
     // 
     
     switch ( displayMode ) {
-      case MEM :
-      case MEM_MNEM : setTextSize(1); status_row = 4; status_col = 2; break; 
-      case DISP_LARGE : setTextSize(2); status_row = 1; status_col = 1; break; 
-      default : setTextSize(1); status_row = 5; status_col = 2; 
+    case MEM :
+    case MEM_MNEM : setTextSize(1); status_row = 4; status_col = 2; break; 
+    case DISP_LARGE : setTextSize(2); status_row = 1; status_col = 1; break; 
+    default : setTextSize(1); status_row = 5; status_col = 2; 
     }
 
     //
@@ -1983,7 +1990,7 @@ void displayStatus(boolean force_refresh) {
       default: break;
       }
 
-      if (millis() - funKeyTime > 500) {
+      if (millis() - dispFunKeyTime > 500) {
 	cpu_changed = false; 
 
 	displayCurFunKey = NO_KEY;
@@ -2067,11 +2074,11 @@ void setTextSize(int n) {
 }
 
 void clearLine(int line) {
-     display.fillRect(0, 8*textSize*line, 6*textSize*14, 8*textSize,WHITE);		
+  display.fillRect(0, 8*textSize*line, 6*textSize*14, 8*textSize,WHITE);		
 }
 
 void clearLineFrom(int x, int line) {
-     display.fillRect(x*6*textSize, 8*textSize*line, 6*textSize*14, 8*textSize,WHITE);		
+  display.fillRect(x*6*textSize, 8*textSize*line, 6*textSize*14, 8*textSize,WHITE);		
 }
 
 void clearLines(int from, int to) {
@@ -2079,7 +2086,7 @@ void clearLines(int from, int to) {
 }
 
 void displaySetCursor(int x, int y) {
-     display.setCursor(x*6*textSize, 8*y*textSize); 
+  display.setCursor(x*6*textSize, 8*y*textSize); 
 }
 
 void advanceCursor(boolean yes) {
@@ -2132,7 +2139,7 @@ void sendHexCol(uint8_t pos, uint8_t col, uint8_t c, boolean blink) {
     display.setTextColor(WHITE, BLACK); 
   } else {
     display.setTextColor(BLACK, WHITE); 
- }
+  }
   display.print(c, HEX);	
   display.setTextColor(BLACK, WHITE); 
 
@@ -2175,55 +2182,55 @@ void getMnem(boolean spaces) {
   unsigned int op3 = op1 * 256 + hi * 16 + lo;
 
   switch ( op[pc] ) {
-    case OP_MOV  : inputMnem("MOV   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-    case OP_MOVI : inputMnem("MOVI  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-    case OP_AND  : inputMnem("AND   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-    case OP_ANDI : inputMnem("ANDI  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-    case OP_ADD  : inputMnem("ADD   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-    case OP_ADDI : inputMnem("ADDI  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-    case OP_SUB  : inputMnem("SUB   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-    case OP_SUBI : inputMnem("SUBI  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-    case OP_CMP  : inputMnem("CMP   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-    case OP_CMPI : inputMnem("CMPI  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-    case OP_OR   : inputMnem("OR    ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-    case OP_CALL : inputMnem("CALL  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); inputMnem( hexStringChar[lo] ); break;
-    case OP_GOTO : inputMnem("GOTO  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); inputMnem( hexStringChar[lo] ); break;
-    case OP_BRC  : inputMnem("BRC   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); inputMnem( hexStringChar[lo] ); break;
-    case OP_BRZ  : inputMnem("BRZ   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); inputMnem( hexStringChar[lo] ); break;
+  case OP_MOV  : inputMnem("MOV   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+  case OP_MOVI : inputMnem("MOVI  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+  case OP_AND  : inputMnem("AND   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+  case OP_ANDI : inputMnem("ANDI  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+  case OP_ADD  : inputMnem("ADD   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+  case OP_ADDI : inputMnem("ADDI  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+  case OP_SUB  : inputMnem("SUB   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+  case OP_SUBI : inputMnem("SUBI  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+  case OP_CMP  : inputMnem("CMP   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+  case OP_CMPI : inputMnem("CMPI  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+  case OP_OR   : inputMnem("OR    ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+  case OP_CALL : inputMnem("CALL  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); inputMnem( hexStringChar[lo] ); break;
+  case OP_GOTO : inputMnem("GOTO  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); inputMnem( hexStringChar[lo] ); break;
+  case OP_BRC  : inputMnem("BRC   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); inputMnem( hexStringChar[lo] ); break;
+  case OP_BRZ  : inputMnem("BRZ   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); inputMnem( hexStringChar[lo] ); break;
+  default : {
+    switch (op2) {
+    case OP_MAS  : inputMnem( "MAS   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    case OP_INV  : inputMnem( "INV   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    case OP_SHR  : inputMnem( "SHR   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    case OP_SHL  : inputMnem( "SHL   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    case OP_ADC  : inputMnem( "ADC   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    case OP_SUBC : inputMnem( "SUBC  ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    case OP_DIN  : inputMnem( "DIN   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    case OP_DOT  : inputMnem( "DOT   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    case OP_KIN  : inputMnem( "KIN   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
     default : {
-        switch (op2) {
-          case OP_MAS  : inputMnem( "MAS   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-          case OP_INV  : inputMnem( "INV   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-          case OP_SHR  : inputMnem( "SHR   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-          case OP_SHL  : inputMnem( "SHL   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-          case OP_ADC  : inputMnem( "ADC   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-          case OP_SUBC : inputMnem( "SUBC  ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-          case OP_DIN  : inputMnem( "DIN   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-          case OP_DOT  : inputMnem( "DOT   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-          case OP_KIN  : inputMnem( "KIN   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-          default : {
-              switch (op3) {
-                case OP_HALT   : inputMnem( "HALT  ");  break;
-                case OP_NOP    : inputMnem( "NOP   ");  break;
-                case OP_DISOUT : inputMnem( "DISOUT");  break;
-                case OP_HXDZ   : inputMnem( "HXDZ  ");  break;
-                case OP_DZHX   : inputMnem( "DZHX  ");  break;
-                case OP_RND    : inputMnem( "RND   ");  break;
-                case OP_TIME   : inputMnem( "TIME  ");  break;
-                case OP_RET    : inputMnem( "RET   ");  break;
-                case OP_CLEAR  : inputMnem( "CLEAR ");  break;
-                case OP_STC    : inputMnem( "STC   ");  break; 
-                case OP_RSC    : inputMnem( "RSC   ");  break;
-                case OP_MULT   : inputMnem( "MULT  ");  break;
-                case OP_DIV    : inputMnem( "DIV   ");  break;
-                case OP_EXRL   : inputMnem( "EXRL  ");  break;
-                case OP_EXRM   : inputMnem( "EXRM  ");  break;
-                case OP_EXRA   : inputMnem( "EXRA  ");  break;
-  	        default        : inputMnem( "DISP  ");  advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo]); break;
-              }
-            }
-        }
+      switch (op3) {
+      case OP_HALT   : inputMnem( "HALT  ");  break;
+      case OP_NOP    : inputMnem( "NOP   ");  break;
+      case OP_DISOUT : inputMnem( "DISOUT");  break;
+      case OP_HXDZ   : inputMnem( "HXDZ  ");  break;
+      case OP_DZHX   : inputMnem( "DZHX  ");  break;
+      case OP_RND    : inputMnem( "RND   ");  break;
+      case OP_TIME   : inputMnem( "TIME  ");  break;
+      case OP_RET    : inputMnem( "RET   ");  break;
+      case OP_CLEAR  : inputMnem( "CLEAR ");  break;
+      case OP_STC    : inputMnem( "STC   ");  break; 
+      case OP_RSC    : inputMnem( "RSC   ");  break;
+      case OP_MULT   : inputMnem( "MULT  ");  break;
+      case OP_DIV    : inputMnem( "DIV   ");  break;
+      case OP_EXRL   : inputMnem( "EXRL  ");  break;
+      case OP_EXRM   : inputMnem( "EXRM  ");  break;
+      case OP_EXRA   : inputMnem( "EXRA  ");  break;
+      default        : inputMnem( "DISP  ");  advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo]); break;
       }
+    }
+    }
+  }
   }
 
 }
@@ -2391,126 +2398,126 @@ void interpret() {
 
   if ( funKeyPressed(HALT) ) {
 
-      display.clearDisplay();
-      display.display();
+    display.clearDisplay();
+    display.display();
 
-      jump = true;
-      currentMode = STOPPED;
-      cursor = CURSOR_OFF;
+    jump = true;
+    currentMode = STOPPED;
+    cursor = CURSOR_OFF;
 
-      dispOff = false;
-      lastInstructionWasDisp = false;
+    dispOff = false;
+    lastInstructionWasDisp = false;
 
   } else if  (funKeyPressed(RUN)) {
 
-      start_running(); 
+    start_running(); 
 
   } else if ( funKeyPressed(DOWN)) {
 
-      display.clearDisplay();
-      display.display();
+    display.clearDisplay();
+    display.display();
 
-      if (currentMode != RUNNING ) {
-        pc--;
-        //cursor = 0;
-        //currentMode = ENTERING_ADDRESS_HIGH;
-      }
+    if (currentMode != RUNNING ) {
+      pc--;
+      //cursor = 0;
+      //currentMode = ENTERING_ADDRESS_HIGH;
+    }
 
-      jump = true;
+    jump = true;
 
   } else if ( funKeyPressed(UP)) {
 
-      display.clearDisplay();
-      display.display();
+    display.clearDisplay();
+    display.display();
 
-      if (currentMode != RUNNING ) {
-        pc++;
-        //cursor = 0;
-        //currentMode = ENTERING_ADDRESS_HIGH;
-      }
+    if (currentMode != RUNNING ) {
+      pc++;
+      //cursor = 0;
+      //currentMode = ENTERING_ADDRESS_HIGH;
+    }
 
-      jump = true;
+    jump = true;
 
   } else if ( funKeyPressed(NEXT)) {
 
-      display.clearDisplay();
-      display.display();
+    display.clearDisplay();
+    display.display();
 
-      if (currentMode == STOPPED) {
-        currentMode = ENTERING_ADDRESS_HIGH;
-        cursor = 0;
-      } else {
-        pc++;
-        cursor = 2;
-        currentMode = ENTERING_OP;
-      }
+    if (currentMode == STOPPED) {
+      currentMode = ENTERING_ADDRESS_HIGH;
+      cursor = 0;
+    } else {
+      pc++;
+      cursor = 2;
+      currentMode = ENTERING_OP;
+    }
 
-      jump = true;
+    jump = true;
 
   } else if ( funKeyPressed(REG)) {
  
-      display.clearDisplay();
-      display.display();
+    display.clearDisplay();
+    display.display();
 
-      if (currentMode != ENTERING_REG) {
-        currentMode = ENTERING_REG;
-        cursor = 0;
-      } else {
-        currentMode = INSPECTING;
-        cursor = 1;
-      }
+    if (currentMode != ENTERING_REG) {
+      currentMode = ENTERING_REG;
+      cursor = 0;
+    } else {
+      currentMode = INSPECTING;
+      cursor = 1;
+    }
 
   } else if ( funKeyPressed(STEP) ) {
 
-      display.clearDisplay();
-      display.display();
+    display.clearDisplay();
+    display.display();
 
-      currentMode = RUNNING;
-      oneStepOnly = true;
-      dispOff = false;
-      jump = true; // don't increment PC !
+    currentMode = RUNNING;
+    oneStepOnly = true;
+    dispOff = false;
+    jump = true; // don't increment PC !
 
   } else if ( funKeyPressed(BKP) ) {
 
-      display.clearDisplay();
-      display.display();
+    display.clearDisplay();
+    display.display();
 
-      if (currentMode != ENTERING_BREAKPOINT_LOW ) {
-        currentMode = ENTERING_BREAKPOINT_HIGH;
-        cursor = 0;
-      } else {
-        cursor = 1;
-        currentMode = ENTERING_BREAKPOINT_LOW;
-      }
+    if (currentMode != ENTERING_BREAKPOINT_LOW ) {
+      currentMode = ENTERING_BREAKPOINT_HIGH;
+      cursor = 0;
+    } else {
+      cursor = 1;
+      currentMode = ENTERING_BREAKPOINT_LOW;
+    }
 
   } else if ( funKeyPressed(CCE) ) {
 
-      display.clearDisplay();
-      display.display();
+    display.clearDisplay();
+    display.display();
 
-      if (cursor == 2) {
-        cursor = 4;
-        arg2[pc] = 0;
-        currentMode = ENTERING_ARG2;
-      } else if (cursor == 3) {
-        cursor = 2;
-        op[pc] = 0;
-        currentMode = ENTERING_OP;
-      } else {
-        cursor = 3;
-        arg1[pc] = 0;
-        currentMode = ENTERING_ARG1;
-      }
+    if (cursor == 2) {
+      cursor = 4;
+      arg2[pc] = 0;
+      currentMode = ENTERING_ARG2;
+    } else if (cursor == 3) {
+      cursor = 2;
+      op[pc] = 0;
+      currentMode = ENTERING_OP;
+    } else {
+      cursor = 3;
+      arg1[pc] = 0;
+      currentMode = ENTERING_ARG1;
+    }
 
   } else if ( funKeyPressed(PGM) ) {
 
-      display.clearDisplay();
-      display.display();
+    display.clearDisplay();
+    display.display();
 
-      if ( currentMode != ENTERING_PROGRAM ) {
-        cursor = 0;
-        currentMode = ENTERING_PROGRAM;
-      }
+    if ( currentMode != ENTERING_PROGRAM ) {
+      cursor = 0;
+      currentMode = ENTERING_PROGRAM;
+    }
 
   }
 
@@ -2520,63 +2527,63 @@ void interpret() {
 
   if ( currentMode == RUNNING ) {
 
-      run();
+    run();
 
   } else if (currentMode == STOPPED ) {
 
-      check_for_autosave(); 
+    check_for_autosave(); 
 
-      cursor = CURSOR_OFF;
+    cursor = CURSOR_OFF;
 
   } else if (currentMode == ENTERING_ADDRESS_HIGH ) {
 
-      check_for_autosave(); 
+    check_for_autosave(); 
 
-      if (someHexKeyPressed()) {
-        cursor = 1;
-        pc = getCurHexKey() * 16;
-        currentMode = ENTERING_ADDRESS_LOW;
-      }
+    if (someHexKeyPressed()) {
+      cursor = 1;
+      pc = getCurHexKey() * 16;
+      currentMode = ENTERING_ADDRESS_LOW;
+    }
 
   } else if ( currentMode == ENTERING_ADDRESS_LOW ) {
 
-      check_for_autosave(); 
+    check_for_autosave(); 
 
-      if (someHexKeyPressed()) {
-        cursor = 2;
-        pc += getCurHexKey();
-        currentMode = ENTERING_OP;
-      }
+    if (someHexKeyPressed()) {
+      cursor = 2;
+      pc += getCurHexKey();
+      currentMode = ENTERING_OP;
+    }
       
   } else if ( currentMode == ENTERING_OP ) {
 
-      check_for_autosave(); 
+    check_for_autosave(); 
 
-      if (someHexKeyPressed()) {
-        cursor = 3;
-        op[pc] = getCurHexKey();
-        currentMode = ENTERING_ARG1;
-      }
+    if (someHexKeyPressed()) {
+      cursor = 3;
+      op[pc] = getCurHexKey();
+      currentMode = ENTERING_ARG1;
+    }
 
   } else if ( currentMode == ENTERING_ARG1 ) {
 
-      check_for_autosave(); 
+    check_for_autosave(); 
 
-      if (someHexKeyPressed()) {
-        cursor = 4;
-        arg1[pc] = getCurHexKey();
-        currentMode = ENTERING_ARG2;
-      }
+    if (someHexKeyPressed()) {
+      cursor = 4;
+      arg1[pc] = getCurHexKey();
+      currentMode = ENTERING_ARG2;
+    }
 
   } else if ( currentMode == ENTERING_ARG2 ) {
 
-      check_for_autosave(); 
+    check_for_autosave(); 
 
-      if (someHexKeyPressed()) {
-        cursor = 2;
-        arg2[pc] = getCurHexKey();
-        currentMode = ENTERING_OP;
-      }
+    if (someHexKeyPressed()) {
+      cursor = 2;
+      arg2[pc] = getCurHexKey();
+      currentMode = ENTERING_OP;
+    }
 
   } else if (currentMode == ENTERING_VALUE ) {
 
@@ -2594,111 +2601,111 @@ void interpret() {
 
       curInput = getCurHexKey();
 
-        switch (cursor) {
-          case 0 : if (curInput < 3) {
-              timeHours10 = curInput;
-              cursor++;
-            } break;
-          case 1 : if (timeHours10 == 2 && curInput < 4 || timeHours10 < 2 && curInput < 10) {
-              timeHours1 = curInput;
-              cursor++;
-            } break;
-          case 2 : if (curInput < 6) {
-              timeMinutes10 = curInput;
-              cursor++;
-            } break;
-          case 3 : if (curInput < 10) {
-              timeMinutes1 = curInput;
-              cursor++;
-            } break;
-          case 4 : if (curInput < 6) {
-              timeSeconds10 = curInput;
-              cursor++;
-            } break;
-          case 5 : if (curInput < 10) {
-              timeSeconds1 = curInput;
-              cursor++;
-            } break;
-          default : break;
-        }
-
-        if (cursor > 5)
-          cursor = 0;
-
+      switch (cursor) {
+      case 0 : if (curInput < 3) {
+	  timeHours10 = curInput;
+	  cursor++;
+	} break;
+      case 1 : if (timeHours10 == 2 && curInput < 4 || timeHours10 < 2 && curInput < 10) {
+	  timeHours1 = curInput;
+	  cursor++;
+	} break;
+      case 2 : if (curInput < 6) {
+	  timeMinutes10 = curInput;
+	  cursor++;
+	} break;
+      case 3 : if (curInput < 10) {
+	  timeMinutes1 = curInput;
+	  cursor++;
+	} break;
+      case 4 : if (curInput < 6) {
+	  timeSeconds10 = curInput;
+	  cursor++;
+	} break;
+      case 5 : if (curInput < 10) {
+	  timeSeconds1 = curInput;
+	  cursor++;
+	} break;
+      default : break;
       }
+
+      if (cursor > 5)
+	cursor = 0;
+
+    }
 
   } else if (currentMode == ENTERING_PROGRAM ) {
 
     if (someHexKeyPressed()) {
 
       program = getCurHexKey();
-        currentMode = STOPPED;
-        cursor = CURSOR_OFF;
+      currentMode = STOPPED;
+      cursor = CURSOR_OFF;
 
-	if ( program == 0 ) {
+      if ( program == 0 ) {
 
-	  announce(0,1,"NO TEST");
+	announce(0,1,"NO TEST");
 	  
-	} else if ( program == 1 ) {
+      } else if ( program == 1 ) {
 
-            loadProgram();
+	loadProgram();
 
-	} else if ( program == 2) {
+      } else if ( program == 2) {
 
-            saveProgram();
+	saveProgram();
 
-	} else if (program == 3 ) {
-            currentMode = ENTERING_TIME;
-            cursor = 0;
+      } else if (program == 3 ) {
+	currentMode = ENTERING_TIME;
+	cursor = 0;
 
-	} else if ( program == 4 ) {
-            currentMode = SHOWING_TIME;
-            cursor = CURSOR_OFF;
+      } else if ( program == 4 ) {
+	currentMode = SHOWING_TIME;
+	cursor = CURSOR_OFF;
 
-	} else if ( program == 5) {
-            clearMem();
+      } else if ( program == 5) {
+	clearMem();
 
-	} else if ( program == 6) {
-            loadNOPs();
+      } else if ( program == 6) {
+	loadNOPs();
 
-	} else if (program - 7 < PROGRAMS ) {
+      } else if (program - 7 < PROGRAMS ) {
 
-	  enterProgram(program - 7, 0);
-	  announce(0,1,"LOADED");
+	enterProgram(program - 7, 0);
+	announce(0,1,"LOADED");
 
-	} else {
-	  announce(0,1,"NO PROG");
-        }
-
+      } else {
+	announce(0,1,"NO PROG");
       }
+
+    }
 
   } else if ( currentMode == ENTERING_BREAKPOINT_HIGH ) {
 
     if (someHexKeyPressed()) {
-        cursor = 1;
-        breakAt = getCurHexKey() * 16;
-        currentMode = ENTERING_BREAKPOINT_LOW;
+      cursor = 1;
+      breakAt = getCurHexKey() * 16;
+      currentMode = ENTERING_BREAKPOINT_LOW;
 
-	if (breakAt == 0) 
-	  announce(0,1,"NO BKP"); 
-	else
-	  announce1(0,1,"BKP@ ", breakAt); 
+      if (breakAt == 0) 
+	announce(0,1,"NO BKP"); 
+      else
+	announce1(0,1,"BKP@ ", breakAt); 
 
-      }
+    }
 
   } else if ( currentMode == ENTERING_BREAKPOINT_LOW ) {
 
     if (someHexKeyPressed()) {
-        cursor = 0;
-        breakAt += getCurHexKey();
-        currentMode = ENTERING_BREAKPOINT_HIGH;
+      cursor = 0;
+      breakAt += getCurHexKey();
+      currentMode = ENTERING_BREAKPOINT_HIGH;
 	
-	if (breakAt == 0) 
-	  announce(0,1,"NO BKP"); 
-	else
-	  announce1(0,1,"BKP@ ", breakAt); 
+      if (breakAt == 0) 
+	announce(0,1,"NO BKP"); 
+      else
+	announce1(0,1,"BKP@ ", breakAt); 
 
-      }
+    }
 
   } else if ( currentMode == ENTERING_REG ) {
 
@@ -2762,85 +2769,85 @@ void run() {
       if (! d) {
         noNewTone(TONEPIN); // Turn off the tone.
       } else { 
-          NewTone(TONEPIN, note_frequencies[d-1]); 
+	NewTone(TONEPIN, note_frequencies[d-1]); 
       }
     }
     
   } else if (op1 == OP_MOVI) {
 
-      reg[d] = n;
-      zero = reg[d] == 0;
+    reg[d] = n;
+    zero = reg[d] == 0;
 
   } else if (op1 == OP_AND ) {
 
-      reg[d] &= reg[s];
-      carry = false;
-      zero = reg[d] == 0;
+    reg[d] &= reg[s];
+    carry = false;
+    zero = reg[d] == 0;
 
   } else if (op1 == OP_ANDI ) {
 
-      reg[d] &= n;
-      carry = false;
-      zero = reg[d] == 0;
+    reg[d] &= n;
+    carry = false;
+    zero = reg[d] == 0;
 
   } else if (op1 == OP_ADD ) {
 
-      reg[d] += reg[s];
-      carry = reg[d] > 15;
-      reg[d] &= 15;
-      zero = reg[d] == 0;
+    reg[d] += reg[s];
+    carry = reg[d] > 15;
+    reg[d] &= 15;
+    zero = reg[d] == 0;
 
   } else if (op1 == OP_ADDI ) {
 
-      reg[d] += n;
-      carry = reg[d] > 15;
-      reg[d] &= 15;
-      zero =  reg[d] == 0;
+    reg[d] += n;
+    carry = reg[d] > 15;
+    reg[d] &= 15;
+    zero =  reg[d] == 0;
 
   } else if (op1 == OP_SUB ) {
 
-      reg[d] -= reg[s];
-      carry = reg[d] > 15;
-      reg[d] &= 15;
-      zero =  reg[d] == 0;
+    reg[d] -= reg[s];
+    carry = reg[d] > 15;
+    reg[d] &= 15;
+    zero =  reg[d] == 0;
 
   } else if (op1 == OP_SUBI ) {
 
-      reg[d] -= n;
-      carry = reg[d] > 15;
-      reg[d] &= 15;
-      zero =  reg[d] == 0;
+    reg[d] -= n;
+    carry = reg[d] > 15;
+    reg[d] &= 15;
+    zero =  reg[d] == 0;
       
   } else if (op1 == OP_CMP ) {
 
-      carry = reg[s] < reg[d];
-      zero = reg[s] == reg[d];
+    carry = reg[s] < reg[d];
+    zero = reg[s] == reg[d];
 
   } else if (op1 == OP_CMPI ) {
 
-      carry = n < reg[d];
-      zero = reg[d] == n;
+    carry = n < reg[d];
+    zero = reg[d] == n;
 
   } else if (op1 == OP_OR ) {
 
-      reg[d] |= reg[s];
-      carry = false;
-      zero = reg[d] == 0;
+    reg[d] |= reg[s];
+    carry = false;
+    zero = reg[d] == 0;
 
   } else if (op1 == OP_CALL ) {
 
-      if (sp < STACK_DEPTH - 1) {
-        stack[sp] = pc;
-        sp++;
-        pc = adr;
-        jump = true;
+    if (sp < STACK_DEPTH - 1) {
+      stack[sp] = pc;
+      sp++;
+      pc = adr;
+      jump = true;
 
-      } else {
+    } else {
 
-        error = true;
-        currentMode = STOPPED;
+      error = true;
+      currentMode = STOPPED;
 
-      }
+    }
 
   } else if (op1 == OP_GOTO ) {
 
@@ -2849,17 +2856,17 @@ void run() {
     
   } else if (op1 == OP_BRC ) {
 
-      if (carry) {
-        pc = adr;
-        jump = true;
-      }
+    if (carry) {
+      pc = adr;
+      jump = true;
+    }
 
   } else if (op1 == OP_BRZ ) {
 
-      if (zero) {
-        pc = adr;
-        jump = true;
-      }
+    if (zero) {
+      pc = adr;
+      jump = true;
+    }
 
   } else if ( op2 == OP_MAS ) {
 
@@ -3147,7 +3154,7 @@ void run() {
     }
   } else {
 
-     delay(cpu_delay); 
+    delay(cpu_delay); 
 
   }
 
@@ -3360,19 +3367,19 @@ void setup() {
   //
 
   for (int x = 0; x < HEX_KEYPAD_ROWS; x++) {
-      pinMode(hex_keypad_row_pins[x],OUTPUT);          
-      digitalWrite(hex_keypad_row_pins[x],HIGH);          
+    pinMode(hex_keypad_row_pins[x],OUTPUT);          
+    digitalWrite(hex_keypad_row_pins[x],HIGH);          
   }     						       
   for (int x = 0; x < HEX_KEYPAD_COLS; x++) {
-      pinMode(hex_keypad_col_pins[x],INPUT_PULLUP);          
+    pinMode(hex_keypad_col_pins[x],INPUT_PULLUP);          
   }     						       
 	
   for (int x = 0; x < FN_KEYPAD_ROWS; x++) {
-      pinMode(fn_keypad_row_pins[x],OUTPUT);          
-      digitalWrite(fn_keypad_row_pins[x],HIGH);          
+    pinMode(fn_keypad_row_pins[x],OUTPUT);          
+    digitalWrite(fn_keypad_row_pins[x],HIGH);          
   }     						       
   for (int x = 0; x < FN_KEYPAD_COLS; x++) {
-      pinMode(fn_keypad_col_pins[x],INPUT_PULLUP);          
+    pinMode(fn_keypad_col_pins[x],INPUT_PULLUP);          
   }     						       
 	
   //
@@ -3404,14 +3411,14 @@ void setup() {
   //
   // 
 
-  #ifndef MICRO_SECOND_GEN_BOARD
+#ifndef MICRO_SECOND_GEN_BOARD
   pinMode(CLOCK_OUT, OUTPUT);
 
   pinMode(DOT_1, OUTPUT);
   pinMode(DOT_2, OUTPUT);
   pinMode(DOT_3, OUTPUT);
   pinMode(DOT_4, OUTPUT);
-  #endif 
+#endif 
 
   //
   //
@@ -3473,18 +3480,18 @@ void loop() {
   readFunKeys();
   readHexKeys(); 
 
-  if (currentMode == RUNNING && funKeyPressed(UP)) {
-    
-     cpu_changed = true; 
-     cpu_delay += cpu_delay_delta; 
-     forceFullRefresh = true; 
-  }		      
+  if ((currentMode == RUNNING || currentMode == ENTERING_VALUE)) {
 
-  if (currentMode == RUNNING && funKeyPressed(DOWN)) {
-     cpu_changed = true; 
-     cpu_delay = cpu_delay < cpu_delay_delta ? 0 : cpu_delay - cpu_delay_delta; 
-     forceFullRefresh = true; 
-  }		      
+    if (funKeyPressed(UP)) {   
+      cpu_changed = true; 
+      cpu_delay += cpu_delay_delta; 
+      forceFullRefresh = true; 
+    } else if (funKeyPressed(DOWN)) {
+      cpu_changed = true; 
+      cpu_delay = cpu_delay < cpu_delay_delta ? 0 : cpu_delay - cpu_delay_delta; 
+      forceFullRefresh = true; 
+    }		      
+  }
 
   //
   //
