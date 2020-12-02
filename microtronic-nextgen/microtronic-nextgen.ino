@@ -2500,19 +2500,19 @@ void interpret() {
         currentMode == ENTERING_ADDRESS_LOW || 
 	currentMode == STOPPED ) {
       cursor = 2;
-      op[pc] = 0;
+      //op[pc] = 0;
       currentMode = ENTERING_OP;
     } else if (cursor == 2) {
       cursor = 4;
-      arg2[pc] = 0;
+      //arg2[pc] = 0;
       currentMode = ENTERING_ARG2;
     } else if (cursor == 3) {
       cursor = 2;
-      op[pc] = 0;
+      //op[pc] = 0;
       currentMode = ENTERING_OP;
     } else {
       cursor = 3;
-      arg1[pc] = 0;
+      //arg1[pc] = 0;
       currentMode = ENTERING_ARG1;
     }
 
