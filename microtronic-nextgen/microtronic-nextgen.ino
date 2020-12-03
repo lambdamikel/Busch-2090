@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
 
-  Version 23 (c) Michael Wessel, December 2th, 2020
+  Version 24 (c) Michael Wessel, December 2th, 2020
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -26,8 +26,8 @@
 
 */
 
-#define VERSION "23" 
-#define DATE "12-2-2020"  
+#define VERSION "24" 
+#define DATE "12-3-2020"  
  
 //
 //
@@ -88,12 +88,26 @@ byte hex_keypad_col_pins[HEX_KEYPAD_COLS] = HEX_COL_PINS; // columns
 byte hex_keypad_row_pins[HEX_KEYPAD_ROWS] = HEX_ROW_PINS; // rows
 
 //
-// 15 Notes (0 = Tone Off!) 
-// C4, C#4, D4, D#4, E4, F4, F#4, G4, A4, B#4, B4, C5, E5, G5, C6 
-//  1   2    3   4    5   6   7    8   9    A   B   C   D   E   F 
+// MOV: 15 Notes (0 = Tone Off!) 
+// C2, C#2, D2, D#2, E2, F2, F#2, G2, G#2, A2, B#2, B2, C3, C#3, D3
+//  1   2    3   4    5   6   7    8   9    A   B    C   D   E    F 
 //
 
-int note_frequencies[] = { 262, 277, 294, 311, 329, 349, 370, 392, 415, 440, 466, 494, 523, 659, 784, 1047}; 
+int note_frequencies_mov[ ] = { 65, 69, 73, 78, 82, 87, 93, 98, 104, 110, 117, 123, 131, 139, 147 };
+
+// ADDI: 16 Notes 
+// D#3, E3, F3, F#3, G3, G#3, A3, B#3, B3, C4, C#4, D4, D#4, E4, F4, F#4
+//  0    1   2   3    4   5    6   7    8   9   A    B   C    D   E   F
+//
+
+int note_frequencies_addi[] = { 156, 165, 175, 185, 196, 208, 220, 233, 247, 262, 277, 294, 311, 330, 349, 370 }; 
+
+// SUBI: 16 Notes 
+// G4, G#4, A4, B#4, B4, C5, C#5, D5, D#5, E5, F5, F#5, G5,  G#5, A5,  B#5
+//  0   1    2   3    4   5   6    7   8    9   A   B    C    D    E    F 
+// 
+ 
+int note_frequencies_subi[] = { 392, 415, 440, 466, 494, 523, 554, 587, 622, 659, 698, 740, 784, 831, 880, 932 }; 
 
 //
 // Function 4x4 Matrix Keypad 
@@ -2341,6 +2355,8 @@ void clearStack() {
 
 void reset(boolean quiet) {
 
+  noNewTone(TONEPIN); // Turn off the tone.
+
   curHexKeyRaw = NO_KEY; 
   curFunKeyRaw = NO_KEY; 
 
@@ -2949,11 +2965,12 @@ void run() {
 
     reg[d] = reg[s];
     zero = reg[d] == 0;
+
     if (d == s) {
       if (! d) {
         noNewTone(TONEPIN); // Turn off the tone.
       } else { 
-	NewTone(TONEPIN, note_frequencies[d-1]); 
+	NewTone(TONEPIN, note_frequencies_mov[d-1]); 
       }
     }
     
@@ -2988,6 +3005,9 @@ void run() {
     reg[d] &= 15;
     zero =  reg[d] == 0;
 
+    if (! n) 
+      NewTone(TONEPIN, note_frequencies_addi[d]);       
+
   } else if (op1 == OP_SUB ) {
 
     reg[d] -= reg[s];
@@ -3001,6 +3021,9 @@ void run() {
     carry = reg[d] > 15;
     reg[d] &= 15;
     zero =  reg[d] == 0;
+
+    if (! n) 
+      NewTone(TONEPIN, note_frequencies_subi[d]);       
       
   } else if (op1 == OP_CMP ) {
 
