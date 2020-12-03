@@ -8,6 +8,11 @@
 
 //#define INVERTED_OUTPUTS_FOR_2095_EMU
 
+// Uncomment if you don't have a realtime clock at pins 20, 21 (SDA, SCL) I2C
+// 
+
+#define RTCPRESENT
+
 //
 // Keypad Tones
 // 
@@ -105,8 +110,8 @@
 // Function Keypad Pins
 //
 
-#define FN_COL_PINS {22, 20, 18, 16}
-#define FN_ROW_PINS {23, 21, 19, 17}
+#define FN_COL_PINS {22, 39, 18, 16}
+#define FN_ROW_PINS {23, 37, 19, 17}
 
 //
 // Busch 2095 Interface Emu 

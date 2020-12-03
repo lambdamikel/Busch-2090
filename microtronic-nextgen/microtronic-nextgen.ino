@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
 
-  Version 22 (c) Michael Wessel, December 2th, 2020
+  Version 23 (c) Michael Wessel, December 2th, 2020
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -26,7 +26,7 @@
 
 */
 
-#define VERSION "22" 
+#define VERSION "23" 
 #define DATE "12-2-2020"  
  
 //
@@ -40,11 +40,19 @@
 //
 //
 
+#include <Wire.h>
+#include <ds3231.h>
 #include <avr/pgmspace.h>
 #include <SdFat.h>
 #include <SPI.h>
 #include <Adafruit_PCD8544.h>
 #include <NewTone.h>
+
+//
+// RTC Current Time
+//
+
+struct ts RTC; 
 
 //
 // SD Card
@@ -254,6 +262,18 @@ byte timeMinutes10 = 0;
 byte timeHours1 = 0;
 byte timeHours10 = 0;
 
+
+byte timeYears1000  = 0;
+byte timeYears1000R = 0; 
+byte timeYears100  = 0; 
+byte timeYears100R = 0; 
+byte timeYears10 = 0; 
+byte timeYears1  = 0; 
+byte timeMonths10 = 0; 
+byte timeMonths1  = 0;
+byte timeDays10 = 0;
+byte timeDays1  = 0; 
+
 //
 // auxilary helper variables
 //
@@ -374,7 +394,8 @@ enum mode {
   ENTERING_PROGRAM,
 
   ENTERING_TIME,
-  SHOWING_TIME
+  SHOWING_TIME, 
+  ENTERING_DATE 
 
 };
 
@@ -1564,6 +1585,18 @@ void showTime(uint8_t col) {
 
 }
 
+void showDate(uint8_t col) {
+
+  sendHex(col++, timeMonths10, blink & (cursor == 0));
+  sendHex(col++, timeMonths1, blink & (cursor == 1));
+  sendHex(col++, timeDays10, blink & (cursor == 2));
+  sendHex(col++, timeDays1, blink & (cursor == 3));
+  sendHex(col++, timeYears10, blink & (cursor == 4));
+  sendHex(col++, timeYears1, blink & (cursor == 5));
+
+}
+
+
 void showReg(uint8_t col) {
 
   sendHex(col++, currentReg, blink & (cursor == 0));
@@ -1791,6 +1824,8 @@ void displayStatus(boolean force_refresh) {
       status = '?';
     else if (currentMode == ENTERING_TIME )
       status = 'T';
+    else if (currentMode == ENTERING_DATE )
+      status = 'D';
     else if (currentMode == SHOWING_TIME )
       status = 'C';
     else if (currentMode == ENTERING_PROGRAM )
@@ -1843,6 +1878,10 @@ void displayStatus(boolean force_refresh) {
 	refreshLCD = true; 
 	sendCharRow(0, status_row, status, false);      
 	showTime(status_col);
+      } else if ( currentMode == ENTERING_DATE ) {
+	refreshLCD = true; 
+	sendCharRow(0, status_row, status, false);      
+	showDate(status_col);
       } else if ( error ) {
 	refreshLCD = true; 
 	sendCharRow(0, status_row, status, false);      
@@ -1874,6 +1913,14 @@ void displayStatus(boolean force_refresh) {
 
 	  displaySetCursor(0, 0);	
           display.print("SET CLK");
+          break;
+
+        case ENTERING_DATE : 
+
+	  refreshLCD = true; 
+
+	  displaySetCursor(0, 0);	
+          display.print("SET DATE");
           break;
 
         case SHOWING_TIME :
@@ -2059,6 +2106,46 @@ void LCDLogo() {
   display.display(); 
   delay(1000);   
 
+  //
+  //
+  //
+
+#ifdef RTCPRESENT
+
+  DS3231_get(&RTC);
+
+  display.clearDisplay();;   
+  displaySetCursor(0, 0);
+  sep(); 
+  displaySetCursor(0, 1);
+  display.print("D: ");
+  display.print(RTC.mon / 10, DEC);
+  display.print(RTC.mon % 10, DEC);
+  display.print("/");
+  display.print(RTC.mday / 10, DEC);
+  display.print(RTC.mday % 10, DEC);
+  display.print("/");
+  display.print(RTC.year);
+  displaySetCursor(0, 2);
+  sep(); 
+  displaySetCursor(0, 3);
+  display.print("T: ");
+  display.print(RTC.hour / 10, DEC);
+  display.print(RTC.hour % 10, DEC);
+  display.print(":");
+  display.print(RTC.min / 10, DEC);
+  display.print(RTC.min % 10, DEC);
+  display.print(":");
+  display.print(RTC.sec / 10, DEC);
+  display.print(RTC.sec % 10, DEC);
+  displaySetCursor(0, 4);
+  sep();
+  display.display(); 
+ 
+  delay(1500);
+
+#endif 
+
 }
 
 //
@@ -2160,8 +2247,6 @@ void clearMnemonicBuffer() {
   lcdCursor = 0;
 
 }
-
-
 
 void inputMnem(String string) {
 
@@ -2409,7 +2494,7 @@ void interpret() {
     dispOff = false;
     lastInstructionWasDisp = false;
 
-  } else if  (funKeyPressed(RUN)) {
+  } else if (funKeyPressed(RUN)) {
 
     start_running(); 
 
@@ -2606,6 +2691,18 @@ void interpret() {
 
     if (someHexKeyPressed()) {
 
+#ifdef RTCPRESENT 
+
+      DS3231_get(&RTC);
+      timeHours10 = RTC.hour / 10; 
+      timeHours1 = RTC.hour % 10; 
+      timeMinutes10 = RTC.min / 10; 
+      timeMinutes1 = RTC.min % 10; 
+      timeSeconds10 = RTC.sec / 10; 
+      timeSeconds1 = RTC.sec % 10; 
+
+#endif 
+
       curInput = getCurHexKey();
 
       switch (cursor) {
@@ -2639,7 +2736,87 @@ void interpret() {
       if (cursor > 5)
 	cursor = 0;
 
+      //
+      //
+      //
+
+#ifdef RTCPRESENT 
+      RTC.hour = timeHours10*10 + timeHours1; 
+      RTC.min = timeMinutes10*10 + timeMinutes1;
+      RTC.sec = timeSeconds10*10 + timeSeconds1;
+      DS3231_set(RTC); 
+#endif 
+      	  
     }
+
+  } else if (currentMode == ENTERING_DATE ) {
+
+#ifdef RTCPRESENT 
+
+    if (someHexKeyPressed()) {
+
+      DS3231_get(&RTC);
+
+      timeYears1000  = RTC.year / 1000; 
+      timeYears1000R = RTC.year % 1000; 
+      timeYears100  = timeYears1000R / 100; 
+      timeYears100R = timeYears1000R % 100; 
+      timeYears10 = timeYears100R / 10; 
+      timeYears1  = timeYears100R % 10;   
+      timeMonths10 = RTC.mon / 10; 
+      timeMonths1  = RTC.mon % 10;  
+      timeDays10 = RTC.mday / 10; 
+      timeDays1  = RTC.mday % 10; 
+
+      curInput = getCurHexKey();
+
+      // MONTH DAYS YEARS
+
+      switch (cursor) {
+      case 0 : if (curInput < 2) {
+	  timeMonths10 = curInput;
+	  cursor++;
+	} break;
+      case 1 : if (timeMonths10 == 1 && curInput < 3 || timeMonths10 == 0 && curInput > 0 && curInput < 10) {
+	  timeMonths1 = curInput;
+	  cursor++;
+	} break;
+      case 2 : if (curInput < 4) {
+	  timeDays10 = curInput;
+	  cursor++;
+	} break;
+      case 3 : if (timeDays10 == 3 && curInput < 2 || timeDays10 < 3 && curInput > 0 && curInput < 10) {
+	  timeDays1 = curInput;
+	  cursor++;
+	} break;
+
+      case 4 : if (curInput >= 0 && curInput < 10) {
+	  timeYears10 = curInput;
+	  cursor++;
+	} break;
+      case 5 :  if (curInput >= 0 && curInput < 10) {
+	  timeYears1 = curInput;
+	  cursor++;
+	} break;
+      default : break;
+      }
+
+      if (cursor > 5)
+	cursor = 0;
+
+      //
+      //
+      //
+
+      RTC.year = timeYears10 * 10 + timeYears1 + timeYears1000 * 1000 + timeYears100 * 100 ; 
+      RTC.mon = timeMonths10*10 + timeMonths1;
+      RTC.mday = timeDays10*10 + timeDays1;
+
+      DS3231_set(RTC); 
+      	  
+    }
+
+#endif 
 
   } else if (currentMode == ENTERING_PROGRAM ) {
 
@@ -2650,8 +2827,8 @@ void interpret() {
       cursor = CURSOR_OFF;
 
       if ( program == 0 ) {
-
-	announce(0,1,"NO TEST");
+	currentMode = ENTERING_DATE;
+	cursor = 0;
 	  
       } else if ( program == 1 ) {
 
@@ -3302,6 +3479,41 @@ void resetPins() {
 //
 
 void setup() {
+
+  //
+  // RTC Setup
+  // 
+
+#ifdef RTCPRESENT 
+
+  Wire.begin();
+  DS3231_init(DS3231_INTCN);
+
+  DS3231_get(&RTC);
+
+  timeHours10 = RTC.hour / 10; 
+  timeHours1 = RTC.hour % 10; 
+  timeMinutes10 = RTC.min / 10; 
+  timeMinutes1 = RTC.min % 10; 
+  timeSeconds10 = RTC.sec / 10; 
+  timeSeconds1 = RTC.sec % 10; 
+
+  timeYears1000  = RTC.year / 1000; 
+  timeYears1000R = RTC.year % 1000; 
+  timeYears100  = timeYears1000R / 100; 
+  timeYears100R = timeYears1000R % 100; 
+  timeYears10 = timeYears100R / 10; 
+  timeYears1  = timeYears100R % 10;   
+  timeMonths10 = RTC.mon / 10; 
+  timeMonths1  = RTC.mon % 10;  
+  timeDays10 = RTC.mday / 10; 
+  timeDays1  = RTC.mday % 10; 
+
+#endif 
+
+  //
+  //
+  //
 
   boolean loaded_initfile = false; 
 
