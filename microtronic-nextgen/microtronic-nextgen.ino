@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
 
-  Version 24 (c) Michael Wessel, December 2th, 2020
+  Version 25 (c) Michael Wessel, December 4th, 2020
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -26,8 +26,8 @@
 
 */
 
-#define VERSION "24" 
-#define DATE "12-3-2020"  
+#define VERSION "25" 
+#define DATE "12-4-2020"  
  
 //
 //
@@ -209,7 +209,6 @@ int curFunKeyRaw = NO_KEY;
 
 int displayCurFunKey = NO_KEY; // for LCD display feedback only
 
-
 //
 // current PGM program
 //
@@ -220,11 +219,9 @@ byte program = 7;
 // display and status variables
 //
 
-unsigned long lastClockTime = 0;
-unsigned long last1HzTime = 0;
-unsigned long lastDispTime = 0;
-
 #define CURSOR_OFF 8
+
+unsigned long lastDispTime = 0;
 byte cursor = CURSOR_OFF;
 boolean blink = true;
 
@@ -275,7 +272,6 @@ byte timeMinutes1 = 0;
 byte timeMinutes10 = 0;
 byte timeHours1 = 0;
 byte timeHours10 = 0;
-
 
 byte timeYears1000  = 0;
 byte timeYears1000R = 0; 
@@ -474,6 +470,77 @@ const String decString[] = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "
 
 #define OP_DISP 0xF
 
+//
+// 1 Hz Clock Timer 4 ISR  
+//
+
+void initializeClock() { 
+
+  // Timer4 interrupt at 1Hz
+
+  cli(); 
+
+  TCCR4A = 0;
+  TCCR4B = 0;
+  TCNT4  = 0;
+  
+  OCR4A = 15624/2;// = (16*10^6) / (1*1024) - 1 (must be <65536)
+  
+  // turn on CTC mode
+  TCCR4B |= (1 << WGM12);
+  // Set CS12 and CS10 bits for 1024 prescaler
+  TCCR4B |= (1 << CS12) | (1 << CS10);  
+  // enable timer compare interrupt
+  TIMSK4 |= (1 << OCIE4A);
+
+  sei(); 
+
+}
+
+ISR(TIMER4_COMPA_vect){
+
+  clock1hz = ! clock1hz; 
+
+  if (clock1hz) {
+
+    timeSeconds1++;
+
+    if (autosave_every_seconds) 
+      autosave_ticker++;       
+
+    if (timeSeconds1 > 9) {
+      timeSeconds10++;
+      timeSeconds1 = 0;
+
+      if (timeSeconds10 > 5) {
+	timeMinutes1++;
+	timeSeconds10 = 0;
+
+	if (timeMinutes1 > 9) {
+	  timeMinutes10++;
+	  timeMinutes1 = 0;
+
+	  if (timeMinutes10 > 5) {
+	    timeHours1++;
+	    timeMinutes10 = 0;
+
+	    if (timeHours10 < 2) {
+	      if (timeHours1 > 9) {
+		timeHours1 = 0;
+		timeHours10++;
+	      }
+	    } else if (timeHours10 == 2) {
+	      if (timeHours1 > 3) {
+		timeHours1 = 0;
+		timeHours10 = 0;
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  } 
+}
 
 //
 //
@@ -1520,73 +1587,10 @@ void showMemMore(uint8_t col) {
 
 }
 
+
 //
 //
 //
-
-void advanceTime() {
-
-  if (currentMode != ENTERING_TIME) {
-
-    unsigned long time = millis();
-    unsigned long delta = time - lastClockTime;
-    unsigned long delta2 = time - last1HzTime; 
-
-    if (delta2 >= 500) {
-      while (delta2 >= 500) {
-	clock1hz = !clock1hz;
-	delta2 -= 500;
-      }
-      last1HzTime = time;
-    }
-
-    while (delta >= 1000) {
-
-      delta -= 1000;
-      
-      timeSeconds1++;
-
-      if (autosave_every_seconds) 
-	autosave_ticker++;       
-
-      if (timeSeconds1 > 9) {
-        timeSeconds10++;
-        timeSeconds1 = 0;
-
-        if (timeSeconds10 > 5) {
-          timeMinutes1++;
-          timeSeconds10 = 0;
-
-          if (timeMinutes1 > 9) {
-            timeMinutes10++;
-            timeMinutes1 = 0;
-
-            if (timeMinutes10 > 5) {
-              timeHours1++;
-              timeMinutes10 = 0;
-
-              if (timeHours10 < 2) {
-                if (timeHours1 > 9) {
-                  timeHours1 = 0;
-                  timeHours10++;
-                }
-              } else if (timeHours10 == 2) {
-                if (timeHours1 > 3) {
-                  timeHours1 = 0;
-                  timeHours10 = 0;
-                }
-              }
-            }
-          }
-        }
-      }
-    
-      lastClockTime = time; 
-
-    } 
-  }
-}
-
 
 void showTime(uint8_t col) {
 
@@ -1724,12 +1728,10 @@ void displayStatus(boolean force_refresh) {
   unsigned long time = millis();
   unsigned long delta = time - lastDispTime;
 
-  if (delta > 300) {
+  if (delta > 200) {
     blink = !blink;
     lastDispTime = time;
-    advanceTime();	
   }
-
 
   //
   //
@@ -3533,6 +3535,8 @@ void setup() {
   timeDays1  = RTC.mday % 10; 
 
 #endif 
+  
+  initializeClock(); 
 
   //
   //
@@ -3701,14 +3705,6 @@ void setup() {
     lastPc = pc + 1; 
 
   }
-
-  //
-  // 
-  //
-
-  lastClockTime = millis();
-  last1HzTime = millis();
-
 
 }
 
