@@ -45,7 +45,10 @@
 #include <avr/pgmspace.h>
 #include <SdFat.h>
 #include <SPI.h>
-#include <Adafruit_PCD8544.h>
+// #include <Adafruit_PCD8544.h>
+//#include <Adafruit_GFX.h>
+#include <Adafruit_SH1106.h>
+
 #include <NewTone.h>
 
 //
@@ -63,10 +66,11 @@ SdFile root;
 SdFile init_file;
 
 //
-// Nokia Display 
-//
+// SH1106 1.3" OLED I2C Display 
+// 
 
-Adafruit_PCD8544 display = Adafruit_PCD8544(NOKIA5, NOKIA4, NOKIA3, NOKIA2, NOKIA1); 
+#define OLED_RESET 4
+Adafruit_SH1106 display(OLED_RESET); 
 
 //
 // HEX 4x4 Matrix Keypad 
@@ -787,15 +791,15 @@ int selectFile() {
       blink = !blink;
 
       if (blink) {
-	display.setTextColor(WHITE, BLACK); 
+	display.setTextColor(BLACK,WHITE); 
       } else {
-	display.setTextColor(BLACK, WHITE); 
+	display.setTextColor(WHITE,BLACK); 
       }
 
       displaySetCursor(0, 3);
       display.print(file);
 
-      display.setTextColor(BLACK, WHITE); 
+      display.setTextColor(WHITE,BLACK); 
 
       displaySetCursor(0, 4);
       sep(); 
@@ -886,13 +890,13 @@ int createName() {
       
       blink = !blink;
       if (blink) {
-	display.setTextColor(WHITE, BLACK); 
+	display.setTextColor(BLACK,WHITE); 
       } else {
-	display.setTextColor(BLACK, WHITE); 
+	display.setTextColor(WHITE,BLACK); 
       }
       displaySetCursor(cursor, 3);
       display.print(file[cursor]); 
-      display.setTextColor(BLACK, WHITE); 
+      display.setTextColor(WHITE,BLACK); 
 
       displaySetCursor(0, 4);
       sep(); 
@@ -1545,7 +1549,7 @@ void showMemMore(uint8_t col) {
   if ( currentMode == ENTERING_BREAKPOINT_HIGH || currentMode == ENTERING_BREAKPOINT_LOW )
     adr = breakAt;
 
-  display.setTextColor(WHITE, BLACK); // 'inverted' text
+  display.setTextColor(BLACK,WHITE); // 'inverted' text
 
   uint8_t col0 = col; 
 
@@ -1563,7 +1567,7 @@ void showMemMore(uint8_t col) {
 
   col = col0; 
 
-  display.setTextColor(BLACK, WHITE); // 'inverted' text
+  display.setTextColor(WHITE,BLACK); // 'inverted' text
 
   sendHexCol(col++, 3, adr0 / 16, false);
   sendHexCol(col++, 3, adr0 % 16, false);
@@ -1631,12 +1635,12 @@ void showError(uint8_t col) {
   displaySetCursor(col, status_row); 
   
   if (blink) {
-    display.setTextColor(WHITE, BLACK); 
+    display.setTextColor(BLACK,WHITE); 
   } else {
-    display.setTextColor(BLACK, WHITE); 
+    display.setTextColor(WHITE,BLACK); 
   }
   display.print("ERROR"); 
-  display.setTextColor(BLACK, WHITE); 
+  display.setTextColor(WHITE,BLACK); 
 
 }
 
@@ -2088,7 +2092,6 @@ void displayStatus(boolean force_refresh) {
 
 void LCDLogo() {
 
-  display.clearDisplay();; 
   sep(); 
   displaySetCursor(0, 1);
   display.print("    Busch     ");
@@ -2118,6 +2121,8 @@ void LCDLogo() {
   display.print("Michael Wessel");
   displaySetCursor(0, 5);
   display.print("BAUKASTENFORUM");
+  displaySetCursor(0, 6);
+
   sep();
   display.display(); 
   delay(1000);   
@@ -2178,15 +2183,15 @@ void setTextSize(int n) {
 }
 
 void clearLine(int line) {
-  display.fillRect(0, 8*textSize*line, 6*textSize*14, 8*textSize,WHITE);		
+  display.fillRect(0, 8*textSize*line, 6*textSize*14, 8*textSize,BLACK);		
 }
 
 void clearLineFrom(int x, int line) {
-  display.fillRect(x*6*textSize, 8*textSize*line, 6*textSize*14, 8*textSize,WHITE);		
+  display.fillRect(x*6*textSize, 8*textSize*line, 6*textSize*14, 8*textSize,BLACK);		
 }
 
 void clearLines(int from, int to) {
-  display.fillRect(0, 8*from*textSize, 6*14*textSize, ((to-from)+1)*8*textSize,WHITE);		
+  display.fillRect(0, 8*from*textSize, 6*14*textSize, ((to-from)+1)*8*textSize,BLACK);		
 }
 
 void displaySetCursor(int x, int y) {
@@ -2226,12 +2231,12 @@ void sendHex(uint8_t pos, uint8_t c, boolean blink) {
   displaySetCursor(pos, status_row); 
   
   if (blink) {
-    display.setTextColor(WHITE, BLACK); 
+    display.setTextColor(BLACK,WHITE); 
   } else {
-    display.setTextColor(BLACK, WHITE); 
+    display.setTextColor(WHITE,BLACK); 
   }
   display.print(c, HEX);	
-  display.setTextColor(BLACK, WHITE); 
+  display.setTextColor(WHITE,BLACK); 
 
 }
 
@@ -2240,12 +2245,12 @@ void sendHexCol(uint8_t pos, uint8_t col, uint8_t c, boolean blink) {
   displaySetCursor(pos, col); 
 
   if (blink) {
-    display.setTextColor(WHITE, BLACK); 
+    display.setTextColor(BLACK,WHITE); 
   } else {
-    display.setTextColor(BLACK, WHITE); 
+    display.setTextColor(WHITE,BLACK); 
   }
   display.print(c, HEX);	
-  display.setTextColor(BLACK, WHITE); 
+  display.setTextColor(WHITE,BLACK); 
 
 }
 
@@ -2415,6 +2420,7 @@ void reset(boolean quiet) {
 
   autosave_ticker = 0; 
 
+  
   displayStatus(true); 
 
 }
@@ -3574,14 +3580,14 @@ void setup() {
   // init displays
   //
 
-  display.begin(); 
-  display.setContrast(57);
-
-  display.clearDisplay();
-
-  setTextSize(1);
-  display.setTextColor(BLACK);
+  display.begin(SH1106_SWITCHCAPVCC, 0x3C);
+  display.setTextSize(1);		     
+  display.setTextColor(WHITE);
   displaySetCursor(0,0);
+
+  display.clearDisplay();; 
+  display.display(); 
+
 
   LCDLogo();
 
@@ -3607,6 +3613,7 @@ void setup() {
 
   display.clearDisplay();
   setTextSize(1);
+  
 
   //
   // Configure keypads 
@@ -3714,6 +3721,7 @@ void setup() {
 //
 
 void loop() {
+
 
   readFunKeys();
   readHexKeys(); 

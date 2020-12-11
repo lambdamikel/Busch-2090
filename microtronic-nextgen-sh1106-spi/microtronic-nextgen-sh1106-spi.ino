@@ -34,7 +34,7 @@
 //
 
 // wiring 
-#include "hardware-spi.h" 
+#include "hardware.h" 
 
 //
 //
