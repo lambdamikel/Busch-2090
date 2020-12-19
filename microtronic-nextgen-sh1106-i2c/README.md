@@ -5,8 +5,8 @@
 
 More soon. Stay tuned. 
 
-![Microtronic Emulator New Version - 1](https://github.com/lambdamikel/Busch-2090/blob/master/microtronic-nextgen-sh1106-i2c//microtronic-next-gen-1.jpg)
-
-![Microtronic Emulator New Version - 2](https://github.com/lambdamikel/Busch-2090/blob/master/microtronic-nextgen-sh1106-i2c/microtronic-next-gen-2.jpg)
-
-[YouTube Videos](https://youtu.be/oPpJfEgc1Ho?list=PLvdXKcHrGqhekyx81EoCwQij1Lqylp0dB)
+![Pic 1](./pic1.jpg)
+![Pic 2](./pic2.jpg)
+![Pic 3](./pic4.jpg)
+![Pic 4](./pic4.jpg)
+![Pic 5](./pic5.jpg)
