@@ -9,8 +9,8 @@ More soon. Stay tuned.
 
 ![Microtronic Emulator New Version - 2](./microtronic-next-gen-2.jpg)
 
-![Pic 1](./pic1.jpg)
+![Pic 3](./pic3.jpg)
 
-![Pic 2](./pic2.jpg)
+![Pic 4](./pic4.jpg)
 
 [YouTube Videos](https://youtu.be/oPpJfEgc1Ho?list=PLvdXKcHrGqhekyx81EoCwQij1Lqylp0dB)
