@@ -5,6 +5,10 @@
 
 More soon. Stay tuned. 
 
+![PCB 1](./pcb1.jpg)
+![PCB 2](./pcb2.jpg)
+![PCB 3](./pcb3.jpg)
+
 ![Microtronic Emulator New Version - 1](./microtronic-next-gen-1.jpg)
 
 ![Microtronic Emulator New Version - 2](./microtronic-next-gen-2.jpg)
