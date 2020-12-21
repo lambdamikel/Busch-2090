@@ -9,6 +9,12 @@ More soon. Stay tuned.
 ![PCB 2](./pcb2.jpg)
 ![PCB 3](./pcb3.jpg)
 
+### 2095 Cassette Interface Emulation 
+
+![2095 1](./2095-1.jpg)
+![2095 2](./2095-2.jpg)
+![2095 3](./2095-3.jpg)
+
 ![Microtronic Emulator New Version - 1](./microtronic-next-gen-1.jpg)
 
 ![Microtronic Emulator New Version - 2](./microtronic-next-gen-2.jpg)
