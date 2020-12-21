@@ -29,4 +29,4 @@ More soon. Stay tuned.
 
 ### YouTube Videos
 
-[Video 1][https://youtu.be/XegLqMLv9D4?list=PLvdXKcHrGqhekyx81EoCwQij1Lqylp0dB] 
+[Video 1](https://youtu.be/XegLqMLv9D4?list=PLvdXKcHrGqhekyx81EoCwQij1Lqylp0dB)
