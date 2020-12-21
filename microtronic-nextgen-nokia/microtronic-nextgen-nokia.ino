@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
 
-  Version 25 (c) Michael Wessel, December 4th, 2020
+  Version 26 (c) Michael Wessel, December 20th, 2020
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -26,8 +26,8 @@
 
 */
 
-#define VERSION "25" 
-#define DATE "12-4-2020"  
+#define VERSION "26" 
+#define DATE "12-20-2020"  
  
 //
 //
@@ -2803,7 +2803,7 @@ void interpret() {
 	  timeDays10 = curInput;
 	  cursor++;
 	} break;
-      case 3 : if (timeDays10 == 3 && curInput < 2 || timeDays10 < 3 && curInput > 0 && curInput < 10) {
+      case 3 : if (timeDays10 == 3 && curInput < 2 || timeDays10 < 3 && curInput >= 0 && curInput < 10) {
 	  timeDays1 = curInput;
 	  cursor++;
 	} break;
@@ -2825,7 +2825,12 @@ void interpret() {
       //
       //
       //
+      
+      timeYears1000 = 2; 
+      timeYears100 = 0; 
 
+      int year = timeYears10 * 10 + timeYears1 + timeYears1000 * 1000 + timeYears100 * 100 ; 
+      
       RTC.year = timeYears10 * 10 + timeYears1 + timeYears1000 * 1000 + timeYears100 * 100 ; 
       RTC.mon = timeMonths10*10 + timeMonths1;
       RTC.mday = timeDays10*10 + timeDays1;
