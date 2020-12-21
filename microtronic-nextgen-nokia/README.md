@@ -5,6 +5,8 @@
 
 More soon. Stay tuned. 
 
+### PCB Version
+
 ![PCB 1](./pcb1.jpg)
 ![PCB 2](./pcb2.jpg)
 ![PCB 3](./pcb3.jpg)
@@ -15,6 +17,8 @@ More soon. Stay tuned.
 ![2095 2](./2095-2.jpg)
 ![2095 3](./2095-3.jpg)
 
+### Breadboard Prototype
+
 ![Microtronic Emulator New Version - 1](./microtronic-next-gen-1.jpg)
 
 ![Microtronic Emulator New Version - 2](./microtronic-next-gen-2.jpg)
@@ -23,4 +27,6 @@ More soon. Stay tuned.
 
 ![Pic 4](./pic4.jpg)
 
-[YouTube Videos](https://youtu.be/oPpJfEgc1Ho?list=PLvdXKcHrGqhekyx81EoCwQij1Lqylp0dB)
+### YouTube Videos
+
+[Video 1][https://youtu.be/XegLqMLv9D4?list=PLvdXKcHrGqhekyx81EoCwQij1Lqylp0dB] 
