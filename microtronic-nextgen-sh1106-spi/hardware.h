@@ -104,14 +104,16 @@
 //
 
 #define HEX_COL_PINS {14, 12, 10, 8}
-#define HEX_ROW_PINS {15, 13, 11, 9}
+//#define HEX_ROW_PINS {15, 13, 11, 9}
+#define HEX_ROW_PINS {9, 11, 13, 15}
 
 //
 // Function Keypad Pins
 //
 
 #define FN_COL_PINS {22, 39, 18, 16}
-#define FN_ROW_PINS {23, 37, 19, 17}
+//#define FN_ROW_PINS {23, 37, 19, 17}
+#define FN_ROW_PINS {17, 19, 37, 23}
 
 //
 // Busch 2095 Interface Emu 

@@ -2812,7 +2812,7 @@ void interpret() {
 	  timeDays10 = curInput;
 	  cursor++;
 	} break;
-      case 3 : if (timeDays10 == 3 && curInput < 2 || timeDays10 < 3 && curInput >=0 0 && curInput < 10) {
+      case 3 : if (timeDays10 == 3 && curInput < 2 || timeDays10 < 3 && curInput >=0 && curInput < 10) {
 	  timeDays1 = curInput;
 	  cursor++;
 	} break;
