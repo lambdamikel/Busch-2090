@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
 
-  Version 26 (c) Michael Wessel, December 20th, 2020
+  Version 27 (c) Michael Wessel, January 1st, 2021
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -26,8 +26,8 @@
 
 */
 
-#define VERSION "26" 
-#define DATE "12-20-2020"  
+#define VERSION "27" 
+#define DATE "01-01-2021"  
  
 //
 //
@@ -697,10 +697,10 @@ int getCurHexKey() {
 
 byte readDIN() {
 
-  return ( ! digitalRead(DIN_1)      |
-           ! digitalRead(DIN_2) << 1 |
-           ! digitalRead(DIN_3) << 2 |
-           ! digitalRead(DIN_4) << 3   );
+  return ( digitalRead(DIN_1)      |
+           digitalRead(DIN_2) << 1 |
+           digitalRead(DIN_3) << 2 |
+           digitalRead(DIN_4) << 3 );
 
 }
 
@@ -1041,6 +1041,9 @@ void saveProgram1(boolean autosave, boolean quiet) {
   File myFile = SD.open( autosave ? autoloadsave_file : file , FILE_WRITE);
 
   if (transfer_mode) {
+
+    // enable Pullups for Input
+    init_BUSCH_OUTs();   
     resetPins();  
     delay(READ_DELAY_NEXT_VALUE);
   }
@@ -1141,8 +1144,11 @@ void saveProgram1(boolean autosave, boolean quiet) {
 
   myFile.close();
 
-  if (transfer_mode) 
+  if (transfer_mode) {
     resetPins();  
+    // change input mode - disable pullup resistors 
+    init_DINs();   
+  }
 
   if (! autosave) 
     reset(false);
@@ -1216,6 +1222,8 @@ void loadProgram1(boolean load_autoloadsave_file, boolean quiet) {
     boolean done = false; 
 
     if (transfer_mode) {
+      // enable Pullups for Input
+      init_BUSCH_OUTs();   
       resetPins();  
       delay(WRITE_DELAY_NEXT_VALUE);
     }
@@ -1273,7 +1281,14 @@ void loadProgram1(boolean load_autoloadsave_file, boolean quiet) {
 	  }
 	  reset(quiet);
 	  pc = firstPc;
+
+	  if (transfer_mode) {
+	    resetPins();  
+	    init_DINs(); 
+	  }
+
 	  return; 
+
         }
 
         if ( readingOrigin ) {
@@ -1344,8 +1359,10 @@ void loadProgram1(boolean load_autoloadsave_file, boolean quiet) {
 
     myFile.close();
 
-    if (transfer_mode) 
+    if (transfer_mode) {
       resetPins();  
+      init_DINs(); 
+    }
 
     pc = firstPc;
 
@@ -3683,17 +3700,7 @@ void setup() {
   //
   // 
 
-  pinMode(DIN_1, INPUT_PULLUP);
-  pinMode(DIN_2, INPUT_PULLUP);
-  pinMode(DIN_3, INPUT_PULLUP);
-  pinMode(DIN_4, INPUT_PULLUP);
-
-  //
-  // 2095 Emulation Inputs
-  //
-
-  pinMode(BUSCH_OUT1, INPUT_PULLUP);
-  pinMode(BUSCH_OUT3, INPUT_PULLUP);
+  init_DINs(); 
 
   //
   //
@@ -3721,6 +3728,22 @@ void setup() {
 
 }
 
+//
+//
+//
+
+void init_DINs() {
+  pinMode(DIN_1, INPUT);
+  pinMode(DIN_2, INPUT);
+  pinMode(DIN_3, INPUT);
+  pinMode(DIN_4, INPUT);
+}
+
+
+void init_BUSCH_OUTs() {
+  pinMode(BUSCH_OUT1, INPUT_PULLUP);
+  pinMode(BUSCH_OUT3, INPUT_PULLUP);
+}
 
 //
 // main loop / emulator / shell
