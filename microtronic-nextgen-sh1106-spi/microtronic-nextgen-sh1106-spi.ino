@@ -26,8 +26,8 @@
 
 */
 
-#define VERSION "27" 
-#define DATE "01-01-2021"  
+#define VERSION "28" 
+#define DATE "01-03-2021"  
  
 //
 //
@@ -1788,10 +1788,10 @@ void displayStatus(boolean force_refresh) {
 #ifndef MICRO_SECOND_GEN_BOARD
   digitalWrite(CLOCK_OUT, clock1hz);
 
-  digitalWrite(DOT_1, ! (outputs & 1));
-  digitalWrite(DOT_2, ! (outputs & 2));
-  digitalWrite(DOT_3, ! (outputs & 4));
-  digitalWrite(DOT_4, ! (outputs & 8));
+  digitalWrite(DOT_1, outputs & 1);
+  digitalWrite(DOT_2, outputs & 2);
+  digitalWrite(DOT_3, outputs & 4);
+  digitalWrite(DOT_4, outputs & 8);
 #endif 
 
   //
