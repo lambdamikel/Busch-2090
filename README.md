@@ -60,7 +60,7 @@ The project uses the same firmware as the "Microtronic Next Generation" presente
 
 More details about this great project can be found on the [homepage of the Microtronic 2nd Generation project.](https://www.rigert.com/ee-forum/viewtopic.php?t=2497). 
 
-*The following pictures are courtesy of Franke de Jaeger:* 
+*The following pictures are courtesy of Frank de Jaeger:* 
 
 
 ![Microtronic 2nd Generation Pic 1](./microtronic-2nd-generation/pic1.jpg)
