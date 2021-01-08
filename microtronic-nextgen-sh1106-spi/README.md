@@ -2,6 +2,8 @@
 ## Microtronic Emulator - The Next Generation - SH1106 SPI OLED Display Version
 ### License: GPL 3
 
+Current version. 
+
 ### PCB Version
 
 ![SPI Pic 1](./nextgen-spi-1.jpg)
@@ -9,6 +11,7 @@
 ![SPI Pic 3](./nextgen-spi-3.jpg)
 ![SPI Pic 4](./nextgen-spi-4.jpg)
 ![SPI Pic 5](./nextgen-spi-5.jpg)
+
 ![SPI Pic 6](./busch-2075-experiment.jpg)
 
 ### Breadboard Prototype
