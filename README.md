@@ -7,13 +7,15 @@
 
 ### Abstract
 
-This is an emulator of the Busch 2090 Microtronic Computer System for
-the Arduino Uno R3 and Arduino Mega 2560 and Mini Pro 2560. The latest
-version ("The Microtronic Next Generation") is also an emulator of the 
-Busch 2095 Cassette Interface and plugs into a real Microtronic to provide
-SD-card based file storage. 
+The repo contains a number of Arduino-based emulator of the 
+Busch 2090 Microtronic Computer System. 
 
-The latest version of this project, "The Microtronic Next Generation",  was featured on the Hackaday front page: 
+The latest version - "The Microtronic Next Generation" - also povides
+an emulation of the Busch 2095 Cassette Interface and that plugs into
+a real Microtronic to provide SD-card based file storage. 
+
+Recently, the latest iteration of this project, "The Microtronic Next
+Generation", was featured on the Hackaday front page:
 
 ![Hackaday 1](./hackaday/microtronic-hackaday-1.jpg) 
 ![Hackaday 2](./hackaday/microtronic-hackaday-2.jpg) 
