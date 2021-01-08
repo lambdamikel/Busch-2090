@@ -67,15 +67,16 @@ The SH1106 I2C SPI OLED was also experimented with; see
 It is **no longer supported** because it is **significantly slower than
 both the Nokia 5110 and the SH1106 SPI OLED.**
 
-Only the `microtronic-nextgen-sh1106-spi` will be continued.  The PCB
-Gerbers will follow shortly.
+Only the
+[`microtronic-nextgen-sh1106-spi`](./microtronic-nextgen-sh1106-spi/)
+will be continued.  The PCB Gerbers will follow shortly.
 
 ## Older Versions - DEPRECATED and NOT RECOMMENDED
 
-*Please note that these version have note been tested recently (they
+**Please note that these version have note been tested recently (they
 are from 2016, and Arduino has changed since then).  I strongly
 recommend to use the "Micotronic Next Generation" given above version
-instead. *
+instead.**
 
 Hence, the following info is solely provided to give a historical
 account of the project.
