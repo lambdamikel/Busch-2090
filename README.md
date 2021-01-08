@@ -7,11 +7,11 @@
 
 ### Abstract
 
-The repo contains a number of Arduino-based emulator of the 
+This repository contains a number of Arduino-based emulator of the 
 Busch 2090 Microtronic Computer System. 
 
-The latest version - "The Microtronic Next Generation" - also povides
-an emulation of the Busch 2095 Cassette Interface and that plugs into
+The latest PCB version - "The Microtronic Next Generation" - also povides
+an emulation of the Busch 2095 Cassette Interface that plugs into
 a real Microtronic to provide SD-card based file storage. 
 
 Recently, the latest iteration of this project, "The Microtronic Next
