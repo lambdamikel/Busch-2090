@@ -32,7 +32,7 @@ The designer of the original Busch Microtronic, Mr. Jörg Vallen of Busch,
 was also so kind to grant permission to include a full copy of the
 manual set in the [`manuals`](./manuals/) directory of this project. 
 
-## Current 2020 Version - The Microtronic Next Generation
+## Current 2020 Version - The "Microtronic Next Generation" Project 
 
 The current version of the Microtronic Emulator is called the "Micotronic Next Generation", and it comes as a PCB: 
 
@@ -49,6 +49,25 @@ The current version of the Microtronic Emulator is called the "Micotronic Next G
 ![Busch 2090 Microtronic Next Generation - 2095 Emulation](./microtronic-nextgen-nokia/2095-1.jpg) 
 
 ![Busch 2090 Microtronic Next Generation - 2095 Emulation](./microtronic-nextgen-nokia/2095-2.jpg) 
+
+## The "Microtronic 2nd Generation" Sister Project  
+
+The "sister project", created by *Frank de Jaeger from Beligum and Manfred Henf fom Germany,* ist called the *"Microtronic 2nd Generation"*. Please consider this great project if you wish to create a more professional Microtronic emulator that neatly and professionally installs in an original Busch console! 
+
+The project uses the same firmware code as the "Microtronic Next Generation" presented here, but has a slightly different pin layout (i.e., requires some slight adjustments to the `hardware.h` pin configuration file). 
+
+*Thanks to Frank and Manfred for this great piece of engineering. They also exactly replicated the input and output transistor-stages of the original Microtronic, so the 2nd Generation project is electrically maximally compatible with the original, and original Busch electronics experiments / circuits from the manual.* 
+
+More details on the [homepage of the Microtronic 2nd Generation project.](https://www.rigert.com/ee-forum/viewtopic.php?t=2497). 
+
+The following pictures are courtesy of Franke de Jaeger: 
+
+
+![Microtronic 2nd Generation Pic 1](./microtronic-2nd-generation/pic1.jpg)
+![Microtronic 2nd Generation Pic 2](./microtronic-2nd-generation/pic2.jpg)
+![Microtronic 2nd Generation Pic 3](./microtronic-2nd-generation/pic3.jpg)
+![Microtronic 2nd Generation Pic 4](./microtronic-2nd-generation/pic4.jpg)
+
 
 ### Arduino Sketches & Gerbers 
 
