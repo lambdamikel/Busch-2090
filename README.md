@@ -4,7 +4,7 @@
 #### License: GPL 3
 #### [YouTube Videos](https://www.youtube.com/playlist?list=PLvdXKcHrGqhekyx81EoCwQij1Lqylp0dB) 
 
-### Abstract
+## Abstract
 
 This repository contains a number of Arduino-based emulator of the 
 Busch 2090 Microtronic Computer System. 
@@ -20,7 +20,7 @@ Generation", was featured on the Hackaday front page:
 ![Hackaday 2](./hackaday/microtronic-hackaday-2.jpg) 
 ![Hackaday 3](./hackaday/microtronic-hackaday-3.jpg) 
 
-### History 
+## History 
 
 The Busch 2090 was an educational 4bit single-board computer system of
 the early 1980s, manufactured by the company Busch Modellbau in
@@ -32,7 +32,9 @@ The designer of the original Busch Microtronic, Mr. Jörg Vallen of Busch,
 was also so kind to grant permission to include a full copy of the
 manual set in the [`manuals`](./manuals/) directory of this project. 
 
-## Current 2020 Version - The "Microtronic Next Generation" Project 
+## Emulator Versions 
+
+### Current 2020 Version - The "Microtronic Next Generation" Project 
 
 The current version of the Microtronic Emulator is called the "Micotronic Next Generation", and it comes as a PCB: 
 
@@ -50,7 +52,7 @@ The current version of the Microtronic Emulator is called the "Micotronic Next G
 
 ![Busch 2090 Microtronic Next Generation - 2095 Emulation](./microtronic-nextgen-nokia/2095-2.jpg) 
 
-## The "Microtronic 2nd Generation" Sister Project  
+### The "Microtronic 2nd Generation" Sister Project  
 
 The "sister project", created by **Frank de Jaeger from Beligum and Manfred Henf from Germany,** ist called the **"Microtronic 2nd Generation"**. Please consider this great project if you wish to create a more professional Microtronic emulator that neatly and professionally installs into an original Busch electronics console, including a 3D-printed keyboad that mounts onto the console hole raster on the top! 
 
@@ -62,14 +64,14 @@ More details about this great project can be found on the [homepage of the Micro
 
 *The following pictures are courtesy of Frank de Jaeger:* 
 
-
 ![Microtronic 2nd Generation Pic 1](./microtronic-2nd-generation/pic1.jpg)
 ![Microtronic 2nd Generation Pic 2](./microtronic-2nd-generation/pic2.jpg)
 ![Microtronic 2nd Generation Pic 3](./microtronic-2nd-generation/pic3.jpg)
 ![Microtronic 2nd Generation Pic 4](./microtronic-2nd-generation/pic4.jpg)
 
+## Arduino Sketches & Gerbers 
 
-### Arduino Sketches & Gerbers 
+### Current Versions 
 
 Please check the sub-directories
 - [`microtronic-nextgen-nokia`](./microtronic-nextgen-nokia/) for the Nokia 5510 Display version, and 
@@ -89,7 +91,7 @@ Only the
 [`microtronic-nextgen-sh1106-spi`](./microtronic-nextgen-sh1106-spi/)
 will be continued.  The PCB Gerbers will follow shortly.
 
-## Older 2016 Versions - DEPRECATED and NOT RECOMMENDED
+### Older 2016 Versions - DEPRECATED and NOT RECOMMENDED
 
 **Please note that these version have note been tested recently (they
 are from 2016, and Arduino has changed since then).  I strongly
@@ -133,13 +135,13 @@ Also, you will find some programs in the ``software`` directory. See
 below for instructions how to use them, and for a brief explanation of
 the ``.MIC`` file format.
 
-### Acknowledgements
+#### Acknowledgements
 
 Many thanks to [Martin Sauter](http://mobilesociety.typepad.com/) for
 retrieving and entering the original code of ``PGM 7``, the Nim
 game. It works!
 
-### Hardware Requirements
+#### Hardware Requirements
 
 For the Uno version, ``busch2090.ino``: 
 
@@ -179,7 +181,7 @@ Please refer to this image for an explanations of the layout and functionality o
 
 ![Mega Emulator V3 Front Panel Explanation](https://github.com/lambdamikel/Busch-2090/blob/master/images/panel-explanation.png)
 
-### Wiring 
+#### Wiring 
 
 For the Uno version:
 
@@ -392,7 +394,7 @@ This picture might provide some ideas how to set up / wire the hardware:
 Also notice that there is a blueprint of the faceplate in the 
 ``faceplate`` directory of this project. 
 
-### Description 
+#### Description 
 
 For the Arduino Uno and Mega version 1, the TM1638 module is used.
 The **push buttons of the TM1638 are the function keys of the
@@ -568,7 +570,7 @@ N.O. buttons that take on these functions (SD card):
     #define CANCEL 68
     #define ENTER  69
 
-### Load and Save Files to SDCard (Mega versions only) 
+#### Load and Save Files to SDCard (Mega versions only) 
 
 The Mega version supports saving a memory dump to SDCard via ``PGM
 2``. Currently, the SDCard+Ethernet card shield is mandatory in Mega
@@ -587,7 +589,7 @@ key to confirm selection, and ``Left`` key to abort loading.
 ![Load Program from SDCard](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-2-small.jpg)
 ![Save Program to SDCard](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-8-small.jpg)
 
-### The ``.MIC`` File Format and Example Programs 
+#### The ``.MIC`` File Format and Example Programs 
 
 The ``software`` directory contains some programs from the
 Microtronic manuals and from the book "Computer Games (2094)". With
@@ -620,7 +622,7 @@ artifacts, the ``.MIC`` loader recognizes an extended character set
 for hexadecimal input, e.g., not only 1, but also I and l are accepted
 for 1, the O character is accepted for 0, etc.
 
-### ``PGM`` Demo Programs are Stored in EEPROM  
+#### ``PGM`` Demo Programs are Stored in EEPROM  
 
 For the Uno version, please run the ``PGM-EEPROM.ino`` sketch first,
 and use ``PGM-EEPROM-MEGA.ino`` for the Mega versions. This will load
@@ -645,7 +647,7 @@ retrieving the code from an original Busch Microtronic and contributing it to th
 - ``PGM B`` : moving LED light from Manul Vol. 1, page 48 
 - ``PGM C`` : digitial input ``DIN`` test (port input output echo)
 
-### Optional Emic 2 TTS Speech Module for Mega Version 3 
+#### Optional Emic 2 TTS Speech Module for Mega Version 3 
 
 If enabled, the Emic 2 speech module will echo back and confirm
 function and HEX keypad presses. In addition, the navigation buttons
@@ -688,7 +690,7 @@ An ``ABC`` from the Emic 2 hence takes the program ``088 033 066 055
 066 066 066 077 011 0033``.  Consequently, the Microtronic program
 memory can store 126 characters max.
 
-### Required Third-Party Libraries 
+#### Required Third-Party Libraries 
 
 The emulator requires the following libraries, which are the work of
 others, and which are included in the ``library`` subdirectory: 
@@ -731,7 +733,7 @@ In addition, instead of the ``SD`` card library, the
 - ``SdFat`` library. 
 
 
-### Future Work 
+#### Future Work 
 
 1. Sync back latest changes from Mega version 3 into Mega version 1 and
 Uno version.
