@@ -51,13 +51,27 @@ The current version of the Microtronic Emulator is called the "Micotronic Next G
 
 ![Busch 2090 Microtronic Next Generation - 2095 Emulation](./microtronic-nextgen-nokia/2095-2.jpg) 
 
-Please check the sub-directories  `microtronic-nextgen-nokia`, and epsecially `microtronic-nextgen-sh1106-spi` fo the latest version and `.ino` sketch.
+### Arduino Sketches & Gerbers 
+
+Please check the sub-directories `microtronic-nextgen-nokia` and
+`microtronic-nextgen-sh1106-spi` for the latest versions. The **best
+display is the SH1106 SPI OLED.** The Nokia 5510 is a good choice too,
+but it is less reactive and gets blurry with very fast screen updates.
+
+The SH1106 I2C SPI OLED was also experimented with; see
+`microtronic-nextgen-sh1106-i2c`. It is no longer supported because
+it is **significantly slower than both the Nokia 5110 and the SH1106 SPI
+OLED.** 
+
+Only the `microtronic-nextgen-sh1106-spi` will be continued.  The PCB
+Gerbers will follow shortly.
 
 ## Older Versions - DEPRECATED and NOT RECOMMENDED
 
-**Please note that these version have note been tested recently (they are from 2016, 
-and Arduino has changed since then). 
-I strongly recommend to use the "Micotronic Next Generation" given above version instead. **
+**Please note that these version have note been tested recently (they
+are from 2016, and Arduino has changed since then).  I strongly
+recommend to use the "Micotronic Next Generation" given above version
+instead. **
 
 Hence, the following info is solely provided to give a historical
 account of the project.
