@@ -3,14 +3,24 @@
 #### Author: Michael Wessel
 #### License: GPL 3
 #### Hompage: [Author's Homepage](http://www.michael-wessel.info/)
-#### Contributer: [Martin Sauter (PGM 7 Code)](http://mobilesociety.typepad.com/) 
 #### Version: 3.2
 #### [YouTube Videos](https://www.youtube.com/channel/UC1dEZ22WoacesGdSWdVqfTw)
 
 ### Abstract
 
 This is an emulator of the Busch 2090 Microtronic Computer System for
-the Arduino Uno R3 and Arduino Mega 2560. 
+the Arduino Uno R3 and Arduino Mega 2560 and Mini Pro 2560. The latest
+version ("The Microtronic Next Generation") is also an emulator of the 
+Busch 2095 Cassette Interface and plugs into a real Microtronic to provide
+SD-card based file storage. 
+
+The latest version of this project, "The Microtronic Next Generation",  was featured on the Hackaday front page: 
+
+![Hackaday 1](./hackaday/microtronic-hackaday-1.jpg) 
+![Hackaday 2](./hackaday/microtronic-hackaday-2.jpg) 
+![Hackaday 3](./hackaday/microtronic-hackaday-3.jpg) 
+
+### History 
 
 The Busch 2090 was an educational 4bit single-board computer system of
 the early 1980s, manufactured by the company Busch Modellbau in
@@ -21,6 +31,28 @@ German](http://www.busch-model.com/online/?rubrik=82&=6&sprach_id=de).
 The designer of the original Busch Microtronic, Mr. Jörg Vallen of Busch, 
 was also so kind to grant permission to include a full copy of the
 manual set in the ``manuals`` directory of this project. 
+
+## Current Version - The Microtronic Next Generation
+
+The current version of the Microtronic Emulator is called the "Micotronic Next Generation", and it comes as a PCB: 
+
+![Busch 2090 Microtronic Next Generation - SH1106 SPI OLED Version](./microtronic-nextgen-sh1106-spi/next-gen-spi-5.jpg) 
+
+![Busch 2090 Microtronic Next Generation - SH1106 SPI OLED Version](./microtronic-nextgen-sh1106-spi/next-gen-spi-1.jpg) 
+
+![Busch 2090 Microtronic Next Generation - Nokia Version Front](./microtronic-nextgen-nokia/pcb1.jpg) 
+
+![Busch 2090 Microtronic Next Generation - Nokia Version Back](./microtronic-nextgen-nokia/pcb2.jpg) 
+
+![Busch 2090 Microtronic Next Generation - Nokia Version](./microtronic-nextgen-nokia/pcb1.jpg) 
+
+![Busch 2090 Microtronic Next Generation - 2095 Emulation](./microtronic-nextgen-nokia/2095-1.jpg) 
+
+![Busch 2090 Microtronic Next Generation - 2095 Emulation](./microtronic-nextgen-nokia/2095-2.jpg) 
+
+Please check the sub-directories  `microtronic-nextgen-nokia`, and epsecially `microtronic-nextgen-sh1106-spi` fo the latest version and `.ino` sketch.
+
+## Older Versions
 
 ![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v3-1-small.jpg)
 
