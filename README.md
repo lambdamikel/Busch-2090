@@ -37,9 +37,9 @@ manual set in the ``manuals`` directory of this project.
 
 The current version of the Microtronic Emulator is called the "Micotronic Next Generation", and it comes as a PCB: 
 
-![Busch 2090 Microtronic Next Generation - SH1106 SPI OLED Version](./microtronic-nextgen-sh1106-spi/next-gen-spi-5.jpg) 
+![Busch 2090 Microtronic Next Generation - SH1106 SPI OLED Version](./microtronic-nextgen-sh1106-spi/nextgen-spi-5.jpg) 
 
-![Busch 2090 Microtronic Next Generation - SH1106 SPI OLED Version](./microtronic-nextgen-sh1106-spi/next-gen-spi-1.jpg) 
+![Busch 2090 Microtronic Next Generation - SH1106 SPI OLED Version](./microtronic-nextgen-sh1106-spi/nextgen-spi-1.jpg) 
 
 ![Busch 2090 Microtronic Next Generation - Nokia Version Front](./microtronic-nextgen-nokia/pcb1.jpg) 
 
