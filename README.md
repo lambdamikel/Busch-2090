@@ -1,6 +1,9 @@
 # Arduino-Based Busch 2090 Microtronic Emulators 
 ## Arduino-based Emulators of the Vintage Busch 2090 Microtronic Computer System from 1981 
-#### Authors: [Michael Wessel](http://www.michael-wessel.info/), Frank de Jaeger (2nd Generation Microtronic PCB), Manfred Henf  (2nd Generation Microtronic 3D Design & Printing) 
+#### Authors: 
+- [Michael Wessel](http://www.michael-wessel.info/): Original Emulator & Next Generation Emulator 
+- Frank de Jaeger: 2nd Generation Microtronic PCB 
+- Manfred Henf: 2nd Generation Microtronic 3D Design & Printing 
 #### License: GPL 3
 #### [YouTube Videos](https://www.youtube.com/playlist?list=PLvdXKcHrGqhekyx81EoCwQij1Lqylp0dB) 
 
