@@ -32,7 +32,7 @@ The designer of the original Busch Microtronic, Mr. Jörg Vallen of Busch,
 was also so kind to grant permission to include a full copy of the
 manual set in the [`manuals`](./manuals/) directory of this project. 
 
-## Current Version - The Microtronic Next Generation
+## Current 2020 Version - The Microtronic Next Generation
 
 The current version of the Microtronic Emulator is called the "Micotronic Next Generation", and it comes as a PCB: 
 
@@ -70,15 +70,15 @@ Only the
 [`microtronic-nextgen-sh1106-spi`](./microtronic-nextgen-sh1106-spi/)
 will be continued.  The PCB Gerbers will follow shortly.
 
-## Older Versions - DEPRECATED and NOT RECOMMENDED
+## Older 2016 Versions - DEPRECATED and NOT RECOMMENDED
 
 **Please note that these version have note been tested recently (they
 are from 2016, and Arduino has changed since then).  I strongly
-recommend to use the "Micotronic Next Generation" given above version
+recommend to use the "Micotronic Next Generation" version given above 
 instead.**
 
 Hence, the following info is solely provided to give a historical
-account of the project.
+account of the project (from 2016): 
 
 ![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v3-1-small.jpg)
 
