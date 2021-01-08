@@ -3,8 +3,7 @@
 #### Author: Michael Wessel
 #### License: GPL 3
 #### Hompage: [Author's Homepage](http://www.michael-wessel.info/)
-#### Version: 3.2
-#### [YouTube Videos](https://www.youtube.com/channel/UC1dEZ22WoacesGdSWdVqfTw)
+#### [YouTube Videos](https://www.youtube.com/playlist?list=PLvdXKcHrGqhekyx81EoCwQij1Lqylp0dB) 
 
 ### Abstract
 
@@ -67,7 +66,7 @@ Please check the sub-directories  `microtronic-nextgen-nokia`, and epsecially `m
 See ``busch2090.ino`` or ``busch2090-mega.ino``, or
 ``busch2090-mega-v3.ino``sketch for further instructions, and [see the
 emulator in action
-here.](https://www.youtube.com/channel/UC1dEZ22WoacesGdSWdVqfTw)
+here.]
 
 This project consists of two sketches. The main emulator code is in
 ``busch2090.ino`` for the Uno, and ``busch2090-mega.ino`` or
