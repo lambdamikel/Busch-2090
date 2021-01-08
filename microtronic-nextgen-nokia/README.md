@@ -1,9 +1,9 @@
 # Busch-2090
-## Microtronic Emulator - The Next Generation 
+## Microtronic Emulator - The Next Generation - Nokia 5110 Display Version
 ### License: GPL 3
-### Version: 4 
 
-More soon. Stay tuned. 
+**Deprecated.** 
+Please consider [the SH1106 SPI Version instead](https://github.com/lambdamikel/Busch-2090/tree/master/microtronic-nextgen-sh1106-spi). 
 
 ### PCB Version
 
@@ -29,4 +29,5 @@ More soon. Stay tuned.
 
 ### YouTube Videos
 
-[Video 1](https://youtu.be/XegLqMLv9D4?list=PLvdXKcHrGqhekyx81EoCwQij1Lqylp0dB)
+[YouTube Videos](https://www.youtube.com/playlist?list=PLvdXKcHrGqhekyx81EoCwQij1Lqylp0dB) 
+

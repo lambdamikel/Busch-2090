@@ -1,9 +1,6 @@
 # Busch-2090
-## Microtronic Emulator - The Next Generation 
+## Microtronic Emulator - The Next Generation - SH1106 SPI OLED Display Version
 ### License: GPL 3
-### Version: 4 
-
-More soon. Stay tuned. 
 
 ### PCB Version
 
@@ -12,6 +9,7 @@ More soon. Stay tuned.
 ![SPI Pic 3](./nextgen-spi-3.jpg)
 ![SPI Pic 4](./nextgen-spi-4.jpg)
 ![SPI Pic 5](./nextgen-spi-5.jpg)
+![SPI Pic 6](./busch-2075-experiment.jpg)
 
 ### Breadboard Prototype
 
@@ -22,6 +20,5 @@ More soon. Stay tuned.
 
 ### YouTube Videos
 
-[Video 1](https://youtu.be/zfPmb6s3S1g) 
-
+[YouTube Videos](https://www.youtube.com/playlist?list=PLvdXKcHrGqhekyx81EoCwQij1Lqylp0dB) 
 
