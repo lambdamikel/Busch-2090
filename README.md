@@ -27,7 +27,7 @@ The Busch 2090 was an educational 4bit single-board computer system of
 the early 1980s, manufactured by the company Busch Modellbau in
 Germany. There is [some information about the Busch 2090 Microtronic
 available here, including PDFs of the original manuals in
-German](http://www.busch-model.com/online/?rubrik=82&=6&sprach_id=de).
+German](https://www.busch-model.info/service/historie-microtronic/)
 
 The designer of the original Busch Microtronic, Mr. Jörg Vallen of Busch, 
 was also so kind to grant permission to include a full copy of the
@@ -53,7 +53,14 @@ The current version of the Microtronic Emulator is called the "Micotronic Next G
 
 Please check the sub-directories  `microtronic-nextgen-nokia`, and epsecially `microtronic-nextgen-sh1106-spi` fo the latest version and `.ino` sketch.
 
-## Older Versions
+## Older Versions - DEPRECATED and NOT RECOMMENDED
+
+**Please note that these version have note been tested recently (they are from 2016, 
+and Arduino has changed since then). 
+I strongly recommend to use the "Micotronic Next Generation" given above version instead. **
+
+Hence, the following info is solely provided to give a historical
+account of the project.
 
 ![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v3-1-small.jpg)
 
