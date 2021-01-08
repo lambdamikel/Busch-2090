@@ -72,6 +72,28 @@ More details about this great project can be found on the [homepage of the Micro
 ![Microtronic 2nd Generation Pic 3](./microtronic-2nd-generation/pic3.jpg)
 ![Microtronic 2nd Generation Pic 4](./microtronic-2nd-generation/pic4.jpg)
 
+### 2016 Versions - DEPRECATED and NOT RECOMMENDED 
+
+**Please note that these version have note been tested recently (they
+are from 2016, and Arduino has changed since then).  I strongly
+recommend to use the "Micotronic Next Generation" version given above 
+instead.**
+
+Hence, the following info is solely provided to give a historical
+account of the project (from 2016): 
+
+
+![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v3-1-small.jpg)
+
+![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v2-5-small.jpg)
+
+![Busch 2090 Microtronic Emulator for Arduino Uno](https://github.com/lambdamikel/Busch-2090/blob/master/images/img4-small.jpg)
+
+![Busch 2090 Microtronic Emulator for Arduino Mega](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-1-small.jpg)
+
+![Busch 2090 Microtronic Emulator for Arduino Mega](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-6-small.jpg)
+
+
 ## Arduino Sketches & Gerbers 
 
 ### Current Versions 
@@ -96,28 +118,8 @@ will be continued.  The PCB Gerbers will follow shortly.
 
 ### Older 2016 Versions - DEPRECATED and NOT RECOMMENDED
 
-**Please note that these version have note been tested recently (they
-are from 2016, and Arduino has changed since then).  I strongly
-recommend to use the "Micotronic Next Generation" version given above 
-instead.**
-
-Hence, the following info is solely provided to give a historical
-account of the project (from 2016): 
-
-![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v3-1-small.jpg)
-
-![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v2-5-small.jpg)
-
-![Busch 2090 Microtronic Emulator for Arduino Uno](https://github.com/lambdamikel/Busch-2090/blob/master/images/img4-small.jpg)
-
-![Busch 2090 Microtronic Emulator for Arduino Mega](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-1-small.jpg)
-
-![Busch 2090 Microtronic Emulator for Arduino Mega](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-6-small.jpg)
-
 See ``busch2090.ino`` or ``busch2090-mega.ino``, or
-``busch2090-mega-v3.ino``sketch for further instructions, and [see the
-emulator in action
-here.]
+``busch2090-mega-v3.ino``sketch for further instructions. 
 
 This project consists of two sketches. The main emulator code is in
 ``busch2090.ino`` for the Uno, and ``busch2090-mega.ino`` or
@@ -137,12 +139,6 @@ shield. However, Mega version 1 currently requires the SDCard shield
 Also, you will find some programs in the ``software`` directory. See
 below for instructions how to use them, and for a brief explanation of
 the ``.MIC`` file format.
-
-#### Acknowledgements
-
-Many thanks to [Martin Sauter](http://mobilesociety.typepad.com/) for
-retrieving and entering the original code of ``PGM 7``, the Nim
-game. It works!
 
 #### Hardware Requirements
 
