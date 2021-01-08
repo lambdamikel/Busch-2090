@@ -1,8 +1,7 @@
 # Arduino-Based Busch 2090 Microtronic Emulators 
 ## Arduino-based Emulators of the Vintage Busch 2090 Microtronic Computer System from 1981 
-#### Author: Michael Wessel
+#### Author: [Michael Wessel](http://www.michael-wessel.info/)
 #### License: GPL 3
-#### Hompage: [Author's Homepage](http://www.michael-wessel.info/)
 #### [YouTube Videos](https://www.youtube.com/playlist?list=PLvdXKcHrGqhekyx81EoCwQij1Lqylp0dB) 
 
 ### Abstract
