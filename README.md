@@ -31,7 +31,7 @@ German](https://www.busch-model.info/service/historie-microtronic/)
 
 The designer of the original Busch Microtronic, Mr. Jörg Vallen of Busch, 
 was also so kind to grant permission to include a full copy of the
-manual set in the ``manuals`` directory of this project. 
+manual set in the [`manuals`](./manuals/) directory of this project. 
 
 ## Current Version - The Microtronic Next Generation
 
