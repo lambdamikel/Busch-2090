@@ -59,7 +59,7 @@ The current version of the Microtronic Emulator is called the "Micotronic Next G
 
 The "sister project", created by **Frank de Jaeger from Beligum and Manfred Henf from Germany,** ist called the **"Microtronic 2nd Generation"**. Please consider this great project if you wish to create a more professional Microtronic emulator that neatly and professionally installs into an original Busch electronics console, including a 3D-printed keyboad that mounts onto the console hole raster on the top! 
 
-The project uses the same firmware as the "Microtronic Next Generation" presented here, but has a slightly different pin layout (i.e., requires some slight adjustments to the `hardware.h` pin configuration file). 
+The project uses the same firmware as the "Microtronic Next Generation" presented here, but has a slightly different pin layout (i.e., requires some slight adjustments to the `hardware.h` pin configuration file). The firmware can be found in the [`microtronic-2nd-generation`](./microtronic-2nd-generation/) folder. 
 
 **Thanks to Frank and Manfred for this great piece of engineering.** They also *exactly replicated the input and output transistor-stages of the original Microtronic,* so the 2nd Generation project is electrically maximally compatible with the original. It is hence the best choice for a fully compatible  Microtronic emulator that blends perfectly with the Busch electronics system, and for conducting the plenty electronics experiments described in the original Microtronic Busch manuals. 
 
@@ -99,13 +99,19 @@ account of the project (from 2016):
 ### Current Versions 
 
 Please check the sub-directories
-- [`microtronic-nextgen-nokia`](./microtronic-nextgen-nokia/) for the Nokia 5510 Display version, and 
-- [`microtronic-nextgen-sh1106-spi`](./microtronic-nextgen-sh1106-spi/) for the SH1106 SPI OLED version. 
+- [`microtronic-nextgen-nokia`](./microtronic-nextgen-nokia/) for the Nokia 5510 Display version, 
+- [`microtronic-nextgen-sh1106-spi`](./microtronic-nextgen-sh1106-spi/) for the SH1106 SPI OLED version, and 
+- [`microtronic-2nd-generation`](./microtronic-2nd-generation/) for the Nokia 5110-based Microtronic 2nd Generation project. 
 
-The SH1106 SPI OLED is the latest version and we have identified this
+The *SH1106 SPI OLED is the latest version* and we have identified this
 display as the best option for the project. The Nokia 5510 is a good
 choice too, but it is less reactive and gets blurry with very fast
-screen updates.
+screen updates. 
+
+The 2nd Generation version does not support the real time clock (RTC),
+does not have a 1Hz output port. Note that the loudspeaker can be
+added between A0 and GND over a 75 Ohm resistor (as an "after market"
+hack / mod).
 
 The SH1106 I2C SPI OLED was also experimented with; see
 [`microtronic-nextgen-sh1106-i2c`](./microtronic-nextgen-sh1106-i2c/).
