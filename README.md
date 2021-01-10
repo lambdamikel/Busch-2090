@@ -59,7 +59,9 @@ The current version of the Microtronic Emulator is called the "Micotronic Next G
 
 The "sister project", created by **Frank de Jaeger from Beligum and Manfred Henf from Germany,** ist called the **"Microtronic 2nd Generation"**. Please consider this great project if you wish to create a more professional Microtronic emulator that neatly and professionally installs into an original Busch electronics console, including a 3D-printed keyboad that mounts onto the console hole raster on the top! 
 
-The project uses the same firmware as the "Microtronic Next Generation" presented here, but has a slightly different pin layout (i.e., requires some slight adjustments to the `hardware.h` pin configuration file). The firmware can be found in the [`microtronic-2nd-generation`](./microtronic-2nd-generation/) folder. 
+The project uses the same firmware as the "Microtronic Next Generation" presented here, but has a slightly different pin layout (i.e., requires some slight adjustments to the `hardware.h` pin configuration file). The firmware can be found in the [`microtronic-2nd-generation`](./microtronic-2nd-generation/) folder. The 2nd Generation version uses the Nokia 5110, does not support the real time clock (RTC), and does not have a 1Hz output port. The loudspeaker can be
+added between A0 and GND over a 75 Ohm resistor as an "after market"
+hack / mod (it wasn't anticipated in the original 2nd Generation design). 
 
 **Thanks to Frank and Manfred for this great piece of engineering.** They also *exactly replicated the input and output transistor-stages of the original Microtronic,* so the 2nd Generation project is electrically maximally compatible with the original. It is hence the best choice for a fully compatible  Microtronic emulator that blends perfectly with the Busch electronics system, and for conducting the plenty electronics experiments described in the original Microtronic Busch manuals. 
 
@@ -109,7 +111,7 @@ choice too, but it is less reactive and gets blurry with very fast
 screen updates. 
 
 The 2nd Generation version does not support the real time clock (RTC),
-does not have a 1Hz output port. Note that the loudspeaker can be
+and does not have a 1Hz output port. Note that the loudspeaker can be
 added between A0 and GND over a 75 Ohm resistor (as an "after market"
 hack / mod).
 
