@@ -6,11 +6,11 @@ Microtronic 2nd Generation Version
 
 Authors: 
 
-- Frank deJaeger: PCB Design & Electronics
+- Frank de Jaeger: PCB Design & Electronics
 - Manfred Henf: 3D Design & Print
 - Michael Wessel: Arduino Firmware
 
-More details about this great project can be found on the [homepage of the Microtronic 2nd Generation project.](https://www.rigert.com/ee-forum/viewtopic.php?t=2497). 
+More details about this great project can be found on the [homepage of the Microtronic 2nd Generation project.](https://www.rigert.com/ee-forum/viewtopic.php?t=2497) 
 
 ### PCB Version
 
