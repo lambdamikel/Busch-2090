@@ -459,14 +459,14 @@ below.
 Analog pin ``A5`` on the Uno (or ``A15`` on the Mega version 1, or
 ``A0`` on the Mega version 3), is used as a CPU speed
 throttle. Connect a potentiometer to adjust the speed of the CPU.
-*Important: All three pins of the potentiometer need to be connected!
+**Important: All three pins of the potentiometer need to be connected!
 The center pin of the potentiomer goes to ``A5``
 (``CPU_THROTTLE_ANALOG_PIN``), and the outer remaining two pins
 connect to ``5V (VCC)`` and ``GND``.** Otherwise, the analog input is
 left "floating" and no analog value can be read. The ``analogRead``
 should return a value between 0 and 1023; adjust the
 ``CPU_THROTTLE_DIVISOR 10`` if required. I am using a 1 kOhm
-potentiometer; don't use values smaller than 1 kOhme because of the
+potentiometer; don't use values smaller than 1 kOhm because of the
 VCC -> GND current leakage over the potentiometer. 
 
 Unlike the original Microtronic, this emulator uses the leftmost digit
