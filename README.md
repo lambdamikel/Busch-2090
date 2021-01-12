@@ -453,8 +453,8 @@ and ``D26`` on the Arduino Mega version 1, or the telephone keypad
 keys ``#``, ``9``, ``6``, ``3`` and pins ``D14`` to ``D17`` on the
 Mega version 3), are read by the Microtronic data in op-code ``FDx
 (DIN)``. Connecting them to ground will set the corresponding bit to
-1. See ``PGM D``. On the Mega version 3, different pins are used, see
-below.
+one (high). See ``PGM D``. On the Mega version 3, different pins are
+used, see below.
 
 Analog pin ``A5`` on the Uno (or ``A15`` on the Mega version 1, or
 ``A0`` on the Mega version 3), is used as a CPU speed
