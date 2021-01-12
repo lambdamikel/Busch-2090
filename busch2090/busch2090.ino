@@ -88,6 +88,11 @@ unsigned long lastFuncKeyTime = 0;
 #define DIN_PIN_3 3
 #define DIN_PIN_4 4
 
+#define DOT_PIN_1 13
+#define DOT_PIN_2 17
+#define DOT_PIN_3 18 
+#define DOT_PIN_4 0 // or RESET... 
+
 //
 // reset Microtronic (not Arduino) by pulling this to GND
 //
@@ -325,6 +330,15 @@ void setup() {
   pinMode(DIN_PIN_2, INPUT_PULLUP); // DIN 2
   pinMode(DIN_PIN_3, INPUT_PULLUP); // DIN 3
   pinMode(DIN_PIN_4, INPUT_PULLUP); // DIN 4
+
+  //
+  //	
+  //		
+  
+  pinMode(DOT_PIN_1, OUTPUT); // DOT 1
+  pinMode(DOT_PIN_2, OUTPUT); // DOT 2
+  pinMode(DOT_PIN_3, OUTPUT); // DOT 3
+  // pinMode(DOT_PIN_4, OUTPUT); // DIN 4
 
   //
   // read EEPROM PGMs meta data
@@ -608,6 +622,11 @@ void displayStatus() {
   moduleLEDs |= ( outputs << 4 );
 
   module.setLEDs( moduleLEDs);
+
+  digitalWrite( DOT_PIN_1, outputs & 1); 
+  digitalWrite( DOT_PIN_2, outputs & 2); 
+  digitalWrite( DOT_PIN_3, outputs & 4); 
+  // digitalWrite( DOT_PIN_1, outputs && 1); 
 
   if ( currentMode == RUNNING || currentMode == ENTERING_VALUE )
     showDisplay();
