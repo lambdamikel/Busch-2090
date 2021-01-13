@@ -4,7 +4,7 @@
 - [Michael Wessel](http://www.michael-wessel.info/): Original Emulator & Next Generation Emulator 
 - Frank de Jaeger: 2nd Generation Microtronic PCB 
 - Manfred Henf: 2nd Generation Microtronic 3D Design & Printing 
-- Martin Sauter: Busch 2095 Cassette Interface Protocol Reeingineering & Research 
+- Martin Sauter: Busch 2095 Cassette Interface Protocol Reengineering & Research 
 #### License: GPL 3
 #### [YouTube Videos](https://www.youtube.com/playlist?list=PLvdXKcHrGqhekyx81EoCwQij1Lqylp0dB) 
 
