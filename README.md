@@ -15,13 +15,16 @@ Busch 2090 Microtronic Computer System.
 
 The Busch 2090 was an educational 4bit single-board computer system of
 the early 1980s, manufactured by the company Busch Modellbau in
-Germany. There is [some information about the Busch 2090 Microtronic
-available here, including PDFs of the original manuals in
-German](https://www.busch-model.info/service/historie-microtronic/)
+Germany. 
 
 ![Microtronic Prospekt](./images/microtronic-prospekt.png) 
 ![Microtronic 1](./images/microtronic-emic-2-speech-3.jpg) 
 ![Microtronic 2](./images/microtronic-emic-2-speech-1.jpg) 
+
+There is [some information about the Busch 2090 Microtronic available
+on the official Busch website here, including PDFs of the original
+manuals in
+German](https://www.busch-model.info/service/historie-microtronic/.)
 
 The designer of the original Busch Microtronic, **Mr. Jörg Vallen of Busch**, 
 was also so kind to grant permission to include a full copy of the
