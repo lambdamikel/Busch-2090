@@ -13,9 +13,23 @@
 This repository contains a number of Arduino-based emulator of the 
 Busch 2090 Microtronic Computer System. 
 
-The latest PCB version - "The Microtronic Next Generation" - also povides
-an emulation of the Busch 2095 Cassette Interface that plugs into
-a real Microtronic to provide SD-card based file storage. 
+The Busch 2090 was an educational 4bit single-board computer system of
+the early 1980s, manufactured by the company Busch Modellbau in
+Germany. There is [some information about the Busch 2090 Microtronic
+available here, including PDFs of the original manuals in
+German](https://www.busch-model.info/service/historie-microtronic/)
+
+![Microtronic Prospekt](./images/microtronic-prospekt.png) 
+![Microtronic 1](./images/microtronic-emic-2-speech-3.jpg) 
+![Microtronic 2](./images/microtronic-emic-2-speech-1.jpg) 
+
+The designer of the original Busch Microtronic, **Mr. Jörg Vallen of Busch**, 
+was also so kind to grant permission to include a full copy of the
+manual set in the [`manuals`](./manuals/) directory of this project. 
+
+The latest PCB version - "The Microtronic Next Generation" - also
+povides an emulation of the Busch 2095 Cassette Interface that plugs
+into a real Microtronic to provide SD-card based file storage.
 
 Recently, the latest iteration of this project, "The Microtronic Next
 Generation", was featured on the Hackaday front page:
@@ -26,15 +40,10 @@ Generation", was featured on the Hackaday front page:
 
 ## History 
 
-The Busch 2090 was an educational 4bit single-board computer system of
-the early 1980s, manufactured by the company Busch Modellbau in
-Germany. There is [some information about the Busch 2090 Microtronic
-available here, including PDFs of the original manuals in
-German](https://www.busch-model.info/service/historie-microtronic/)
-
-The designer of the original Busch Microtronic, Mr. Jörg Vallen of Busch, 
-was also so kind to grant permission to include a full copy of the
-manual set in the [`manuals`](./manuals/) directory of this project. 
+The project started in January 2016 and is still active in January 
+2021. In that time, the number of contributers increased from 1 to 6. 
+See below for the different versions using different Arduino
+variants and form factors. 
 
 ## Emulator Versions 
 
