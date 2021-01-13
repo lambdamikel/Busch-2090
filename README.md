@@ -149,7 +149,7 @@ For the Uno version:
     // CPU throttle
     //
 
-    #define CPU_THROTTLE_ANALOG_PIN 5 // center pint of 10 KOhm potentiometer
+    #define CPU_THROTTLE_ANALOG_PIN 5 // center pin of 10 kOhm potentiometer
     #define CPU_THROTTLE_DIVISOR 10 
     #define CPU_MIN_THRESHOLD 10 // if smaller than this, CPU delay = 0
 
