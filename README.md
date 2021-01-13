@@ -283,7 +283,7 @@ added between A0 and GND over a 75 Ohm resistor (as an "after market"
 hack / mod).
 
 The SH1106 I2C SPI OLED was also experimented with; see
-[`microtronic-nextgen-sh1106-i2c`](./microtronic-nextgen-sh1106-i2c/).
+[`microtronic-nextgen-sh1106-i2c`](./obsolete/microtronic-nextgen-sh1106-i2c/).
 It is **no longer supported** because it is **significantly slower than
 both the Nokia 5110 and the SH1106 SPI OLED.**
 
