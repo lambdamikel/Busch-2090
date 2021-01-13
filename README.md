@@ -15,9 +15,15 @@ Busch 2090 Microtronic Computer System.
 
 The Busch 2090 was an educational 4bit single-board computer system of
 the early 1980s, manufactured by the company Busch Modellbau in
-Germany. 
+Germany: 
 
 ![Microtronic Prospekt](./images/microtronic-prospekt.png) 
+
+This is the Microtronic of the author; on the left you see
+the 2095 Cassette Interface (the breadboard & Arduino R3 contraption 
+connected to the Microtronic is an Arduino-based speech synthesizer
+for the the 2090, utilizing the Emic-2 speech board): 
+
 ![Microtronic 1](./images/microtronic-emic-2-speech-3.jpg) 
 ![Microtronic 2](./images/microtronic-emic-2-speech-1.jpg) 
 
@@ -32,7 +38,10 @@ manual set in the [`manuals`](./manuals/) directory of this project.
 
 The latest PCB version - "The Microtronic Next Generation" - also
 povides an emulation of the Busch 2095 Cassette Interface that plugs
-into a real Microtronic to provide SD-card based file storage.
+into a real Microtronic to provide SD-card based file storage. The
+2095 Cassette Interface implementation was made possible by Martin
+Sauter's ingenious reverse engineering of the 2095 protocol. Martin
+also implemented a Python-based prototype of a 2095 emulator.
 
 Recently, the latest iteration of this project, "The Microtronic Next
 Generation", was featured on the Hackaday front page:
