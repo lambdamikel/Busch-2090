@@ -251,7 +251,7 @@ the sketch using ``PGMSPACE`` strings.  Note that ``PGM 1`` to ``PGM
 - ``PGM 3`` : set clock 
 - ``PGM 4`` : show clock 
 - ``PGM 5`` : clear memory
-- ``PGM 6`` : load ``F01`` (NOPs) into RAM memory 
+- ``PGM 6`` : load ``F01`` (NOPs) into memory 
 - ``PGM 7`` : Nim Game 
 - ``PGM 8`` : Crazy Counter 
 - ``PGM 9`` : the Electronic Dice, from Microtronic Manual Vol. 1, page 10
@@ -268,9 +268,9 @@ Have fun!
 
 Please check the sub-directories
 - [`microtronic-nextgen-nokia`](./microtronic-nextgen-nokia/) for the Nokia 5510 Display version, 
-- [`microtronic-nextgen-sh1106-spi`](./microtronic-nextgen-sh1106-spi/) for the SH1106 SPI OLED version, and 
-- [`microtronic-2nd-generation`](./microtronic-2nd-generation/) for the Nokia 5110-based Microtronic 2nd Generation project. 
-- [`busch2090`](./busch2090/) for the Arduino Uno R3 2021 version. 
+- [`microtronic-nextgen-sh1106-spi`](./microtronic-nextgen-sh1106-spi/) for the SH1106 SPI OLED version, 
+- [`microtronic-2nd-generation`](./microtronic-2nd-generation/) for the Nokia 5110-based Microtronic 2nd Generation project, and 
+- [`busch2090`](./busch2090/) for the 2021 Arduino Uno R3 version. 
 
 The *SH1106 SPI OLED is the latest version* and we have identified this
 display as the best option for the project. The Nokia 5510 is a good
@@ -289,7 +289,8 @@ both the Nokia 5110 and the SH1106 SPI OLED.**
 
 Only the
 [`microtronic-nextgen-sh1106-spi`](./microtronic-nextgen-sh1106-spi/)
-will be continued.  The PCB Gerbers will follow shortly.
+and the [`busch2090`](./busch2090/) 2021 Arduino Uno R3 version will
+be continued.  The PCB Gerbers will follow shortly.
 
 
 ## 2016 Versions - DEPRECATED and NOT RECOMMENDED 
