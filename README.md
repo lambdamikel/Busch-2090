@@ -152,7 +152,7 @@ For the Uno version:
     // CPU throttle
     //
 
-    #define CPU_THROTTLE_ANALOG_PIN 5 // center pin of 10 kOhm potentiometer
+    #define CPU_THROTTLE_ANALOG_PIN 5 // center pin of 10k Ohm potentiometer
     #define CPU_THROTTLE_DIVISOR 10 
     #define CPU_MIN_THRESHOLD 10 // if smaller than this, CPU delay = 0
 
@@ -162,7 +162,7 @@ For the Uno version:
 The TM1638 "Led & Key" module is being used.  The **eight push buttons
 of the TM1638 are the function keys of the Microtronic**, in this
 order of sequence, from left to right: ``HALT, NEXT, RUN, CCE, REG,
-STEP, BKP, RUN``:
+STEP, BKP, PGM``:
 
     #define HALT  1 
     #define NEXT  2 
@@ -213,9 +213,8 @@ kOhm potentiometer; don't use values smaller than 1 kOhm because of
 the VCC -> GND current leakage over the potentiometer.
 
 Unlike the original Microtronic, this emulator uses the leftmost digit
-of the 8digit FM1638 (or of the left Adafruit LEDs backpack display on
-the Mega version 3) to display the **current system status** (the
-original Microtronic only featured a 6digit display). Currently, the
+of the 8digit FM1638 to display the **current system status**; the
+original Microtronic only featured a 6digit display. Currently, the
 **status codes** are:
 
 - ``H``: stopped 
@@ -239,13 +238,13 @@ Note that programs can be entered manually, using the keypad and
 function keys, or you can load a fixed ROM program specified in the
 Arduino sketch via the ``PGM`` button. These ROM programs are defined
 in the ``busch2090.ino`` sketch and are stored in the ``PGMSPACE``.
-The ROM programs ```PGM 7`` to ``PGM F`` are defined:
+The ROM programs ``PGM 7`` to ``PGM F`` are defined:
 
-The following PGM programs from ``PGM 7`` to ``PGM E`` are stored in
+The following PGM programs from ``PGM 7`` to ``PGM F`` are stored in
 the sketch using ``PGMSPACE`` strings.  Note that ``PGM 1`` to ``PGM
 6`` are built-in special functions that do not correspond to
-``PGMSPACE`` programs. If you wish, you can exchange these programs
-from ``7`` to ``F`` with you own: 
+``PGMSPACE`` programs. If you wish, you can exchange these ``7`` to
+``F`` programs with you own:
 
 - ``PGM 1`` : restore Microtronic memory from EEPROM ("core restore") 
 - ``PGM 2`` : store / dump Microtronic memory to EEPROM  ("core dump") 
@@ -258,7 +257,7 @@ from ``7`` to ``F`` with you own:
 - ``PGM 9`` : the Electronic Dice, from Microtronic Manual Vol. 1, page 10
 - ``PGM A`` : the Three Digit Counter from Microtronic Manual Vol. 1, page 19 
 - ``PGM B`` : moving LED Light from the Microtronic Manul Vol. 1, page 48  
-- ``PGM C`` : digitial input DIN Test Program
+- ``PGM C`` : digital input DIN Test Program
 - ``PGM D`` : Lunar Lander (Moon Landing) from the Microtronic Manual Vol. 1, page 23 
 - ``PGM E`` : Prime Numbers, from the "Computerspiele 2094" book, page 58
 - ``PGM F`` : Game 17+4 BlackJack, from the "Computerspiele 2094" book, page 32
