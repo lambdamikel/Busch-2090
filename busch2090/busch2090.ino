@@ -231,6 +231,9 @@ boolean jump = false;
 byte pc = 0;
 byte breakAt = 0;
 
+boolean oneStepOnly = false;
+boolean ignoreBreakpointOnce = false;
+
 //
 // Stack
 //
@@ -751,6 +754,8 @@ void reset() {
   zero = false;
   error = false;
   pc = 0;
+  oneStepOnly = false;
+  
   clearStack();
 
   outputs = 0;
@@ -868,6 +873,8 @@ void interpret() {
   case RUN :
     currentMode = RUNNING;
     displayOff();
+    oneStepOnly = false;
+    ignoreBreakpointOnce = true;
     clearStack();
     jump = true; // don't increment PC !
 
@@ -900,9 +907,23 @@ void interpret() {
 
   case STEP :
 
+      currentMode = RUNNING;
+      oneStepOnly = true;
+      jump = true; // don't increment PC !
+
+      displayStatus();
+
     break;
 
   case BKP :
+
+      if (currentMode != ENTERING_BREAKPOINT_LOW ) {
+        currentMode = ENTERING_BREAKPOINT_HIGH;
+        cursor = 0;
+      } else {
+        cursor = 1;
+        currentMode = ENTERING_BREAKPOINT_LOW;
+      }
 
     break;
 
@@ -1076,6 +1097,27 @@ void interpret() {
 
     break;
 
+  case ENTERING_BREAKPOINT_HIGH :
+
+      if (keypadPressed) {
+        cursor = 1;
+        breakAt = keypadKey * 16;
+        currentMode = ENTERING_BREAKPOINT_LOW;
+      }
+
+      break;
+
+  case ENTERING_BREAKPOINT_LOW :
+
+      if (keypadPressed) {
+        cursor = 0;
+        breakAt += keypadKey;
+        currentMode = ENTERING_BREAKPOINT_HIGH;
+      }
+
+      break;
+
+
   case ENTERING_OP :
 
     if (keypadPressed) {
@@ -1134,6 +1176,12 @@ void run() {
 
   if (!jump)
     pc++;
+
+  if ( !oneStepOnly && breakAt == pc && breakAt > 0 && ! ignoreBreakpointOnce )  {
+    currentMode = STOPPED;
+    return;
+  }
+  
   jump = false;
 
   byte op1 = op[pc];
@@ -1621,7 +1669,13 @@ void run() {
   }
   }
 
-
+  if (oneStepOnly) {
+    currentMode = STOPPED;
+    if (! jump) {
+      pc++;
+    }
+  }
+  
 }
 
 //
