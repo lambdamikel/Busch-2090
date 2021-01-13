@@ -125,9 +125,9 @@ diving for components though. **Great build, Lilly, and thanks for
 motivating the 2021 version and some new functionalities to make it
 more useful! This is her emulator, it certainly has the words "retro"
 and "vintage" written all over it. For more details about her projects
-and the Agfa box emulator, check out her Github that also contains a
-fork of the 2090 project:
-[https://github.com/ducatimaus](https://github.com/ducatimaus):**
+and the Agfa box emulator, check out her Github
+[https://github.com/ducatimaus](https://github.com/ducatimaus) that
+also contains a fork of the 2090 project:**
 
 ![Lilly Pic 1](https://github.com/lambdamikel/Busch-2090/blob/master/images/lilly-1.jpg)
 
