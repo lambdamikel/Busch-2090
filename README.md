@@ -310,8 +310,7 @@ instead.**
 
 ![Busch 2090 Microtronic Emulator for Arduino Mega](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-6-small.jpg)
 
-
-[More info about these 2016 Microtronic emulatores can be found here.](./README.old.md) 
+[More info about these 2016 Microtronic emulator projects can be found here.](./README.old.md) 
 
 ## Required Third-Party Libraries 
 
