@@ -1158,7 +1158,6 @@ void run() {
 
     reg[d] = reg[s];
     zero = reg[d] == 0;
-    ;
 
     break;
 
@@ -1166,7 +1165,6 @@ void run() {
 
     reg[d] = n;
     zero = reg[d] == 0;
-    ;
 
     break;
 
@@ -1175,7 +1173,6 @@ void run() {
     reg[d] &= reg[s];
     carry = false;
     zero = reg[d] == 0;
-    ;
 
     break;
 
@@ -1184,7 +1181,6 @@ void run() {
     reg[d] &= n;
     carry = false;
     zero = reg[d] == 0;
-    ;
 
     break;
 
@@ -1194,7 +1190,6 @@ void run() {
     carry = reg[d] > 15;
     reg[d] &= 15;
     zero = reg[d] == 0;
-    ;
 
     break;
 
@@ -1204,7 +1199,6 @@ void run() {
     carry = reg[d] > 15;
     reg[d] &= 15;
     zero =  reg[d] == 0;
-    ;
 
     break;
 
@@ -1214,7 +1208,6 @@ void run() {
     carry = reg[d] > 15;
     reg[d] &= 15;
     zero =  reg[d] == 0;
-    ;
 
     break;
 
@@ -1224,7 +1217,6 @@ void run() {
     carry = reg[d] > 15;
     reg[d] &= 15;
     zero =  reg[d] == 0;
-    ;
 
     break;
 
@@ -1232,7 +1224,6 @@ void run() {
 
     carry = reg[s] < reg[d];
     zero = reg[s] == reg[d];
-    ;
 
     break;
 
@@ -1240,7 +1231,6 @@ void run() {
 
     carry = n < reg[d];
     zero = reg[d] == n;
-    ;
 
     break;
 
@@ -1249,7 +1239,6 @@ void run() {
     reg[d] |= reg[s];
     carry = false;
     zero = reg[d] == 0;
-    ;
 
     break;
 
@@ -1272,6 +1261,7 @@ void run() {
       currentMode = STOPPED;
 
     }
+
     break;
 
   case OP_GOTO :
@@ -1317,7 +1307,6 @@ void run() {
 
       reg[d] ^= 15;
 
-
       break;
 
     case OP_SHR :
@@ -1326,7 +1315,6 @@ void run() {
       carry = reg[d] & 16;
       reg[d] &= 15;
       zero = reg[d] == 0;
-
 
       break;
 
@@ -1337,7 +1325,6 @@ void run() {
       reg[d] &= 15;
       zero = reg[d] == 0;
 
-
       break;
 
     case OP_ADC :
@@ -1347,7 +1334,6 @@ void run() {
       reg[d] &= 15;
       zero = reg[d] == 0;
 
-
       break;
 
     case OP_SUBC :
@@ -1356,7 +1342,6 @@ void run() {
       carry = reg[d] > 15;
       reg[d] &= 15;
       zero = reg[d] == 0;
-
 
       break;
 
@@ -1370,7 +1355,6 @@ void run() {
       carry = false;
       zero = reg[d] == 0;
 
-
       break;
 
     case OP_DOT :
@@ -1379,14 +1363,12 @@ void run() {
       carry = false;
       zero = reg[dot_s] == 0;
 
-
       break;
 
     case OP_KIN :
 
       currentMode = ENTERING_VALUE;
       currentInputRegister = d;
-
 
       break;
 
@@ -1404,7 +1386,6 @@ void run() {
 	break;
 
       case OP_NOP :
-
 
 	break;
 
@@ -1431,8 +1412,6 @@ void run() {
 	reg[0xE] = ( num / 10 ) % 10;
 	reg[0xF] = ( num / 100 ) % 10;
 
-
-
 	break;
 
       case OP_DZHX :
@@ -1449,8 +1428,6 @@ void run() {
 	reg[0xE] = ( num / 16 ) % 16;
 	reg[0xF] = ( num / 256 ) % 16;
 
-
-
 	break;
 
       case OP_RND :
@@ -1458,8 +1435,6 @@ void run() {
 	reg[0xD] = random(16);
 	reg[0xE] = random(16);
 	reg[0xF] = random(16);
-
-
 
 	break;
 
@@ -1471,8 +1446,6 @@ void run() {
 	reg[0xD] = timeMinutes10;
 	reg[0xE] = timeHours1;
 	reg[0xF] = timeHours10;
-
-
 
 	break;
 
@@ -1496,13 +1469,11 @@ void run() {
 
 	carry = true;
 
-
 	break;
 
       case OP_RSC :
 
 	carry = false;
-
 
 	break;
 
@@ -1573,7 +1544,7 @@ void run() {
 	  carry = true;
 	  zero = false,
 
-          reg[0] = 0xE;
+	  reg[0] = 0xE;
 	  reg[1] = 0xE;
 	  reg[2] = 0xE;
 	  reg[3] = 0xE;
@@ -1610,7 +1581,6 @@ void run() {
 	  regEx[i] = aux;
 	}
 
-
 	break;
 
       case OP_EXRM :
@@ -1620,7 +1590,6 @@ void run() {
 	  reg[i] = regEx[i];
 	  regEx[i] = aux;
 	}
-
 
 	break;
 
@@ -1632,7 +1601,6 @@ void run() {
 	  reg[i + 8] = aux;
 	}
 
-
 	break;
 
       default : // DISP!
@@ -1640,7 +1608,6 @@ void run() {
 	displayOff();
 	showingDisplayDigits = disp_n;
 	showingDisplayFromReg = disp_s;
-
 
 	break;
 
