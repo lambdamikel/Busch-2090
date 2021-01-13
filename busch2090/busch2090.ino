@@ -118,13 +118,17 @@ unsigned long lastFuncKeyTime = 0;
 #define FUNCTION_KEY_DEBOUNCE_TIME 50
 
 //
-// these are the digital pins used for DIN instructions
+// these are the digital input pins used for DIN instructions
 //
 
 #define DIN_PIN_1 1
 #define DIN_PIN_2 2
 #define DIN_PIN_3 3
 #define DIN_PIN_4 4
+
+//
+// these are the digital output pins used for DOT instructions
+// 
 
 #define DOT_PIN_1 13
 #define DOT_PIN_2 17
@@ -658,7 +662,7 @@ void displayStatus() {
   digitalWrite( DOT_PIN_1, outputs & 1); 
   digitalWrite( DOT_PIN_2, outputs & 2); 
   digitalWrite( DOT_PIN_3, outputs & 4); 
-  // digitalWrite( DOT_PIN_1, outputs && 1); 
+  // digitalWrite( DOT_PIN_4, outputs && 1); 
 
   if ( currentMode == RUNNING || currentMode == ENTERING_VALUE )
     showDisplay();

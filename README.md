@@ -82,9 +82,11 @@ This is a new take on the 2016 Arduino Uno R3 version with some improvements ove
 
 In a nutshell, it offers: 
 
-- Microtronic emulation with a classic authentic retro user experience (LED 7segment display)
-- Extended PGM ROM program library´, e.g. ``PGM F`` for Blackjack, ``PGM E`` for Prime Numbers, ``PGM D`` for the Lunar Lander, etc. Unlike previous versions of the R3 emulator, the programs are now stored in AVR ``PGMSPACE```. Hence, the ``PGM-EEPROM.INO`` loader is no longer required to initialize the emulator before it can be used. 
-- PGM 1 & PGM 2: store & restore memory contents into EEPROM. Your work will not be lost. Before powering down the emulator, simply dump the RAM contents into the EEPROM via ``PGM 2``, and resume your work with ``PGM 1``. 
+- High-speed Microtronic emulation with a authentic retro user experience (LED 7segment display etc.)
+- Extended PGM program library in AVR ``PGMSPACE``, e.g. Blackjack, Prime Numbers, Lunar Lander, and the Nim Game. Unlike previous versions of the R3 emulator, the PGM programs are now no longer stored in the AVR's EEPROM; hence, more and longer programs can be accessed with the push of a PGM button - more fun! Note that the ``PGM-EEPROM.INO`` loader is no longer required with that version and is considered obsolete by now. 
+- PGM 2 & PGM 1 functionality: the EEPROM is now used to store & restore the Microtronic memory contents! Before powering down the emulator, simply dump the current memory contents into the EEPROM via ``PGM 2``, and resume your work with ``PGM 1``. Better than a 2095 Cassette Interface! 
+- CPU Speed Control / Throttle: go turbo Microtronic (Prime Numbers have never been computed faster on a Microtronic!), or experience the cozy processing speed of the original Microtronic by tuning the emulation speed with this 10 kOhm potentiometer. 
+- A simple build - you can set this up in 30 minutes.
 
 #### Hardware Requirements
 
@@ -109,27 +111,11 @@ For the Uno version:
     // Keypad 4 x 4 matrix
     //
 
-    #define ROWS 4
-    #define COLS 4
-
-    char keys[ROWS][COLS] = { // plus one because 0 = no key pressed!
-      {0xD, 0xE, 0xF, 0x10},
-      {0x9, 0xA, 0xB, 0xC},
-      {0x5, 0x6, 0x7, 0x8},
-      {0x1, 0x2, 0x3, 0x4}
-    };
-
     byte colPins[COLS] = {5, 6, 7, 8}; // columns
     byte rowPins[ROWS] = {9, 10, 11, 12}; // rows
 
-    Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
-
-    unsigned long lastFuncKeyTime = 0;
-
-    #define FUNCTION_KEY_DEBOUNCE_TIME 50
-
     //
-    // these are the digital pins used for DIN instructions
+    // these are the digital input pins used for DIN instructions
     //
 
     #define DIN_PIN_1 1
@@ -137,10 +123,15 @@ For the Uno version:
     #define DIN_PIN_3 3
     #define DIN_PIN_4 4
 
+    //
+    // these are the digital output pins used for DOT instructions
+    // (in addition to the TM1638 LEDs)
+    //
+
     #define DOT_PIN_1 13
     #define DOT_PIN_2 17
     #define DOT_PIN_3 18 
-    // #define DOT_PIN_4 0 either this one or RESET, shortage of PINs! 
+    // #define DOT_PIN_4 0 
 
     //
     // reset Microtronic (not Arduino) by pulling this to GND
@@ -159,9 +150,10 @@ For the Uno version:
 	
 #### Description 
 
-The TM1638 module is used.  The **push buttons of the TM1638 are the
-function keys of the Microtronic**, in this order of sequence, from
-left to right: ``HALT, NEXT, RUN, CCE, REG, STEP, BKP, RUN``:
+The TM1638 "Led & Key" module is being used.  The **eight push buttons
+of the TM1638 are the function keys of the Microtronic**, in this
+order of sequence, from left to right: ``HALT, NEXT, RUN, CCE, REG,
+STEP, BKP, RUN``:
 
     #define HALT  1 
     #define NEXT  2 
@@ -184,30 +176,32 @@ top-right order. You might consider to relabel the keys on the pad
 Microtronic's **Carry** and **Zero** flag are the LEDs 1 and 2 of the
 TM1638, the 1 **Hz clock LED** is LED 3 (from left to right). The LEDs
 5 to 8 are used as **DOT outputs** (set by the data out op-code
-``FEx``). There are also three PINs for DOT outputs: ``13``, ``A3`` and ``A4`` 
-are used for the first 3 bits of the DOT outputs. For the 4th bit, you 
-can use pin ``0``, but then the ``RESET`` button (see next paragraph) 
-will have to be sacrificed (due to a shortage of R3 pins). 
+``FEx``). 
+
+There are also three PINs for DOT outputs: ``13``, ``A3`` and ``A4``
+are used for the first 3 bits of the DOT outputs. For the 4th bit, you
+can use pin ``0``, but then the ``RESET`` button (see next paragraph)
+will have to be sacrificed (due to a shortage of R3 pins).
 
 Notice that the Arduino reset button will erase the emulator's program
 memory. To only reset emulator while keeping the program in memory,
-connect Arduino pin ``D0 (RX)`` to ground.
+connect Arduino pin ``D0 (RX)`` to ground. You can always dump the memory
+contents to the EEPROM via ``PGM 2``, and load it back via ``PGM 1``. 
 
 The Arduino Uno pins ``D1`` to ``D4`` are read by the Microtronic data
 in op-code ``FDx (DIN)``. Connecting them to ground will set the
 corresponding bit to one (high). See ``PGM D``.
 
-Analog pin ``A5`` on the Uno is used as a CPU speed
-throttle. Connect a potentiometer to adjust the speed of the CPU.
-**Important: All three pins of the potentiometer need to be connected!
-The center pin of the potentiometer goes to ``A5``
-(``CPU_THROTTLE_ANALOG_PIN``), and the outer remaining two pins
-connect to ``5V (VCC)`` and ``GND``.** Otherwise, the analog input is
-left "floating" and no analog value can be read. The ``analogRead``
-should return a value between 0 and 1023; adjust the
-``CPU_THROTTLE_DIVISOR 10`` if required. I am using a 1 kOhm
-potentiometer; don't use values smaller than 1 kOhm because of the
-VCC -> GND current leakage over the potentiometer. 
+Analog pin ``A5`` on the Uno is used as a CPU speed throttle. Connect
+a potentiometer to adjust the speed of the CPU.  **Important: All
+three pins of the potentiometer need to be connected!  The center pin
+of the potentiometer goes to ``A5`` (``CPU_THROTTLE_ANALOG_PIN``), and
+the outer remaining two pins connect to ``5V (VCC)`` and ``GND``.**
+Otherwise, the analog input is left "floating" and no analog value can
+be read. The ``analogRead`` should return a value between 0 and 1023;
+adjust the ``CPU_THROTTLE_DIVISOR 10`` if required. I am using a 1
+kOhm potentiometer; don't use values smaller than 1 kOhm because of
+the VCC -> GND current leakage over the potentiometer.
 
 Unlike the original Microtronic, this emulator uses the leftmost digit
 of the 8digit FM1638 (or of the left Adafruit LEDs backpack display on
@@ -224,22 +218,25 @@ original Microtronic only featured a 6digit display). Currently, the
 - ``t`` : entering clock time (``PGM 3``) 
 - ``C`` : showing clock time (``PGM 4``) 
 
-Also unlike the original Microtronic, the emulator uses blinking
+Moreover, unlike the original Microtronic, the emulator uses blinking
 digits to indicate cursor position. The ``CCE`` key works a little bit
 differently, but editing should be comfortable enough.
 
 Typical operation sequences such as ``HALT-NEXT-00-RUN`` and
-``HALT-NEXT-00-F10-NEXT-510-NEXT-C00-NEXT`` etc. will work as expected.
-Also, try to load a demo program: ``HALT-PGM-7-RUN``. 
+``HALT-NEXT-00-F10-NEXT-510-NEXT-C00-NEXT`` etc. will work as
+expected.  Also, try to load a demo program: ``HALT-PGM-7-RUN``.
 
 Note that programs can be entered manually, using the keypad and
 function keys, or you can load a fixed ROM program specified in the
 Arduino sketch via the ``PGM`` button. These ROM programs are defined
-in the ``busch2090.ino`` sketch and are stored in the ``PGMSPACE``. 
-The ROM programs ```PGM 7`` to ``PGM F`` are defined: 
+in the ``busch2090.ino`` sketch and are stored in the ``PGMSPACE``.
+The ROM programs ```PGM 7`` to ``PGM F`` are defined:
 
-The programs stored into and loaded from the EEPROM are ``PGM 7`` to
-``PGM C``:
+The following PGM programs from ``PGM 7`` to ``PGM E`` are stored in
+the sketch using ``PGMSPACE`` strings.  Note that ``PGM 1`` to ``PGM
+6`` are built-in special functions that do not correspond to
+``PGMSPACE`` programs. If you wish, you can exchange these programs
+from ``7`` to ``F`` with you own: 
 
 - ``PGM 1`` : restore Microtronic memory from EEPROM ("core restore") 
 - ``PGM 2`` : store / dump Microtronic memory to EEPROM  ("core dump") 
@@ -256,6 +253,8 @@ The programs stored into and loaded from the EEPROM are ``PGM 7`` to
 - ``PGM D`` : Lunar Lander (Moon Landing) from the Microtronic Manual Vol. 1, page 23 
 - ``PGM E`` : Prime Numbers, from the "Computerspiele 2094" book, page 58
 - ``PGM F`` : Game 17+4 BlackJack, from the "Computerspiele 2094" book, page 32
+
+Have fun! 
 
 
 
