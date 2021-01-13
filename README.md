@@ -38,7 +38,7 @@ manual set in the [`manuals`](./manuals/) directory of this project.
 
 ## Emulator Versions 
 
-### Current 2020 Version - The "Microtronic Next Generation" Project 
+### The "Microtronic Next Generation" Project 
 
 The current version of the Microtronic Emulator is called the "Micotronic Next Generation", and it comes as a PCB: 
 
@@ -74,6 +74,190 @@ More details about this great project can be found on the [homepage of the Micro
 ![Microtronic 2nd Generation Pic 2](./microtronic-2nd-generation/pic2.jpg)
 ![Microtronic 2nd Generation Pic 3](./microtronic-2nd-generation/pic3.jpg)
 ![Microtronic 2nd Generation Pic 4](./microtronic-2nd-generation/pic4.jpg)
+
+
+### The 2021 Arduino Uno R3 Version  
+
+This is a new take on the 2016 Arduino Uno R3 version with some improvements over the 2016 version. 
+
+In a nutshell, it offers: 
+
+- Microtronic emulation with a classic authentic retro user experience (LED 7segment display)
+- Extended PGM ROM program library´, e.g. ``PGM F`` for Blackjack, ``PGM E`` for Prime Numbers, ``PGM D`` for the Lunar Lander, etc. Unlike previous versions of the R3 emulator, the programs are now stored in AVR ``PGMSPACE```. Hence, the ``PGM-EEPROM.INO`` loader is no longer required to initialize the emulator before it can be used. 
+- PGM 1 & PGM 2: store & restore memory contents into EEPROM. Your work will not be lost. Before powering down the emulator, simply dump the RAM contents into the EEPROM via ``PGM 2``, and resume your work with ``PGM 1``. 
+
+#### Hardware Requirements
+
+You will need: 
+
+- An Arduino Uno R3 
+- A TM1638 module with 8 7segment digits, 8 push buttons, and 8 LEDs 
+- A 4x4 keypad with matrix encoding for hexadecimal input
+- A 10k Ohm potentiometer for CPU speed / throttle control 
+
+#### Hardware Setup / Wiring 
+
+For the Uno version:
+
+    //
+    // TM1638 module
+    //
+
+    TM1638 module(14, 15, 16);
+
+    //
+    // Keypad 4 x 4 matrix
+    //
+
+    #define ROWS 4
+    #define COLS 4
+
+    char keys[ROWS][COLS] = { // plus one because 0 = no key pressed!
+      {0xD, 0xE, 0xF, 0x10},
+      {0x9, 0xA, 0xB, 0xC},
+      {0x5, 0x6, 0x7, 0x8},
+      {0x1, 0x2, 0x3, 0x4}
+    };
+
+    byte colPins[COLS] = {5, 6, 7, 8}; // columns
+    byte rowPins[ROWS] = {9, 10, 11, 12}; // rows
+
+    Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
+
+    unsigned long lastFuncKeyTime = 0;
+
+    #define FUNCTION_KEY_DEBOUNCE_TIME 50
+
+    //
+    // these are the digital pins used for DIN instructions
+    //
+
+    #define DIN_PIN_1 1
+    #define DIN_PIN_2 2
+    #define DIN_PIN_3 3
+    #define DIN_PIN_4 4
+
+    #define DOT_PIN_1 13
+    #define DOT_PIN_2 17
+    #define DOT_PIN_3 18 
+    // #define DOT_PIN_4 0 either this one or RESET, shortage of PINs! 
+
+    //
+    // reset Microtronic (not Arduino) by pulling this to GND
+    //
+
+    #define RESET_PIN 0
+
+    //
+    // CPU throttle
+    //
+
+    #define CPU_THROTTLE_ANALOG_PIN 5 // connect center pin of 10 KOhme potentiometer for CPU speed control; connect other 2 pins of potentiometer to GND and 5V! 
+    #define CPU_THROTTLE_DIVISOR 10 
+    #define CPU_MIN_THRESHOLD 10 // if smaller than this, CPU delay = 0
+
+	
+#### Description 
+
+The TM1638 module is used.  The **push buttons of the TM1638 are the
+function keys of the Microtronic**, in this order of sequence, from
+left to right: ``HALT, NEXT, RUN, CCE, REG, STEP, BKP, RUN``:
+
+    #define HALT  1 
+    #define NEXT  2 
+    #define RUN   4
+    #define CCE   8
+    #define REG  16
+    #define STEP 32
+    #define BKP  64
+    #define PGM 128 
+
+The 4x4 keypad keys are hex from `0` to `F`, in bottom-left to
+top-right order. You might consider to relabel the keys on the pad 
+(I haven't done that):
+
+    7 8 9 A       C D E F 
+    4 5 6 B  ==>  8 9 A B
+    1 2 3 C  ==>  4 5 6 7
+    * 0 # D       0 1 2 3
+
+Microtronic's **Carry** and **Zero** flag are the LEDs 1 and 2 of the
+TM1638, the 1 **Hz clock LED** is LED 3 (from left to right). The LEDs
+5 to 8 are used as **DOT outputs** (set by the data out op-code
+``FEx``). There are also three PINs for DOT outputs: ``13``, ``A3`` and ``A4`` 
+are used for the first 3 bits of the DOT outputs. For the 4th bit, you 
+can use pin ``0``, but then the ``RESET`` button (see next paragraph) 
+will have to be sacrificed (due to a shortage of R3 pins). 
+
+Notice that the Arduino reset button will erase the emulator's program
+memory. To only reset emulator while keeping the program in memory,
+connect Arduino pin ``D0 (RX)`` to ground.
+
+The Arduino Uno pins ``D1`` to ``D4`` are read by the Microtronic data
+in op-code ``FDx (DIN)``. Connecting them to ground will set the
+corresponding bit to one (high). See ``PGM D``.
+
+Analog pin ``A5`` on the Uno is used as a CPU speed
+throttle. Connect a potentiometer to adjust the speed of the CPU.
+**Important: All three pins of the potentiometer need to be connected!
+The center pin of the potentiometer goes to ``A5``
+(``CPU_THROTTLE_ANALOG_PIN``), and the outer remaining two pins
+connect to ``5V (VCC)`` and ``GND``.** Otherwise, the analog input is
+left "floating" and no analog value can be read. The ``analogRead``
+should return a value between 0 and 1023; adjust the
+``CPU_THROTTLE_DIVISOR 10`` if required. I am using a 1 kOhm
+potentiometer; don't use values smaller than 1 kOhm because of the
+VCC -> GND current leakage over the potentiometer. 
+
+Unlike the original Microtronic, this emulator uses the leftmost digit
+of the 8digit FM1638 (or of the left Adafruit LEDs backpack display on
+the Mega version 3) to display the **current system status** (the
+original Microtronic only featured a 6digit display). Currently, the
+**status codes** are:
+
+- ``H``: stopped 
+- ``A``: enter address 
+- ``P``: enter op-code 
+- ``r``: running program
+- ``?``: keypad input from user requested  
+- ``i``: entering / inspecting register via ``REG``  
+- ``t`` : entering clock time (``PGM 3``) 
+- ``C`` : showing clock time (``PGM 4``) 
+
+Also unlike the original Microtronic, the emulator uses blinking
+digits to indicate cursor position. The ``CCE`` key works a little bit
+differently, but editing should be comfortable enough.
+
+Typical operation sequences such as ``HALT-NEXT-00-RUN`` and
+``HALT-NEXT-00-F10-NEXT-510-NEXT-C00-NEXT`` etc. will work as expected.
+Also, try to load a demo program: ``HALT-PGM-7-RUN``. 
+
+Note that programs can be entered manually, using the keypad and
+function keys, or you can load a fixed ROM program specified in the
+Arduino sketch via the ``PGM`` button. These ROM programs are defined
+in the ``busch2090.ino`` sketch and are stored in the ``PGMSPACE``. 
+The ROM programs ```PGM 7`` to ``PGM F`` are defined: 
+
+The programs stored into and loaded from the EEPROM are ``PGM 7`` to
+``PGM C``:
+
+- ``PGM 1`` : restore Microtronic memory from EEPROM ("core restore") 
+- ``PGM 2`` : store / dump Microtronic memory to EEPROM  ("core dump") 
+- ``PGM 3`` : set clock 
+- ``PGM 4`` : show clock 
+- ``PGM 5`` : clear memory
+- ``PGM 6`` : load ``F01`` (NOPs) into RAM memory 
+- ``PGM 7`` : Nim Game 
+- ``PGM 8`` : Crazy Counter 
+- ``PGM 9`` : the Electronic Dice, from Microtronic Manual Vol. 1, page 10
+- ``PGM A`` : the Three Digit Counter from Microtronic Manual Vol. 1, page 19 
+- ``PGM B`` : moving LED Light from the Microtronic Manul Vol. 1, page 48  
+- ``PGM C`` : digitial input DIN Test Program
+- ``PGM D`` : Lunar Lander (Moon Landing) from the Microtronic Manual Vol. 1, page 23 
+- ``PGM E`` : Prime Numbers, from the "Computerspiele 2094" book, page 58
+- ``PGM F`` : Game 17+4 BlackJack, from the "Computerspiele 2094" book, page 32
+
+
 
 ### 2016 Versions - DEPRECATED and NOT RECOMMENDED 
 

@@ -76,34 +76,25 @@ void setup() {
   sendString("  BUSCH ");
   sendString("  2090  ");
   sendString("  eeprog");
-
   
   int i = 0;
+  int adr = 0;
 
   byte numPrograms = PROGRAMS;
-
-  int adr = 0;
 
   EEPROM.write(adr++, numPrograms);
 
   for (int n = 0; n < numPrograms; n++) {
-
     String program = programs[n];
-    int length = (program.length() / 4) * 3;
+    int length = (program.length() / 4) - 1;
     EEPROM.write(adr++, length);
-
   }
 
   for (int n = 0; n < numPrograms; n++) {
-
     String program = programs[n];
     int length = (program.length() / 4) * 3;
-
     enterProgram(program, adr, n);
-
     adr += length;
-
-
   }
 
   module.setDisplayToHexNumber(adr, 0, true);
@@ -124,9 +115,8 @@ void setup() {
   int start = 1;
 
   for (int n = 0; n < n1; n++) {
-
     startAddresses[n] = start;
-    start += EEPROM.read(adr++) * 3;
+    start += (EEPROM.read(adr++) + 1) * 3;
     module.setDisplayToHexNumber( startAddresses[n], 0, true);
     delay(DISP_DELAY);
   }
@@ -136,16 +126,13 @@ void setup() {
 
   sendString("  exit  ");
 
-
 }
 
 
 void sendString(String string) {
 
   for (int i = 0; i < 8; i++) {
-
     module.sendChar(i, FONT_DEFAULT[string[i] - 32], false);
-
   }
 
   delay(DISP_DELAY);
