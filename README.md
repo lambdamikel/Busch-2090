@@ -80,14 +80,6 @@ More details about this great project can be found on the [homepage of the Micro
 
 This is a new take on the 2016 Arduino Uno R3 version with some improvements over the 2016 version. 
 
-**Thanks to Lilly for pointing out that the R3 version was still compiling and working; this motivated me to take a fresh look at the project.**
-
-![Busch 2090 Microtronic Emulator for Arduino Uno R3 2021 Version - Pic 1](https://github.com/lambdamikel/Busch-2090/blob/master/images/2090-2021-1.jpg)
-
-![Busch 2090 Microtronic Emulator for Arduino Uno R3 2021 Version - Pic 2](https://github.com/lambdamikel/Busch-2090/blob/master/images/2090-2021-2.jpg)
-
-![Busch 2090 Microtronic Emulator for Arduino Uno R3 2021 Version - Pic 3](https://github.com/lambdamikel/Busch-2090/blob/master/images/2090-2021-3.jpg)
-
 In a nutshell, it offers: 
 
 - High-speed Microtronic emulation with an authentic retro user experience (LED 7segment display etc.)
@@ -95,7 +87,20 @@ In a nutshell, it offers:
 - PGM 2 & PGM 1 functionality: the EEPROM is now used to store & restore the Microtronic memory contents! Before powering down the emulator, simply dump the current memory contents into the EEPROM via ``PGM 2``, and resume your work with ``PGM 1``. Better than a 2095 Cassette Interface! 
 - CPU Speed Control / Throttle: go turbo Microtronic (Prime Numbers have never been computed faster on a Microtronic!), or experience the cozy processing speed of the original Microtronic by tuning the emulation speed with this 10 kOhm potentiometer. 
 - A simple build - you can set this up in 30 minutes.
-- Still missing: ``BKP`` and ``STEP`` functionality. Soon! 
+- Still missing: ``BKP`` and ``STEP`` functionality. Soon - Lilly (Germany) is working on that (see below). 
+
+![Busch 2090 Microtronic Emulator for Arduino Uno R3 2021 Version - Pic 1](https://github.com/lambdamikel/Busch-2090/blob/master/images/2090-2021-1.jpg)
+
+![Busch 2090 Microtronic Emulator for Arduino Uno R3 2021 Version - Pic 2](https://github.com/lambdamikel/Busch-2090/blob/master/images/2090-2021-2.jpg)
+
+![Busch 2090 Microtronic Emulator for Arduino Uno R3 2021 Version - Pic 3](https://github.com/lambdamikel/Busch-2090/blob/master/images/2090-2021-3.jpg)
+
+**Thanks to Lilly (Germany) for pointing out that the R3 version was still compiling and working; this motivated me to take a fresh look at the project.** In fact, Lilly built her own 2090 R3 emulator: embracing the true hacker spirit, she used an old Agfa photo box and recycled it as the emulator case. I don't think she went dumpster diving for components though. **Great build, Lilly, and thanks for motivating the 2021 version and some new functionalities to make it more useful. This is her emulator:** 
+
+![Lilly Pic 1](https://github.com/lambdamikel/Busch-2090/blob/master/images/lilly-1.jpg)
+
+![Lilly Pic 2](https://github.com/lambdamikel/Busch-2090/blob/master/images/lilly-2.jpg)
+
 
 #### Hardware Requirements
 
