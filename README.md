@@ -314,5 +314,4 @@ instead.**
 
 ## Required Third-Party Libraries 
 
-To be rewritten. 
-
+Please check the [`libraries.zip`](./libraries/libraries.zip) that contains everything needed (and more) for the different Arduino emulator versions discussed here. 
