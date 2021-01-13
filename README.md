@@ -80,6 +80,12 @@ More details about this great project can be found on the [homepage of the Micro
 
 This is a new take on the 2016 Arduino Uno R3 version with some improvements over the 2016 version. 
 
+![Busch 2090 Microtronic Emulator for Arduino Uno R3 2021 Version - Pic 1](https://github.com/lambdamikel/Busch-2090/blob/master/images/2090-2021-1.jpg)
+
+![Busch 2090 Microtronic Emulator for Arduino Uno R3 2021 Version - Pic 2](https://github.com/lambdamikel/Busch-2090/blob/master/images/2090-2021-2.jpg)
+
+![Busch 2090 Microtronic Emulator for Arduino Uno R3 2021 Version - Pic 3](https://github.com/lambdamikel/Busch-2090/blob/master/images/2090-2021-3.jpg)
+
 In a nutshell, it offers: 
 
 - High-speed Microtronic emulation with a authentic retro user experience (LED 7segment display etc.)
