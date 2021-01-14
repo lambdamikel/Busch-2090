@@ -227,7 +227,7 @@ byte arg2[256];
 
 boolean jump = false;
 byte pc = 0;
-byte breakAt = 0;
+byte breakAt = 0; // != 0 -> breakpoint set
 
 boolean singleStep = false;
 boolean ignoreBreakpointOnce = false;
@@ -421,31 +421,31 @@ void showMem()
   module.sendChar(1, 0, false);
 
   if (cursor == 0)
-    module.sendChar(2, blink ? NUMBER_FONT[pc / 16] : 0, true);
+    module.sendChar(2, blink ? NUMBER_FONT[adr / 16] : 0, true);
   else
-    module.sendChar(2, NUMBER_FONT[pc / 16], false);
+    module.sendChar(2, NUMBER_FONT[adr / 16], false);
 
   if (cursor == 1)
-    module.sendChar(3, blink ? NUMBER_FONT[pc % 16] : 0, true);
+    module.sendChar(3, blink ? NUMBER_FONT[adr % 16] : 0, true);
   else
-    module.sendChar(3, NUMBER_FONT[pc % 16], false);
+    module.sendChar(3, NUMBER_FONT[adr % 16], false);
 
   module.sendChar(4, 0, false);
 
   if (cursor == 2)
-    module.sendChar(5, blink ? NUMBER_FONT[op[pc]] : 0, true);
+    module.sendChar(5, blink ? NUMBER_FONT[op[adr]] : 0, true);
   else
-    module.sendChar(5, NUMBER_FONT[op[pc]], false);
+    module.sendChar(5, NUMBER_FONT[op[adr]], false);
 
   if (cursor == 3)
-    module.sendChar(6, blink ? NUMBER_FONT[arg1[pc]] : 0, true);
+    module.sendChar(6, blink ? NUMBER_FONT[arg1[adr]] : 0, true);
   else
-    module.sendChar(6, NUMBER_FONT[arg1[pc]], false);
+    module.sendChar(6, NUMBER_FONT[arg1[adr]], false);
 
   if (cursor == 4)
-    module.sendChar(7, blink ? NUMBER_FONT[arg2[pc]] : 0, true);
+    module.sendChar(7, blink ? NUMBER_FONT[arg2[adr]] : 0, true);
   else
-    module.sendChar(7, NUMBER_FONT[arg2[pc]], false);
+    module.sendChar(7, NUMBER_FONT[arg2[adr]], false);
 }
 
 //
@@ -660,6 +660,11 @@ void displayStatus()
            currentMode ==
                ENTERING_ADDRESS_LOW)
     status = 'A';
+  else if (currentMode ==
+               ENTERING_BREAKPOINT_HIGH ||
+           currentMode ==
+               ENTERING_BREAKPOINT_LOW)
+    status = 'b';
   else if (currentMode == ENTERING_OP ||
            currentMode == ENTERING_ARG1 ||
            currentMode == ENTERING_ARG2)
@@ -1255,6 +1260,8 @@ void run()
     currentMode = STOPPED;
     return;
   }
+
+  ignoreBreakpointOnce = false;
 
   jump = false;
 
