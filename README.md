@@ -13,9 +13,35 @@
 This repository contains a number of Arduino-based emulator of the 
 Busch 2090 Microtronic Computer System. 
 
-The latest PCB version - "The Microtronic Next Generation" - also povides
-an emulation of the Busch 2095 Cassette Interface that plugs into
-a real Microtronic to provide SD-card based file storage. 
+The Busch 2090 was an educational 4bit single-board computer system of
+the early 1980s, manufactured by the company Busch Modellbau in
+Germany: 
+
+![Microtronic Prospekt](./images/microtronic-prospekt.png) 
+
+This is the Microtronic of the author; on the left you see
+the 2095 Cassette Interface (the breadboard & Arduino R3 contraption 
+connected to the Microtronic is an Arduino-based speech synthesizer
+for the the 2090, utilizing the Emic-2 speech board): 
+
+![Microtronic 1](./images/microtronic-emic-2-speech-3.jpg) 
+![Microtronic 2](./images/microtronic-emic-2-speech-1.jpg) 
+
+There is [some information about the Busch 2090 Microtronic available
+on the official Busch website here, including PDFs of the original
+manuals in
+German](https://www.busch-model.info/service/historie-microtronic/.)
+
+The designer of the original Busch Microtronic, **Mr. Jörg Vallen of Busch**, 
+was also so kind to grant permission to include a full copy of the
+manual set in the [`manuals`](./manuals/) directory of this project. 
+
+The latest PCB version - "The Microtronic Next Generation" - also
+povides an emulation of the Busch 2095 Cassette Interface that plugs
+into a real Microtronic to provide SD-card based file storage. The
+2095 Cassette Interface implementation was made possible by Martin
+Sauter's ingenious reverse engineering of the 2095 protocol. Martin
+also implemented a Python-based prototype of a 2095 emulator.
 
 Recently, the latest iteration of this project, "The Microtronic Next
 Generation", was featured on the Hackaday front page:
@@ -26,15 +52,10 @@ Generation", was featured on the Hackaday front page:
 
 ## History 
 
-The Busch 2090 was an educational 4bit single-board computer system of
-the early 1980s, manufactured by the company Busch Modellbau in
-Germany. There is [some information about the Busch 2090 Microtronic
-available here, including PDFs of the original manuals in
-German](https://www.busch-model.info/service/historie-microtronic/)
-
-The designer of the original Busch Microtronic, Mr. Jörg Vallen of Busch, 
-was also so kind to grant permission to include a full copy of the
-manual set in the [`manuals`](./manuals/) directory of this project. 
+The project started in January 2016 and is still active in January 
+2021. In that time, the number of contributers increased from 1 to 6. 
+See below for the different versions using different Arduino
+variants and form factors. 
 
 ## Emulator Versions 
 
@@ -80,14 +101,6 @@ More details about this great project can be found on the [homepage of the Micro
 
 This is a new take on the 2016 Arduino Uno R3 version with some improvements over the 2016 version. 
 
-**Thanks to Lilly for pointing out that the R3 version was still compiling and working; this motivated me to take a fresh look at the project.**
-
-![Busch 2090 Microtronic Emulator for Arduino Uno R3 2021 Version - Pic 1](https://github.com/lambdamikel/Busch-2090/blob/master/images/2090-2021-1.jpg)
-
-![Busch 2090 Microtronic Emulator for Arduino Uno R3 2021 Version - Pic 2](https://github.com/lambdamikel/Busch-2090/blob/master/images/2090-2021-2.jpg)
-
-![Busch 2090 Microtronic Emulator for Arduino Uno R3 2021 Version - Pic 3](https://github.com/lambdamikel/Busch-2090/blob/master/images/2090-2021-3.jpg)
-
 In a nutshell, it offers: 
 
 - High-speed Microtronic emulation with an authentic retro user experience (LED 7segment display etc.)
@@ -95,7 +108,33 @@ In a nutshell, it offers:
 - PGM 2 & PGM 1 functionality: the EEPROM is now used to store & restore the Microtronic memory contents! Before powering down the emulator, simply dump the current memory contents into the EEPROM via ``PGM 2``, and resume your work with ``PGM 1``. Better than a 2095 Cassette Interface! 
 - CPU Speed Control / Throttle: go turbo Microtronic (Prime Numbers have never been computed faster on a Microtronic!), or experience the cozy processing speed of the original Microtronic by tuning the emulation speed with this 10 kOhm potentiometer. 
 - A simple build - you can set this up in 30 minutes.
-- Still missing: ``BKP`` and ``STEP`` functionality. Soon! 
+- Still missing: ``BKP`` and ``STEP`` functionality. Soon - Lilly (Germany) is working on that (see below). 
+
+![Busch 2090 Microtronic Emulator for Arduino Uno R3 2021 Version - Pic 1](https://github.com/lambdamikel/Busch-2090/blob/master/images/2090-2021-1.jpg)
+
+![Busch 2090 Microtronic Emulator for Arduino Uno R3 2021 Version - Pic 2](https://github.com/lambdamikel/Busch-2090/blob/master/images/2090-2021-2.jpg)
+
+![Busch 2090 Microtronic Emulator for Arduino Uno R3 2021 Version - Pic 3](https://github.com/lambdamikel/Busch-2090/blob/master/images/2090-2021-3.jpg)
+
+**Thanks to Lilly (Germany) for pointing out that the R3 version was
+still compiling and working; this motivated me to take a fresh look at
+the project.** In fact, Lilly built her own 2090 R3 emulator:
+embracing the true hacker spirit, she used an old Agfa photo box and
+recycled it as the emulator case! I don't think she went dumpster
+diving for components though. **Great build, Lilly, and thanks for
+motivating the 2021 version and some new functionalities to make it
+more useful! This is her emulator, it certainly has the words "retro"
+and "vintage" written all over it. For more details about her projects
+and the Agfa box emulator, check out her Github
+[https://github.com/ducatimaus](https://github.com/ducatimaus) that
+also contains a fork of the 2090 project:**
+
+![Lilly Pic 1](https://github.com/lambdamikel/Busch-2090/blob/master/images/lilly-1.jpg)
+
+![Lilly Pic 2](https://github.com/lambdamikel/Busch-2090/blob/master/images/lilly-2.jpg)
+
+I also love how the documentation (IPad PDF manual) is much more modern than the computer - back in the 80s, it used to be the other way around :-) 
+
 
 #### Hardware Requirements
 
