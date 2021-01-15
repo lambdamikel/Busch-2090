@@ -1,11 +1,11 @@
 # Arduino-Based Busch 2090 Microtronic Emulators 
 ## Arduino-based Emulators of the Vintage Busch 2090 Microtronic Computer System from 1981 
 #### Authors: 
-- [Michael Wessel](http://www.michael-wessel.info/): Original Emulator & Next Generation Emulator 
+- [Michael Wessel](http://www.michael-wessel.info/): Original Emulators & Next Generation Emulator 
 - Frank de Jaeger: 2nd Generation Microtronic PCB 
 - Manfred Henf: 2nd Generation Microtronic 3D Design & Printing 
 - Martin Sauter: Busch 2095 Cassette Interface Protocol Reengineering & Research
-- Lilly (https://github.com/ducatimaus/Busch-2090): Uno R3 Version Breakpoint & Single Stepping Integration & Refactoring 
+- Lilly (https://github.com/ducatimaus/Busch-2090): R3 version Breakpoint & Single Stepping Integration
 
 #### License: GPL 3
 #### [YouTube Videos](https://www.youtube.com/playlist?list=PLvdXKcHrGqhekyx81EoCwQij1Lqylp0dB) 
@@ -120,17 +120,14 @@ In a nutshell, it offers:
 
 **Thanks to Lilly (Germany) for pointing out that the R3 version was
 still compiling and working (which motiviated me to resurrect this
-project), and for integrating & refactoring the ``BKP``` and ``STEP`` 
-functionality! In fact, Lilly built her own 2090 R3 emulator:
+project), and for integrating & refactoring the ``BKP``` and ``STEP``
+functionality!** In fact, Lilly built her own 2090 R3 emulator:
 embracing the true hacker spirit, she used an old Agfa photo box and
-recycled it as the emulator case! I don't think she went dumpster
-diving for components though. **Great build, Lilly, and thanks for
-motivating the 2021 version and some new functionalities to make it
-more useful! This is her emulator, it certainly has the words "retro"
-and "vintage" written all over it. For more details about her projects
-and the Agfa box emulator, check out her Github
-[https://github.com/ducatimaus](https://github.com/ducatimaus) that
-also contains a fork of the 2090 project:**
+recycled it as the emulator case! This is her emulator; it certainly
+has the words "retro" and "vintage" written all over it. For more
+details about her projects and the Agfa box emulator, check out her
+Github [https://github.com/ducatimaus](https://github.com/ducatimaus)
+that also contains a fork of the 2090 project:**
 
 ![Lilly Pic 1](https://github.com/lambdamikel/Busch-2090/blob/master/images/lilly-1.jpg)
 
