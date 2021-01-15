@@ -127,7 +127,7 @@ recycled it as the emulator case! This is her emulator; it certainly
 has the words "retro" and "vintage" written all over it. For more
 details about her projects and the Agfa box emulator, check out her
 Github [https://github.com/ducatimaus](https://github.com/ducatimaus)
-that also contains a fork of the 2090 project:**
+that also contains a fork of the 2090 project:
 
 ![Lilly Pic 1](https://github.com/lambdamikel/Busch-2090/blob/master/images/lilly-1.jpg)
 
