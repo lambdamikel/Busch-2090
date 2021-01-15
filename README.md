@@ -5,7 +5,7 @@
 - Frank de Jaeger: 2nd Generation Microtronic PCB 
 - Manfred Henf: 2nd Generation Microtronic 3D Design & Printing 
 - Martin Sauter: Busch 2095 Cassette Interface Protocol Reengineering & Research
-- Lilly (https://github.com/ducatimaus/Busch-2090): R3 version Breakpoint & Single Stepping Integration
+- Lilly (https://github.com/ducatimaus/Busch-2090): Breakpoint & Single Stepping Integration for Uno R3 Version 
 
 #### License: GPL 3
 #### [YouTube Videos](https://www.youtube.com/playlist?list=PLvdXKcHrGqhekyx81EoCwQij1Lqylp0dB) 
