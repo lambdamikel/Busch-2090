@@ -25,7 +25,7 @@ connected to the Microtronic is an Arduino-based speech synthesizer
 for the the 2090, utilizing the Emic-2 speech board): 
 
 ![Microtronic 1](./images/microtronic-emic-2-speech-3.jpg) 
-![Microtronic 2](./images/microtronic-emic-2-speech-1.jpg) 
+![Microtronic 2](./images/microtronic-emic-2-speech-1.JPG) 
 
 There is [some information about the Busch 2090 Microtronic available
 on the official Busch website here, including PDFs of the original
@@ -108,7 +108,7 @@ In a nutshell, it offers:
 - PGM 2 & PGM 1 functionality: the EEPROM is now used to store & restore the Microtronic memory contents! Before powering down the emulator, simply dump the current memory contents into the EEPROM via ``PGM 2``, and resume your work with ``PGM 1``. Better than a 2095 Cassette Interface! 
 - CPU Speed Control / Throttle: go turbo Microtronic (Prime Numbers have never been computed faster on a Microtronic!), or experience the cozy processing speed of the original Microtronic by tuning the emulation speed with this 10 kOhm potentiometer. 
 - A simple build - you can set this up in 30 minutes.
-- Still missing: ``BKP`` and ``STEP`` functionality. Soon - Lilly (Germany) is working on that (see below). 
+- Breakpoint (``BKP``) and Single Step (``STEP``) functionality: **Thanks much to Lilly (https://github.com/ducatimaus/Busch-2090) for integrating & refactoring this functionality! Great job!** 
 
 ![Busch 2090 Microtronic Emulator for Arduino Uno R3 2021 Version - Pic 1](https://github.com/lambdamikel/Busch-2090/blob/master/images/2090-2021-1.jpg)
 
@@ -117,8 +117,9 @@ In a nutshell, it offers:
 ![Busch 2090 Microtronic Emulator for Arduino Uno R3 2021 Version - Pic 3](https://github.com/lambdamikel/Busch-2090/blob/master/images/2090-2021-3.jpg)
 
 **Thanks to Lilly (Germany) for pointing out that the R3 version was
-still compiling and working; this motivated me to take a fresh look at
-the project.** In fact, Lilly built her own 2090 R3 emulator:
+still compiling and working (which motiviated me to resurrect this
+project), and for integrating & refactoring the ``BKP``` and ``STEP`` 
+functionality! In fact, Lilly built her own 2090 R3 emulator:
 embracing the true hacker spirit, she used an old Agfa photo box and
 recycled it as the emulator case! I don't think she went dumpster
 diving for components though. **Great build, Lilly, and thanks for
