@@ -2,12 +2,16 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Uno R3
 
-  Version 0.99 (c) Michael Wessel, January 29 2016
-  Version 1.0  (c) Michael Wessel, January 12 2021 
+  Version 1.1  (c) Michael Wessel, January 15 2021 
+  https://github.com/lambdamikel/Busch-2090
+  
+  With contributions from Lilly (Germany): 
+  https://github.com/ducatimaus/Busch-2090 
+  (STEP & BKP Functionality Integration) 
 
   michael_wessel@gmx.de
   miacwess@gmail.com
-  http://www.michael-wessel.info
+  https://www.michael-wessel.info
 
   Hardware requirements:
   - 4x4 hex keypad (HEX keypad for data and program entry)
@@ -101,12 +105,13 @@ TM1638 module(14, 15, 16);
 #define COLS 4
 
 char keys[ROWS][COLS] = { // plus one because 0 = no key pressed!
-    {0x2, 0x3, 0x4, 0xB},
-    {0x5, 0x6, 0x7, 0xC},
-    {0x8, 0x9, 0xA, 0xD},
-    {0x10, 0x1, 0xF, 0xE}};
+  {0xD, 0xE, 0xF, 0x10},
+  {0x9, 0xA, 0xB, 0xC},
+  {0x5, 0x6, 0x7, 0x8},
+  {0x1, 0x2, 0x3, 0x4}
+}; 
 
-byte colPins[COLS] = {5, 6, 7, 8};    // columns
+byte colPins[COLS] = {5, 6, 7, 8}; // columns
 byte rowPins[ROWS] = {9, 10, 11, 12}; // rows
 
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
