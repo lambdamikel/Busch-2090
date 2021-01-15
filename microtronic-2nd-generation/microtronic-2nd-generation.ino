@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
 
-  Version 27 (c) Michael Wessel, January 13th, 2021
+  Version 30 (c) Michael Wessel, January 13st, 2021
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -26,8 +26,8 @@
 
 */
 
-#define VERSION "27" 
-#define DATE "01-13-2021"  
+#define VERSION "30" 
+#define DATE "01-14-2021"  
  
 //
 //
@@ -1036,6 +1036,8 @@ void saveProgram1(boolean autosave, boolean quiet) {
   if (transfer_mode) {
     resetPins();  
     delay(READ_DELAY_NEXT_VALUE);
+    // start signal for transmission
+    clock(BUSCH_IN3);
   }
   
   if (myFile) {
@@ -1070,9 +1072,18 @@ void saveProgram1(boolean autosave, boolean quiet) {
 
 	int nibble = bit;
 
+#ifdef MICRO_SECOND_GEN_BOARD 
+// these are INPUT_PULLUP - hence, inverted!
+	if ( digitalRead(BUSCH_OUT3) ) {
+	  break;
+	}
+#endif 
+
+#ifndef MICRO_SECOND_GEN_BOARD 
 	if ( ! digitalRead(BUSCH_OUT3) ) {
 	  break;
 	}
+#endif 
 
 	setTextSize(2); 
 	displaySetCursor(0, 2);
@@ -1266,7 +1277,13 @@ void loadProgram1(boolean load_autoloadsave_file, boolean quiet) {
 	  }
 	  reset(quiet);
 	  pc = firstPc;
+
+	  if (transfer_mode) {
+	    resetPins();  
+	  }
+
 	  return; 
+
         }
 
         if ( readingOrigin ) {
@@ -1764,10 +1781,10 @@ void displayStatus(boolean force_refresh) {
 #ifndef MICRO_SECOND_GEN_BOARD
   digitalWrite(CLOCK_OUT, clock1hz);
 
-  digitalWrite(DOT_1, ! (outputs & 1));
-  digitalWrite(DOT_2, ! (outputs & 2));
-  digitalWrite(DOT_3, ! (outputs & 4));
-  digitalWrite(DOT_4, ! (outputs & 8));
+  digitalWrite(DOT_1, outputs & 1);
+  digitalWrite(DOT_2, outputs & 2);
+  digitalWrite(DOT_3, outputs & 4);
+  digitalWrite(DOT_4, outputs & 8);
 #endif 
 
   //
@@ -2803,7 +2820,7 @@ void interpret() {
 	  timeDays10 = curInput;
 	  cursor++;
 	} break;
-      case 3 : if (timeDays10 == 3 && curInput < 2 || timeDays10 < 3 && curInput >= 0 && curInput < 10) {
+      case 3 : if (timeDays10 == 3 && curInput < 2 || timeDays10 < 3 && curInput >=0 && curInput < 10) {
 	  timeDays1 = curInput;
 	  cursor++;
 	} break;
@@ -2825,12 +2842,10 @@ void interpret() {
       //
       //
       //
-      
+
       timeYears1000 = 2; 
       timeYears100 = 0; 
 
-      int year = timeYears10 * 10 + timeYears1 + timeYears1000 * 1000 + timeYears100 * 100 ; 
-      
       RTC.year = timeYears10 * 10 + timeYears1 + timeYears1000 * 1000 + timeYears100 * 100 ; 
       RTC.mon = timeMonths10*10 + timeMonths1;
       RTC.mday = timeDays10*10 + timeDays1;
@@ -3418,7 +3433,14 @@ int clock(int pin) {
 
   delay(READ_CLOCK_DELAY);
 
+#ifdef MICRO_SECOND_GEN_BOARD 
+// these are INPUT_PULLUP - hence, inverted!
+  int bit = ! digitalRead(BUSCH_OUT1);
+#endif 
+
+#ifndef MICRO_SECOND_GEN_BOARD 
   int bit = digitalRead(BUSCH_OUT1);
+#endif 
 
   return bit;
 
@@ -3580,7 +3602,7 @@ void setup() {
   //
 
   display.begin(); 
-  display.setContrast(57);
+  display.setContrast(63);
 
   display.clearDisplay();
 
@@ -3675,25 +3697,32 @@ void setup() {
   //
   // 
 
+#ifndef MICRO_SECOND_GEN_BOARD 
+  pinMode(DIN_1, INPUT);
+  pinMode(DIN_2, INPUT);
+  pinMode(DIN_3, INPUT);
+  pinMode(DIN_4, INPUT);
+
+  pinMode(BUSCH_OUT1, INPUT);
+  pinMode(BUSCH_OUT3, INPUT);
+#endif
+
+#ifdef MICRO_SECOND_GEN_BOARD 
   pinMode(DIN_1, INPUT_PULLUP);
   pinMode(DIN_2, INPUT_PULLUP);
   pinMode(DIN_3, INPUT_PULLUP);
   pinMode(DIN_4, INPUT_PULLUP);
 
-  //
-  // 2095 Emulation Inputs
-  //
-
   pinMode(BUSCH_OUT1, INPUT_PULLUP);
   pinMode(BUSCH_OUT3, INPUT_PULLUP);
-
+#endif
+ 
   //
   //
   //
 
   pinMode(RANDOM_ANALOG_PIN,       INPUT);
   randomSeed(analogRead(RANDOM_ANALOG_PIN));
-
     
   //
   //
@@ -3713,12 +3742,12 @@ void setup() {
 
 }
 
-
 //
 // main loop / emulator / shell
 //
 
 void loop() {
+
 
   readFunKeys();
   readHexKeys(); 

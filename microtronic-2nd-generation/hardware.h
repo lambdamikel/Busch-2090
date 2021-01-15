@@ -5,7 +5,7 @@
 // Uncomment this if you are using inverted outputs for the 2095 
 // BUSCH_INx output ports (these connect to the 2090's INPUTs) 
 
-//#define INVERTED_OUTPUTS_FOR_2095_EMU
+#define INVERTED_OUTPUTS_FOR_2095_EMU
 
 // Uncomment if you have a realtime clock at pins 20, 21 (SDA, SCL) I2C
 // 
