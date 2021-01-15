@@ -2,6 +2,8 @@
 
 //#define MICRO_SECOND_GEN_BOARD 
 
+// For SH1106 SPI protoype without pullups and no extra CASDIN inputs, uncomment this: 
+// #define SPI_PROTOTYPE 
 
 // Uncomment this if you are using inverted outputs for the 2095 
 // BUSCH_INx output ports (these connect to the 2090's INPUTs) 
@@ -90,16 +92,6 @@
 #define RANDOM_ANALOG_PIN A5
 
 //
-// Nokia Display Pins 
-//
-
-#define NOKIA5 6
-#define NOKIA4 5
-#define NOKIA3 4
-#define NOKIA2 3
-#define NOKIA1 2 
-
-//
 // Hexpad Pins 
 //
 
@@ -140,10 +132,20 @@
 #define BUSCH_IN4 DOT_4
 #endif 
 
+#ifndef MICRO_SECOND_GEN_BOARD 
+#define BUSCH_OUT1 41 // CASDIN1
+#define BUSCH_OUT3 45 // CASDIN3
+#endif 
 
+#ifdef MICRO_SECOND_GEN_BOARD 
 #define BUSCH_OUT1 DIN_1
 #define BUSCH_OUT3 DIN_3 
+#endif 
 
+#ifdef SPI_PROTOTYPE 
+#define BUSCH_OUT1 DIN_1
+#define BUSCH_OUT3 DIN_3 
+#endif 
 
 //
 // Busch 2090 read / write port operations delays (ms)

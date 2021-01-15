@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
 
-  Version 29 (c) Michael Wessel, January 13st, 2021
+  Version 30 (c) Michael Wessel, January 13st, 2021
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -26,8 +26,8 @@
 
 */
 
-#define VERSION "29" 
-#define DATE "01-13-2021"  
+#define VERSION "30" 
+#define DATE "01-14-2021"  
  
 //
 //
@@ -1041,11 +1041,10 @@ void saveProgram1(boolean autosave, boolean quiet) {
   File myFile = SD.open( autosave ? autoloadsave_file : file , FILE_WRITE);
 
   if (transfer_mode) {
-
-    // enable Pullups for Input
-    init_BUSCH_OUTs();   
     resetPins();  
     delay(READ_DELAY_NEXT_VALUE);
+    // start signal for transmission
+    clock(BUSCH_IN3);
   }
   
   if (myFile) {
@@ -1146,8 +1145,6 @@ void saveProgram1(boolean autosave, boolean quiet) {
 
   if (transfer_mode) {
     resetPins();  
-    // change input mode - disable pullup resistors 
-    init_DINs();   
   }
 
   if (! autosave) 
@@ -1222,8 +1219,6 @@ void loadProgram1(boolean load_autoloadsave_file, boolean quiet) {
     boolean done = false; 
 
     if (transfer_mode) {
-      // enable Pullups for Input
-      init_BUSCH_OUTs();   
       resetPins();  
       delay(WRITE_DELAY_NEXT_VALUE);
     }
@@ -1284,7 +1279,6 @@ void loadProgram1(boolean load_autoloadsave_file, boolean quiet) {
 
 	  if (transfer_mode) {
 	    resetPins();  
-	    init_DINs(); 
 	  }
 
 	  return; 
@@ -1361,7 +1355,6 @@ void loadProgram1(boolean load_autoloadsave_file, boolean quiet) {
 
     if (transfer_mode) {
       resetPins();  
-      init_DINs(); 
     }
 
     pc = firstPc;
@@ -3700,15 +3693,32 @@ void setup() {
   //
   // 
 
-  init_DINs(); 
+#ifndef MICRO_SECOND_GEN_BOARD 
+  pinMode(DIN_1, INPUT);
+  pinMode(DIN_2, INPUT);
+  pinMode(DIN_3, INPUT);
+  pinMode(DIN_4, INPUT);
 
+  pinMode(BUSCH_OUT1, INPUT);
+  pinMode(BUSCH_OUT3, INPUT);
+#endif
+
+#ifdef MICRO_SECOND_GEN_BOARD 
+  pinMode(DIN_1, INPUT_PULLUP);
+  pinMode(DIN_2, INPUT_PULLUP);
+  pinMode(DIN_3, INPUT_PULLUP);
+  pinMode(DIN_4, INPUT_PULLUP);
+
+  pinMode(BUSCH_OUT1, INPUT_PULLUP);
+  pinMode(BUSCH_OUT3, INPUT_PULLUP);
+#endif
+ 
   //
   //
   //
 
   pinMode(RANDOM_ANALOG_PIN,       INPUT);
   randomSeed(analogRead(RANDOM_ANALOG_PIN));
-
     
   //
   //
@@ -3726,23 +3736,6 @@ void setup() {
 
   }
 
-}
-
-//
-//
-//
-
-void init_DINs() {
-  pinMode(DIN_1, INPUT);
-  pinMode(DIN_2, INPUT);
-  pinMode(DIN_3, INPUT);
-  pinMode(DIN_4, INPUT);
-}
-
-
-void init_BUSCH_OUTs() {
-  pinMode(BUSCH_OUT1, INPUT_PULLUP);
-  pinMode(BUSCH_OUT3, INPUT_PULLUP);
 }
 
 //
