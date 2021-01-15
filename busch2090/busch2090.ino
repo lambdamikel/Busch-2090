@@ -699,9 +699,9 @@ void displayStatus()
   digitalWrite(DOT_PIN_3, outputs & 4);
   // digitalWrite( DOT_PIN_4, outputs && 1);
 
-  if (currentMode == RUNNING || currentMode == ENTERING_VALUE)
+  if ( currentMode == RUNNING || currentMode == ENTERING_VALUE )
     showDisplay();
-  else if (currentMode == ENTERING_REG || currentMode == INSPECTING || currentMode == RUNNING && isDISP || currentMode == STOPPED && isDISP)
+  else if ( currentMode == ENTERING_REG || currentMode == INSPECTING )
     showReg();
   else if (currentMode == ENTERING_PROGRAM)
     showProgram();
@@ -709,8 +709,9 @@ void displayStatus()
     showTime();
   else if (error)
     showError();
-  else
+  else if ( ! isDISP || singleStep ) {     
     showMem();
+  }
 }
 
 byte decodeHex(char c)
@@ -1760,6 +1761,14 @@ void run()
         showingDisplayDigits = disp_n;
         showingDisplayFromReg = disp_s;
         isDISP = true;
+
+	if ( singleStep ) {
+	   showDisplay();
+	   // make sure STEP key released
+           while ( module.getButtons() ) { true; }; 
+	   // wait for function key (e.g., STEP)
+           while ( ! module.getButtons() ) { true; }; 
+        }
 
         break;
 
