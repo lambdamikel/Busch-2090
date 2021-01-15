@@ -3435,14 +3435,14 @@ int clock(int pin) {
 
 #ifdef MICRO_SECOND_GEN_BOARD 
 // these are INPUT_PULLUP - hence, inverted!
-  int bit = ! digitalRead(BUSCH_OUT1);
+  int bit = ! digitalRead(BUSCH_OUT1) ;
 #endif 
 
 #ifndef MICRO_SECOND_GEN_BOARD 
-  int bit = digitalRead(BUSCH_OUT1);
+  int bit = digitalRead(BUSCH_OUT1) ;
 #endif 
 
-  return bit;
+  return ( bit ? 1 : 0);
 
 }
 

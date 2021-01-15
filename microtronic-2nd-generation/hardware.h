@@ -77,10 +77,14 @@
 // DIN digital input
 //
 
-#define DIN_1 30
-#define DIN_2 28
-#define DIN_3 26
-#define DIN_4 24
+//
+// DONT' CHANGE THE ORDER; DIFFERENT LAYOUT FOR 2nd GENERATION!!!
+//
+
+#define DIN_4 30
+#define DIN_3 28
+#define DIN_2 26
+#define DIN_1 24
 
 //
 // For Initialization of Random Generator
