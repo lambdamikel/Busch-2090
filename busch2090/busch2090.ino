@@ -237,6 +237,7 @@ byte breakAt = 0; // != 0 -> breakpoint set
 boolean singleStep = false;
 boolean ignoreBreakpointOnce = false;
 boolean isDISP = false;
+boolean lastWasDISP = false;
 
 //
 // Stack
@@ -709,9 +710,12 @@ void displayStatus()
     showTime();
   else if (error)
     showError();
-  else if ( ! isDISP || singleStep ) {     
+  else if ( ! isDISP || singleStep && ! lastWasDISP ) {     
     showMem();
   }
+
+  lastWasDISP = isDISP; 
+
 }
 
 byte decodeHex(char c)
@@ -909,9 +913,6 @@ void interpret()
   case HALT:
     currentMode = STOPPED;
     cursor = CURSOR_OFF;
-
-    if (isDISP && singleStep) 
-      pc--; 
 
     showMem();
 
@@ -1771,7 +1772,6 @@ void run()
 	if ( singleStep ) {
 	   showDisplay();
 	   if(isDISP)
-	     pc++; 
 	   // make sure STEP key released
            while ( module.getButtons() ) { true; }; 
 	   // wait for function key (e.g., STEP)
