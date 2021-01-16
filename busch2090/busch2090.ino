@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Uno R3
 
-  Version 1.1  (c) Michael Wessel, January 15 2021 
+  Version 1.2  (c) Michael Wessel, January 15 2021 
   https://github.com/lambdamikel/Busch-2090
   
   With contributions from Lilly (Germany): 
@@ -909,6 +909,12 @@ void interpret()
   case HALT:
     currentMode = STOPPED;
     cursor = CURSOR_OFF;
+
+    if (isDISP && singleStep) 
+      pc--; 
+
+    showMem();
+
     break;
 
   case RUN:
@@ -1764,6 +1770,8 @@ void run()
 
 	if ( singleStep ) {
 	   showDisplay();
+	   if(isDISP)
+	     pc++; 
 	   // make sure STEP key released
            while ( module.getButtons() ) { true; }; 
 	   // wait for function key (e.g., STEP)
