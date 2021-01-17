@@ -245,15 +245,17 @@ will have to be sacrificed (due to a shortage of R3 pins).
 
 
 
-The Arduino Uno pins ``D1`` to ``D4`` are read by the emulator data
-in instruction ``FDx (DIN)``. Connecting these pins to ground will set the
-corresponding bit to one (high). See ``PGM D``. Note that the Microtronic
-uses positive logic, i.e. HIGH = 3.5 to 5 V = 1, and LOW = GND (0 V) or 
-left unconnected (floating inputs). The emulator is using inverted logic
-``pinMode(DIN_PIN_x, INPUT_PULLUP)``. Change this to ``INPUT`` if you 
-want original, non-inverted logic levels. However, you will need external
-pulldown resistors, else floating inputs will not quickly and reliably 
-change to low after a high input (floating inputs have to be avoided). 
+The Arduino Uno pins ``D1`` to ``D4`` are read by the emulator data in
+instruction ``FDx (DIN)``. Connecting these pins to ground will set
+the corresponding bit to one (high). See ``PGM D``. Note that the
+Microtronic uses positive logic, i.e. HIGH = 3.5 to 5 V = 1, and LOW =
+GND (0 V) = 0.  In an input is Left unconnected (left "floating"),
+then it also reads as 0.  **The emulator is using inverted logic
+``pinMode(DIN_PIN_x, INPUT_PULLUP)``.** Change the ``pinMode`` to
+``INPUT`` if you want original, non-inverted logic levels. However,
+you will then need to add external pulldown resistors, else floating
+inputs will not quickly and reliably respond to HIGH -> LOW
+transitions (floating inputs always have to be avoided).
 
 The emulator also features 3 or 4 digital outputs for ``DOT`` on pins
 13, 17 (A3), 18 (A4), and 0.  Pin 0 is only for ``DOT`` bit 4 if
