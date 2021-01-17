@@ -1852,7 +1852,7 @@ void loop()
   displayStatus();
   interpret();
 
-  if (!digitalRead(RESET_PIN))
+  if (!digitalRead(RESET_PIN) || functionKey == (HALT | CCE)) 
   {
     reset();
   }
