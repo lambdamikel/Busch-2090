@@ -15,7 +15,7 @@
 This repository contains a number of Arduino-based emulator of the 
 Busch 2090 Microtronic Computer System. 
 
-The Busch 2090 was an educational 4bit single-board computer system of
+The Microtronic was an educational 4bit single-board computer system of
 the early 1980s, manufactured by the company Busch Modellbau in
 Germany: 
 
@@ -109,6 +109,7 @@ In a nutshell, it offers:
 - Extended PGM program library in AVR ``PGMSPACE``, e.g. Blackjack, Prime Numbers, Lunar Lander, and the Nim Game. Unlike previous versions of the R3 emulator, the PGM programs are now no longer stored in the AVR's EEPROM; hence, more and longer programs can be accessed with the push of a PGM button - more fun! Note that the ``PGM-EEPROM.INO`` loader is no longer required with that version and is considered obsolete by now. 
 - PGM 2 & PGM 1 functionality: the EEPROM is now used to store & restore the Microtronic memory contents! Before powering down the emulator, simply dump the current memory contents into the EEPROM via ``PGM 2``, and resume your work with ``PGM 1``. Better than a 2095 Cassette Interface! 
 - CPU Speed Control / Throttle: go turbo Microtronic (Prime Numbers have never been computed faster on a Microtronic!), or experience the cozy processing speed of the original Microtronic by tuning the emulation speed with this 10 kOhm potentiometer. 
+- Four digital inputs for ``DIN``, and either 3 or 4 digital outputs for ``DOT`` depending on whether you would like a physical Microtronic (soft) reset button or not. 
 - A simple build - you can set this up in 30 minutes.
 - Breakpoint (``BKP``) and Single Step (``STEP``) functionality: **Thanks much to Lilly (https://github.com/ducatimaus/Busch-2090) for integrating & refactoring this functionality! Great job!** 
 
@@ -178,11 +179,13 @@ For the Uno version:
 
     #define DOT_PIN_1 13
     #define DOT_PIN_2 17
-    #define DOT_PIN_3 18 
-    // #define DOT_PIN_4 0 
+    #define DOT_PIN_3 18
+    // only used if RESET_BUTTON_AT_PIN_0 is not defined: 
+    #define DOT_PIN_4 0 
 
     //
     // reset Microtronic (not Arduino) by pulling this to GND
+    // only used if RESET_BUTTON_AT_PIN_0 is defined: 
     //
 
     #define RESET_PIN 0
@@ -212,6 +215,9 @@ STEP, BKP, PGM``:
     #define BKP  64
     #define PGM 128 
 
+Note that ``HALT + CCE`` pushed simultaneously (soft) resets the emulator. 
+Memory contents gets preserved, unlike with the Arduino reset button. 
+
 The 4x4 keypad keys are hex from `0` to `F`, in bottom-left to
 top-right order. You might consider to relabel the keys on the pad 
 (I haven't done that):
@@ -231,14 +237,31 @@ are used for the first 3 bits of the DOT outputs. For the 4th bit, you
 can use pin ``0``, but then the ``RESET`` button (see next paragraph)
 will have to be sacrificed (due to a shortage of R3 pins).
 
-Notice that the Arduino reset button will erase the emulator's program
-memory. To only reset emulator while keeping the program in memory,
-connect Arduino pin ``D0 (RX)`` to ground. You can always dump the memory
-contents to the EEPROM via ``PGM 2``, and load it back via ``PGM 1``. 
 
-The Arduino Uno pins ``D1`` to ``D4`` are read by the Microtronic data
-in op-code ``FDx (DIN)``. Connecting them to ground will set the
-corresponding bit to one (high). See ``PGM D``.
+
+The Arduino Uno pins ``D1`` to ``D4`` are read by the emulator data
+in instruction ``FDx (DIN)``. Connecting these pins to ground will set the
+corresponding bit to one (high). See ``PGM D``. Note that the Microtronic
+uses positive logic, i.e. HIGH = 3.5 to 5 V = 1, and LOW = GND (0 V) or 
+left unconnected (floating inputs). The emulator is using inverted logic
+``pinMode(DIN_PIN_x, INPUT_PULLUP)``. Change this to ``INPUT`` if you 
+want original, non-inverted logic levels. However, you will need external
+pulldown resistors, else floating inputs will not quickly and reliably 
+change to low after a high input (floating inputs have to be avoided). 
+
+The emulator also features 3 or 4 digital outputs for ``DOT`` on pins
+13, 17 (A3), 18 (A4), and 0.  Pin 0 is only for ``DOT`` bit 4 if
+``#define RESET_BUTTON_AT_PIN_0`` is NOT defined, i.e., commented out
+from the source code.  Due to a shortage of GPIO pins on the R3, pin 0
+is then used as a soft reset pin to which you can connect a physical
+reset push button. Connecting this to GND will reset the emulator and
+keep the memory contents, unlike the reset button on the
+Arduino. However, you can always preserve memory contents via ```PGM
+2`` and reload via ``PGM 1``. Note that the physical reset button is
+not required, as you now also use ``HALT + CCE`` (pressed
+simultaneously) to soft-reset the emulator. So I suggest to use ``PIN 0``
+for ```DOT``, and hence leave ``#define RESET_BUTTON_AT_PIN_0`` commented
+out, i.e., not defined. 
 
 Analog pin ``A5`` on the Uno is used as a CPU speed throttle. Connect
 a potentiometer to adjust the speed of the CPU.  **Important: All

@@ -142,10 +142,11 @@ unsigned long lastFuncKeyTime = 0;
 #define DOT_PIN_1 13
 #define DOT_PIN_2 17
 #define DOT_PIN_3 18
-#define DOT_PIN_4 0 
+#define DOT_PIN_4 0 // only used if RESET_BUTTON_AT_PIN_0 is not defined!
 
 //
 // reset Microtronic (not Arduino) by pulling this to GND
+// only used if RESET_BUTTON_AT_PIN_0 is defined!
 //
 
 #define RESET_PIN 0
