@@ -251,7 +251,7 @@ the corresponding bit to one (high). See ``PGM D``. Note that the
 Microtronic uses positive logic, i.e. *HIGH = 3.5 to 5 V = 1,* and
 *LOW = GND (0 V) = 0*.  If an input is left unconnected ("floating"),
 then it also reads as LOW = 0.  **Note that unlike the original
-Microtroinc, the emulator is using inverted logic ``pinMode(DIN_PIN_x,
+Microtronic, the emulator is using inverted logic: ``pinMode(DIN_PIN_x,
 INPUT_PULLUP)``.** Change the ``pinMode`` to ``INPUT`` if you want
 original, non-inverted logic levels. However, you will then need to
 add external pulldown resistors, else floating inputs will not quickly
@@ -261,7 +261,7 @@ always have to be avoided).
 The emulator also features 3 or 4 digital outputs for ``DOT`` on pins
 ``13, 17 (A3), 18 (A4)``, and ``0``.  Pin ``0`` is only for ``DOT`` bit 4 if
 ``#define RESET_BUTTON_AT_PIN_0`` is NOT defined, i.e., commented out
-from the source code.  Due to a shortage of GPIO pins on the R3, pin 0
+from the source code.  Due to a shortage of GPIO pins on the R3, pin ``0``
 is then used as a soft reset pin to which you can connect a physical
 reset push button. Connecting this to GND will reset the emulator and
 keep the memory contents, unlike the reset button on the
