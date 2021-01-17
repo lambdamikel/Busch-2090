@@ -44,6 +44,12 @@
 #include <EEPROM.h>
 
 //
+// Uncomment this if you want 4 DOT outputs instead of 3: 
+//
+
+#define RESET_BUTTON_AT_PIN_0 
+
+//
 // PGM ROM Programs - Adjust as you like!
 //
 
@@ -136,7 +142,7 @@ unsigned long lastFuncKeyTime = 0;
 #define DOT_PIN_1 13
 #define DOT_PIN_2 17
 #define DOT_PIN_3 18
-#define DOT_PIN_4 0 // or RESET...
+#define DOT_PIN_4 0 
 
 //
 // reset Microtronic (not Arduino) by pulling this to GND
@@ -364,7 +370,10 @@ void setup()
 
   randomSeed(analogRead(0));
 
+  #ifdef RESET_BUTTON_AT_PIN_0 
   pinMode(RESET_PIN, INPUT_PULLUP);
+  #endif
+
   pinMode(DIN_PIN_1, INPUT_PULLUP); // DIN 1
   pinMode(DIN_PIN_2, INPUT_PULLUP); // DIN 2
   pinMode(DIN_PIN_3, INPUT_PULLUP); // DIN 3
@@ -377,7 +386,10 @@ void setup()
   pinMode(DOT_PIN_1, OUTPUT); // DOT 1
   pinMode(DOT_PIN_2, OUTPUT); // DOT 2
   pinMode(DOT_PIN_3, OUTPUT); // DOT 3
-  // pinMode(DOT_PIN_4, OUTPUT); // DIN 4
+
+  #ifndef RESET_BUTTON_AT_PIN_0 
+  pinMode(DOT_PIN_4, OUTPUT); // DOT 4
+  #endif 
 
   //
   //
@@ -698,7 +710,9 @@ void displayStatus()
   digitalWrite(DOT_PIN_1, outputs & 1);
   digitalWrite(DOT_PIN_2, outputs & 2);
   digitalWrite(DOT_PIN_3, outputs & 4);
-  // digitalWrite( DOT_PIN_4, outputs && 1);
+  #ifndef RESET_BUTTON_AT_PIN_0 
+  digitalWrite(DOT_PIN_4, outputs & 8);
+  #endif 
 
   if ( currentMode == RUNNING || currentMode == ENTERING_VALUE )
     showDisplay();
@@ -1852,7 +1866,14 @@ void loop()
   displayStatus();
   interpret();
 
-  if (!digitalRead(RESET_PIN) || functionKey == (HALT | CCE)) 
+#ifdef RESET_BUTTON_AT_PIN_0 
+  if (!digitalRead(RESET_PIN))
+  {
+    reset();
+  }
+#endif
+
+  if (functionKey == (HALT | CCE))
   {
     reset();
   }
