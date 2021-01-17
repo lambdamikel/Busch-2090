@@ -47,7 +47,7 @@
 // Uncomment this if you want 4 DOT outputs instead of 3: 
 //
 
-#define RESET_BUTTON_AT_PIN_0 
+// #define RESET_BUTTON_AT_PIN_0 
 
 //
 // PGM ROM Programs - Adjust as you like!
