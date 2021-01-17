@@ -151,6 +151,12 @@ You will need:
 For the Uno version:
 
     //
+    // Uncomment this if you want 4 DOT outputs instead of 3: 
+    //
+    
+    // #define RESET_BUTTON_AT_PIN_0 
+
+    //
     // TM1638 module
     //
 
