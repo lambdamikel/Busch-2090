@@ -248,17 +248,18 @@ will have to be sacrificed (due to a shortage of R3 pins).
 The Arduino Uno pins ``D1`` to ``D4`` are read by the emulator data in
 instruction ``FDx (DIN)``. Connecting these pins to ground will set
 the corresponding bit to one (high). See ``PGM D``. Note that the
-Microtronic uses positive logic, i.e. HIGH = 3.5 to 5 V = 1, and LOW =
-GND (0 V) = 0.  In an input is Left unconnected (left "floating"),
-then it also reads as 0.  **The emulator is using inverted logic
-``pinMode(DIN_PIN_x, INPUT_PULLUP)``.** Change the ``pinMode`` to
-``INPUT`` if you want original, non-inverted logic levels. However,
-you will then need to add external pulldown resistors, else floating
-inputs will not quickly and reliably respond to HIGH -> LOW
-transitions (floating inputs always have to be avoided).
+Microtronic uses positive logic, i.e. *HIGH = 3.5 to 5 V = 1,* and
+*LOW = GND (0 V) = 0*.  If an input is left unconnected ("floating"),
+then it also reads as LOW = 0.  **Note that unlike the original
+Microtroinc, the emulator is using inverted logic ``pinMode(DIN_PIN_x,
+INPUT_PULLUP)``.** Change the ``pinMode`` to ``INPUT`` if you want
+original, non-inverted logic levels. However, you will then need to
+add external pulldown resistors, else floating inputs will not quickly
+and reliably respond to HIGH -> LOW transitions (floating inputs
+always have to be avoided).
 
 The emulator also features 3 or 4 digital outputs for ``DOT`` on pins
-13, 17 (A3), 18 (A4), and 0.  Pin 0 is only for ``DOT`` bit 4 if
+``13, 17 (A3), 18 (A4)``, and ``0``.  Pin ``0`` is only for ``DOT`` bit 4 if
 ``#define RESET_BUTTON_AT_PIN_0`` is NOT defined, i.e., commented out
 from the source code.  Due to a shortage of GPIO pins on the R3, pin 0
 is then used as a soft reset pin to which you can connect a physical
@@ -268,7 +269,7 @@ Arduino. However, you can always preserve memory contents via ``PGM
 2`` and reload via ``PGM 1``. **Note that the physical reset button is
 not required, as you now also use ``HALT + CCE`` (pressed
 simultaneously) to soft-reset the emulator.** So I suggest to use ``PIN 0``
-for ```DOT``, and hence leave ``#define RESET_BUTTON_AT_PIN_0`` commented
+for ``DOT``, and hence leave ``#define RESET_BUTTON_AT_PIN_0`` commented
 out, i.e., not defined. 
 
 Analog pin ``A5`` on the Uno is used as a CPU speed throttle. Connect
