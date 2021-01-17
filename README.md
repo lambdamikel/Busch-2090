@@ -264,10 +264,10 @@ from the source code.  Due to a shortage of GPIO pins on the R3, pin 0
 is then used as a soft reset pin to which you can connect a physical
 reset push button. Connecting this to GND will reset the emulator and
 keep the memory contents, unlike the reset button on the
-Arduino. However, you can always preserve memory contents via ```PGM
-2`` and reload via ``PGM 1``. Note that the physical reset button is
+Arduino. However, you can always preserve memory contents via ``PGM
+2`` and reload via ``PGM 1``. **Note that the physical reset button is
 not required, as you now also use ``HALT + CCE`` (pressed
-simultaneously) to soft-reset the emulator. So I suggest to use ``PIN 0``
+simultaneously) to soft-reset the emulator.** So I suggest to use ``PIN 0``
 for ```DOT``, and hence leave ``#define RESET_BUTTON_AT_PIN_0`` commented
 out, i.e., not defined. 
 
