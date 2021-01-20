@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Uno R3
 
-  Version 1.2  (c) Michael Wessel, January 15 2021 
+  Version 1.3  (c) Michael Wessel, January 20 2021 
   https://github.com/lambdamikel/Busch-2090
   
   With contributions from Lilly (Germany): 
@@ -48,6 +48,12 @@
 //
 
 // #define RESET_BUTTON_AT_PIN_0 
+
+//
+// Uncomment this if you want A5 CPU THROTTLE POTENTIOMETER; ELSE THIS IS USED FOR CLOCK 1HZ OUTPUT 
+//
+
+// #define USE_CPU_THROTTLE_POT_AT_PIN_A5 
 
 //
 // PGM ROM Programs - Adjust as you like!
@@ -144,6 +150,8 @@ unsigned long lastFuncKeyTime = 0;
 #define DOT_PIN_3 18
 #define DOT_PIN_4 0 // only used if RESET_BUTTON_AT_PIN_0 is not defined!
 
+#define CLOCK_1HZ A5 // only used if USE_CPU_THROTTLE_POT_AT_PIN_A5 is not defined!
+
 //
 // reset Microtronic (not Arduino) by pulling this to GND
 // only used if RESET_BUTTON_AT_PIN_0 is defined!
@@ -152,10 +160,11 @@ unsigned long lastFuncKeyTime = 0;
 #define RESET_PIN 0
 
 //
-// CPU throttle
-//
+// CPU throttle 
+// only used if USE_CPU_THROTTLE_POT_AT_PIN_A5
+// 
 
-#define CPU_THROTTLE_ANALOG_PIN 5 // connect center pin of 10 KOhme potentiometer for CPU speed control; connect other 2 pins of potentiometer to GND and 5V!
+#define CPU_THROTTLE_ANALOG_PIN A5 // connect center pin of 10 KOhme potentiometer for CPU speed control; connect other 2 pins of potentiometer to GND and 5V!
 #define CPU_THROTTLE_DIVISOR 10
 #define CPU_MIN_THRESHOLD 10 // if smaller than this, CPU delay = 0
 
@@ -163,7 +172,10 @@ unsigned long lastFuncKeyTime = 0;
 //
 //
 
-int cpu_delay = 0;
+int cpu_delay = 12;
+
+//                    0  1  2  3   4   5   6   7   8   9  10  11   12   13   14  15
+int cpu_delays[16] = {0, 3, 6, 9, 12, 15, 18, 21, 30, 40, 50, 80, 120, 150, 200, 500 }; 
 
 //
 //
@@ -270,7 +282,9 @@ boolean keypadPressed = false;
 
 byte input = 0;
 byte keypadKey = NO_KEY;
+byte keypadKeyRaw = NO_KEY;
 byte functionKey = NO_KEY;
+byte functionKeyRaw = NO_KEY;
 byte previousFunctionKey = NO_KEY;
 byte previousKeypadKey = NO_KEY;
 
@@ -381,7 +395,7 @@ void setup()
   pinMode(DIN_PIN_4, INPUT_PULLUP); // DIN 4
 
   //
-  //
+  // DOT Outputs
   //
 
   pinMode(DOT_PIN_1, OUTPUT); // DOT 1
@@ -390,6 +404,14 @@ void setup()
 
   #ifndef RESET_BUTTON_AT_PIN_0 
   pinMode(DOT_PIN_4, OUTPUT); // DOT 4
+  #endif 
+  
+  //
+  // 1 Hz Clock Output if not used for CPU Throttle Potentiometer 
+  // 
+
+  #ifndef USE_CPU_THROTTLE_POT_AT_PIN_A5 
+  pinMode(CLOCK_1HZ, OUTPUT); // CLOCK
   #endif 
 
   //
@@ -714,6 +736,8 @@ void displayStatus()
   #ifndef RESET_BUTTON_AT_PIN_0 
   digitalWrite(DOT_PIN_4, outputs & 8);
   #endif 
+ 
+  digitalWrite(CLOCK_1HZ, clock);
 
   if ( currentMode == RUNNING || currentMode == ENTERING_VALUE )
     showDisplay();
@@ -934,14 +958,16 @@ void interpret()
     break;
 
   case RUN:
-    currentMode = RUNNING;
-    displayOff();
-    singleStep = false;
-    ignoreBreakpointOnce = true;
-    clearStack();
-    jump = true; // don't increment PC !
 
-    //step();
+    if (currentMode != RUNNING) {
+      currentMode = RUNNING;
+      displayOff();
+      singleStep = false;
+      ignoreBreakpointOnce = true;
+      clearStack();
+      jump = true; // don't increment PC !
+    }
+
     break;
 
   case NEXT:
@@ -1278,7 +1304,9 @@ void interpret()
 void run()
 {
   isDISP = false;
-  delay(cpu_delay);
+
+  if (!singleStep)
+    delay(cpu_delay);
 
   if (!jump)
     pc++;
@@ -1821,7 +1849,8 @@ void run()
 void loop()
 {
 
-  functionKey = module.getButtons();
+  functionKeyRaw = module.getButtons();
+  functionKey = functionKeyRaw; 
 
   if (functionKey == previousFunctionKey)
   { // button held down pressed
@@ -1836,7 +1865,8 @@ void loop()
   else
     functionKey = NO_KEY;
 
-  keypadKey = keypad.getKey();
+  keypadKeyRaw = keypad.getKey();
+  keypadKey = keypadKeyRaw; 
 
   if (keypadKey == previousKeypadKey)
   { // button held down pressed
@@ -1879,7 +1909,19 @@ void loop()
     reset();
   }
 
+#ifdef USE_CPU_THROTTLE_POT_AT_PIN_A5 
   cpu_delay = analogRead(CPU_THROTTLE_ANALOG_PIN) / CPU_THROTTLE_DIVISOR;
   if (cpu_delay < CPU_MIN_THRESHOLD)
     cpu_delay = 0;
+#endif 
+
+  // RUN + HEX = Set CPU Throttle: 
+
+  if (functionKeyRaw == RUN && keypadKeyRaw != NO_KEY) {
+    cpu_delay = cpu_delays[keypadKeyRaw-1]; 
+    keypadPressed = false;
+    functionKey = NO_KEY;
+    keypadKey = NO_KEY;    
+  }
+
 }
