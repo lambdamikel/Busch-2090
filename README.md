@@ -108,8 +108,10 @@ In a nutshell, it offers:
 - High-speed Microtronic emulation with an authentic retro user experience (LED 7segment display etc.)
 - Extended PGM program library in AVR ``PGMSPACE``, e.g. Blackjack, Prime Numbers, Lunar Lander, and the Nim Game. Unlike previous versions of the R3 emulator, the PGM programs are now no longer stored in the AVR's EEPROM; hence, more and longer programs can be accessed with the push of a PGM button - more fun! Note that the ``PGM-EEPROM.INO`` loader is no longer required with that version and is considered obsolete by now. 
 - PGM 2 & PGM 1 functionality: the EEPROM is now used to store & restore the Microtronic memory contents! Before powering down the emulator, simply dump the current memory contents into the EEPROM via ``PGM 2``, and resume your work with ``PGM 1``. Better than a 2095 Cassette Interface! 
-- CPU Speed Control / Throttle: go turbo Microtronic (Prime Numbers have never been computed faster on a Microtronic!), or experience the cozy processing speed of the original Microtronic by tuning the emulation speed with this 10 kOhm potentiometer. 
-- Four digital inputs for ``DIN``, and either 3 or 4 digital outputs for ``DOT`` depending on whether you would like a physical Microtronic (soft) reset button or not. 
+- Soft reset functionaliy; either via an extrea push button, or the ``RUN + CCE`` key combination. 
+- CPU Speed Control / Throttle: go turbo Microtronic (Prime Numbers have never been computed faster on a Microtronic!), or experience the cozy processing speed of the original Microtronic. You can either use a 10 kOhm potentiometer to dial in the speed, or use the ``RUN + <HEXKEY>`` key combination. 
+- Four digital inputs for ``DIN``, and either 3 or 4 digital outputs for ``DOT``  (note: for 4 outputs, the soft reset button has to be sacrificed).
+- 1 Hz clock output as required for certain experiments (note: then, the CPU speed potentiometer has to be sacrificed). 
 - A simple build - you can set this up in 30 minutes.
 - Breakpoint (``BKP``) and Single Step (``STEP``) functionality: **Thanks much to Lilly (https://github.com/ducatimaus/Busch-2090) for integrating & refactoring this functionality! Great job!** 
 
