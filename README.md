@@ -12,7 +12,7 @@
 
 ## Abstract
 
-This repository contains a number of Arduino-based emulator of the 
+This repository contains a number of Arduino-based emulators of the 
 Busch 2090 Microtronic Computer System. 
 
 The Microtronic was an educational 4bit single-board computer system of
@@ -133,6 +133,8 @@ that also contains a fork of the 2090 project:
 ![Lilly Pic 1](https://github.com/lambdamikel/Busch-2090/blob/master/images/lilly-1.jpg)
 
 ![Lilly Pic 2](https://github.com/lambdamikel/Busch-2090/blob/master/images/lilly-2.jpg)
+
+![Lilly Pic 3](https://github.com/lambdamikel/Busch-2090/blob/master/images/lilly-3.jpg)
 
 I also love how the documentation (IPad PDF manual) is much more modern than the computer - back in the 80s, it used to be the other way around :-) 
 
