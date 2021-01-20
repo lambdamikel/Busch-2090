@@ -161,7 +161,7 @@ For the Uno version:
     // #define RESET_BUTTON_AT_PIN_0 
 
     //
-    // Uncomment this if you want A5 CPU THROTTLE POTENTIOMETER; ELSE THIS IS USED FOR CLOCK 1HZ OUTPUT 
+    // Uncomment this to use A5 for CPU speed potentiometer; ELSE this is used for 1 Hz clock output: 
     //
 
     // #define USE_CPU_THROTTLE_POT_AT_PIN_A5 
@@ -242,9 +242,6 @@ STEP, BKP, PGM``:
     #define BKP  64
     #define PGM 128 
 
-Note that ``HALT + CCE`` pushed simultaneously (soft) resets the emulator. 
-Memory contents gets preserved, unlike with the Arduino reset button. 
-
 The 4x4 keypad keys are hex from `0` to `F`, in bottom-left to
 top-right order. You might consider to relabel the keys on the pad 
 (I haven't done that):
@@ -255,13 +252,16 @@ top-right order. You might consider to relabel the keys on the pad
     * 0 # D       0 1 2 3
 
 Unlike the original, you can use **``HALT + CCE``** (pressed
-simultaneously) to **soft-reset the emulator.** In addition, the CPU
-speed ("throttle") can be set to 1 of 16 pre-defined speeds (see
-``cpu_delays[16]`` array).  To select the **emulation speed**, use
-**``RUN + <HEXKEY>``** (pressed simultaneously); speed 2 or 3 roughly
-corresponds to original Microtronic speed. At slower emulation speeds,
-you might have to hold these buttons pushed down for up to a second or
-two in order to be effective. 
+simultaneously) to **soft-reset the emulator.** Memory contents gets
+preserved, unlike with the Arduino reset button.
+
+In addition, the CPU speed ("throttle") can be set to 1 of 16 
+pre-defined speeds (see ``cpu_delays[16]`` array).  To select the
+**emulation speed**, use **``RUN + <HEXKEY>``** (pressed
+simultaneously); speed 3 or 4 roughly corresponds to original
+Microtronic speed. At slower emulation speeds, you might have to hold
+these buttons pushed down for up to a second or two in order to be
+effective.
 
 Microtronic's **Carry** and **Zero** flag are the LEDs 1 and 2 of the
 TM1638, the 1 **Hz clock LED** is LED 3 (from left to right). The LEDs
@@ -269,12 +269,12 @@ TM1638, the 1 **Hz clock LED** is LED 3 (from left to right). The LEDs
 ``FEx``). 
 
 There are also three PINs for DOT outputs: ``13``, ``A3`` and ``A4``
-are used for the first 3 bits of the DOT outputs. For the 4th bit, you
-can use pin ``0``, but then the ``RESET`` button (see next paragraph)
-will have to be sacrificed (due to a shortage of R3 pins).
+are used for the first 3 bits of the DOT outputs. For the 4th bit, you 
+can use pin ``0``, but then the ``RESET`` button (see next paragraph) 
+will have to be sacrificed (due to a shortage of R3 pins). 
 
 The Arduino Uno pins ``D1`` to ``D4`` are read by the emulator data in
-instruction ``FDx (DIN)``. Connecting these pins to ground will set
+instruction ``FDx (DIN)``. Connecting these pins to ground (GND) will set
 the corresponding bit to one (high). See ``PGM D``. Note that the
 Microtronic uses positive logic, i.e. *HIGH = 3.5 to 5 V = 1,* and
 *LOW = GND (0 V) = 0*.  If an input is left unconnected ("floating"),
@@ -287,30 +287,30 @@ and reliably respond to HIGH -> LOW transitions (floating inputs
 always have to be avoided).
 
 The emulator also features 3 or 4 digital outputs for ``DOT`` on pins
-``13, 17 (A3), 18 (A4)``, and ``0``.  Pin ``0`` is only for ``DOT`` bit 4 if
-``#define RESET_BUTTON_AT_PIN_0`` is NOT defined, i.e., commented out
-from the source code.  
+``13, 17 (A3), 18 (A4)``, and ``0``.  Pin ``0`` is used for ``DOT``
+bit 4 only if ``#define RESET_BUTTON_AT_PIN_0`` is NOT defined, i.e., 
+commented out from the source code. 
 
-Due to a shortage of GPIO pins on the R3, pin ``0``
-is then used as a soft reset pin to which you can connect a physical
-reset push button. Connecting this to GND will reset the emulator and
-keep the memory contents, unlike the reset button on the
-Arduino. However, you can always preserve memory contents via ``PGM
-2`` and reload via ``PGM 1``. **Note that the physical reset button is
-not required, as you now also use ``HALT + CCE`` (pressed
-simultaneously) to soft-reset the emulator.** So I suggest to use ``PIN 0``
-for ``DOT``, and hence leave ``#define RESET_BUTTON_AT_PIN_0`` commented
-out, i.e., not defined. 
+Due to a shortage of GPIO pins on the R3, pin ``0`` is then used as a
+soft reset pin to which you can connect a physical push
+button. Connecting this to GND will reset the emulator and keep the
+memory contents, unlike the reset button on the Arduino. However, you
+can always preserve memory contents via ``PGM 2`` and reload via ``PGM
+1``. **Note that the physical reset button is not required, as you now
+also use ``HALT + CCE`` (pressed simultaneously) to soft-reset the
+emulator.** It is hence suggested to use ``PIN 0`` for ``DOT`` bit 4,
+and hence leave ``#define RESET_BUTTON_AT_PIN_0`` commented out, i.e.,
+not defined.
 
-Due to even more severe shortage of GPIO pins on the R3, the ``A5``
-pin is either used as a CPU speed throttle to which you can connect a
-potentiometer to dial in the emulator speed, or you can use it as the
-``1 Hz`` Clock Output. The latter is required for certain experiments;
-i.e., on page 38 in Vol. 1 of the Manual ("Timer - Der Computer als
-Zeitschaltuhr"), where the ``1 Hz`` Clock Output is connected to ``DIN
-4`` to provide a 1 Hz clock signal to the program. To use ``A5`` as 1
-Hz clock output, leave ``#define USE_CPU_THROTTLE_POT_AT_PIN_A5``
-commented out, i.e., not defined. 
+Due to even more severe GPIO pin-shortage, the ``A5`` pin is either
+used as a CPU speed throttle to which you can connect a potentiometer
+to dial in the emulator speed, or you can use it as the ``1 Hz`` clock
+output. **The latter is required for certain experiments; i.e., on page
+38 in Vol. 1 of the Manual ("Timer - Der Computer als Zeitschaltuhr"),
+where the ``1 Hz`` Clock Output is connected to ``DIN 4`` to provide a
+1 Hz clock signal to the program.** To use ``A5`` as 1 Hz clock output,
+leave ``#define USE_CPU_THROTTLE_POT_AT_PIN_A5`` commented out, i.e.,
+not defined.
 
 However, if ``#define USE_CPU_THROTTLE_POT_AT_PIN_A5`` is defined,
 then analog pin ``A5`` on the Uno is used as a CPU speed
@@ -321,13 +321,13 @@ connected!  The center pin of the potentiometer goes to ``A5``
 connect to ``5V (VCC)`` and ``GND``.** Otherwise, the analog input is
 left "floating" and no analog value can be read. The ``analogRead``
 should return a value between 0 and 1023; adjust the
-``CPU_THROTTLE_DIVISOR 10`` if required. I am using a 1 kOhm
+``CPU_THROTTLE_DIVISOR 10`` if required. I am using a 10 kOhm
 potentiometer; don't use values smaller than 1 kOhm because of the VCC
 -> GND current leakage over the potentiometer.
 
 Please note that the CPU throttle potentiometer is no longer required, 
 because the emulation speed can also be specified by using the 
-key combination ``RUN + <HEXKEY>`` (0 = Fastest, F = Slowest). The 
+key combination ``RUN + <HEXKEY>`` (``0`` = fastest, ``F`` = slowest). The 
 CPU throttle delay times are specified in the source code in the array
 ``int cpu_delays[16] = {0, 3, 6, 9, 12, 15, 18, 21, 30, 40, 50, 80, 120, 150, 200, 500 }``
 (times in milliseconds). 
