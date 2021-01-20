@@ -111,7 +111,7 @@ In a nutshell, it offers:
 - Soft reset functionaliy; either via an extra push button, or the ``RUN + CCE`` key combination. 
 - CPU Speed Control / Throttle: go turbo Microtronic (Prime Numbers have never been computed faster on a Microtronic!), or experience the cozy processing speed of the original Microtronic. You can either use a 10 kOhm potentiometer to dial in the speed, or use the ``RUN + <HEXKEY>`` key combination. 
 - Four digital inputs for ``DIN``, and either 3 or 4 digital outputs for ``DOT`` *(note: for 4 outputs, the soft reset button has to be sacrificed).* 
-- 1 Hz clock output as required for certain experiments *(note: then, the CPU speed potentiometer has to be sacrificed). * 
+- 1 Hz clock output as required for certain experiments *(note: then, the CPU speed potentiometer has to be sacrificed).* 
 - Breakpoint (``BKP``) and Single Step (``STEP``) functionality: **Thanks much to Lilly (https://github.com/ducatimaus/Busch-2090) for integrating & refactoring this functionality! Great job!** 
 - A simple build - you can set this up in 30 minutes.
 
