@@ -65,9 +65,9 @@ variants and form factors.
 
 The current version of the Microtronic Emulator is called the "Micotronic Next Generation", and it comes as a PCB: 
 
-![Busch 2090 Microtronic Next Generation - SH1106 SPI OLED Version](./microtronic-nextgen-sh1106-spi/nextgen-spi-5.jpg) 
+![Busch 2090 Microtronic Next Generation - SH1106 SPI OLED Version 1](./microtronic-nextgen-sh1106-spi/nextgen-spi-5.jpg) 
 
-![Busch 2090 Microtronic Next Generation - SH1106 SPI OLED Version](./microtronic-nextgen-sh1106-spi/nextgen-spi-1.jpg) 
+![Busch 2090 Microtronic Next Generation - SH1106 SPI OLED Version 2](./microtronic-nextgen-sh1106-spi/nextgen-spi-1.jpg) 
 
 ![Busch 2090 Microtronic Next Generation - Nokia Version Front](./microtronic-nextgen-nokia/pcb1.jpg) 
 
@@ -75,9 +75,17 @@ The current version of the Microtronic Emulator is called the "Micotronic Next G
 
 ![Busch 2090 Microtronic Next Generation - Nokia Version](./microtronic-nextgen-nokia/pcb1.jpg) 
 
-![Busch 2090 Microtronic Next Generation - 2095 Emulation](./microtronic-nextgen-nokia/2095-1.jpg) 
+![Busch 2090 Microtronic Next Generation - 2095 Emulation 1](./microtronic-nextgen-nokia/2095-1.jpg) 
 
-![Busch 2090 Microtronic Next Generation - 2095 Emulation](./microtronic-nextgen-nokia/2095-2.jpg) 
+![Busch 2090 Microtronic Next Generation - 2095 Emulation 2](./microtronic-nextgen-nokia/2095-2.jpg) 
+
+The latest version of the SPI SH1106 Next Generation also has pulldown-resistors and proper feet / PCB mounting holes: 
+
+![Busch 2090 Microtronic Next Generation - SH1106 SPI OLED Version v2 1](./microtronic-nextgen-sh1106-spi/nextgen-spi-v2-1.jpg) 
+
+![Busch 2090 Microtronic Next Generation - SH1106 SPI OLED Version v2 2](./microtronic-nextgen-sh1106-spi/nextgen-spi-v2-2.jpg) 
+
+![Busch 2090 Microtronic Next Generation - SH1106 SPI OLED Version v2 3](./microtronic-nextgen-sh1106-spi/nextgen-spi-v2-3.jpg) 
 
 ### The "Microtronic 2nd Generation" Sister Project  
 
