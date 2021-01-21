@@ -182,9 +182,11 @@ For the Uno version:
     byte rowPins[ROWS] = {9, 10, 11, 12}; // rows
 
     //
-    // these are the digital input pins used for DIN instructions
-    //
+    // These are the digital input pins used for DIN instructions
+    // Uncomment this if you want non-inverted inputs (INPUT vs. INPUT_PULLUP):
 
+    #define INVERTED_INPUTS 
+    
     #define DIN_PIN_1 1
     #define DIN_PIN_2 2
     #define DIN_PIN_3 3
@@ -289,13 +291,13 @@ and reliably respond to HIGH -> LOW transitions (floating inputs
 always have to be avoided). 
 
 Note that there is now a switch ``#define INVERTED_INPUTS``. By
-default, this flag is defined, and the ``pinMode(DIN_PIN_x,
-INPUT_PULLUP)`` and hence the internal pullup resistors will be used;
-so GND = HIGH and 3.5 - 5 V = LOW. If you are using external 
-pulldown resistors for non-inverted logic (like the real Microtronic), 
-then make sure ``#define INVERTED_INPUTS`` is commented out, i.e., 
-not defined. In that case, the inputs are configued 
-using ``pinMode(DIN_PIN_x, INPUT)``.
+default, this flag is defined, the inputs are configured via
+``pinMode(DIN_PIN_x, INPUT_PULLUP)``, and the internal pullup
+resistors are being used (so GND = HIGH and 3.5 - 5 V = LOW). However,
+if you wish to use external pulldown resistors for non-inverted logic
+(like in the real Microtronic), then ensure ``#define
+INVERTED_INPUTS`` is commented out, i.e., not defined. Hence, 
+inputs will be configured via ``pinMode(DIN_PIN_x, INPUT)``.
 
 The emulator also features 3 or 4 digital outputs for ``DOT`` on pins
 ``13, 17 (A3), 18 (A4)``, and ``0``.  Pin ``0`` is used for ``DOT``
