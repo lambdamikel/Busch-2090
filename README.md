@@ -284,17 +284,19 @@ Microtronic uses positive logic, i.e. *HIGH = 3.5 to 5 V = 1,* and
 *LOW = GND (0 V) = 0*.  If an input is left unconnected ("floating"),
 then it also reads as LOW = 0.  **Note that unlike the original
 Microtronic, the emulator is using inverted logic by default:
-``pinMode(DIN_PIN_x, INPUT_PULLUP)``.** Change the ``pinMode`` to
-``INPUT`` if you want original, non-inverted logic levels. However,
-you will then need to add external pulldown resistors, else floating
-inputs will not quickly and reliably respond to HIGH -> LOW
-transitions (floating inputs always have to be avoided). There is a
-switch ``#define INVERTED_INPUTS``. By default, this flag is defined,
-the inputs are configured via ``pinMode(DIN_PIN_x, INPUT_PULLUP)``,
-and the internal pullup resistors are used. If you wish to use 
-external pulldown resistors for non-inverted logic (like in the real 
+``pinMode(DIN_PIN_x, INPUT_PULLUP)``.** It is possible to use
+non-inverted logic like the original Microtronic, but you will then
+need to add external pulldown (4.7 kOhm typical) resistors, else
+floating inputs will not quickly and reliably respond to HIGH -> LOW
+transitions (floating inputs always have to be avoided). In addition
+to the pulldown resistors, ``#define INVERTED_INPUTS`` needs to be
+commented out, i.e., not defined. If flag ``#define INVERTED_INPUTS``
+is defined, the inputs are configured via ``pinMode(DIN_PIN_x,
+INPUT_PULLUP)``, and the **internal pullup resistors** are used,
+resulting in **inverted logic** levels. If you wish to use **external
+pulldown resistors** for **non-inverted logic** (like in the real
 Microtronic), then ensure ``#define INVERTED_INPUTS`` is commented
-out, i.e., not defined. Hence, inputs will be configured via
+out, i.e., not defined. Consequently, inputs will then be configured via
 ``pinMode(DIN_PIN_x, INPUT)``.
 
 The emulator also features 3 or 4 digital outputs for ``DOT`` on pins
