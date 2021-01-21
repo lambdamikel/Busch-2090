@@ -14,6 +14,15 @@ Current version.
 
 ![SPI Pic 6](./busch-2075-experiment.jpg)
 
+The latest version of the SPI SH1106 Next Generation also has pulldown-resistors and proper feet / PCB mounting holes: 
+
+![Busch 2090 Microtronic Next Generation - SH1106 SPI OLED Version v2 1](./nextgen-spi-v2-1.jpg) 
+
+![Busch 2090 Microtronic Next Generation - SH1106 SPI OLED Version v2 2](./nextgen-spi-v2-2.jpg) 
+
+![Busch 2090 Microtronic Next Generation - SH1106 SPI OLED Version v2 3](./nextgen-spi-v2-3.jpg) 
+
+
 ### Breadboard Prototype
 
 ![Pic 1](./pic1.jpg)
