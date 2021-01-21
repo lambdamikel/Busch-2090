@@ -286,7 +286,16 @@ INPUT_PULLUP)``.** Change the ``pinMode`` to ``INPUT`` if you want
 original, non-inverted logic levels. However, you will then need to
 add external pulldown resistors, else floating inputs will not quickly
 and reliably respond to HIGH -> LOW transitions (floating inputs
-always have to be avoided).
+always have to be avoided). 
+
+Note that there is now a switch ``#define INVERTED_INPUTS``. By
+default, this flag is defined, and the ``pinMode(DIN_PIN_x,
+INPUT_PULLUP)`` and hence the internal pullup resistors will be used;
+so GND = HIGH and 3.5 - 5 V = LOW. If you are using external 
+pulldown resistors for non-inverted logic (like the real Microtronic), 
+then make sure ``#define INVERTED_INPUTS`` is commented out, i.e., 
+not defined. In that case, the inputs are configued 
+using ``pinMode(DIN_PIN_x, INPUT)``.
 
 The emulator also features 3 or 4 digital outputs for ``DOT`` on pins
 ``13, 17 (A3), 18 (A4)``, and ``0``.  Pin ``0`` is used for ``DOT``

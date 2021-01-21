@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Uno R3
 
-  Version 1.3  (c) Michael Wessel, January 20 2021 
+  Version 1.4  (c) Michael Wessel, January 20 2021 
   https://github.com/lambdamikel/Busch-2090
   
   With contributions from Lilly (Germany): 
@@ -134,7 +134,10 @@ unsigned long lastFuncKeyTime = 0;
 
 //
 // these are the digital input pins used for DIN instructions
+// Uncomment this if you want non-inverted inputs (INPUT vs INPUT_PULL):
 //
+
+#define INVERTED_INPUTS 
 
 #define DIN_PIN_1 1
 #define DIN_PIN_2 2
@@ -389,10 +392,19 @@ void setup()
   pinMode(RESET_PIN, INPUT_PULLUP);
   #endif
 
+  #ifdef INVERTED_INPUTS 
   pinMode(DIN_PIN_1, INPUT_PULLUP); // DIN 1
   pinMode(DIN_PIN_2, INPUT_PULLUP); // DIN 2
   pinMode(DIN_PIN_3, INPUT_PULLUP); // DIN 3
   pinMode(DIN_PIN_4, INPUT_PULLUP); // DIN 4
+  #endif 
+
+  #ifndef INVERTED_INPUTS 
+  pinMode(DIN_PIN_1, INPUT); // DIN 1
+  pinMode(DIN_PIN_2, INPUT); // DIN 2
+  pinMode(DIN_PIN_3, INPUT); // DIN 3
+  pinMode(DIN_PIN_4, INPUT); // DIN 4
+  #endif 
 
   //
   // DOT Outputs
@@ -1543,7 +1555,14 @@ void run()
 
     case OP_DIN:
 
-      reg[d] = !digitalRead(DIN_PIN_1) | !digitalRead(DIN_PIN_2) << 1 | !digitalRead(DIN_PIN_3) << 2 | !digitalRead(DIN_PIN_4) << 3;
+#ifndef INVERTED_INPUTS 
+      reg[d] = digitalRead(DIN_PIN_1) | digitalRead(DIN_PIN_2) << 1 | digitalRead(DIN_PIN_3) << 2 | digitalRead(DIN_PIN_4) << 3;
+#endif 
+
+#ifdef INVERTED_INPUTS 
+      reg[d] = ! digitalRead(DIN_PIN_1) | ! digitalRead(DIN_PIN_2) << 1 | ! digitalRead(DIN_PIN_3) << 2 | ! digitalRead(DIN_PIN_4) << 3;
+#endif 
+
       carry = false;
       zero = reg[d] == 0;
 
