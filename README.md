@@ -298,27 +298,31 @@ logic,** i.e. *VCC = HIGH = ~ 3.5 to 5 V = 1,* and *GND = LOW = ~ 0 V
 = 0*.  In the original Microtronic, if an input is left unconnected
 ("floating"), then it also reads as LOW = 0.  **However, this is not
 the case with the emulator - you will require external
-pulldown-resistor (typical 4.7k Ohms) for ``D1`` to ``D4`` inputs.**
+pulldown-resistors (typical 4.7k Ohms) for ``D1`` to ``D4`` inputs.**
 The inputs are configured using ``pinMode(DIN_PIN_x, INPUT)`` by
 default.  Without these external pulldown resistors, floating inputs
 will not quickly and reliably respond to HIGH -> LOW transitions;
 floating inputs always have to be avoided, the inputs may even
 oscilate.
 
-Please note that ``Serial.begin(...)`` interferes with with ``D1`` and
+Please note that ``Serial.begin(9600)`` interferes with with ``D1`` and
 hence the ``DIN 1`` input! You will read a permanent (stuck bit) 1 if
 serial logging is enabled.  So please ensure to have serial debugging
-disabled when using ``D1`` for ``DIN 1``.
+disabled when using ``D1`` for ``DIN 1``, i.e., ``Serial.begin(9600)`` is 
+commented out are removed from the source. 
 
 Please note that it is also possible to use **inverted logic**, and
-then the Arduino's internal pullup resistors can be used and no
-external pulldowns will be needed, which is the beauty of this
-mode. However, it is not compatible with the electric levels required
-for Busch electronics experiments and circuits.  So if you are
-planning on conducting Busch electronics experiments with the
-emulator, you must use positive / non-inverted logic. The
-corresponding switch is ``#define INVERTED_INPUTS``. By default, it is
-commented out; uncomment if you want inverted inputs. 
+then the Arduino's *internal pullup resistors can be used and no
+external pulldowns will be needed,* which is the beauty of this
+mode. **A note of warning though - the electric levels required for
+conducting Busch electronics experiments with the emulator are not
+compatible with inverted logic / inverted inputs.** To conduct Busch
+electronics experiments with the emulator, you must use positive /
+non-inverted logic. The corresponding switch is ``#define
+INVERTED_INPUTS``. By default, it is commented out; uncomment if you
+want inverted inputs. Of course, this mode is still useful for
+external circuitry, e.g., to read the status of a number of push
+buttons, if you design the circuit accordingly.
 
 To summarize: if ``#define INVERTED_INPUTS`` is defined, the inputs
 are configured via ``pinMode(DIN_PIN_x, INPUT_PULLUP)``, and the
@@ -326,7 +330,7 @@ are configured via ``pinMode(DIN_PIN_x, INPUT_PULLUP)``, and the
 logic** levels. If you wish to use **external pulldown resistors** for
 **non-inverted logic** (like in the real Microtronic), then ensure
 ``#define INVERTED_INPUTS`` is commented out, i.e., not
-defined. Consequently, inputs will then be configured as 
+defined. Consequently, inputs will then be configured as
 ``pinMode(DIN_PIN_x, INPUT)``.
 
 The emulator also features 3 or 4 digital outputs for ``DOT`` on pins
