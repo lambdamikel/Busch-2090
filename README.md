@@ -195,9 +195,10 @@ For the Uno version:
 
     //
     // These are the digital input pins used for DIN instructions
-    // Uncomment this if you want non-inverted inputs (INPUT vs. INPUT_PULLUP):
+    // Enable this if you want inverted inputs (INPUT_PULLUP vs. INPUT):
+    // Default is non-inverted inputs by now: 
 
-    #define INVERTED_INPUTS 
+    // #define INVERTED_INPUTS 
     
     #define DIN_PIN_1 1
     #define DIN_PIN_2 2
@@ -289,26 +290,43 @@ are used for the first 3 bits of the DOT outputs. For the 4th bit, you
 can use pin ``0``, but then the ``RESET`` button (see next paragraph) 
 will have to be sacrificed (due to a shortage of R3 pins). 
 
-The Arduino Uno pins ``D1`` to ``D4`` are read by the emulator data in
-instruction ``FDx (DIN)``. Connecting these pins to ground (GND) will
-set the corresponding bit to one (high). See ``PGM D``. Note that the
-Microtronic uses positive logic, i.e. *HIGH = 3.5 to 5 V = 1,* and
-*LOW = GND (0 V) = 0*.  If an input is left unconnected ("floating"),
-then it also reads as LOW = 0.  **Note that unlike the original
-Microtronic, the emulator is using inverted logic by default:
-``pinMode(DIN_PIN_x, INPUT_PULLUP)``.** It is possible to use
-non-inverted logic like the original Microtronic, but you will then
-need to add external pulldown (4.7 kOhm typical) resistors, else
-floating inputs will not quickly and reliably respond to HIGH -> LOW
-transitions (floating inputs always have to be avoided). In addition
-to the pulldown resistors, ``#define INVERTED_INPUTS`` needs to be
-commented out, i.e., not defined. If flag ``#define INVERTED_INPUTS``
-is defined, the inputs are configured via ``pinMode(DIN_PIN_x,
-INPUT_PULLUP)``, and the **internal pullup resistors** are used,
-resulting in **inverted logic** levels. If you wish to use **external
-pulldown resistors** for **non-inverted logic** (like in the real
-Microtronic), then ensure ``#define INVERTED_INPUTS`` is commented
-out, i.e., not defined. Consequently, inputs will then be configured via
+The Arduino Uno pins ``D1`` to ``D4`` are read by the *data-in
+instruction* ``FDx (DIN)``. Connecting these pins to VCC (3.5 V to 5
+V) will set the corresponding bit to one (high). See ``PGM D`` for a
+demo. Note that both the Microtronic and the emulator uses **positive
+logic,** i.e. *VCC = HIGH = ~ 3.5 to 5 V = 1,* and *GND = LOW = ~ 0 V
+= 0*.  In the original Microtronic, if an input is left unconnected
+("floating"), then it also reads as LOW = 0.  **However, this is not
+the case with the emulator - you will require external
+pulldown-resistor (typical 4.7k Ohms) for ``D1`` to ``D4`` inputs.**
+The inputs are configured using ``pinMode(DIN_PIN_x, INPUT)`` by
+default.  Without these external pulldown resistors, floating inputs
+will not quickly and reliably respond to HIGH -> LOW transitions;
+floating inputs always have to be avoided, the inputs may even
+oscilate.
+
+Please note that ``Serial.begin(...)`` interferes with with ``D1`` and
+hence the ``DIN 1`` input! You will read a permanent (stuck bit) 1 if
+serial logging is enabled.  So please ensure to have serial debugging
+disabled when using ``D1`` for ``DIN 1``.
+
+Please note that it is also possible to use **inverted logic**, and
+then the Arduino's internal pullup resistors can be used and no
+external pulldowns will be needed, which is the beauty of this
+mode. However, it is not compatible with the electric levels required
+for Busch electronics experiments and circuits.  So if you are
+planning on conducting Busch electronics experiments with the
+emulator, you must use positive / non-inverted logic. The
+corresponding switch is ``#define INVERTED_INPUTS``. By default, it is
+commented out; uncomment if you want inverted inputs. 
+
+To summarize: if ``#define INVERTED_INPUTS`` is defined, the inputs
+are configured via ``pinMode(DIN_PIN_x, INPUT_PULLUP)``, and the
+**internal pullup resistors** are used, resulting in **inverted
+logic** levels. If you wish to use **external pulldown resistors** for
+**non-inverted logic** (like in the real Microtronic), then ensure
+``#define INVERTED_INPUTS`` is commented out, i.e., not
+defined. Consequently, inputs will then be configured as 
 ``pinMode(DIN_PIN_x, INPUT)``.
 
 The emulator also features 3 or 4 digital outputs for ``DOT`` on pins

@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Uno R3
 
-  Version 1.4  (c) Michael Wessel, January 20 2021 
+  Version 1.5  (c) Michael Wessel, January 22 2021 
   https://github.com/lambdamikel/Busch-2090
   
   With contributions from Lilly (Germany): 
@@ -134,10 +134,10 @@ unsigned long lastFuncKeyTime = 0;
 
 //
 // these are the digital input pins used for DIN instructions
-// Uncomment this if you want non-inverted inputs (INPUT vs INPUT_PULL):
-//
+// Enable this if you want inverted inputs (INPUT_PULLUP vs. INPUT):
+// Default is non-inverted inputs by now: 
 
-#define INVERTED_INPUTS 
+// #define INVERTED_INPUTS 
 
 #define DIN_PIN_1 1
 #define DIN_PIN_2 2
@@ -384,6 +384,7 @@ mode currentMode = STOPPED;
 void setup()
 {
 
+  // Careful! Serial logging makes DIN input PIN 1 unusable! 
   // Serial.begin(9600);
 
   randomSeed(analogRead(0));
