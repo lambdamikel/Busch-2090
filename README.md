@@ -87,26 +87,26 @@ The latest version of the SPI SH1106 Next Generation also has pulldown-resistors
 
 ![Busch 2090 Microtronic Next Generation - SH1106 SPI OLED Version v2 3](./microtronic-nextgen-sh1106-spi/nextgen-spi-v2-3.jpg) 
 
-The emulator also has a sound output: connect ``A0`` to a little speaker over a 75 Ohms resistor to GND. The speak can play musical notes; to this purpose, we have assigned an extra side effect to otherwise vacuous Microtronic op-codes (i.e., instructions that are basically no-ops). These op-codes are: ``MOV x,x (0xx)`` (copy register x to register x), ``ADDI 0,x (50x)`` (add 0 to register x), and ``SUBI 0,x (70x)`` (subtract 0 from register x, a value from ```0`` to ``F``). Also have a look at the program [SONG2.MIC](./microtronic-nextgen-sh1106-spi/SONG2.MIC)
+The emulator also has a sound output: connect ``A0`` to a little speaker over a 75 Ohms resistor to GND. The speaker can play musical notes; the extra side-effect of playing a tone is assigned to otherwise vacuous Microtronic op-codes (i.e., instructions that are basically no-ops). These op-codes are: ``MOV x,x (0xx)`` (copy register x to register x), ``ADDI 0,x (50x)`` (add 0 to register x), and ``SUBI 0,x (70x)`` (subtract 0 from register x, a value from ```0`` to ``F``). Also have a look at the program [SONG2.MIC](./microtronic-nextgen-sh1106-spi/SONG2.MIC)
 
-These sound instruction op-codes produce map to the following musical notes: 
+These sound instruction op-codes map to the following musical notes: 
 
     //
-    // MOV: 15 Notes (0 = Tone Off!) 
+    // MOV 0xx: 15 Notes (0 = Tone Off!) 
     // C2, C#2, D2, D#2, E2, F2, F#2, G2, G#2, A2, B#2, B2, C3, C#3, D3
     //  1   2    3   4    5   6   7    8   9    A   B    C   D   E    F 
     //
 
     int note_frequencies_mov[ ] = { 65, 69, 73, 78, 82, 87, 93, 98, 104, 110, 117, 123, 131, 139, 147 };
 
-    // ADDI: 16 Notes 
+    // ADDI 50x: 16 Notes 
     // D#3, E3, F3, F#3, G3, G#3, A3, B#3, B3, C4, C#4, D4, D#4, E4, F4, F#4
     //  0    1   2   3    4   5    6   7    8   9   A    B   C    D   E   F
     //
 
     int note_frequencies_addi[] = { 156, 165, 175, 185, 196, 208, 220, 233, 247, 262, 277, 294, 311, 330, 349, 370 }; 
 
-    // SUBI: 16 Notes 
+    // SUBI 70x: 16 Notes 
     // G4, G#4, A4, B#4, B4, C5, C#5, D5, D#5, E5, F5, F#5, G5,  G#5, A5,  B#5
     //  0   1    2   3    4   5   6    7   8    9   A   B    C    D    E    F 
     // 
@@ -120,9 +120,11 @@ The emulator runs about 4 to 5 hours on a 9V battery. One of the first signs of 
 
 The "sister project", created by **Frank de Jaeger from Belgium and Manfred Henf from Germany,** ist called the **"Microtronic 2nd Generation"**. Please consider this great project if you wish to create a more professional Microtronic emulator that neatly and professionally installs into an original Busch electronics console, including a 3D-printed keyboad that mounts onto the console hole raster on the top! 
 
-The project uses the same firmware as the "Microtronic Next Generation" presented here, but has a slightly different pin layout (i.e., requires some slight adjustments to the `hardware.h` pin configuration file). The firmware can be found in the [`microtronic-2nd-generation`](./microtronic-2nd-generation/) folder. The 2nd Generation version uses the Nokia 5110, does not support the real time clock (RTC), and does not have a 1Hz output port. The loudspeaker can be
-added between A0 and GND over a 75 Ohm resistor as an "after market"
-hack / mod (it wasn't anticipated in the original 2nd Generation design). 
+The project uses the same firmware as the "Microtronic Next Generation" presented here, but has a slightly different pin layout (i.e., requires some slight adjustments to the `hardware.h` pin configuration file). The firmware can be found in the [`microtronic-2nd-generation`](./microtronic-2nd-generation/) folder. The 2nd Generation version uses the Nokia 5110, does not support the real time clock (RTC), and does not have a 1Hz output port. 
+
+The loudspeaker described above can also be added between A0 and GND
+over a 75 Ohm resistor, as an "after market" hack / mod (it wasn't 
+anticipated in the original 2nd Generation design). The same instructions for controling the speaker as documented above are used (``0xx``, ``50x``, ``70x``). 
 
 **Thanks to Frank and Manfred for this great piece of engineering.** They also *exactly replicated the input and output transistor-stages of the original Microtronic,* so the 2nd Generation project is electrically maximally compatible with the original. It is hence the best choice for a fully compatible  Microtronic emulator that blends perfectly with the Busch electronics system, and for conducting the plenty electronics experiments described in the original Microtronic Busch manuals. 
 
