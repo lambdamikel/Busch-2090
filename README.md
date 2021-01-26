@@ -213,6 +213,16 @@ You can also use a 9 to 12 V external power supply with positive center polarity
 
 There is an on switch, and another switch can be used to turn of the loudspeaker. 
 
+#### The 2095 Cassette Interface Emulation
+
+Either use a flatband cable, or directly plug it into your 2090 as follows: 
+
+![Busch 2090 Microtronic Next Generation - 2095 Emulation 1](./microtronic-nextgen-nokia/2095-1.jpg) 
+
+![Busch 2090 Microtronic Next Generation - 2095 Emulation 2](./microtronic-nextgen-nokia/2095-2.jpg) 
+
+The ``PGM 1`` and ``PGM 2`` load/save functions support 2095 emulation; just answer the "2095?" question with yes for 2095 emulation, or no for normal SDcard local file operations. 
+
 #### Older Version of the Next Generation Emulator 
 
 Previous versions used a Nokia 5110 display: 
@@ -222,11 +232,6 @@ Previous versions used a Nokia 5110 display:
 ![Busch 2090 Microtronic Next Generation - Nokia Version Back](./microtronic-nextgen-nokia/pcb2.jpg) 
 
 ![Busch 2090 Microtronic Next Generation - Nokia Version](./microtronic-nextgen-nokia/pcb1.jpg) 
-
-![Busch 2090 Microtronic Next Generation - 2095 Emulation 1](./microtronic-nextgen-nokia/2095-1.jpg) 
-
-![Busch 2090 Microtronic Next Generation - 2095 Emulation 2](./microtronic-nextgen-nokia/2095-2.jpg) 
-
 
 
 ### The "Microtronic 2nd Generation" Sister Project  
