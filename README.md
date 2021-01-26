@@ -63,7 +63,7 @@ variants and form factors.
 
 ### The "Microtronic Next Generation" Project 
 
-The current version of the Microtronic Emulator is called the "Micotronic Next Generation", and it comes as a PCB. It features many improvements over the original; i.e., SDcard-based file storage, 2095 emulation, a DS3231 battery-buffered real time clock (RTC),  a big display with different display modes that facilitate machine code learning by means of a mnemonics display / dissassembler mode, sound output, extended list ``PGM`` ROM programs including some fun games such as the Lunar Lander, and much more. It also has the 4 digital inputs and digital outputs like the original, a 1 Hz Clock signal output, and an analog input (which is currently not used by the firmware). 
+The current version of the Microtronic Emulator is called the "Micotronic Next Generation", and it comes as a PCB. It features many improvements over the original; i.e., SDcard-based file storage, 2095 emulation, a DS3231 battery-buffered real time clock (RTC),  a big display with different display modes that facilitate machine code learning by means of a mnemonics display / dissassembler mode, sound output, a larger number of built-in ``PGM`` ROM programs including some fun games such as the Lunar Lander, and much more. It also has the 4 digital inputs and digital outputs like the original, a 1 Hz Clock signal output, and an analog input (which is currently not used by the firmware). 
 
 Compared to the original, the Next Generation Microtronic add 8 additional function keys; from left to right, top to bottom these are: 
 
