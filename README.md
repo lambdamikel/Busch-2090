@@ -63,15 +63,15 @@ variants and form factors.
 
 ### The "Microtronic Next Generation" Project 
 
-The current version of the Microtronic Emulator is called the "Micotronic Next Generation", and it comes as a PCB. It features many improvements over the original; i.e., SDcard-based file storage, 2095 emulation, a DS3231 battery-buffered real time clock (RTC),  a big display with different display modes that facilitate machine code learning by means of a mnemonics display / dissassembler mode, sound output, a larger number of built-in ``PGM`` ROM programs including some fun games such as the Lunar Lander, and much more. It also has the 4 digital inputs and digital outputs like the original, a 1 Hz Clock signal output, and an analog input (which is currently not used by the firmware). 
+The current version of the Microtronic Emulator is called the "Micotronic Next Generation", and it comes as a PCB. It features many improvements over the original; i.e., SDcard-based file storage, 2095 emulation, a DS3231 battery-buffered real time clock (RTC),  a big display with different display modes that facilitate machine code learning by means of a mnemonics display / dissassembler mode, sound output, a larger number of built-in ``PGM`` ROM programs including some fun games such as the Lunar Lander, and much more. It also has the 4 digital inputs (DIN ports) and 4 digital outputs (DOT ports) of the original, the 1 Hz Clock signal output, and an analog input (which is currently not used by the firmware). 
 
 Compared to the original, the Next Generation Microtronic add 8 additional function keys; from left to right, top to bottom these are: 
 
-- ``LEFT, RIGH``: in RUN mode, these are used for changing the display mode. The buttons are also used for cursor navigation when creating an SDcard file name when saving a program to SDcard. 
+- ``LEFT, RIGHT``: in RUN mode, these are used for changing the display mode. The buttons are also used for cursor navigation when creating an SDcard file name when saving a program to SDcard. 
 
 - ``UP, DOWN``: in RUN mode, these buttons control the CPU emulator speed. The CPU can be throttled, i.e., delayed in order to slow down the emulation. This can be useful for programm denugging, or to achieve a more authentic behavior of the emulaton: certain electronics experiments (especially those that control the digital outputs) are timinig critical and require a 2090-authentic emulation speed. 
 
-- ``ENTER, CANCEL```: in RUN mode, ``ENTER`` also changes the display mode. In file operations (save, load), these are frequently used as Yes / No or Enter / Cencel buttons, e.g., to cancel a save operation if a file of the same name already exist and would be overwritten, etc. 
+- ``ENTER, CANCEL``: in RUN mode, ``ENTER`` also changes the display mode. In file operations (save, load), these are frequently used as Yes / No or Enter / Cencel buttons, e.g., to cancel a save operation if a file of the same name already exist and would be overwritten, etc. 
 
 - ``BACK, FUN``: In file operations, ``BACK`` has the function of the backspace key, i.e., it delete the character left of the cursor. Unlike the ``LEFT`` key, which only moves the cursor but leaves the character left of the cursor in place.  The ``FUN`` key currently has no function; on the Nokia 5110 Version of the emulator, this is the LCD display backlight on/off key. 
 
@@ -124,7 +124,7 @@ Like the original, it contains a number of ROM programs that can be loaded via t
 - ``PGM F`` : Game 17+4 BlackJack, from the "Computerspiele 2094" book, page 32
 
 
-The emulator also has a sound output: connect ``A0`` to a little speaker over a 75 Ohms resistor to GND. The speaker can play musical notes; the extra side-effect of playing a tone is assigned to otherwise vacuous Microtronic op-codes (i.e., instructions that are basically no-ops). These op-codes are: ``MOV x,x = 0xx`` (copy register x to register x), ``ADDI 0,x = 50x`` (add 0 to register x), and ``SUBI 0,x = 70x`` (subtract 0 from register x; x is a register number from ``0``` to ``F``). Also have a look at the program [SONG2.MIC](./microtronic-nextgen-sh1106-spi/SONG2.MIC) for illustration of these sound op-codes; every playable tone will be produced by this demo program. 
+The emulator also has a sound output: connect ``A0`` to a little speaker over a 75 Ohms resistor to GND. The speaker can play musical notes; the extra side-effect of playing a tone is assigned to otherwise vacuous Microtronic op-codes (i.e., instructions that are basically no-ops). These op-codes are: ``MOV x,x = 0xx`` (copy register x to register x), ``ADDI 0,x = 50x`` (add 0 to register x), and ``SUBI 0,x = 70x`` (subtract 0 from register x; x is a register number from ``0`` to ``F``). Also have a look at the program [SONG2.MIC](./microtronic-nextgen-sh1106-spi/SONG2.MIC) for illustration of these sound op-codes; every playable tone will be produced by this demo program. 
 
 These sound instruction op-codes map to the following musical notes: 
 
