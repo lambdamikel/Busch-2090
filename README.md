@@ -127,9 +127,9 @@ Like the original, it contains a number of ROM programs that can be loaded via t
 - ``PGM F`` : Game 17+4 BlackJack, from the "Computerspiele 2094" book, page 32
 
 
-On startup, the Microtronic reads a ``MICRO.INI`` file. This file contains emulator setting such as auto-save interval, initial CPU emulation speed, etc. 
+On startup, the Microtronic reads a [``MICRO.INI``](./microtronic-nextgen-sh1106-spi/MICRO.INI) file. This file contains emulator setting such as auto-save interval, initial CPU emulation speed, etc. 
 
-Here is the default ``MICRO.INI`` file; it consists of space-separated values which can be either 1 or 0 for a boolean setting / on-off switch, be a simple DECIMAL integer number, a 2digit Microtronic HEX address, or an 8.3 file name: 
+Here is the default [``MICRO.INI``](./microtronic-nextgen-sh1106-spi/MICRO.INI) file; it consists of space-separated values which can be either 1 or 0 for a boolean setting / on-off switch, be a simple DECIMAL integer number, a 2digit Microtronic HEX address, or an 8.3 file name: 
 
     10 5 1 1 4 0 0 00 AUTO.MIC 
     CPU_DELAY CPU_DELAY_DELTA LED_BACKLIGHT KEYBEEP DISPLAY_MODE AUTOSAVE_EVERY_SECONDS AUTOSTART AUTOADDRESS AUTOLOAD_FILE 
