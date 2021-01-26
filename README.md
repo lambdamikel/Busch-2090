@@ -65,6 +65,21 @@ variants and form factors.
 
 The current version of the Microtronic Emulator is called the "Micotronic Next Generation", and it comes as a PCB. It features many improvements over the original; i.e., SDcard-based file storage, 2095 emulation, a DS3231 battery-buffered real time clock (RTC),  a big display with different display modes that facilitate machine code learning by means of a mnemonics display / dissassembler mode, sound output, a larger number of built-in ``PGM`` ROM programs including some fun games such as the Lunar Lander, and much more. It also has the 4 digital inputs (DIN ports) and 4 digital outputs (DOT ports) of the original, the 1 Hz Clock signal output, and an analog input (which is currently not used by the firmware). 
 
+The current / latest version is equipped with a 1.3" OLED display (SPI SH1106): 
+
+![Busch 2090 Microtronic Next Generation - SH1106 SPI OLED Version 1](./microtronic-nextgen-sh1106-spi/nextgen-spi-5.jpg) 
+
+![Busch 2090 Microtronic Next Generation - SH1106 SPI OLED Version 2](./microtronic-nextgen-sh1106-spi/nextgen-spi-1.jpg) 
+
+The latest version of the SPI SH1106 Next Generation also has pulldown-resistors and proper feet / PCB mounting holes: 
+
+![Busch 2090 Microtronic Next Generation - SH1106 SPI OLED Version v2 1](./microtronic-nextgen-sh1106-spi/nextgen-spi-v2-1.jpg) 
+
+![Busch 2090 Microtronic Next Generation - SH1106 SPI OLED Version v2 2](./microtronic-nextgen-sh1106-spi/nextgen-spi-v2-2.jpg) 
+
+![Busch 2090 Microtronic Next Generation - SH1106 SPI OLED Version v2 3](./microtronic-nextgen-sh1106-spi/nextgen-spi-v2-3.jpg) 
+
+
 The Microtronic Next Generation / 2nd Generation (see below) has a number of different display modes. The current display mode can be changed with the function keys ``LEFT, RIGHT`` and ``ENTER``. Depending on the whether the emulator is currently running a program, or halted for program entry, different information is displayed in addition to the classic Microtronic 6digit 7segment display output. In addition to the 6digit hex display output, depending on the display mode, either the neighborhood RAM contents of the current Program Counter (PC) is being shown (PC-1, PC, PC+1 RAM contents), optionally also with the Mnemonics of the current instruction (i.e., like a disassembler!), or the contents of the 16 work or 16 extra registers. There is also a very nice "big" display mode in which the Microtronic 6digit hex display output is shown in double size big font; note that this mode leaves no display space for extra information though. 
 
 Regardless of the display mode, the current status of the emulation (running, halted, ...) is always displayed in front of the Microtronic 6digit hex display, using the following status codes: 
@@ -92,33 +107,6 @@ The other available keys can also be found on the original Microtronic
 - the original function keys ``NEXT, REG, BKP, STEP, RUN, HALT, C/CE, 
 PGM``, the hex keys for program and data input, and the ``RESET`` button
 (that keeps the Microtronic RAM contents, unlike the Arduino reset button). 
-
-The current / latest version is equipped with a 1.3" OLED display (SPI SH1106): 
-
-![Busch 2090 Microtronic Next Generation - SH1106 SPI OLED Version 1](./microtronic-nextgen-sh1106-spi/nextgen-spi-5.jpg) 
-
-![Busch 2090 Microtronic Next Generation - SH1106 SPI OLED Version 2](./microtronic-nextgen-sh1106-spi/nextgen-spi-1.jpg) 
-
-Previous versions used a Nokia 5110 display: 
-
-![Busch 2090 Microtronic Next Generation - Nokia Version Front](./microtronic-nextgen-nokia/pcb1.jpg) 
-
-![Busch 2090 Microtronic Next Generation - Nokia Version Back](./microtronic-nextgen-nokia/pcb2.jpg) 
-
-![Busch 2090 Microtronic Next Generation - Nokia Version](./microtronic-nextgen-nokia/pcb1.jpg) 
-
-![Busch 2090 Microtronic Next Generation - 2095 Emulation 1](./microtronic-nextgen-nokia/2095-1.jpg) 
-
-![Busch 2090 Microtronic Next Generation - 2095 Emulation 2](./microtronic-nextgen-nokia/2095-2.jpg) 
-
-The latest version of the SPI SH1106 Next Generation also has pulldown-resistors and proper feet / PCB mounting holes: 
-
-![Busch 2090 Microtronic Next Generation - SH1106 SPI OLED Version v2 1](./microtronic-nextgen-sh1106-spi/nextgen-spi-v2-1.jpg) 
-
-![Busch 2090 Microtronic Next Generation - SH1106 SPI OLED Version v2 2](./microtronic-nextgen-sh1106-spi/nextgen-spi-v2-2.jpg) 
-
-![Busch 2090 Microtronic Next Generation - SH1106 SPI OLED Version v2 3](./microtronic-nextgen-sh1106-spi/nextgen-spi-v2-3.jpg) 
-
 
 Like the original, it contains a number of ROM programs that can be loaded via the key sequence ``HALT, PGM, <HEXKEY>``. The programs are 
 
@@ -224,6 +212,21 @@ The emulator runs about 4 to 5 hours on a 9V battery. One of the first signs of 
 You can also use a 9 to 12 V external power supply with positive center polarity connected to the barrel jack. 
 
 There is an on switch, and another switch can be used to turn of the loudspeaker. 
+
+#### Older Version of the Next Generation Emulator 
+
+Previous versions used a Nokia 5110 display: 
+
+![Busch 2090 Microtronic Next Generation - Nokia Version Front](./microtronic-nextgen-nokia/pcb1.jpg) 
+
+![Busch 2090 Microtronic Next Generation - Nokia Version Back](./microtronic-nextgen-nokia/pcb2.jpg) 
+
+![Busch 2090 Microtronic Next Generation - Nokia Version](./microtronic-nextgen-nokia/pcb1.jpg) 
+
+![Busch 2090 Microtronic Next Generation - 2095 Emulation 1](./microtronic-nextgen-nokia/2095-1.jpg) 
+
+![Busch 2090 Microtronic Next Generation - 2095 Emulation 2](./microtronic-nextgen-nokia/2095-2.jpg) 
+
 
 
 ### The "Microtronic 2nd Generation" Sister Project  
