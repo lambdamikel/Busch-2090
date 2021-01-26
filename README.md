@@ -220,7 +220,7 @@ There is an on switch, and another switch can be used to turn of the loudspeaker
 
 Either use a flatband cable, or directly plug it into your 2090 DIP socket as follows: 
 
-![Busch 2090 Microtronic Next Generation - 2095 Emulation Flatband Cable](./2095-flatband-cable-2.jpg)
+![Busch 2090 Microtronic Next Generation - 2095 Emulation Flatband Cable](./images/2095-flatband-cable-2.jpg)
 
 ![Busch 2090 Microtronic Next Generation - 2095 Emulation 1](./microtronic-nextgen-nokia/2095-1.jpg) 
 
