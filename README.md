@@ -65,7 +65,7 @@ variants and form factors.
 
 The current version of the Microtronic Emulator is called the "Micotronic Next Generation", and it comes as a PCB. It features many improvements over the original; i.e., SDcard-based file storage, 2095 emulation, a DS3231 battery-buffered real time clock (RTC),  a big display with different display modes that facilitate machine code learning by means of a mnemonics display / dissassembler mode, sound output, a larger number of built-in ``PGM`` ROM programs including some fun games such as the Lunar Lander, and much more. It also has the 4 digital inputs (DIN ports) and 4 digital outputs (DOT ports) of the original, the 1 Hz Clock signal output, and an analog input (which is currently not used by the firmware). 
 
-Compared to the original, the Next Generation Microtronic add 8 additional function keys; from left to right, top to bottom these are: 
+The Next Generation Microtronic has an additional 8 function keys. From left to right, top to bottom, these are:  
 
 - ``LEFT, RIGHT``: in RUN mode, these are used for changing the display mode. The buttons are also used for cursor navigation when creating an SDcard file name when saving a program to SDcard. 
 
@@ -75,7 +75,10 @@ Compared to the original, the Next Generation Microtronic add 8 additional funct
 
 - ``BACK, FUN``: In file operations, ``BACK`` has the function of the backspace key, i.e., it delete the character left of the cursor. Unlike the ``LEFT`` key, which only moves the cursor but leaves the character left of the cursor in place.  The ``FUN`` key currently has no function; on the Nokia 5110 Version of the emulator, this is the LCD display backlight on/off key. 
 
-- All other keys can also be found on the original Microtronic (``NEXT, REG, BKP, STEP, RUN, HALT, C/CE, PGM``), in addition to the hex keys and the ``RESET`` button. 
+The other available keys can also be found on the original Microtronic
+- the original function keys ``NEXT, REG, BKP, STEP, RUN, HALT, C/CE, 
+PGM``, the hex keys for program and data input, and the ``RESET`` button
+(that keeps the Microtronic RAM contents, unlike the Arduino reset button). 
 
 The current / latest version is equipped with a 1.3" OLED display (SPI SH1106): 
 
@@ -124,6 +127,48 @@ Like the original, it contains a number of ROM programs that can be loaded via t
 - ``PGM F`` : Game 17+4 BlackJack, from the "Computerspiele 2094" book, page 32
 
 
+On startup, the Microtronic reads a ``MICRO.INI`` file. This file contains emulator setting such as auto-save interval, initial CPU emulation speed, etc. 
+
+Here is the default ``MICRO.INI`` file; it consists of space-separated values which can be either 1 or 0 for a boolean setting / on-off switch, be a simple DECIMAL integer number, a 2digit Microtronic HEX address, or an 8.3 file name: 
+
+    10 5 1 1 4 0 0 00 AUTO.MIC 
+    CPU_DELAY CPU_DELAY_DELTA LED_BACKLIGHT KEYBEEP DISPLAY_MODE AUTOSAVE_EVERY_SECONDS AUTOSTART AUTOADDRESS AUTOLOAD_FILE 
+
+This default init file specified: 
+
+- ``CPU_DELAY``: 10 ms
+- ``CPU_DELAY_DELTA``: 5 ms delay increment / decrement when using the ``UP, DOWN`` buttons to control the CPU speed in RUN mode
+- ``LED_BACKLIGH``: turned on via 1 (use 0 for off); only used for Nokia 5110 LCD display version 
+- ``KEYBEEP``: audible key beep feedback enabled 
+- ``DISPLAY_MODE``: a decimal integer number from 0 5, specifying the initial display mode. These modes correspond to the different display modes that can be selected using the ``ENTER`` or ``LEFT, RIGHT`` keys in RUN mode. 
+- ``AUTOSAVE_EVERY_SECONDS``: disabled, since 0 is specified here. A value `n` means auto-save current program every `n` seconds. For autosave, the file ``AUTO.MIC`` is used. ``AUTO.MIC`` is usually also the file specified as the ``AUTOLOAD_FILE``. The specified ``AUTOLOAD_FILE`` will be read in automatically upon power-on. The user hence finds the emulator pre-loaded with the program that was last saved, either manually or automatically (using the autosave feature). 
+- ``AUTOSTART, AUTOADDRESS``: set to 0 here (turned off). When set to 1, upon power on the emulator will read in the file specified under ``AUTOLOAD_FILE`` and start / run it automatically from the given ``AUTOADDRESS``. The ``AUTOADDRESS`` (``00`` be default) is a 2digit Microtronic HEX address (``00`` to ``FF``). 
+- ``AUTLOAD_FILE``: the file that is automatically loaded upon startup. If you are using autosave or want to have the emulator preloaded with the last program you saved to SDcard manually, then do not change the name from the default ``AUTO.MIC``. 
+
+The ``MICRO.INI`` file is opotional and the emulator will also work without it. Moreover, the SDcard is optional as well. 
+
+The ``MIC`` ASCII file format is straightforward and can be best understood by looking at an example. Here are the first few lines of a ``MIC```file: 
+
+    # This is a comment
+    # The @ sign can specify the address for the next op code: 
+    @ 00
+    
+    F08
+    @ 10 
+    F02 
+
+etc. Note the ``#`` comments and the ``@`` (read as: `at address`) sign that gives the ability to selectively load from and to address ranges in Microtronic memory. This is useful for programs that load in deltas / increments. The Microtronic manual contains a number of programs; i.e., the 
+[``BIORYTHM.MIC``](./software/BIORYTHM.MIC) relies on two other programs which need to be entered / loaded first: [``DAYS.MIC``](./software/DAYS.MIC) and 
+[``WEEKDAY.MIC``](./software/WEEKDAY.MIC). Consequently, you find the first lines in [``BIORYTHM.MIC``](./software/BIORYTHM.MIC) which starts at address ``51``, as explained in the Manual: 
+
+     # Biorythm Calculator 
+     # Part 3 - Load DAYS.MIC and WEEKDAY.MIC first
+     # tested 
+
+     @ 51
+
+More details regarding this program in the Microtronic manuals. 
+
 The emulator also has a sound output: connect ``A0`` to a little speaker over a 75 Ohms resistor to GND. The speaker can play musical notes; the extra side-effect of playing a tone is assigned to otherwise vacuous Microtronic op-codes (i.e., instructions that are basically no-ops). These op-codes are: ``MOV x,x = 0xx`` (copy register x to register x), ``ADDI 0,x = 50x`` (add 0 to register x), and ``SUBI 0,x = 70x`` (subtract 0 from register x; x is a register number from ``0`` to ``F``). Also have a look at the program [SONG2.MIC](./microtronic-nextgen-sh1106-spi/SONG2.MIC) for illustration of these sound op-codes; every playable tone will be produced by this demo program. 
 
 These sound instruction op-codes map to the following musical notes: 
@@ -151,6 +196,9 @@ These sound instruction op-codes map to the following musical notes:
     int note_frequencies_subi[] = { 392, 415, 440, 466, 494, 523, 554, 587, 622, 659, 698, 740, 784, 831, 880, 932 }; 
 
 The emulator runs about 4 to 5 hours on a 9V battery. One of the first signs of a weak / failing battery is a save to SDcard operation resulting in ``**ERROR**``. 
+You can also use a 9 to 12 V external power supply with positive center polarity connected to the barrel jack. 
+
+There is an on switch, and another switch can be used to turn of the loudspeaker. 
 
 
 ### The "Microtronic 2nd Generation" Sister Project  
