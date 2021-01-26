@@ -179,6 +179,8 @@ that also contains a fork of the 2090 project:
 
 ![Lilly Pic 3](https://github.com/lambdamikel/Busch-2090/blob/master/images/lilly-3.jpg)
 
+![Lilly Pic 4](https://github.com/lambdamikel/Busch-2090/blob/master/images/lilly-4.jpg)
+
 Lilly has added external pulldown resistors to the digital inputs so that the logic-levels are non-inverted and hence compatible with Busch electronics kits & experiments. See below for a discussion of pulldown vs. (internal) pullup resistors. 
 
 ![Lilly Pic 2](https://github.com/lambdamikel/Busch-2090/blob/master/images/lilly-2.jpg)
