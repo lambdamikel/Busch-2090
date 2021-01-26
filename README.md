@@ -134,7 +134,7 @@ Here is the default [``MICRO.INI``](./microtronic-nextgen-sh1106-spi/MICRO.INI) 
     10 5 1 1 4 0 0 00 AUTO.MIC 
     CPU_DELAY CPU_DELAY_DELTA LED_BACKLIGHT KEYBEEP DISPLAY_MODE AUTOSAVE_EVERY_SECONDS AUTOSTART AUTOADDRESS AUTOLOAD_FILE 
 
-This default init file specified: 
+This default init file specifies: 
 
 - ``CPU_DELAY``: 10 ms
 - ``CPU_DELAY_DELTA``: 5 ms delay increment / decrement when using the ``UP, DOWN`` buttons to control the CPU speed in RUN mode
