@@ -155,6 +155,7 @@ The ``MIC`` ASCII file format is straightforward and can be best understood by l
     
     F08
     @ 10 
+
     F02 
 
 etc. Note the ``#`` comments and the ``@`` (read as: `at address`)
@@ -174,6 +175,9 @@ starts at address ``51``, as explained in the Manual:
      # tested 
 
      @ 51
+
+     FOE
+     90F
 
 More details regarding this program in the Microtronic manuals. 
 
