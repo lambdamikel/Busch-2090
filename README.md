@@ -82,6 +82,11 @@ The latest version of the SPI SH1106 Next Generation also has pulldown-resistors
 
 The Microtronic Next Generation / 2nd Generation (see below) has a number of different display modes. The current display mode can be changed with the function keys ``LEFT, RIGHT`` and ``ENTER``. Depending on the whether the emulator is currently running a program, or halted for program entry, different information is displayed in addition to the classic Microtronic 6digit 7segment display output. In addition to the 6digit hex display output, depending on the display mode, either the neighborhood RAM contents of the current Program Counter (PC) is being shown (PC-1, PC, PC+1 RAM contents), optionally also with the Mnemonics of the current instruction (i.e., like a disassembler!), or the contents of the 16 work or 16 extra registers. There is also a very nice "big" display mode in which the Microtronic 6digit hex display output is shown in double size big font; note that this mode leaves no display space for extra information though. 
 
+Here the display is shown in "Disassembler Mode" display mode: 
+
+![Busch 2090 Microtronic Next Generation - Nokia Version](./microtronic-nextgen-nokia/pcb1.jpg) 
+
+
 Regardless of the display mode, the current status of the emulation (running, halted, ...) is always displayed in front of the Microtronic 6digit hex display, using the following status codes: 
 
 - ``H``: stopped 
@@ -230,8 +235,6 @@ Previous versions used a Nokia 5110 display:
 ![Busch 2090 Microtronic Next Generation - Nokia Version Front](./microtronic-nextgen-nokia/pcb1.jpg) 
 
 ![Busch 2090 Microtronic Next Generation - Nokia Version Back](./microtronic-nextgen-nokia/pcb2.jpg) 
-
-![Busch 2090 Microtronic Next Generation - Nokia Version](./microtronic-nextgen-nokia/pcb1.jpg) 
 
 
 ### The "Microtronic 2nd Generation" Sister Project  
