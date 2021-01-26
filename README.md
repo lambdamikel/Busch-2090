@@ -142,12 +142,12 @@ This default init file specifies:
 - ``KEYBEEP``: audible key beep feedback enabled 
 - ``DISPLAY_MODE``: a decimal integer number from 0 5, specifying the initial display mode. These modes correspond to the different display modes that can be selected using the ``ENTER`` or ``LEFT, RIGHT`` keys in RUN mode. 
 - ``AUTOSAVE_EVERY_SECONDS``: disabled, since 0 is specified here. A value `n` means auto-save current program every `n` seconds. For autosave, the file ``AUTO.MIC`` is used. ``AUTO.MIC`` is usually also the file specified as the ``AUTOLOAD_FILE``. The specified ``AUTOLOAD_FILE`` will be read in automatically upon power-on. The user hence finds the emulator pre-loaded with the program that was last saved, either manually or automatically (using the autosave feature). 
-- ``AUTOSTART, AUTOADDRESS``: set to 0 here (turned off). When set to 1, upon power on the emulator will read in the file specified under ``AUTOLOAD_FILE`` and start / run it automatically from the given ``AUTOADDRESS``. The ``AUTOADDRESS`` (``00`` be default) is a 2digit Microtronic HEX address (``00`` to ``FF``). 
+- ``AUTOSTART, AUTOADDRESS``: set to 0 here (turned off). When set to 1, upon power on the emulator will read in the file specified under ``AUTOLOAD_FILE`` and start / run it automatically from the given ``AUTOADDRESS``. The ``AUTOADDRESS`` (``00`` by default) is a 2digit Microtronic HEX address (``00`` to ``FF``). 
 - ``AUTLOAD_FILE``: the file that is automatically loaded upon startup. If you are using autosave or want to have the emulator preloaded with the last program you saved to SDcard manually, then do not change the name from the default ``AUTO.MIC``. 
 
-The ``MICRO.INI`` file is opotional and the emulator will also work without it. Moreover, the SDcard is optional as well. 
+The ``MICRO.INI`` file is optional and the emulator will also work without it. Moreover, the SDcard is optional as well. 
 
-The ``MIC`` ASCII file format is straightforward and can be best understood by looking at an example. Here are the first few lines of a ``MIC```file: 
+The ``MIC`` ASCII file format is straightforward and can be best understood by looking at an example. Here are the first few lines of a ``MIC`` file: 
 
     # This is a comment
     # The @ sign can specify the address for the next op code: 
@@ -157,9 +157,17 @@ The ``MIC`` ASCII file format is straightforward and can be best understood by l
     @ 10 
     F02 
 
-etc. Note the ``#`` comments and the ``@`` (read as: `at address`) sign that gives the ability to selectively load from and to address ranges in Microtronic memory. This is useful for programs that load in deltas / increments. The Microtronic manual contains a number of programs; i.e., the 
-[``BIORYTHM.MIC``](./software/BIORYTHM.MIC) relies on two other programs which need to be entered / loaded first: [``DAYS.MIC``](./software/DAYS.MIC) and 
-[``WEEKDAY.MIC``](./software/WEEKDAY.MIC). Consequently, you find the first lines in [``BIORYTHM.MIC``](./software/BIORYTHM.MIC) which starts at address ``51``, as explained in the Manual: 
+etc. Note the ``#`` comments and the ``@`` (read as: `at address`)
+sign that gives the ability to selectively load from and to address
+ranges in Microtronic memory. This is useful for programs that load in
+deltas / increments. The Microtronic manual contains a number of
+programs that need to be entered in deltas or "increments"; i.e., the
+[``BIORYTHM.MIC``](./software/BIORYTHM.MIC) relies on two other
+programs which need to be entered / loaded first:
+[``DAYS.MIC``](./software/DAYS.MIC) and
+[``WEEKDAY.MIC``](./software/WEEKDAY.MIC). Consequently, you find the
+first lines in [``BIORYTHM.MIC``](./software/BIORYTHM.MIC) which
+starts at address ``51``, as explained in the Manual:
 
      # Biorythm Calculator 
      # Part 3 - Load DAYS.MIC and WEEKDAY.MIC first
