@@ -65,6 +65,19 @@ variants and form factors.
 
 The current version of the Microtronic Emulator is called the "Micotronic Next Generation", and it comes as a PCB. It features many improvements over the original; i.e., SDcard-based file storage, 2095 emulation, a DS3231 battery-buffered real time clock (RTC),  a big display with different display modes that facilitate machine code learning by means of a mnemonics display / dissassembler mode, sound output, a larger number of built-in ``PGM`` ROM programs including some fun games such as the Lunar Lander, and much more. It also has the 4 digital inputs (DIN ports) and 4 digital outputs (DOT ports) of the original, the 1 Hz Clock signal output, and an analog input (which is currently not used by the firmware). 
 
+The Microtronic Next Generation / 2nd Generation (see below) has a number of different display modes. The current display mode can be changed with the function keys ``LEFT, RIGHT`` and ``ENTER``. Depending on the whether the emulator is currently running a program, or halted for program entry, different information is displayed in addition to the classic Microtronic 6digit 7segment display output. In addition to the 6digit hex display output, depending on the display mode, either the neighborhood RAM contents of the current Program Counter (PC) is being shown (PC-1, PC, PC+1 RAM contents), optionally also with the Mnemonics of the current instruction (i.e., like a disassembler!), or the contents of the 16 work or 16 extra registers. There is also a very nice "big" display mode in which the Microtronic 6digit hex display output is shown in double size big font; note that this mode leaves no display space for extra information though. 
+
+Regardless of the display mode, the current status of the emulation (running, halted, ...) is always displayed in front of the Microtronic 6digit hex display, using the following status codes: 
+
+- ``H``: stopped 
+- ``A``: enter address 
+- ``P``: enter op-code 
+- ``r``: running program
+- ``?``: keypad input from user requested  
+- ``i``: entering / inspecting register via ``REG``  
+- ``t`` : entering clock time (``PGM 3``) 
+- ``C`` : showing clock time (``PGM 4``) 
+
 The Next Generation Microtronic has an additional 8 function keys. From left to right, top to bottom, these are:  
 
 - ``LEFT, RIGHT``: in RUN mode, these are used for changing the display mode. The buttons are also used for cursor navigation when creating an SDcard file name when saving a program to SDcard. 
