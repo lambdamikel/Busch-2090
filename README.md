@@ -63,7 +63,7 @@ variants and form factors.
 
 ### The "Microtronic Next Generation" Project 
 
-The current version of the Microtronic Emulator is called the "Micotronic Next Generation", and it comes as a PCB. It features many improvements over the original; i.e., SDcard-based file storage, 2095 emulation, a DS3231 battery-buffered real time clock (RTC),  a big display with different display modes that facilitate machine code learning by means of a mnemonics display / dissassembler mode, sound output, a larger number of built-in ``PGM`` ROM programs including some fun games such as the Lunar Lander, and much more. It also has the 4 digital inputs (DIN ports) and 4 digital outputs (DOT ports) of the original, the 1 Hz Clock signal output, and an analog input (which is currently not used by the firmware). It can run on for 4 to 5 hours on a 9V battery. 
+The current version of the Microtronic Emulator (emulator for short) is called the "Micotronic Next Generation", and it comes as a PCB. It features many improvements over the original; i.e., SDcard-based file storage, 2095 emulation, a DS3231 battery-buffered real time clock (RTC),  a big display with different display modes that facilitate machine code learning by means of a mnemonics display / dissassembler mode, sound output, a larger number of built-in ``PGM`` ROM programs including some fun games such as the Lunar Lander, and much more. It also has the 4 digital inputs (DIN ports) and 4 digital outputs (DOT ports) of the original, the 1 Hz Clock signal output, and an analog input (which is currently not used by the firmware). It can run on for 4 to 5 hours on a 9V battery. 
 
 The current / latest version is equipped with a 1.3" OLED display (SPI SH1106): 
 
@@ -102,7 +102,7 @@ Regardless of the display mode, the **current status** of the emulator (running,
 
 #### Function keys 
 
-The Next Generation Microtronic has an **additional 8 function keys.** From left to right, top to bottom, these are:  
+The emulator has an **additional 8 function keys.** From left to right, top to bottom, these are:  
 
 - ``LEFT, RIGHT``: in RUN mode, these are used for changing the display mode. The buttons are also used for cursor navigation for file name creation when saving a program to SDcard. 
 
@@ -115,7 +115,7 @@ The Next Generation Microtronic has an **additional 8 function keys.** From left
 The other available keys can also be found on the original Microtronic
 - the original function keys ``NEXT, REG, BKP, STEP, RUN, HALT, C/CE, 
 PGM``, the hex keys for program and data input, and the ``RESET`` button
-(that keeps the Microtronic RAM contents, unlike the Arduino reset button). 
+(that keeps the emulator RAM contents, unlike the Arduino reset button). 
 
 #### Built-In PGM ROM Programs 
 
@@ -138,9 +138,9 @@ Like the original, it contains a number of **ROM programs** that can be loaded v
 - ``PGM E`` : Prime Numbers, from the "Computerspiele 2094" book, page 58
 - ``PGM F`` : Game 17+4 BlackJack, from the "Computerspiele 2094" book, page 32
 
-#### Microtronic Init File on SDcard - ``MICRO.INI`` 
+#### Init File on SDcard - ``MICRO.INI`` 
 
-On startup, the Microtronic reads a [``MICRO.INI``](./microtronic-nextgen-sh1106-spi/MICRO.INI) file. This file contains emulator setting such as auto-save interval, initial CPU emulation speed, etc. 
+On startup, the emulator reads a [``MICRO.INI``](./microtronic-nextgen-sh1106-spi/MICRO.INI) file. This file contains emulator setting such as auto-save interval, initial CPU emulation speed, etc. 
 
 Here is the default [``MICRO.INI``](./microtronic-nextgen-sh1106-spi/MICRO.INI) file; it consists of space-separated values which can be either 1 or 0 for a boolean setting / on-off switch, be a simple DECIMAL integer number, a 2digit Microtronic HEX address, or an 8.3 file name: 
 
@@ -160,7 +160,7 @@ This default init file specifies:
 
 The ``MICRO.INI`` file is optional and the emulator will also work without it. Moreover, the SDcard is optional as well. 
 
-#### Microtronic ``MIC``Program File Format 
+#### Emulator ``MIC``Program File Format 
 
 The ``MIC`` ASCII file format is straightforward and can be best understood by looking at an example. Here are the first few lines of a ``MIC`` file: 
 
@@ -176,7 +176,7 @@ The ``MIC`` ASCII file format is straightforward and can be best understood by l
 
 etc. Note the ``#`` comments and the ``@`` (read as: `at address`)
 sign that gives the ability to selectively load from and to address
-ranges in Microtronic memory. This is useful for programs that load in
+ranges into emulator memory. This is useful for programs that load in
 deltas / increments. The Microtronic manual contains a number of
 programs that need to be entered in deltas or "increments"; i.e., the
 [``BIORYTHM.MIC``](./software/BIORYTHM.MIC) relies on two other
@@ -198,14 +198,14 @@ starts at address ``51``, as explained in the Manual:
 
 The ``#`` and ``@`` annotations will only be found in manually curated ``MIC`` file, i.e., files that were created on a PC (or Mac) with a text editor; ``MIC`` files that are created via the ``PGM 2`` save function will never contain ``@`` nor ``#``. Instead, ``PGM 2``always writes a complete memory dump from addresses ``00`` to ``FF`` to the specified ``MIC`` file (use the arrow keys in addition with ``ENTER`` and ``CANCEL`` to specify a file name). 
 
-#### Microtronic ```PGM 1`` and ``PGM 2`` Functions - SDCard Storage & 2095 Emulation 
+#### The ``PGM 1`` (Load) and ``PGM 2`` (Save) Functions - SDCard Storage & 2095 Emulation 
 
 Note that 
 - ``PGM 1`` loads a ``MIC`` file from SDcard into the emulator memory, OR transfer the file contents to an original Microtronic via 2095 emulation over the wire. Note that **there is an important difference to the original** - the **program is loaded at the currently active address shown in the display (PC)!** Make sure to specify the start address before using ``PGM 1`` by means of ``HALT-NEXT-xx``, where ``xx`` is the two-digital hex start address (from ``00`` to ``FF``). Usually, ``00``. So, usually you want to use the load function as follow: ``HALT-NEXT-00-PGM-1``. This is a *useful extension to the orginal behavior, because it allows you to load "reusable" program fragments into different memory regions.* Unfortunately, the (conditional) jump instructions in the Microtronic are all absolute and not relocatable, so there is a limit to the usefulness of this feature currently. However, it is conceivable to automatically rewrite these (conditional) jump instructions during load to reflect the proper offset / load address, which is a useful extension for a future firmware update. 
 
 - ``PGM 2`` : saves the current RAM contents to a ``MIC`` file on SDcard, or receives a program from a connected original Microtronic over the wire via the 2095 emulation. Note that, unlike ``PGM 1``, ``PGM 2`` does not care for the current address (PC), but rather dumps the whole memory contents into a ``MIC`` file. 
 
-#### Microtronic Sound Output and Instruction Code Extension for Sound 
+#### Emulator Sound Output and Sound Instructions 
 
 The emulator also has a sound output: connect ``A0`` to a little speaker over a 75 Ohms resistor to GND. The speaker can play musical notes; the extra side-effect of playing a tone is assigned to otherwise vacuous Microtronic op-codes (i.e., instructions that are basically no-ops). These op-codes are: ``MOV x,x = 0xx`` (copy register x to register x), ``ADDI 0,x = 50x`` (add 0 to register x), and ``SUBI 0,x = 70x`` (subtract 0 from register x; x is a register number from ``0`` to ``F``). Also have a look at the program [SONG2.MIC](./microtronic-nextgen-sh1106-spi/SONG2.MIC) for illustration of these sound op-codes; every playable tone will be produced by this demo program. 
 
@@ -590,8 +590,8 @@ the sketch using ``PGMSPACE`` strings.  Note that ``PGM 1`` to ``PGM
 ``PGMSPACE`` programs. If you wish, you can exchange these ``7`` to
 ``F`` programs with you own:
 
-- ``PGM 1`` : restore Microtronic memory from EEPROM ("core restore") 
-- ``PGM 2`` : store / dump Microtronic memory to EEPROM  ("core dump") 
+- ``PGM 1`` : restore emulator memory from EEPROM ("core restore") 
+- ``PGM 2`` : store / dump emulator memory to EEPROM  ("core dump") 
 - ``PGM 3`` : set clock 
 - ``PGM 4`` : show clock 
 - ``PGM 5`` : clear memory
