@@ -91,10 +91,10 @@ Here the display is shown in "disassembler mode"; it shows the Mnemonic at the c
 
 Regardless of the display mode, the **current status** of the emulator (running, halted, ...) is always displayed in front of the Microtronic 6digit hex display, using the following status codes: 
 
-- ``H``: stopped 
+- ``H``: halted
 - ``A``: enter address 
 - ``P``: enter op-code 
-- ``r``: running program
+- ``r``: program running 
 - ``?``: keypad input from user requested  
 - ``i``: entering / inspecting register via ``REG``  
 - ``t`` : entering clock time (``PGM 3``) 
