@@ -114,8 +114,8 @@ PGM``, the hex keys for program and data input, and the ``RESET`` button
 Like the original, it contains a number of **ROM programs** that can be loaded via the key sequence ``HALT, PGM, <HEXKEY>``. The programs are 
 
 - ``PGM 0`` : show & set date of the battery-buffered DS3213 Real Time Clock. The original 2090 contains a test program here. 
-- ``PGM 1`` : load MIC program from SDcard, or transfer to real Microtronic via 2095 emulation 
-- ``PGM 2`` : load current RAM contents to MIC program on SDcard, or receive a program from a connected 2090 Microtronic over the wire via the 2095 emulation  
+- ``PGM 1`` : loads a ``MIC`` file from SDcard into the emulator memory, OR transfer the file contents to an original Microtronic via 2095 emulation over the wire. Note that **there is an important difference to the original** - the **program is loaded at the currently active address shown in the display (PC)!** Make sure to specify the start address before using ``PGM 1`` by means of ``HALT-NEXT-xx``, where ``xx`` is the two-digital hex start address (from ``00`` to ``FF``). Usually, ``00``. So, usually you want to use the load function as follow: ``HALT-NEXT-00-PGM-1``. This is a *useful extension to the orginal behavior, because it allows you to load "reusable" program fragments into different memory regions.* Unfortunately, the (conditional) jump instructions in the Microtronic are all absolute and not relocatable, so there is a limit to the usefulness of this feature currently. However, it is conceivable to automatically rewrite these (conditional) jump instructions during load to reflect the proper offset / load address, which is a useful extension for a future firmware update. 
+- ``PGM 2`` : saves the current RAM contents to a ``MIC`` file on SDcard, or receives a program from a connected original Microtronic over the wire via the 2095 emulation. Note that, unlike ``PGM 1``, ``PGM 2`` does not care for the current address (PC), but rather dumps the whole memory contents into a ``MIC`` file. 
 - ``PGM 3`` : set clock; this also sets the DS323 RTC 
 - ``PGM 4`` : show clock
 - ``PGM 5`` : clear memory
@@ -161,6 +161,7 @@ The ``MIC`` ASCII file format is straightforward and can be best understood by l
     @ 10 
 
     F02 
+    ... 
 
 etc. Note the ``#`` comments and the ``@`` (read as: `at address`)
 sign that gives the ability to selectively load from and to address
@@ -182,8 +183,15 @@ starts at address ``51``, as explained in the Manual:
 
      FOE
      90F
+     ... 
 
-More details regarding this program in the Microtronic manuals. 
+The ``#`` and ``@`` annotations will only be found in manually curated ``MIC`` file, i.e., files that were created on a PC (or Mac) with a text editor; ``MIC`` files that are created via the ``PGM 2`` save function will never contain ``@`` nor ``#``. Instead, ``PGM 2``always writes a complete memory dump from addresses ``00`` to ``FF`` to the specified ``MIC`` file (use the arrow keys in addition with ``ENTER`` and ``CANCEL`` to specify a file name). 
+
+Note that 
+- ``PGM 1`` loads a ``MIC`` file from SDcard into the emulator memory, OR transfer the file contents to an original Microtronic via 2095 emulation over the wire. Note that **there is an important difference to the original** - the **program is loaded at the currently active address shown in the display (PC)!** Make sure to specify the start address before using ``PGM 1`` by means of ``HALT-NEXT-xx``, where ``xx`` is the two-digital hex start address (from ``00`` to ``FF``). Usually, ``00``. So, usually you want to use the load function as follow: ``HALT-NEXT-00-PGM-1``. This is a *useful extension to the orginal behavior, because it allows you to load "reusable" program fragments into different memory regions.* Unfortunately, the (conditional) jump instructions in the Microtronic are all absolute and not relocatable, so there is a limit to the usefulness of this feature currently. However, it is conceivable to automatically rewrite these (conditional) jump instructions during load to reflect the proper offset / load address, which is a useful extension for a future firmware update. 
+
+- ``PGM 2`` : saves the current RAM contents to a ``MIC`` file on SDcard, or receives a program from a connected original Microtronic over the wire via the 2095 emulation. Note that, unlike ``PGM 1``, ``PGM 2`` does not care for the current address (PC), but rather dumps the whole memory contents into a ``MIC`` file. 
+
 
 The emulator also has a sound output: connect ``A0`` to a little speaker over a 75 Ohms resistor to GND. The speaker can play musical notes; the extra side-effect of playing a tone is assigned to otherwise vacuous Microtronic op-codes (i.e., instructions that are basically no-ops). These op-codes are: ``MOV x,x = 0xx`` (copy register x to register x), ``ADDI 0,x = 50x`` (add 0 to register x), and ``SUBI 0,x = 70x`` (subtract 0 from register x; x is a register number from ``0`` to ``F``). Also have a look at the program [SONG2.MIC](./microtronic-nextgen-sh1106-spi/SONG2.MIC) for illustration of these sound op-codes; every playable tone will be produced by this demo program. 
 
