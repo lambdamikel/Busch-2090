@@ -100,7 +100,7 @@ Regardless of the display mode, the **current status** of the emulator (running,
 - ``t`` : entering clock time (``PGM 3``) 
 - ``C`` : showing clock time (``PGM 4``) 
 
-#### Function keys 
+#### Function Keys 
 
 The emulator has an **additional 8 function keys.** From left to right, top to bottom, these are:  
 
