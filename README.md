@@ -79,11 +79,15 @@ The latest version of the SPI SH1106 Next Generation also has pulldown-resistors
 
 ![Busch 2090 Microtronic Next Generation - SH1106 SPI OLED Version v2 3](./microtronic-nextgen-sh1106-spi/nextgen-spi-v2-3.jpg) 
 
+#### Display Modes
+
 The Microtronic Next Generation / 2nd Generation (see below) has a number of **different display modes.** The current display mode can be changed with the function keys ``LEFT, RIGHT`` and ``ENTER``. Depending on the current emulator status, additional information is shown together with the classic Microtronic 6digit 7segment display. Depending on the display mode, either the neighborhood RAM contents at the current Program Counter (``PC``) is shown (RAM locations ``PC-1``, ``PC``, and ``PC+1``), also with extra Mnemonics like a disassembler for the current PC, or the contents of the 16 work (or extra) registers. There is also a very nice "big" display mode in which the Microtronic 6digit hex output is shown in double size big font (this mode leaves no room for extra information though). 
 
 Here the display is shown in "disassembler mode"; it shows the Mnemonic at the current ``PC``, as well as op-codes at locations ``PC-1`` and ``PC+1`` addresses. ``H`` stands for **halted**, see below. 
 
 ![Busch 2090 Microtronic Next Generation - Nokia Version](./microtronic-nextgen-nokia/pcb1.jpg) 
+
+#### Status Indicators 
 
 Regardless of the display mode, the **current status** of the emulator (running, halted, ...) is always displayed in front of the Microtronic 6digit hex display, using the following status codes: 
 
@@ -95,6 +99,8 @@ Regardless of the display mode, the **current status** of the emulator (running,
 - ``i``: entering / inspecting register via ``REG``  
 - ``t`` : entering clock time (``PGM 3``) 
 - ``C`` : showing clock time (``PGM 4``) 
+
+#### Function keys 
 
 The Next Generation Microtronic has an **additional 8 function keys.** From left to right, top to bottom, these are:  
 
@@ -110,6 +116,8 @@ The other available keys can also be found on the original Microtronic
 - the original function keys ``NEXT, REG, BKP, STEP, RUN, HALT, C/CE, 
 PGM``, the hex keys for program and data input, and the ``RESET`` button
 (that keeps the Microtronic RAM contents, unlike the Arduino reset button). 
+
+#### Built-In PGM ROM Programs 
 
 Like the original, it contains a number of **ROM programs** that can be loaded via the key sequence ``HALT, PGM, <HEXKEY>``. The programs are 
 
@@ -130,6 +138,7 @@ Like the original, it contains a number of **ROM programs** that can be loaded v
 - ``PGM E`` : Prime Numbers, from the "Computerspiele 2094" book, page 58
 - ``PGM F`` : Game 17+4 BlackJack, from the "Computerspiele 2094" book, page 32
 
+#### Microtronic Init File on SDcard - ``MICRO.INI`` 
 
 On startup, the Microtronic reads a [``MICRO.INI``](./microtronic-nextgen-sh1106-spi/MICRO.INI) file. This file contains emulator setting such as auto-save interval, initial CPU emulation speed, etc. 
 
@@ -150,6 +159,8 @@ This default init file specifies:
 - ``AUTLOAD_FILE``: the file that is automatically loaded upon startup. If you are using autosave or want to have the emulator preloaded with the last program you saved to SDcard manually, then do not change the name from the default ``AUTO.MIC``. 
 
 The ``MICRO.INI`` file is optional and the emulator will also work without it. Moreover, the SDcard is optional as well. 
+
+#### Microtronic ``MIC``Program File Format 
 
 The ``MIC`` ASCII file format is straightforward and can be best understood by looking at an example. Here are the first few lines of a ``MIC`` file: 
 
@@ -187,11 +198,14 @@ starts at address ``51``, as explained in the Manual:
 
 The ``#`` and ``@`` annotations will only be found in manually curated ``MIC`` file, i.e., files that were created on a PC (or Mac) with a text editor; ``MIC`` files that are created via the ``PGM 2`` save function will never contain ``@`` nor ``#``. Instead, ``PGM 2``always writes a complete memory dump from addresses ``00`` to ``FF`` to the specified ``MIC`` file (use the arrow keys in addition with ``ENTER`` and ``CANCEL`` to specify a file name). 
 
+#### Microtronic ```PGM 1`` and ``PGM 2`` Functions - SDCard Storage & 2095 Emulation 
+
 Note that 
 - ``PGM 1`` loads a ``MIC`` file from SDcard into the emulator memory, OR transfer the file contents to an original Microtronic via 2095 emulation over the wire. Note that **there is an important difference to the original** - the **program is loaded at the currently active address shown in the display (PC)!** Make sure to specify the start address before using ``PGM 1`` by means of ``HALT-NEXT-xx``, where ``xx`` is the two-digital hex start address (from ``00`` to ``FF``). Usually, ``00``. So, usually you want to use the load function as follow: ``HALT-NEXT-00-PGM-1``. This is a *useful extension to the orginal behavior, because it allows you to load "reusable" program fragments into different memory regions.* Unfortunately, the (conditional) jump instructions in the Microtronic are all absolute and not relocatable, so there is a limit to the usefulness of this feature currently. However, it is conceivable to automatically rewrite these (conditional) jump instructions during load to reflect the proper offset / load address, which is a useful extension for a future firmware update. 
 
 - ``PGM 2`` : saves the current RAM contents to a ``MIC`` file on SDcard, or receives a program from a connected original Microtronic over the wire via the 2095 emulation. Note that, unlike ``PGM 1``, ``PGM 2`` does not care for the current address (PC), but rather dumps the whole memory contents into a ``MIC`` file. 
 
+#### Microtronic Sound Output and Instruction Code Extension for Sound 
 
 The emulator also has a sound output: connect ``A0`` to a little speaker over a 75 Ohms resistor to GND. The speaker can play musical notes; the extra side-effect of playing a tone is assigned to otherwise vacuous Microtronic op-codes (i.e., instructions that are basically no-ops). These op-codes are: ``MOV x,x = 0xx`` (copy register x to register x), ``ADDI 0,x = 50x`` (add 0 to register x), and ``SUBI 0,x = 70x`` (subtract 0 from register x; x is a register number from ``0`` to ``F``). Also have a look at the program [SONG2.MIC](./microtronic-nextgen-sh1106-spi/SONG2.MIC) for illustration of these sound op-codes; every playable tone will be produced by this demo program. 
 
@@ -219,12 +233,13 @@ These sound instruction op-codes map to the following musical notes:
 
     int note_frequencies_subi[] = { 392, 415, 440, 466, 494, 523, 554, 587, 622, 659, 698, 740, 784, 831, 880, 932 }; 
 
+#### 9V Battery & Switches 
+
 The emulator runs about 4 to 5 hours on a 9V battery. One of the first signs of a weak / failing battery is a save to SDcard operation resulting in ``**ERROR**``. 
 You can also use a 9 to 12 V external power supply with positive center polarity connected to the barrel jack. 
 
 There is an on switch, and another switch can be used to turn of the loudspeaker. 
-
-#### The 2095 Cassette Interface Emulation
+#### The 2095 Cassette Interface Emulation Setup 
 
 Either use a flatband cable, or directly plug it into your 2090 DIP socket as follows: 
 
