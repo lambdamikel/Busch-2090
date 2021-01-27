@@ -99,6 +99,7 @@ Regardless of the display mode, the **current status** of the emulator (running,
 - ``i``: entering / inspecting register via ``REG``  
 - ``t`` : entering clock time (``PGM 3``) 
 - ``C`` : showing clock time (``PGM 4``) 
+- ``D`` : showing and/or entering date from the RTC (``PGM 0``) 
 
 #### Function Keys 
 
@@ -569,7 +570,6 @@ original Microtronic only featured a 6digit display. Currently, the
 - ``i``: entering / inspecting a register via ``REG``  
 - ``t`` : entering clock time (``PGM 3``) 
 - ``C`` : showing clock time (``PGM 4``) 
-- ``D`` : showing and/or entering date from the RTC (``PGM 0``) 
 
 Moreover, unlike the original Microtronic, the emulator uses blinking
 digits to indicate cursor position. The ``CCE`` key works a little bit
