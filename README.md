@@ -561,14 +561,15 @@ of the 8digit FM1638 to display the **current system status**; the
 original Microtronic only featured a 6digit display. Currently, the
 **status codes** are:
 
-- ``H``: stopped 
+- ``H``: halted  
 - ``A``: enter address 
 - ``P``: enter op-code 
-- ``r``: running program
+- ``r``: program is running 
 - ``?``: keypad input from user requested  
-- ``i``: entering / inspecting register via ``REG``  
+- ``i``: entering / inspecting a register via ``REG``  
 - ``t`` : entering clock time (``PGM 3``) 
 - ``C`` : showing clock time (``PGM 4``) 
+- ``D`` : showing and/or entering date from the RTC (``PGM 0``) 
 
 Moreover, unlike the original Microtronic, the emulator uses blinking
 digits to indicate cursor position. The ``CCE`` key works a little bit
