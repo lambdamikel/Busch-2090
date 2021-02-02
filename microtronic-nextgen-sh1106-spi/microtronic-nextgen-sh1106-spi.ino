@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
 
-  Version 31 (c) Michael Wessel, January 15st, 2021
+  Version 32 (c) Michael Wessel, February 1st, 2021
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -26,8 +26,8 @@
 
 */
 
-#define VERSION "31" 
-#define DATE "01-15-2021"  
+#define VERSION "32" 
+#define DATE "02-01-2021"  
  
 //
 //
@@ -3108,10 +3108,9 @@ void run() {
     reg[d] ^= 15;
     
   } else if (op2 == OP_SHR ) {
-    
+
+    carry = reg[d] & 1;
     reg[d] >>= 1;
-    carry = reg[d] & 16;
-    reg[d] &= 15;
     zero = reg[d] == 0;
     
   } else if (op2 == OP_SHL ) {

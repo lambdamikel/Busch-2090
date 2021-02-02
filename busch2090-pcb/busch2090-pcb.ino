@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Uno R3
 
-  Version 1.7  (c) Michael Wessel, January 29 2021 
+  Version 1.8 (c) Michael Wessel, February 1st 2021 
   https://github.com/lambdamikel/Busch-2090
   
   With contributions from Lilly (Germany): 
@@ -1692,9 +1692,8 @@ void run()
 
     case OP_SHR:
 
+      carry = reg[d] & 1;
       reg[d] >>= 1;
-      carry = reg[d] & 16;
-      reg[d] &= 15;
       zero = reg[d] == 0;
 
       break;
