@@ -338,7 +338,7 @@ I am currently working on a SMD PCB version. So far, I have a prototype breadboa
 
 This is the breadboad prototype: 
 
-![2090 Breadboard Prototype]](https://github.com/lambdamikel/Busch-2090/blob/master/images/2090-breadboard.jpg)
+![2090 Breadboard Prototype](images/2090-breadboard.jpg)
 
 #### Hardware Requirements for the 2090 Uno R3 Version 
 
