@@ -332,7 +332,15 @@ Lilly has added external pulldown resistors to the digital inputs so that the lo
 
 I also love how the documentation (IPad PDF manual) is much more modern than the computer - back in the 80s, it used to be the other way around :-) 
 
-#### Hardware Requirements
+#### PCB Version
+
+I am currently working on a SMD PCB version. So far, I have a prototype breadboard working. This version is basically a re-engineered version of the "LED&KEY" TM1638 module, and a shrimped Arduino Uno, i.e., an ATmega 328p with a 16 Mhz crystal. The final version will be a SMD PCB, since the TM1683 is only available in SOP-28 SMD packaging. 
+
+This is the breadboad prototype: 
+
+![2090 Breadboard Prototype]](https://github.com/lambdamikel/Busch-2090/blob/master/images/2090-breadboard.jpg)
+
+#### Hardware Requirements for the 2090 Uno R3 Version 
 
 You will need: 
 
