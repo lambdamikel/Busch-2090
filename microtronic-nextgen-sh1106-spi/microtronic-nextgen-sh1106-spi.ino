@@ -2133,10 +2133,8 @@ void LCDLogo() {
   displaySetCursor(0, 4);
   display.print("Michael Wessel");
   displaySetCursor(0, 5);
-  display.print("BAUKASTENFORUM");
-  displaySetCursor(0, 6);
+  display.print("& Lilly!");
 
-  sep();
   display.display(); 
   delay(1000);   
 
