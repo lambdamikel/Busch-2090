@@ -342,7 +342,9 @@ This is the breadboad prototype:
 
 I even found the *almost original 6digit 7segment red LED bubble display* - you can get these from Jameco Electronics for ~3 $ per piece: 
 
-![2090 Breadboard Prototype](images/2090-breadboard-bubble.jpg)
+![2090 Breadboard Prototype](images/2090-breadboard-bubble-1.jpg)
+
+![2090 Breadboard Prototype](images/2090-breadboard-bubble-2.jpg)
 
 The TM1638 hast no problem driving these. Bubble LED displays were most notably used in the TI calculators of the late 70s /  early 80s, e.g., the TI-58/59, TI-30 etc. Soon after that, LCD displays became the standard in calculators. 
 
