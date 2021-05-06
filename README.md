@@ -348,6 +348,10 @@ I even found the *almost original 6digit 7segment red LED bubble display* - you 
 
 The TM1638 hast no problem driving these. Bubble LED displays were most notably used in the TI calculators of the late 70s /  early 80s, e.g., the TI-58/59, TI-30 etc. Soon after that, LCD displays became the standard in calculators. 
 
+I have just finished the design of the first SMD PCB version - soon I will know if it works. Fingers crossed: 
+
+![2090 SMD Retro Bubble LED Display Prototype](images/smd-led-retro-microtronic.png)
+
 #### Hardware Requirements for the 2090 Uno R3 Version 
 
 You will need: 
