@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Uno R3
 
-  Version 1.8 (c) Michael Wessel, February 1st 2021 
+  Version 1.9 (c) Michael Wessel, June 8 2021 
   https://github.com/lambdamikel/Busch-2090
   
   With contributions from Lilly (Germany): 
@@ -140,7 +140,7 @@ unsigned long lastFuncKeyTime = 0;
 // Enable this if you want inverted inputs (INPUT_PULLUP vs. INPUT):
 // Default is non-inverted inputs by now: 
 
-#define INVERTED_INPUTS 
+// #define INVERTED_INPUTS 
 
 #define DIN_PIN_1 1
 #define DIN_PIN_2 2
@@ -471,6 +471,9 @@ void setup()
   #ifndef RESET_BUTTON_AT_PIN_0 
   pinMode(DOT_PIN_4, OUTPUT); // DOT 4
   #endif 
+
+  // silence buzzer
+  digitalWrite(DOT_PIN_4, 1); 
   
   //
   // 1 Hz Clock Output if not used for CPU Throttle Potentiometer 
@@ -484,16 +487,26 @@ void setup()
   //
   //
 
-  sendString(" Micro- ");
-  delay(200);
-  sendString(" tronic ");
-  delay(200);
-  sendString(" UNO R3 ");
-  delay(200);
-  sendString(" V 2021 ");
-  delay(200);
-  sendString("  ready ");
-  delay(200);
+  scrollString("microtronic computer system");
+  scrollString("Retro Bubble LED Display Version"); 
+  scrollString("(C) 2021 by LambdaMikel"); 
+
+  /*
+  sendString("RETRO ");
+  delay(400);
+  sendString("Micro-");
+  delay(400);
+  sendString("tronic");
+  delay(400);
+  sendString("C 2021");
+  delay(400);
+  sendString("Lambda");
+  delay(400);
+  sendString("Mikel "); */ 
+
+  delay(400);
+  sendString(" ready");
+  delay(600);
 
   //
   //
@@ -509,13 +522,27 @@ void setup()
 void sendString(String string)
 {
 
-  for (int i = 0; i < 8; i++)
+  for (int i = 0; i < 6; i++)
   {
-    module.sendChar(i, FONT_DEFAULT[string[i] - 32], false);
+    module.sendChar(i+2, FONT_DEFAULT[string[i] - 32], false);
   }
 
   delay(DISP_DELAY);
 }
+
+void scrollString(String string)
+{
+  int n = string.length(); 
+  for (int i = 0; i < n + 6; i++) { 
+    for (int j = 0; j < 6; j++) {
+      int index = i - (5 - j); 
+      char c = index < 0 || index >= n ? ' ' : string[index]; 
+      module.sendChar(j+2, FONT_DEFAULT[c - 32], false);
+    }
+    delay(80);
+  }
+}
+
 
 void showMem()
 {
@@ -708,14 +735,14 @@ void showError()
 
   displayOff();
   if (blink)
-    sendString("  Error  ");
+    sendString("error ");
 }
 
 void showReset()
 {
 
   displayOff();
-  sendString("  reset ");
+  sendString("reset ");
 }
 
 void displayOff()
@@ -724,8 +751,8 @@ void displayOff()
   showingDisplayFromReg = 0;
   showingDisplayDigits = 0;
 
-  for (int i = 0; i < 8; i++)
-    module.sendChar(i, 0, false);
+  for (int i = 0; i < 6; i++)
+    module.sendChar(i+2, 0, false);
 }
 
 void showDisplay()
@@ -749,14 +776,16 @@ void displayStatus()
     lastDispTime2 = time;
   }
 
-  if (carry)
-    moduleLEDs = 1;
+  moduleLEDs = 1;
 
   if (zero)
     moduleLEDs |= 2;
 
-  if (clock)
+  if (carry)
     moduleLEDs |= 4;
+
+  if (clock)
+    moduleLEDs |= 128;
 
   char status = ' ';
 
@@ -792,15 +821,15 @@ void displayStatus()
 
   module.sendChar(0, FONT_DEFAULT[status - 32], false);
 
-  moduleLEDs |= (outputs << 4);
+  moduleLEDs |= (outputs << 3);
 
   module.setLEDs(moduleLEDs);
 
-  digitalWrite(DOT_PIN_1, outputs & 1);
-  digitalWrite(DOT_PIN_2, outputs & 2);
-  digitalWrite(DOT_PIN_3, outputs & 4);
+  digitalWrite(DOT_PIN_1, ! (outputs & 1));
+  digitalWrite(DOT_PIN_2, ! (outputs & 2));
+  digitalWrite(DOT_PIN_3, ! (outputs & 4));
   #ifndef RESET_BUTTON_AT_PIN_0 
-  digitalWrite(DOT_PIN_4, outputs & 8);
+  digitalWrite(DOT_PIN_4, ! (outputs & 8));
   #endif 
  
   digitalWrite(CLOCK_1HZ, clock);
@@ -836,6 +865,8 @@ void enterProgram(int pgm, int start)
 {
 
   cursor = CURSOR_OFF;
+  blink = false;  
+
   int origin = start;
 
   char *pgm_string = (char *)pgm_read_word(&PGMROM[pgm]);
@@ -912,7 +943,8 @@ void reset()
 void clearMem()
 {
 
-  cursor = 0;
+  cursor = CURSOR_OFF;
+  blink = false;  
 
   for (pc = 0; pc < 255; pc++)
   {
@@ -935,7 +967,8 @@ void clearMem()
 void loadNOPs()
 {
 
-  cursor = 0;
+  cursor = CURSOR_OFF;
+  blink = false;  
 
   for (pc = 0; pc < 255; pc++)
   {
@@ -958,9 +991,9 @@ void loadNOPs()
 void loadCore()
 {
 
-  sendString(" PGM1   ");
-  sendString(" CORE   ");
-  sendString(" LOAD?  ");
+  sendString("PGM1  ");
+  sendString("CORE  ");
+  sendString("LOAD_ ");
 
   unsigned int keypadKey = 0; 
   unsigned int keypadKey16 = 0; 
@@ -970,10 +1003,11 @@ void loadCore()
   } while (keypadKey16 == NO_KEY); 
 
   keypadKey16--; 
-  sendString(" LOAD   ");
+  sendString("LOAD");
   module.sendChar(6, NUMBER_FONT[keypadKey16], false);
+  module.sendChar(7, FONT_DEFAULT['_' - 32], false);
 
-  delay(100); 
+  delay(20); 
 
   do {
     keypadKey = keypad.getKey();	
@@ -986,6 +1020,9 @@ void loadCore()
   unsigned int adr = ( keypadKey + keypadKey16 * 16 ) * ( 3 * 256 + 2);  
 
   delay(DISP_DELAY*2);  
+
+  cursor = CURSOR_OFF;
+  blink = false;  
 
   init_EEPROM(); 
 
@@ -1003,13 +1040,15 @@ void loadCore()
       showMem();
     }
 
-    sendString(" LOADED ");
+    sendString("LOADED");
   }
   else
   {
 
     error = true;
   }
+
+  delay(DISP_DELAY*2);  
 
   displayOff();
   delay(DISP_DELAY);
@@ -1021,9 +1060,9 @@ void loadCore()
 void saveCore()
 {
 
-  sendString(" PGM2   ");
-  sendString(" CORE   ");
-  sendString(" DUMP?  ");
+  sendString("PGM2  ");
+  sendString("CORE  ");
+  sendString("DUMP_ ");
 
   unsigned int keypadKey = 0; 
   unsigned int keypadKey16 = 0; 
@@ -1033,10 +1072,11 @@ void saveCore()
   } while (keypadKey16 == NO_KEY); 
 
   keypadKey16--; 
-  sendString(" DUMP   ");
+  sendString("DUMP");
   module.sendChar(6, NUMBER_FONT[keypadKey16], false);
+  module.sendChar(7, FONT_DEFAULT['_' - 32], false);
 
-  delay(100); 
+  delay(20); 
 
   do {
     keypadKey = keypad.getKey();	
@@ -1049,6 +1089,9 @@ void saveCore()
   unsigned int adr = ( keypadKey + keypadKey16 * 16 ) * ( 3 * 256 + 2);  
 
   delay(DISP_DELAY*2);  
+
+  cursor = CURSOR_OFF;
+  blink = false;  
 
   init_EEPROM(); 
 
@@ -1065,72 +1108,15 @@ void saveCore()
     showMem();
   };
 
-  sendString(" DUMPED ");
+  sendString("DUMPED");
+
+  delay(DISP_DELAY*2);  
+
   displayOff();
   delay(DISP_DELAY);
 
   end_EEPROM(); 
 }
-
-/* 
-void loadCore()
-{
-
-  sendString("  PGM1  ");
-  sendString("  CORE  ");
-  sendString("  LOAD  ");
-
-  int adr = 0;
-
-  if (EEPROM.read(adr++) == 1 &&
-      EEPROM.read(adr++) == 255)
-  {
-
-    for (int i = 0; i < 256; i++)
-    {
-      module.setLEDs(i % 16);
-      op[i] = EEPROM.read(adr++);
-      arg1[i] = EEPROM.read(adr++);
-      arg2[i] = EEPROM.read(adr++);
-    }
-
-    sendString(" LOADED ");
-  }
-  else
-  {
-
-    error = true;
-  }
-
-  displayOff();
-  delay(DISP_DELAY);
-}
-
-void saveCore()
-{
-
-  sendString("  PGM2  ");
-  sendString("  CORE  ");
-  sendString("  DUMP  ");
-
-  int adr = 0;
-
-  EEPROM.write(adr++, 1);
-  EEPROM.write(adr++, 255);
-
-  for (int i = 0; i < 256; i++)
-  {
-    module.setLEDs(i % 16);
-    EEPROM.write(adr++, op[i]);
-    EEPROM.write(adr++, arg1[i]);
-    EEPROM.write(adr++, arg2[i]);
-  };
-
-  sendString(" DUMPED ");
-  displayOff();
-  delay(DISP_DELAY);
-}
-*/
 
 void interpret()
 {
