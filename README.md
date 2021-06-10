@@ -334,21 +334,32 @@ I also love how the documentation (IPad PDF manual) is much more modern than the
 
 #### PCB Version
 
-I am currently working on a SMD PCB version. So far, I have a prototype breadboard working. This version is basically a re-engineered version of the "LED&KEY" TM1638 module, and a shrimped Arduino Uno, i.e., an ATmega 328p with a 16 Mhz crystal. The final version will be a SMD PCB, since the TM1683 is only available in SOP-28 SMD packaging. In addition to the Uno R3 version, this variant will also feature a 24LC256 32 KByte EEPROM for PGM 2 / PGM 1 file storage; it has enough external EEPROM memory to hold 42 full memory dumps. Moreover, 2 CD4050BE bus drivers were added for the 4bit GPIOs of the Microtronic, 1 for the 4bit inputs, 1 for the 4bit outputs. 
+This is basically a re-engineered version of the "LED&KEY" TM1638
+module, and a shrimped Arduino Uno, i.e., an ATmega 328p with a 16 Mhz
+crystal. It is a SMD PCB, since the TM1683 is only available in SOP-28
+SMD packaging. In addition to the Uno R3 version, this variant will
+also feature a 24LC256 32 KByte EEPROM for PGM 2 / PGM 1 file storage;
+it has enough external EEPROM memory to hold 42 full memory
+dumps. Moreover, 2 CD4050BE bus drivers were added for the 4bit GPIOs
+of the Microtronic, 1 for the 4bit inputs, 1 for the 4bit outputs.
 
-This is the breadboad prototype: 
+![SMD PCB 1](images/smd-version-pcb-1.png)
+
+![SMD PCB 2](images/smd-version-pcb-2.png)
+
+The sources are in the - [`busch2090-pcb/`](./busch2090-pcb/) directory, as well as [the Gerbers](./gerbers/retro-microtronic-bubble-display-smd.zip). 
+
+The first breadboad prototype used big 7segment individual (non-clustered) 7segment displays, which explains the abundance of colorful wires:  
 
 ![2090 Breadboard Prototype](images/2090-breadboard.jpg)
 
-I even found the *almost original 6digit 7segment red LED bubble display* - you can get these from Jameco Electronics for ~3 $ per piece: 
+The adorable *almost original 6digit 7segment red LED bubble displays* are from Jameco Electronics: 
 
 ![2090 Breadboard Prototype](images/2090-breadboard-bubble-1.jpg)
 
 ![2090 Breadboard Prototype](images/2090-breadboard-bubble-2.jpg)
 
-The TM1638 hast no problem driving these. Bubble LED displays were most notably used in the TI calculators of the late 70s /  early 80s, e.g., the TI-58/59, TI-30 etc. Soon after that, LCD displays became the standard in calculators. 
-
-I have just finished the design of the first SMD PCB version - soon I will know if it works. Fingers crossed: 
+Bubble LED displays were most notably used in the TI calculators of the late 70s /  early 80s, e.g., the TI-58/59, TI-30 etc. Soon after that, LCD displays became the standard in calculators. 
 
 ![2090 SMD Retro Bubble LED Display Prototype](images/smd-led-retro-microtronic.png)
 
@@ -635,7 +646,8 @@ Please check the sub-directories
 - [`microtronic-nextgen-nokia`](./microtronic-nextgen-nokia/) for the Nokia 5510 Display version, 
 - [`microtronic-nextgen-sh1106-spi`](./microtronic-nextgen-sh1106-spi/) for the SH1106 SPI OLED version, 
 - [`microtronic-2nd-generation`](./microtronic-2nd-generation/) for the Nokia 5110-based Microtronic 2nd Generation project, and 
-- [`busch2090`](./busch2090/) for the 2021 Arduino Uno R3 version. 
+- [`busch2090`](./busch2090/) for the 2021 Arduino Uno R3 version, and 
+- [`busch2090-pcb/`](./busch2090-pcb/) for the SMD PCB version with bubble display. 
 
 The *SH1106 SPI OLED is the latest version* and we have identified this
 display as the best option for the project. The Nokia 5510 is a good
