@@ -345,9 +345,14 @@ of the Microtronic, 1 for the 4bit inputs, 1 for the 4bit outputs.
 
 ![SMD PCB 1](images/smd-version-pcb-1.png)
 
-![SMD PCB 2](images/smd-version-pcb-2.png)
+![SMD PCB 2](images/smd-version-pcb-2.jpg)
 
-The sources are in the - [`busch2090-pcb/`](./busch2090-pcb/) directory, as well as [the Gerbers](./gerbers/retro-microtronic-bubble-display-smd.zip). 
+![schematics](images/retro-microtronic-schematics.png) 
+
+The sources are in the [`busch2090-pcb/`](./busch2090-pcb/) directory, together with [the Gerbers](./gerbers/retro-microtronic-bubble-display-smd.zip)
+and the [PDF schematics.](./iamges/retro-microtronic-schematics.pdf) 
+
+##### Breadboard of the PCB 
 
 The first breadboad prototype used big 7segment individual (non-clustered) 7segment displays, which explains the abundance of colorful wires:  
 
