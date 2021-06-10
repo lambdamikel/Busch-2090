@@ -337,10 +337,18 @@ I also love how the documentation (IPad PDF manual) is much more modern than the
 This is basically a re-engineered version of the "LED&KEY" TM1638
 module, and a shrimped Arduino Uno, i.e., an ATmega 328p with a 16 Mhz
 crystal. It is a SMD PCB, since the TM1683 is only available in SOP-28
-SMD packaging. In addition to the Uno R3 version, there is a 24LC256
-32 KByte EEPROM for PGM 2 / PGM 1 file storage. It has enough external
-EEPROM memory to hold 42 full memory dumps. The outputs and inputs
-are protected using drivers. 
+SMD packaging. In addition to the ATmega 328p and the TM1683, there is
+a 24LC256 32 KByte EEPROM for PGM 2 / PGM 1 file storage on board.
+This is enough external EEPROM memory for 42 full memory
+dumps. Moreover, the outputs and inputs are protected using drivers,
+accounting for 5 SMD chips in total. There a still some Through Hole
+components though, e.g., the 16 MHz crystal, the DIL switch, the LEDs
+displays and push buttons etc. Power is coming from a 7805 SMD voltage
+regulator and I stuck a Rasperry Pi heat sink with adhesive tape on
+top of it because it is getting quite warm. I will revise this design
+one more time and replace the SMD voltage regulator with a standard
+Through Hole 7805, to which I can more easily attach a more effective
+heat sink. 
 
 This is the first ever SMD PCB I designed, and I am still struggling a
 bit with "clean" SMD soldering, but I am getting better at it: 
