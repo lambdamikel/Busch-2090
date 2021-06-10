@@ -346,6 +346,8 @@ are protected using drivers.
 
 ![SMD PCB 2](images/smd-version-pcb-2.jpg)
 
+![2090 SMD Retro Bubble LED Display Prototype](images/smd-led-retro-microtronic.png)
+
 ![schematics](images/retro-microtronic-schematics.png) 
 
 The sources are in the [`busch2090-pcb/`](./busch2090-pcb/) directory, together with [the Gerbers](./gerbers/retro-microtronic-bubble-display-smd.zip)
@@ -365,7 +367,6 @@ Then I found the adorable little *almost original 6digit 7segment red LED bubble
 
 Bubble LED displays were most notably used in the TI calculators of the late 70s /  early 80s, e.g., the TI-58/59, TI-30 etc. Soon after that, LCD displays became the standard in calculators. 
 
-![2090 SMD Retro Bubble LED Display Prototype](images/smd-led-retro-microtronic.png)
 
 #### Hardware Requirements for the 2090 Uno R3 Version 
 
