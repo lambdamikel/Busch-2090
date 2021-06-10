@@ -337,11 +337,10 @@ I also love how the documentation (IPad PDF manual) is much more modern than the
 This is basically a re-engineered version of the "LED&KEY" TM1638
 module, and a shrimped Arduino Uno, i.e., an ATmega 328p with a 16 Mhz
 crystal. It is a SMD PCB, since the TM1683 is only available in SOP-28
-SMD packaging. In addition to the Uno R3 version, this variant will
-also feature a 24LC256 32 KByte EEPROM for PGM 2 / PGM 1 file storage;
-it has enough external EEPROM memory to hold 42 full memory
-dumps. Moreover, 2 CD4050BE bus drivers were added for the 4bit GPIOs
-of the Microtronic, 1 for the 4bit inputs, 1 for the 4bit outputs.
+SMD packaging. In addition to the Uno R3 version, there is a 24LC256
+32 KByte EEPROM for PGM 2 / PGM 1 file storage. It has enough external
+EEPROM memory to hold 42 full memory dumps. The outputs and inputs
+are protected using drivers. 
 
 ![SMD PCB 1](images/smd-version-pcb-1.png)
 
@@ -350,15 +349,15 @@ of the Microtronic, 1 for the 4bit inputs, 1 for the 4bit outputs.
 ![schematics](images/retro-microtronic-schematics.png) 
 
 The sources are in the [`busch2090-pcb/`](./busch2090-pcb/) directory, together with [the Gerbers](./gerbers/retro-microtronic-bubble-display-smd.zip)
-and the [PDF schematics.](./iamges/retro-microtronic-schematics.pdf) 
+and the [PDF schematics.](./images/retro-microtronic-schematics.pdf) 
 
 ##### Breadboard of the PCB 
 
-The first breadboad prototype used big 7segment individual (non-clustered) 7segment displays, which explains the abundance of colorful wires:  
+The first breadboad prototype had individual (non-clustered) 7segment displays, which explains the abundance of colorful wires:  
 
 ![2090 Breadboard Prototype](images/2090-breadboard.jpg)
 
-The adorable *almost original 6digit 7segment red LED bubble displays* are from Jameco Electronics: 
+Then I found the adorable little *almost original 6digit 7segment red LED bubble displays* from Jameco Electronics and realized that I a chance to create something that was almost identical in look & feel to the original: 
 
 ![2090 Breadboard Prototype](images/2090-breadboard-bubble-1.jpg)
 
