@@ -342,6 +342,9 @@ SMD packaging. In addition to the Uno R3 version, there is a 24LC256
 EEPROM memory to hold 42 full memory dumps. The outputs and inputs
 are protected using drivers. 
 
+This is the first ever SMD PCB I designed, and I am still struggling a
+bit with "clean" SMD soldering, but I am getting better at it: 
+
 ![SMD PCB 1](images/smd-version-pcb-1.png)
 
 ![SMD PCB 2](images/smd-version-pcb-2.jpg)
