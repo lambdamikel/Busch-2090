@@ -45,12 +45,17 @@ into a real Microtronic to provide SD-card based file storage. The
 Sauter's ingenious reverse engineering of the 2095 protocol. Martin
 also implemented a Python-based prototype of a 2095 emulator.
 
-Recently, the latest iteration of this project, "The Microtronic Next
-Generation", was featured on the Hackaday front page:
+The "Next Generation" version was featured on the Hackaday front page, 
 
 ![Hackaday 1](./hackaday/microtronic-hackaday-1.jpg) 
 ![Hackaday 2](./hackaday/microtronic-hackaday-2.jpg) 
 ![Hackaday 3](./hackaday/microtronic-hackaday-3.jpg) 
+
+The "Next Generation" version was also a winner of [Hackaday's 2021 "Reinvented Retro Contest"](https://hackaday.com/2021/07/17/reinvented-retro-contest-winners-announced/): 
+
+![Hackaday 4](./hackaday/winner1.png) 
+![Hackaday 5](./hackaday/winner2.png) 
+
 
 ## History 
 
