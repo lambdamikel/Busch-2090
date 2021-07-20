@@ -1,0 +1,61 @@
+BOM for Microtronic Retro Bubble LED Display Edition
+====================================================
+
+AFF1    HDSP-A113 7Segment 
+        https://www.jameco.com/z/HDSP-A113-Avago-Technologies-7-Segment-LED-Display-0-3-H-Single-Digit-Red-DIP-10_1584394.html
+
+BT1     9V Battery Cell Holder
+        https://www.amazon.com/abcGOODefg-Battery-Holder-Plastic-Storage/dp/B0784FMY9J/ref=sr_1_13?dchild=1&keywords=9V+battery+clip&qid=1626752257&sr=8-13
+
+BZ1     Active Buzzer 
+        https://www.amazon.com/gp/product/B01N7NHSY6/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1
+
+C1      22 pF SMD C_0805 or C_1206 
+C2      "
+
+C3      100 nF SMD C_0805 or C_1206 
+C4      "
+C5      "
+C6      "
+C7      "  
+
+CON1    Pin Header AVR ISP-10 Connector
+
+CP1     0.22 uF SMD C_0805 or C_1206 
+CP2     0.1  uF SMD C_0805 or C_1206 
+
+D1      SMA SMD Diode 1N4001 (M1) or similar 
+
+DSW1    DIP Switch x4 
+
+J0      Barrel Jack for PSU 
+
+J1      Bubble LED Display 1x18 Pin Header 
+J2      TC4467 SOIC-16W
+J3      CD4050BE SOICE-16W
+
+J5      Pin Header 
+J6      Pin Header
+J7      Pin Header 
+
+J8      DIP Socket for 8Bar Segment LED Display 
+
+R1      4.7k SMD C_0805 or C_1206 
+R2      "
+R3      "
+R4      "
+
+R5      10k SMD C_0805 or C_1206
+R6      "
+R7      "
+
+U1      ATmega 328P-AU TQFP-32
+U2      TM1638 SOIC-28
+U3      24LC256 SOIC-8
+U4      L7805 5V Regulator TO-220
+
+Y1      16Mhz Crystal 
+
+
+
+
