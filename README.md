@@ -357,7 +357,7 @@ heat sink.
 
 ![SMD PCB A](images/smd-pcb-c-l.jpg)
 ![SMD PCB C](images/smd-pcb-a-l.jpg)
-![SMD PCB C](images/green-pcb-l.jpg)
+![SMD PCB C](images/green-pcb-1.jpg)
 ![SMD PCB D](images/green-pcb-2.jpg)
 
 ![2090 SMD Retro Bubble LED Display Prototype](images/smd-led-retro-microtronic.png)
