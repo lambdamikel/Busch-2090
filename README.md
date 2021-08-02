@@ -355,15 +355,10 @@ one more time and replace the SMD voltage regulator with a standard
 Through Hole 7805, to which I can more easily attach a more effective
 heat sink. 
 
-This is the first ever SMD PCB I designed, and I am still struggling a
-bit with "clean" SMD soldering, but I am getting better at it: 
-
 ![SMD PCB A](images/smd-pcb-c-l.jpg)
-![SMD PCB B](images/smd-pcb-b-l.jpg)
 ![SMD PCB C](images/smd-pcb-a-l.jpg)
-
-![SMD PCB 1](images/smd-version-pcb-1.png)
-![SMD PCB 2](images/smd-version-pcb-2.jpg)
+![SMD PCB C](images/green-pcb-l.jpg)
+![SMD PCB D](images/green-pcb-2.jpg)
 
 ![2090 SMD Retro Bubble LED Display Prototype](images/smd-led-retro-microtronic.png)
 
