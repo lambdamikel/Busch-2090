@@ -437,6 +437,10 @@ byte readEEPROM(unsigned int eeaddress )
 void setup()
 {
 
+  // change brightness and power consumption to acceptable levels - thanks to Frank de Jaeger!
+
+  module.setupDisplay(true, 0); 
+
   // Careful! Serial logging makes DIN input PIN 1 unusable! 
   // Serial.begin(9600);
 
