@@ -166,6 +166,7 @@ unsigned long lastFuncKeyTime = 0;
 #define MIDI_OUT A5 
 
 uint8_t midi_byte = 0;
+uint8_t current_drum = 0; 
 
 SoftwareSerial mySerial(DIN_PIN_1, MIDI_OUT); // RX, TX
 
@@ -1514,6 +1515,39 @@ void interpret()
   }
 }
 
+void play_current_drum(void) {
+  
+  switch (current_drum) {
+  case 0x0 : midi_byte = 36; break; 
+  case 0x1 : midi_byte = 37; break; 
+  case 0x2 : midi_byte = 38; break; 
+  case 0x3 : midi_byte = 39; break; 
+  case 0x4 : midi_byte = 40; break; 
+  case 0x5 : midi_byte = 42; break; 
+  case 0x6 : midi_byte = 44; break; 
+  case 0x7 : midi_byte = 46; break; 
+  case 0x8 : midi_byte = 49; break; 
+  case 0x9 : midi_byte = 51; break; 
+  case 0xa : midi_byte = 57; break; 
+  case 0xb : midi_byte = 56; break; 
+  case 0xc : midi_byte = 47; break; 
+  case 0xd : midi_byte = 43; break; 
+  case 0xe : midi_byte = 45; break; 
+  case 0xf : midi_byte = 41; break; 
+         
+  }
+  play_current_midi_byte(); 
+     
+}
+
+void play_current_midi_byte(void) {
+
+  mySerial.write(0x99);         
+  mySerial.write(midi_byte);        
+  mySerial.write(0x7f);
+
+}
+  
 void run()
 {
   isDISP = false;
@@ -1558,36 +1592,28 @@ void run()
     reg[d] = reg[s];
     zero = reg[d] == 0;
 
-    if (d == s) {
+    if (d == s) 
       switch (d) {
           case 0 : a5Mode = CLOCK; set_a5_mode(); break; 
           case 1 : a5Mode = THROTTLE; set_a5_mode(); break; 
           case 2 : a5Mode = MIDI; set_a5_mode(); break;
-	  default: {
-	     if (a5Mode == MIDI) {
-	       // drum sound mode -
-	       switch (d) {
-	          case 0x3 : midi_byte = reg[0] + reg[1] * 10 ; break; 
-	          case 0x4 : midi_byte = 36; break; 
-	          case 0x5 : midi_byte = 38; break; 
-	          case 0x6 : midi_byte = 40; break; 
-	          case 0x7 : midi_byte = 51; break; 
-	          case 0x8 : midi_byte = 44; break; 
-	          case 0x9 : midi_byte = 46; break; 
-	          case 0xA : midi_byte = 49; break; 
-	          case 0xB : midi_byte = 45; break; 
-	          case 0xC : midi_byte = 48; break; 
-	          case 0xD : midi_byte = 50; break; 
-	          case 0xE : midi_byte = 56; break; 
-	          case 0xF : midi_byte = 39; break; 
-  	       }
-	       mySerial.write(0x99);	       
-	       mySerial.write(midi_byte);	       
-	       mySerial.write(0x7f);
-	     }
-	  }
+          case 3 : midi_byte = reg[0] + reg[1] * 10 ; play_current_midi_byte(); break; 
+
+          case 4 : current_drum = reg[4]; play_current_drum(); 
+          case 5 : current_drum = reg[5]; play_current_drum(); 
+          case 6 : current_drum = reg[6]; play_current_drum(); 
+          case 7 : current_drum = reg[7]; play_current_drum(); 
+          
+          case 8 : current_drum = reg[8]; play_current_drum(); 
+          case 9 : current_drum = reg[9]; play_current_drum(); 
+          case 0xa : current_drum = reg[0xa]; play_current_drum(); 
+          case 0xb : current_drum = reg[0xb]; play_current_drum(); 
+
+          case 0xc : midi_byte = reg[reg[0xc]] + reg[reg[0xc]+1 % 16] * 10 ; play_current_midi_byte(); break; 
+          case 0xd : midi_byte = reg[reg[0xd]] + reg[reg[0xd]+1 % 16] * 10 ; play_current_midi_byte(); break;  
+          case 0xe : midi_byte = reg[reg[0xE]] + reg[reg[0xE]+1 % 16] * 10 ; play_current_midi_byte(); break; 
+          case 0xf : midi_byte = reg[reg[0xF]] + reg[reg[0xF]+1 % 16] * 10 ; play_current_midi_byte(); break;  
       }
-    }
 
     break;
 
@@ -1611,7 +1637,12 @@ void run()
     reg[d] &= n;
     carry = false;
     zero = reg[d] == 0;
-
+    
+    if (n == 0xF) { // redundant op-code 
+      current_drum = d;
+      play_current_drum(); 
+    }
+    
     break;
 
   case OP_ADD:
