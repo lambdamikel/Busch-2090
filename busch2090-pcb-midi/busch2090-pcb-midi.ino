@@ -1555,8 +1555,8 @@ void play_current_drum(void) {
   case 0xa : midi_byte = 57; break; 
   case 0xb : midi_byte = 56; break; 
   case 0xc : midi_byte = 47; break; 
-  case 0xd : midi_byte = 43; break; 
-  case 0xe : midi_byte = 45; break; 
+  case 0xd : midi_byte = 45; break; 
+  case 0xe : midi_byte = 43; break; 
   case 0xf : midi_byte = 41; break; 
          
   }
