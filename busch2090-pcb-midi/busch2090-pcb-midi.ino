@@ -1597,17 +1597,18 @@ void run()
           case 0 : a5Mode = CLOCK; set_a5_mode(); break; 
           case 1 : a5Mode = THROTTLE; set_a5_mode(); break; 
           case 2 : a5Mode = MIDI; set_a5_mode(); break;
-          case 3 : midi_byte = reg[0] + reg[1] * 10 ; play_current_midi_byte(); break; 
-
-          case 4 : current_drum = reg[4]; play_current_drum(); 
-          case 5 : current_drum = reg[5]; play_current_drum(); 
-          case 6 : current_drum = reg[6]; play_current_drum(); 
-          case 7 : current_drum = reg[7]; play_current_drum(); 
           
-          case 8 : current_drum = reg[8]; play_current_drum(); 
-          case 9 : current_drum = reg[9]; play_current_drum(); 
-          case 0xa : current_drum = reg[0xa]; play_current_drum(); 
-          case 0xb : current_drum = reg[0xb]; play_current_drum(); 
+          case 0x3 : midi_byte = reg[0] + reg[1] * 10 ; play_current_midi_byte(); break; 
+
+          case 0x4 : current_drum = reg[4]; play_current_drum(); break; 
+          case 0x5 : current_drum = reg[5]; play_current_drum(); break;
+          case 0x6 : current_drum = reg[6]; play_current_drum(); break; 
+          case 0x7 : current_drum = reg[7]; play_current_drum(); break; 
+          
+          case 0x8 : current_drum = reg[8]; play_current_drum(); break; 
+          case 0x9 : current_drum = reg[9]; play_current_drum(); break; 
+          case 0xa : current_drum = reg[0xa]; play_current_drum(); break; 
+          case 0xb : current_drum = reg[0xb]; play_current_drum(); break; 
 
           case 0xc : midi_byte = reg[reg[0xc]] + reg[reg[0xc]+1 % 16] * 10 ; play_current_midi_byte(); break; 
           case 0xd : midi_byte = reg[reg[0xd]] + reg[reg[0xd]+1 % 16] * 10 ; play_current_midi_byte(); break;  
