@@ -792,8 +792,14 @@ void displayOff()
 void showDisplay()
 {
 
-  for (int i = 0; i < showingDisplayDigits; i++)
-    module.sendChar(7 - i, NUMBER_FONT[reg[(i + showingDisplayFromReg) % 16]], false);
+  for (int i = 0; i < showingDisplayDigits; i++) {
+    uint8_t curReg = (i + showingDisplayFromReg) % 16; 
+
+    if (currentMode == ENTERING_VALUE && currentInputRegister == curReg) 
+      module.sendChar(7 - i, blink ? NUMBER_FONT[reg[curReg]] : 0, true);
+    else
+      module.sendChar(7 - i, NUMBER_FONT[reg[curReg]], false);
+  }
 }
 
 void displayStatus()
