@@ -1,8 +1,8 @@
   /*
 
-  A Busch 2090 Microtronic Emulator for Arduino Uno R3
+  A Busch 2090 Microtronic Emulator for Arduino Uno R3 - PCB VERSION + MIDI 
 
-  Version 2.0 (c) Michael Wessel, October 6 2021 
+  Version 2.0 (c) Michael Wessel, October 8 2021 
   https://github.com/lambdamikel/Busch-2090
   
   With contributions from Lilly (Germany): 
@@ -43,9 +43,7 @@
 #include <TM16XXFonts.h>
 #include <EEPROM.h>
 #include <Wire.h>
-
 #include <SoftwareSerial.h>
-
 
 #define EXT_EEPROM 0x50    //Address of 24LC256 eeprom chip
 
@@ -1515,6 +1513,32 @@ void interpret()
   }
 }
 
+//
+// MIDI Stuff
+//
+
+void midi_note_off(uint8_t channel, uint8_t byte, uint8_t vol) {
+
+  mySerial.write(0x80 + channel);         
+  mySerial.write(midi_byte);        
+  mySerial.write(vol);
+
+}
+
+void midi_note_on(uint8_t channel, uint8_t byte, uint8_t vol) {
+
+  mySerial.write(0x90 + channel);         
+  mySerial.write(midi_byte);        
+  mySerial.write(vol);
+
+}
+
+void play_current_midi_byte_drum(void) {
+
+  midi_note_on(9, midi_byte, 127); 
+
+}
+
 void play_current_drum(void) {
   
   switch (current_drum) {
@@ -1536,18 +1560,15 @@ void play_current_drum(void) {
   case 0xf : midi_byte = 41; break; 
          
   }
-  play_current_midi_byte(); 
-     
-}
-
-void play_current_midi_byte(void) {
-
-  mySerial.write(0x99);         
-  mySerial.write(midi_byte);        
-  mySerial.write(0x7f);
-
-}
   
+  play_current_midi_byte_drum(); 
+
+}
+
+//
+// CPU Emulation 
+//
+
 void run()
 {
   isDISP = false;
@@ -1598,23 +1619,22 @@ void run()
           case 1 : a5Mode = THROTTLE; set_a5_mode(); break; 
           case 2 : a5Mode = MIDI; set_a5_mode(); break;
           
-          case 0x3 : midi_byte = reg[0] + reg[1] * 10 ; play_current_midi_byte(); break; 
+          case 0x3 : midi_byte = reg[0] + reg[1] * 10 ; play_current_midi_byte_drum(); break; 
 
-          case 0x4 : current_drum = reg[4]; play_current_drum(); break; 
-          case 0x5 : current_drum = reg[5]; play_current_drum(); break;
-          case 0x6 : current_drum = reg[6]; play_current_drum(); break; 
-          case 0x7 : current_drum = reg[7]; play_current_drum(); break; 
-          
-          case 0x8 : current_drum = reg[8]; play_current_drum(); break; 
-          case 0x9 : current_drum = reg[9]; play_current_drum(); break; 
-          case 0xa : current_drum = reg[0xa]; play_current_drum(); break; 
-          case 0xb : current_drum = reg[0xb]; play_current_drum(); break; 
+          case 0x4 : 
+          case 0x5 : 
+          case 0x6 : 
+          case 0x7 :           
+          case 0x8 : 
+          case 0x9 : 
+          case 0xa : 
+          case 0xb : current_drum = reg[d]; play_current_drum(); break; 
 
-          case 0xc : midi_byte = reg[reg[0xc]] + reg[reg[0xc]+1 % 16] * 10 ; play_current_midi_byte(); break; 
-          case 0xd : midi_byte = reg[reg[0xd]] + reg[reg[0xd]+1 % 16] * 10 ; play_current_midi_byte(); break;  
-          case 0xe : midi_byte = reg[reg[0xE]] + reg[reg[0xE]+1 % 16] * 10 ; play_current_midi_byte(); break; 
-          case 0xf : midi_byte = reg[reg[0xF]] + reg[reg[0xF]+1 % 16] * 10 ; play_current_midi_byte(); break;  
-      }
+          case 0xc : 
+          case 0xd : 
+          case 0xe : 
+          case 0xf : midi_byte = reg[reg[d]] + reg[reg[d]+1 % 16] * 10; play_current_midi_byte_drum(); break;  
+      } 
 
     break;
 
@@ -1664,7 +1684,8 @@ void run()
 
     if (! n ) {
       // process MIDI NOTE ON
-      // read 3 registers for channel, pitch, volume 
+      // read 3 registers for channel, pitch, volume
+      midi_note_on(reg[d], reg[d+1], reg[d+2]); 
     }
 
     break;
@@ -1687,7 +1708,8 @@ void run()
 
     if (! n ) {
       // process MIDI NOTE OFF
-      // read 3 registers for channel, pitch, volume 
+      // read 3 registers for channel, pitch, volume
+      midi_note_off(reg[d], reg[d+1], reg[d+2]); 
     }
 
     break;
