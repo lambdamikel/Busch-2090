@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Uno R3 - PCB VERSION + MIDI 
 
-  Version 2.0 (c) Michael Wessel, October 8 2021 
+  Version 2.1 (c) Michael Wessel, October 14 2021 
   https://github.com/lambdamikel/Busch-2090
   
   With contributions from Lilly (Germany): 
@@ -127,6 +127,8 @@ byte rowPins[ROWS] = {9, 10, 11, 12}; // rows
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
 unsigned long lastFuncKeyTime = 0;
+
+unsigned long lastRunTime = 0; 
 
 #define FUNCTION_KEY_DEBOUNCE_TIME 50
 
@@ -264,6 +266,30 @@ byte op[256];
 byte arg1[256];
 byte arg2[256];
 
+//
+// Array Memory
+// 
+
+#define ARR_SIZE 32 
+byte arr1[ARR_SIZE];
+byte arr2[ARR_SIZE];
+byte arr3[ARR_SIZE];
+
+void clearArrMem(void)
+{
+
+  for (uint8_t pc = 0; pc < ARR_SIZE; pc++)
+  {
+    arr1[pc] = 0;
+    arr2[pc] = 0;
+    arr3[pc] = 0;
+  }
+}
+
+//
+//
+//
+
 boolean jump = false;
 byte pc = 0;
 byte breakAt = 0; // != 0 -> breakpoint set
@@ -297,6 +323,8 @@ boolean keypadPressed = false;
 byte input = 0;
 byte keypadKey = NO_KEY;
 byte keypadKeyRaw = NO_KEY;
+byte keypadKeyRawMem = NO_KEY;
+
 byte functionKey = NO_KEY;
 byte functionKeyRaw = NO_KEY;
 byte previousFunctionKey = NO_KEY;
@@ -342,6 +370,8 @@ enum mode
   SHOWING_TIME
 
 };
+
+boolean non_blocking_kin = false; 
 
 a5mode a5Mode = CLOCK; 
 mode currentMode = STOPPED;
@@ -462,6 +492,8 @@ byte readEEPROM(unsigned int eeaddress )
 
 void setup()
 {
+
+  clearArrMem(); 
 
   // change brightness and power consumption to acceptable levels - thanks to Frank de Jaeger!
 
@@ -789,13 +821,20 @@ void displayOff()
     module.sendChar(i+2, 0, false);
 }
 
+void displayOff0()
+{
+
+  for (int i = 0; i < 6; i++)
+    module.sendChar(i+2, 0, false);
+}
+
 void showDisplay()
 {
 
   for (int i = 0; i < showingDisplayDigits; i++) {
     uint8_t curReg = (i + showingDisplayFromReg) % 16; 
 
-    if (currentMode == ENTERING_VALUE && currentInputRegister == curReg) 
+    if (! non_blocking_kin && currentMode == ENTERING_VALUE && currentInputRegister == curReg) 
       module.sendChar(7 - i, blink ? NUMBER_FONT[reg[curReg]] : 0, true);
     else
       module.sendChar(7 - i, NUMBER_FONT[reg[curReg]], false);
@@ -979,6 +1018,10 @@ void reset()
 
   showingDisplayFromReg = 0;
   showingDisplayDigits = 0;
+
+  a5Mode = CLOCK;
+  non_blocking_kin = false; 
+  
 }
 
 void clearMem()
@@ -1004,6 +1047,7 @@ void clearMem()
   pc = 0;
   outputs = 0;
 }
+
 
 void loadNOPs()
 {
@@ -1175,9 +1219,10 @@ void interpret()
 
   case RUN:
 
-    if (currentMode != RUNNING) {
+    if (currentMode != RUNNING && currentMode != ENTERING_VALUE) {
       currentMode = RUNNING;
-      displayOff();
+      lastRunTime = millis(); 
+      displayOff0();
       singleStep = false;
       ignoreBreakpointOnce = true;
       clearStack();
@@ -1290,8 +1335,11 @@ void interpret()
 
   case ENTERING_VALUE:
 
-    if (keypadPressed)
-    {
+    if (non_blocking_kin) {
+      currentMode = RUNNING;
+      run();
+    
+    } else if (keypadPressed) {
       input = keypadKey;
       reg[currentInputRegister] = input;
       carry = false;
@@ -1579,9 +1627,14 @@ void run()
 {
   isDISP = false;
 
-  if (!singleStep)
-    delay(cpu_delay);
-
+  if (!singleStep) {
+    unsigned long time = millis();
+    if ( (time - lastRunTime) <= cpu_delay) {
+      return; 
+    } else
+      lastRunTime = time; 
+  }
+   
   if (!jump)
     pc++;
 
@@ -1636,10 +1689,10 @@ void run()
           case 0xa : 
           case 0xb : current_drum = reg[d]; play_current_drum(); break; 
 
-          case 0xc : 
-          case 0xd : 
-          case 0xe : 
-          case 0xf : midi_byte = reg[reg[d]] + reg[reg[d]+1 % 16] * 10; play_current_midi_byte_drum(); break;  
+          case 0xc : midi_byte = reg[reg[d]] + reg[reg[d]+1 % 16] * 10; play_current_midi_byte_drum(); break;   
+          case 0xd : current_drum = reg[reg[d]]; play_current_drum(); break; 
+          case 0xe : midi_byte = reg[reg[d]] + reg[reg[d]+1 % 16] * 10; play_current_midi_byte_drum(); break;   
+          case 0xf : current_drum = reg[reg[d]]; play_current_drum(); break; 
       } 
 
     break;
@@ -1666,13 +1719,17 @@ void run()
     zero = reg[d] == 0;
     
     if (n == 0xF) { // redundant op-code 
-      current_drum = d;
-      play_current_drum(); 
+         switch (d) {
+          case 0x0 : non_blocking_kin = false; break; 
+          case 0x1 : non_blocking_kin = true; break; break; 
+          default : break;
+	  // and more op codes, for load-and-store, ... 
+      } 
     }
     
     break;
 
-  case OP_ADD:
+  case OP_ADD:  
 
     reg[d] += reg[s];
     carry = reg[d] > 15;
@@ -1881,6 +1938,15 @@ void run()
 
       currentMode = ENTERING_VALUE;
       currentInputRegister = d;
+
+      if (non_blocking_kin) {
+	if (keypadKeyRawMem) {
+	  reg[currentInputRegister] = keypadKeyRawMem - 1;
+	  carry = false;
+	  zero = reg[currentInputRegister] == 0;
+	  keypadKeyRawMem = 0;
+	}
+      } 
 
       break;
 
@@ -2159,7 +2225,10 @@ void run()
 
 void loop()
 {
-
+  //
+  // function keys
+  //
+  
   functionKeyRaw = module.getButtons();
   functionKey = functionKeyRaw; 
 
@@ -2176,8 +2245,17 @@ void loop()
   else
     functionKey = NO_KEY;
 
+  //
+  // hexpad keys
+  //
+
   keypadKeyRaw = keypad.getKey();
   keypadKey = keypadKeyRaw; 
+
+  // memorize for non-blocking KIN
+  // reset when read from KIN
+  if (keypadKey) 
+    keypadKeyRawMem = keypadKey;
 
   if (keypadKey == previousKeypadKey)
   { // button held down pressed
@@ -2232,7 +2310,9 @@ void loop()
     cpu_delay = cpu_delays[keypadKeyRaw-1]; 
     keypadPressed = false;
     functionKey = NO_KEY;
-    keypadKey = NO_KEY;    
+    keypadKey = NO_KEY;
+    lastRunTime = millis(); 
+
   }
 
 }
