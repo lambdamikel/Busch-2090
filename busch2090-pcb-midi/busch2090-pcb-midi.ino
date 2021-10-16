@@ -1629,7 +1629,7 @@ void run()
 
   if (!singleStep) {
     unsigned long time = millis();
-    if ( (time - lastRunTime) <= cpu_delay) {
+    if ( (time - lastRunTime) < cpu_delay) {
       return; 
     } else
       lastRunTime = time; 
