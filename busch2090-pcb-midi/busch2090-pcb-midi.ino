@@ -270,7 +270,7 @@ byte arg2[256];
 // Array Memory
 // 
 
-#define ARR_SIZE 32 
+#define ARR_SIZE 16
 byte arr1[ARR_SIZE];
 byte arr2[ARR_SIZE];
 byte arr3[ARR_SIZE];
@@ -547,9 +547,9 @@ void setup()
   //
   //
   
-  //scrollString(F("microtronic computer system"));
-  //scrollString(F("MIDI Retro Bubble LED Version")); 
-  //scrollString(F("(C) 2021 by LambdaMikel")); 
+  scrollString(F("retro-authentic microtronic emulator"));
+  scrollString(F("MIDI Version")); 
+  scrollString(F("[C] 2021 by LambdaMikel")); 
 
 /*
   sendString(F("MIDI "));
