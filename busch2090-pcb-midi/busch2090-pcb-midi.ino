@@ -2,7 +2,7 @@
 
   A Busch 2090 Microtronic Emulator for Arduino Uno R3 - PCB VERSION + MIDI 
 
-  Version 2.1 (c) Michael Wessel, October 14 2021 
+  Version 2.2 (c) Michael Wessel, October 15 2021 
   https://github.com/lambdamikel/Busch-2090
   
   With contributions from Lilly (Germany): 
@@ -546,10 +546,10 @@ void setup()
   //
   //
   //
-
-  scrollString(F("microtronic computer system"));
-  scrollString(F("MIDI Retro Bubble LED Version")); 
-  scrollString(F("(C) 2021 by LambdaMikel")); 
+  
+  //scrollString(F("microtronic computer system"));
+  //scrollString(F("MIDI Retro Bubble LED Version")); 
+  //scrollString(F("(C) 2021 by LambdaMikel")); 
 
 /*
   sendString(F("MIDI "));
@@ -564,7 +564,7 @@ void setup()
   delay(400);
   sendString(F("Mikel ")); 
 */ 
-  delay(400);
+  // delay(400);
   
 
   sendString(F(" ready"));
@@ -1720,8 +1720,44 @@ void run()
     
     if (n == 0xF) { // redundant op-code 
          switch (d) {
+	   
           case 0x0 : non_blocking_kin = false; break; 
-          case 0x1 : non_blocking_kin = true; break; break; 
+          case 0x1 : non_blocking_kin = true; break; 
+
+	  // increment arr address counter (convenience) 
+ 	  case 0x2 : adr = (( reg[0] + reg[1]*16 ) + 1) % ARR_SIZE;
+          	     reg[0] = adr & 0x0f; 
+		     reg[1] = (adr & 0xf0) >> 4; 
+		     break;
+
+          // load from array memory; adr in r0, r1 -> 2,3,4
+          case 0x3 : adr = reg[0] + reg[1]*16;
+	             reg[2] = arr1[adr];
+		     reg[3] = arr2[adr];
+		     reg[4] = arr3[adr];
+		     break;
+
+	  // store into array memory; adr in r0, r1 <- 2,3,4
+          case 0x4 : adr = reg[0] + reg[1]*16;
+	             arr1[adr] = reg[2];
+		     arr2[adr] = reg[3];
+		     arr3[adr] = reg[4];
+		     break;
+
+          // load from array memory; adr in r0, r1 -> 5,6,7
+          case 0x5 : adr = reg[0] + reg[1]*16;
+	             reg[5] = arr1[adr];
+		     reg[6] = arr2[adr];
+		     reg[7] = arr3[adr];
+		     break;
+
+	  // store into array memory; adr in r0, r1 <- 5,6,7
+          case 0x6 : adr = reg[0] + reg[1]*16;
+	             arr1[adr] = reg[5];
+		     arr2[adr] = reg[6];
+		     arr3[adr] = reg[7];
+		     break;
+		     
           default : break;
 	  // and more op codes, for load-and-store, ... 
       } 
