@@ -1020,7 +1020,10 @@ void reset()
   showingDisplayDigits = 0;
 
   a5Mode = CLOCK;
-  non_blocking_kin = false; 
+  non_blocking_kin = false;
+
+  clearArrMem(); 
+
   
 }
 
@@ -1596,17 +1599,23 @@ void play_current_midi_byte_drum(void) {
 void play_current_drum(void) {
   
   switch (current_drum) {
-  case 0x0 : midi_byte = 36; break; 
-  case 0x1 : midi_byte = 37; break; 
-  case 0x2 : midi_byte = 38; break; 
-  case 0x3 : midi_byte = 39; break; 
+  //case 0x0 : midi_byte = 36; break;
+  // mute drum / pause 
+  case 0x0 : midi_byte = 0; break;
+  
+  case 0x1 : midi_byte = 36; break; 
+  case 0x2 : midi_byte = 37; break; 
+  case 0x3 : midi_byte = 38; break; 
   case 0x4 : midi_byte = 40; break; 
   case 0x5 : midi_byte = 42; break; 
   case 0x6 : midi_byte = 44; break; 
   case 0x7 : midi_byte = 46; break; 
   case 0x8 : midi_byte = 49; break; 
-  case 0x9 : midi_byte = 51; break; 
-  case 0xa : midi_byte = 57; break; 
+  case 0x9 : midi_byte = 51; break;
+
+//case 0xa : midi_byte = 57; break;
+  case 0xa : midi_byte = 39; break;
+  
   case 0xb : midi_byte = 56; break; 
   case 0xc : midi_byte = 47; break; 
   case 0xd : midi_byte = 45; break; 

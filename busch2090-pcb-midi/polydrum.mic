@@ -1,0 +1,64 @@
+# 3 voice polyphonic drum computer 
+
+00 022
+01 3f1
+02 f44
+
+# r0, r1 are array memory index registers (currently, only r0 matters - 16 steps)  
+# reset index to 00 
+03 101 
+04 100
+# use r4 to display current index on display (copy from r0) 
+05 104
+
+# load current arrary memory content at r0, r1 index into r5, r6, r7
+06 3f5 
+# DIN input into rE - put HI on DIN 1, 2, 3 for channel select! 
+07 fde  
+
+# channel 1? 
+08 91e 
+09 e0f
+# channel 2? 
+0a 92e 
+0b e14 
+# channel 3? 
+0c 94e 
+0d e17     
+0e c18
+
+# input channel 1 -> non-blocking KIN into r5
+# use NOPs so that all branches take equal number of clock cycles 
+0f ff5
+10 f01
+11 f01
+12 f01
+13 c18
+
+# input channel 2 -> r6
+14 ff6
+15 f01
+16 c18
+
+# input channel 3 -> r7
+17 ff7
+
+# ouput r5, r6, r7 MIDI drum numbers to MIDI output 
+18 055
+19 066
+1a 077   
+
+# store current r5, r6, r7 values back into array memory 
+1b 3f6 
+# increment array memory index / address (r0, r1) 
+1c 3f2 
+# output r0 index to DOT 
+1d fe0 
+# copy r0 index to R4 so that we can see it on the display 
+1e 004 
+# loop 
+1f c06
+
+
+
+
