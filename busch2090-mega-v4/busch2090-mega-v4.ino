@@ -2154,6 +2154,7 @@ void loadPGMProgram(byte pgm, byte start) {
   lcd.print(pgm + 7);
   int curX = 0;
   int curY = 1;
+  int origin = start; 
 
   while (pgm_read_byte(pgm_string))
   {
@@ -2207,7 +2208,7 @@ void loadPGMProgram(byte pgm, byte start) {
 
   }
 
-  pc = start;
+  pc = origin;
   currentMode = STOPPED;
 
   lcd.clear();
