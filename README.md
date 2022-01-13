@@ -71,7 +71,7 @@ There are 4  supported versions:
 - The Microtronic Next Generation Project Version 1 with Nokia 5110 display, and Version 2 with OLED SH1106 SPI display 
 - The Microtronic 2nd Generation Project 
 - The 2021 Arduino Uno R3 Version
-- The 2016 Arduino Mega Emulator, Version 4 updated in January 2022 
+- The 2016 Arduino Mega Emulator Version 3 (updated in January 2022) 
 
 
 ### The "Microtronic Next Generation" Project 
@@ -697,12 +697,12 @@ Only the
 and the [`busch2090`](./busch2090/) 2021 Arduino Uno R3 version will
 be continued.  The PCB Gerbers will follow shortly.
 
-#### The Microtronic Mega Emulator Version 3 - Updated Firmware 
+### The Microtronic Mega Emulator Version 3 - Updated Firmware 
 
 An updated firmware (January 2022) for the [Microtronic Mega Emulator Version 3 from 2016](./README.old.md)     
 is [available here.](busch2090-mega-v4/). 
 
-Like the 2016 version, it supports speech output via the Emic-2 speech
+Like the 2016 version, it supports speech output over the Emic-2 speech
 synthesizer. Please refer to the [2016 documentation for further
 details.](./README.old.md) 
 
