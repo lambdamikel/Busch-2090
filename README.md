@@ -700,7 +700,7 @@ be continued.  The PCB Gerbers will follow shortly.
 ### The Microtronic Mega Emulator Version 3 - Updated Firmware 
 
 An updated firmware (January 2022) for the [Microtronic Mega Emulator Version 3 from 2016](./README.old.md)     
-is [available here.](busch2090-mega-v4/). 
+is [available here.](busch2090-mega-v4/)
 
 Like the 2016 version, it supports speech output over the Emic-2 speech
 synthesizer. Please refer to the [2016 documentation for further
