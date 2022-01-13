@@ -706,7 +706,19 @@ Like the 2016 version, it supports speech output over the Emic-2 speech
 synthesizer. Please refer to the [2016 documentation for further
 details.](./README.old.md) 
 
-This version if for builders that do not want to go with a PCB or do
+Note the following changes to the 2016 version: 
+- PGM programs are no longer stored in EEPROM, but in PROGMEM (hence, ignore all instructions in the 2016 documentation referring to a prior programming of the EEPROM, this is not necessary anylonger). 
+- The 1 Hz clock signal is now properly implemented by means of a timer ISR. 
+- Speech output can be en/dis-abled. Default is off. 
+- Some bugfixes to the CPU emulation (e.g., SHR). 
+- HAL9000 quotes and Magic 8 Ball speech functions disabled. 
+- CPU throttling is now non-blocking, e.g., `delay` is not used in order to not slow down reactivity of the emulator. 
+- Increased speed. 
+- Code refactorings.  
+
+This compiled with the Arduino IDE Version 1.8.15 in January 2022. 
+
+This version is for builders who do not want to go with a PCB or do
 not have great soldering skills. For more experienced builders I
 recommend one of the PCB-based versions.
 
