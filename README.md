@@ -66,6 +66,14 @@ variants and form factors.
 
 ## Emulator Versions 
 
+There are 4  supported versions:  
+
+- The Microtronic Next Generation Project Version 1 with Nokia 5110 display, and Version 2 with OLED SH1106 SPI display 
+- The Microtronic 2nd Generation Project 
+- The 2021 Arduino Uno R3 Version
+- The 2016 Arduino Mega Emulator, Version 4 updated in January 2022 
+
+
 ### The "Microtronic Next Generation" Project 
 
 The current version of the Microtronic Emulator (emulator for short) is called the "Micotronic Next Generation", and it comes as a PCB. It features many improvements over the original; i.e., SDcard-based file storage, 2095 emulation, a DS3231 battery-buffered real time clock (RTC),  a big display with different display modes that facilitate machine code learning by means of a mnemonics display / dissassembler mode, sound output, a larger number of built-in ``PGM`` ROM programs including some fun games such as the Lunar Lander, and much more. It also has the 4 digital inputs (DIN ports) and 4 digital outputs (DOT ports) of the original, the 1 Hz Clock signal output, and an analog input (which is currently not used by the firmware). It can run on for 4 to 5 hours on a 9V battery. 
@@ -665,8 +673,9 @@ Please check the sub-directories
 - [`microtronic-nextgen-nokia`](./microtronic-nextgen-nokia/) for the Nokia 5510 Display version, 
 - [`microtronic-nextgen-sh1106-spi`](./microtronic-nextgen-sh1106-spi/) for the SH1106 SPI OLED version, 
 - [`microtronic-2nd-generation`](./microtronic-2nd-generation/) for the Nokia 5110-based Microtronic 2nd Generation project, and 
-- [`busch2090`](./busch2090/) for the 2021 Arduino Uno R3 version, and 
-- [`busch2090-pcb/`](./busch2090-pcb/) for the SMD PCB version with bubble display. 
+- [`busch2090`](./busch2090/) for the 2021 Arduino Uno R3 version, 
+- [`busch2090-pcb/`](./busch2090-pcb/) for the SMD PCB version with bubble display, and 
+- [`busch2090-mega-v4//`](./busch2090-mega-v4/) for the 2016 Mega Emulator Vesion 4, updated in January 2022. 
 
 The *SH1106 SPI OLED is the latest version* and we have identified this
 display as the best option for the project. The Nokia 5510 is a good
@@ -688,25 +697,27 @@ Only the
 and the [`busch2090`](./busch2090/) 2021 Arduino Uno R3 version will
 be continued.  The PCB Gerbers will follow shortly.
 
+#### The Microtronic Mega Emulator Version 3 - Updated Firmware 
 
-## 2016 Versions - DEPRECATED and NOT RECOMMENDED 
+An updated firmware (January 2022) for the [Microtronic Mega Emulator Version 3 from 2016](./README.old.md)     
+is [available here.](busch2090-mega-v4/). 
 
-**Please note that these version have note been tested recently (they
-are from 2016, and Arduino has changed since then).  I strongly
-recommend to use the "Micotronic Next Generation" version given above 
-instead.**
+Like the 2016 version, it supports speech output via the Emic-2 speech
+synthesizer. Please refer to the [2016 documentation for further
+details.](./README.old.md) 
 
-![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v3-1-small.jpg)
+This version if for builders that do not want to go with a PCB or do
+not have great soldering skills. For more experienced builders I
+recommend one of the PCB-based versions.
+
+![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 4](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v3-1-small.jpg)
 
 ![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v2-5-small.jpg)
 
-![Busch 2090 Microtronic Emulator for Arduino Uno](https://github.com/lambdamikel/Busch-2090/blob/master/images/img4-small.jpg)
+![Mega Emulator V4 Front Panel Explanation](https://github.com/lambdamikel/Busch-2090/blob/master/images/panel-explanation.png)
 
-![Busch 2090 Microtronic Emulator for Arduino Mega](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-1-small.jpg)
+![Busch 2090 Microtronic Emulator for Arduino Mega 2560 Version 3](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v3-2-small.jpg)
 
-![Busch 2090 Microtronic Emulator for Arduino Mega](https://github.com/lambdamikel/Busch-2090/blob/master/images/img-mega-v1-6-small.jpg)
-
-[More info about these 2016 Microtronic emulator projects can be found here.](./README.old.md) 
 
 ## Required Third-Party Libraries 
 
