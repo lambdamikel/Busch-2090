@@ -8,7 +8,7 @@
   See #define SDCARD
   See #define SPEECH
 
-  Version 4 (c) Michael Wessel, January 1st 2022 
+  Version 4 (c) Michael Wessel, March 14, 2022 
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -117,7 +117,7 @@ const char PGMF[] PROGMEM = "F08 FE0 14A 1DB 1DC 1AD 17E 11F F6A FFF F02 B6C C12
 #define PROGRAMS 9
 
 const char *const PGMROM[PROGRAMS] PROGMEM = {
-    PGM7, PGM8, PGM9, PGMA, PGMB, PGMC, PGMD, PGME, PGMF};
+  PGM7, PGM8, PGM9, PGMA, PGMB, PGMC, PGMD, PGME, PGMF};
 
 byte programs = PROGRAMS;
 
@@ -583,51 +583,51 @@ ISR(TIMER1_COMPA_vect)
   clock1hz = !clock1hz;
 
   if (clock1hz)
-  {
-
-    timeSeconds1++;
-
-    if (timeSeconds1 > 9)
     {
-      timeSeconds10++;
-      timeSeconds1 = 0;
 
-      if (timeSeconds10 > 5)
-      {
-        timeMinutes1++;
-        timeSeconds10 = 0;
+      timeSeconds1++;
 
-        if (timeMinutes1 > 9)
-        {
-          timeMinutes10++;
-          timeMinutes1 = 0;
+      if (timeSeconds1 > 9)
+	{
+	  timeSeconds10++;
+	  timeSeconds1 = 0;
 
-          if (timeMinutes10 > 5)
-          {
-            timeHours1++;
-            timeMinutes10 = 0;
+	  if (timeSeconds10 > 5)
+	    {
+	      timeMinutes1++;
+	      timeSeconds10 = 0;
 
-            if (timeHours10 < 2)
-            {
-              if (timeHours1 > 9)
-              {
-                timeHours1 = 0;
-                timeHours10++;
-              }
-            }
-            else if (timeHours10 == 2)
-            {
-              if (timeHours1 > 3)
-              {
-                timeHours1 = 0;
-                timeHours10 = 0;
-              }
-            }
-          }
-        }
-      }
+	      if (timeMinutes1 > 9)
+		{
+		  timeMinutes10++;
+		  timeMinutes1 = 0;
+
+		  if (timeMinutes10 > 5)
+		    {
+		      timeHours1++;
+		      timeMinutes10 = 0;
+
+		      if (timeHours10 < 2)
+			{
+			  if (timeHours1 > 9)
+			    {
+			      timeHours1 = 0;
+			      timeHours10++;
+			    }
+			}
+		      else if (timeHours10 == 2)
+			{
+			  if (timeHours1 > 3)
+			    {
+			      timeHours1 = 0;
+			      timeHours10 = 0;
+			    }
+			}
+		    }
+		}
+	    }
+	}
     }
-  }
 }
 
 void setup() {
@@ -807,6 +807,7 @@ void speakInit() {
 
   if (speechOn) {
     speakEnter();
+    speakWait(); 
     emicSerial.print('S');
     enterPending = true;
   }
@@ -816,7 +817,6 @@ void speakInit() {
 }
 
 void speakEnter() {
-
 
 #if defined (SPEECH)
 
@@ -843,7 +843,7 @@ void speakSendChar(char c) {
 
 #if defined (SPEECH)
   if (speechOn)   
-      emicSerial.print(c);
+    emicSerial.print(c);
 #endif
 
 }
@@ -861,15 +861,13 @@ void speakAndWait(String message) {
 
 }
 
-
 void speakWait() {
 
 #if defined (SPEECH)
   if (speechOn) {
-    while (Serial.available() > 0) {
-      char t = Serial.read();
-      Serial.print(t);
-    }
+    while (emicSerial.read() != ':');   
+    delay(10);                         
+    emicSerial.flush();                
   }
 #endif
 
@@ -1028,10 +1026,10 @@ int selectFile() {
     }
 
     switch ( curPushButton ) {
-      case UP : if (no < count) no = selectFileNo(no + 1); else no = selectFileNo(1);  break;
-      case DOWN : if (no > 1) no = selectFileNo(no - 1); else no = selectFileNo(count); break;
-      case CANCEL : return -1; break;
-      default : break;
+    case UP : if (no < count) no = selectFileNo(no + 1); else no = selectFileNo(1);  break;
+    case DOWN : if (no > 1) no = selectFileNo(no - 1); else no = selectFileNo(count); break;
+    case CANCEL : return -1; break;
+    default : break;
     }
   }
 
@@ -1083,18 +1081,18 @@ int createName() {
     }
 
     switch ( curPushButton ) {
-      case UP : file[cursor]++; break;
-      case DOWN : file[cursor]--; break;
-      case LEFT : cursor--; break;
-      case RIGHT : cursor++; break;
-      case BACK : if (cursor == length - 1 && cursor > 0) {
-          file[cursor] = 0;
-          length--;
-          cursor--;
-          lcd.clear();
-        } break;
-      case CANCEL : return -1;
-      default : break;
+    case UP : file[cursor]++; break;
+    case DOWN : file[cursor]--; break;
+    case LEFT : cursor--; break;
+    case RIGHT : cursor++; break;
+    case BACK : if (cursor == length - 1 && cursor > 0) {
+	file[cursor] = 0;
+	length--;
+	cursor--;
+	lcd.clear();
+      } break;
+    case CANCEL : return -1;
+    default : break;
     }
 
     if (cursor < 0)
@@ -1323,11 +1321,11 @@ void loadProgram() {
       if (!readingComment && b != '\r' && b != '\n' && b != '\t' && b != ' ' && b != '@' ) { // skip whitespace
 
         switch ( b ) {
-          case 'I' : b = '1'; break; // correct for some common OCR errors
-          case 'l' : b = '1'; break;
-          case 'P' : b = 'D'; break;
-          case 'Q' : b = '0'; break;
-          case 'O' : b = '0'; break;
+	case 'I' : b = '1'; break; // correct for some common OCR errors
+	case 'l' : b = '1'; break;
+	case 'P' : b = 'D'; break;
+	case 'Q' : b = '0'; break;
+	case 'O' : b = '0'; break;
 
           /*
             case 'a' : b = 'A'; break; // also allow lowercase hex
@@ -1336,7 +1334,7 @@ void loadProgram() {
             case 'd' : b = 'D'; break;
             case 'e' : b = 'E'; break;
             case 'f' : b = 'F'; break; */
-          default : break;
+	default : break;
         }
 
         int decoded = decodeHex(b);
@@ -1356,35 +1354,35 @@ void loadProgram() {
 
         if ( readingOrigin ) {
           switch ( count ) {
-            case 0 : pc = decoded * 16; count = 1; break;
-            case 1 :
-              pc += decoded;
-              showMem();
-              count = 0;
-              readingOrigin = false;
-              lcd.setCursor(curX, curY);
-              lcd.write("@");
-              if (pc < 16)
-                lcd.print("0");
-              lcd.print(pc, HEX);
-              lcd.print("-");
-              curX += 4;
-              if (curX == 20) {
-                curX = 0;
-                curY ++;
-                if (curY == 4) {
-                  curY = 1;
-                  lcd.setCursor(0, 1);
-                  lcd.print("                    ");
-                  lcd.setCursor(0, 2);
-                  lcd.print("                    ");
-                  lcd.setCursor(0, 3);
-                  lcd.print("                    ");
-                }
-              }
+	  case 0 : pc = decoded * 16; count = 1; break;
+	  case 1 :
+	    pc += decoded;
+	    showMem();
+	    count = 0;
+	    readingOrigin = false;
+	    lcd.setCursor(curX, curY);
+	    lcd.write("@");
+	    if (pc < 16)
+	      lcd.print("0");
+	    lcd.print(pc, HEX);
+	    lcd.print("-");
+	    curX += 4;
+	    if (curX == 20) {
+	      curX = 0;
+	      curY ++;
+	      if (curY == 4) {
+		curY = 1;
+		lcd.setCursor(0, 1);
+		lcd.print("                    ");
+		lcd.setCursor(0, 2);
+		lcd.print("                    ");
+		lcd.setCursor(0, 3);
+		lcd.print("                    ");
+	      }
+	    }
 
-              break;
-            default : break;
+	    break;
+	  default : break;
           }
 
         } else {
@@ -1395,36 +1393,36 @@ void loadProgram() {
           curX++;
 
           switch ( count ) {
-            case 0 : op[pc] = decoded; count = 1;  break;
-            case 1 : arg1[pc] = decoded; count = 2; break;
-            case 2 :
-              arg2[pc] = decoded;
-              showMem();
-              count = 0;
-              if (firstPc == -1) firstPc = pc;
-              pc++;
+	  case 0 : op[pc] = decoded; count = 1;  break;
+	  case 1 : arg1[pc] = decoded; count = 2; break;
+	  case 2 :
+	    arg2[pc] = decoded;
+	    showMem();
+	    count = 0;
+	    if (firstPc == -1) firstPc = pc;
+	    pc++;
 
-              lcd.setCursor(curX, curY);
-              lcd.write("-");
+	    lcd.setCursor(curX, curY);
+	    lcd.write("-");
 
-              curX++;
-              if (curX == 20) {
-                curX = 0;
-                curY++;
-                if (curY == 4) {
-                  curY = 1;
-                  lcd.setCursor(0, 1);
-                  lcd.print("                    ");
-                  lcd.setCursor(0, 2);
-                  lcd.print("                    ");
-                  lcd.setCursor(0, 3);
-                  lcd.print("                    ");
-                }
-              }
+	    curX++;
+	    if (curX == 20) {
+	      curX = 0;
+	      curY++;
+	      if (curY == 4) {
+		curY = 1;
+		lcd.setCursor(0, 1);
+		lcd.print("                    ");
+		lcd.setCursor(0, 2);
+		lcd.print("                    ");
+		lcd.setCursor(0, 3);
+		lcd.print("                    ");
+	      }
+	    }
 
-              break;
+	    break;
 
-            default : break;
+	  default : break;
           }
 
         }
@@ -1812,55 +1810,55 @@ void getMnem(boolean spaces) {
   unsigned int op3 = op1 * 256 + hi * 16 + lo;
 
   switch ( op[pc] ) {
-    case OP_MOV  : inputMnem("MOV   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-    case OP_MOVI : inputMnem("MOVI  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-    case OP_AND  : inputMnem("AND   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-    case OP_ANDI : inputMnem("ANDI  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-    case OP_ADD  : inputMnem("ADD   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-    case OP_ADDI : inputMnem("ADDI  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-    case OP_SUB  : inputMnem("SUB   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-    case OP_SUBI : inputMnem("SUBI  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-    case OP_CMP  : inputMnem("CMP   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-    case OP_CMPI : inputMnem("CMPI  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-    case OP_OR   : inputMnem("OR    ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-    case OP_CALL : inputMnem("CALL  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-    case OP_GOTO : inputMnem("GOTO  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-    case OP_BRC  : inputMnem("BRC   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-    case OP_BRZ  : inputMnem("BRZ   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+  case OP_MOV  : inputMnem("MOV   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+  case OP_MOVI : inputMnem("MOVI  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+  case OP_AND  : inputMnem("AND   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+  case OP_ANDI : inputMnem("ANDI  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+  case OP_ADD  : inputMnem("ADD   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+  case OP_ADDI : inputMnem("ADDI  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+  case OP_SUB  : inputMnem("SUB   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+  case OP_SUBI : inputMnem("SUBI  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+  case OP_CMP  : inputMnem("CMP   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+  case OP_CMPI : inputMnem("CMPI  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+  case OP_OR   : inputMnem("OR    ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+  case OP_CALL : inputMnem("CALL  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+  case OP_GOTO : inputMnem("GOTO  ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+  case OP_BRC  : inputMnem("BRC   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+  case OP_BRZ  : inputMnem("BRZ   ") ; advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+  default : {
+    switch (op2) {
+    case OP_MAS  : inputMnem( "MAS   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    case OP_INV  : inputMnem( "INV   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    case OP_SHR  : inputMnem( "SHR   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    case OP_SHL  : inputMnem( "SHL   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    case OP_ADC  : inputMnem( "ADC   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    case OP_SUBC : inputMnem( "SUBC  ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    case OP_DIN  : inputMnem( "DIN   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    case OP_DOT  : inputMnem( "DOT   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
+    case OP_KIN  : inputMnem( "KIN   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
     default : {
-        switch (op2) {
-          case OP_MAS  : inputMnem( "MAS   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-          case OP_INV  : inputMnem( "INV   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-          case OP_SHR  : inputMnem( "SHR   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-          case OP_SHL  : inputMnem( "SHL   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-          case OP_ADC  : inputMnem( "ADC   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-          case OP_SUBC : inputMnem( "SUBC  ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-          case OP_DIN  : inputMnem( "DIN   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-          case OP_DOT  : inputMnem( "DOT   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-          case OP_KIN  : inputMnem( "KIN   ");  advanceCursor(spaces); inputMnem( hexStringChar[lo] ); break;
-          default : {
-              switch (op3) {
-                case OP_HALT   : inputMnem( "HALT    ");  break;
-                case OP_NOP    : inputMnem( "NOP     ");  break;
-                case OP_DISOUT : inputMnem( "DISOUT  ");  break;
-                case OP_HXDZ   : inputMnem( "HXDZ    ");  break;
-                case OP_DZHX   : inputMnem( "DZHX    ");  break;
-                case OP_RND    : inputMnem( "RND     ");  break;
-                case OP_TIME   : inputMnem( "TIME    ");  break;
-                case OP_RET    : inputMnem( "RET     ");  break;
-                case OP_CLEAR  : inputMnem( "CLEAR   ");  break;
-                case OP_STC    : inputMnem( "STC     ");  break;
-                case OP_RSC    : inputMnem( "RSC     ");  break;
-                case OP_MULT   : inputMnem( "MULT    ");  break;
-                case OP_DIV    : inputMnem( "DIV     ");  break;
-                case OP_EXRL   : inputMnem( "EXRL    ");  break;
-                case OP_EXRM   : inputMnem( "EXRM    ");  break;
-                case OP_EXRA   : inputMnem( "EXRA    ");  break;
-                default        : inputMnem( "DISP  ");  advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); hexStringChar[lo]; break;
-              }
-            }
-        }
+      switch (op3) {
+      case OP_HALT   : inputMnem( "HALT    ");  break;
+      case OP_NOP    : inputMnem( "NOP     ");  break;
+      case OP_DISOUT : inputMnem( "DISOUT  ");  break;
+      case OP_HXDZ   : inputMnem( "HXDZ    ");  break;
+      case OP_DZHX   : inputMnem( "DZHX    ");  break;
+      case OP_RND    : inputMnem( "RND     ");  break;
+      case OP_TIME   : inputMnem( "TIME    ");  break;
+      case OP_RET    : inputMnem( "RET     ");  break;
+      case OP_CLEAR  : inputMnem( "CLEAR   ");  break;
+      case OP_STC    : inputMnem( "STC     ");  break;
+      case OP_RSC    : inputMnem( "RSC     ");  break;
+      case OP_MULT   : inputMnem( "MULT    ");  break;
+      case OP_DIV    : inputMnem( "DIV     ");  break;
+      case OP_EXRL   : inputMnem( "EXRL    ");  break;
+      case OP_EXRM   : inputMnem( "EXRM    ");  break;
+      case OP_EXRA   : inputMnem( "EXRA    ");  break;
+      default        : inputMnem( "DISP  ");  advanceCursor(spaces); inputMnem( hexStringChar[hi] ); advanceCursor(spaces); hexStringChar[lo]; break;
       }
+    }
+    }
+  }
   }
 
 }
@@ -1873,9 +1871,9 @@ void updateLCD() {
   if (curPushButton == ENTER ) {
     refreshLCD = true;
     switch ( displayMode  ) {
-      case OFF    : displayMode = PCMEM; lcd.clear(); break;
-      case PCMEM  : displayMode = REGD; lcd.clear(); break;
-      default     : displayMode = OFF; lcd.clear(); break;
+    case OFF    : displayMode = PCMEM; lcd.clear(); break;
+    case PCMEM  : displayMode = REGD; lcd.clear(); break;
+    default     : displayMode = OFF; lcd.clear(); break;
     }
   }
 
@@ -1887,19 +1885,19 @@ void updateLCD() {
 
       switch ( currentMode ) {
 
-        case ENTERING_TIME :
-          lcd.clear();
-          lcd.print("PGM 3 ENTER TIME");
-          break;
+      case ENTERING_TIME :
+	lcd.clear();
+	lcd.print("PGM 3 ENTER TIME");
+	break;
 
-        case SHOWING_TIME :
-          lcd.clear();
-          lcd.print("PGM 4 SHOW TIME");
-          break;
+      case SHOWING_TIME :
+	lcd.clear();
+	lcd.print("PGM 4 SHOW TIME");
+	break;
 
-        default:
+      default:
 
-          LCDLogo();
+	LCDLogo();
       }
 
     } else if (displayMode == PCMEM ) {
@@ -1958,15 +1956,15 @@ void updateLCD() {
     lcd.setCursor(16, 0);
 
     switch ( displayCurFuncKey ) {
-      case CCE  : lcd.print("C/CE"); break;
-      case RUN  : lcd.print(" RUN"); break;
-      case BKP  : lcd.print(" BKP"); break;
-      case NEXT : lcd.print("NEXT"); break;
-      case PGM  : lcd.print(" PGM"); break;
-      case HALT : lcd.print("HALT"); break;
-      case STEP : lcd.print("STEP"); break;
-      case REG  : lcd.print(" REG"); break;
-      default: break;
+    case CCE  : lcd.print("C/CE"); break;
+    case RUN  : lcd.print(" RUN"); break;
+    case BKP  : lcd.print(" BKP"); break;
+    case NEXT : lcd.print("NEXT"); break;
+    case PGM  : lcd.print(" PGM"); break;
+    case HALT : lcd.print("HALT"); break;
+    case STEP : lcd.print("STEP"); break;
+    case REG  : lcd.print(" REG"); break;
+    default: break;
     }
 
     if (millis() - funcKeyTime > 500) {
@@ -2157,56 +2155,56 @@ void loadPGMProgram(byte pgm, byte start) {
   int origin = start; 
 
   while (pgm_read_byte(pgm_string))
-  {
-
-    op[start] = decodeHex(pgm_read_byte(pgm_string++));
-    arg1[start] = decodeHex(pgm_read_byte(pgm_string++));
-    arg2[start] = decodeHex(pgm_read_byte(pgm_string++));
-
-    lcd.setCursor(15, 0);
-    lcd.print("@ ");
-    if (pc < 16)
-      lcd.print("0");
-    lcd.print(pc, HEX);
-
-    delay(10);
-
-    lcd.setCursor(curX, curY);
-    lcd.print(op[start], HEX);
-    lcd.print(arg1[start], HEX);
-    lcd.print(arg2[start], HEX);
-    lcd.print("-");
-
-
-    curX += 4;
-    if (curX == 20) {
-      curX = 0;
-      curY ++;
-      if (curY == 4) {
-        curY = 1;
-        lcd.setCursor(0, 1);
-        lcd.print("                    ");
-        lcd.setCursor(0, 2);
-        lcd.print("                    ");
-        lcd.setCursor(0, 3);
-        lcd.print("                    ");
-      }
-    }
-
-    pc = start;
-    start++;
-    currentMode = STOPPED;
-    outputs = pc;
-    showMem();
-
-    if (start == 256)
     {
-      exit(1);
+
+      op[start] = decodeHex(pgm_read_byte(pgm_string++));
+      arg1[start] = decodeHex(pgm_read_byte(pgm_string++));
+      arg2[start] = decodeHex(pgm_read_byte(pgm_string++));
+
+      lcd.setCursor(15, 0);
+      lcd.print("@ ");
+      if (pc < 16)
+	lcd.print("0");
+      lcd.print(pc, HEX);
+
+      delay(10);
+
+      lcd.setCursor(curX, curY);
+      lcd.print(op[start], HEX);
+      lcd.print(arg1[start], HEX);
+      lcd.print(arg2[start], HEX);
+      lcd.print("-");
+
+
+      curX += 4;
+      if (curX == 20) {
+	curX = 0;
+	curY ++;
+	if (curY == 4) {
+	  curY = 1;
+	  lcd.setCursor(0, 1);
+	  lcd.print("                    ");
+	  lcd.setCursor(0, 2);
+	  lcd.print("                    ");
+	  lcd.setCursor(0, 3);
+	  lcd.print("                    ");
+	}
+      }
+
+      pc = start;
+      start++;
+      currentMode = STOPPED;
+      outputs = pc;
+      showMem();
+
+      if (start == 256)
+	{
+	  exit(1);
+	}
+
+      pgm_string++; // skip over space
+
     }
-
-    pgm_string++; // skip over space
-
-  }
 
   pc = origin;
   currentMode = STOPPED;
@@ -2476,137 +2474,137 @@ void interpret() {
 
   switch ( curFuncKey ) {
 
-    case HALT :
+  case HALT :
 
-      jump = true;
-      currentMode = STOPPED;
-      cursor = CURSOR_OFF;
+    jump = true;
+    currentMode = STOPPED;
+    cursor = CURSOR_OFF;
 
-      dispOff = false;
-      lastInstructionWasDisp = false;
+    dispOff = false;
+    lastInstructionWasDisp = false;
 
-      speakAndWait("Halt");
-      lcd.clear();
-      refreshLCD = true;
+    speakAndWait("Halt");
+    lcd.clear();
+    refreshLCD = true;
 
-      break;
+    break;
 
-    case RUN :
+  case RUN :
 
-      currentMode = RUNNING;
-      cursor = CURSOR_OFF;
-      oneStepOnly = false;
-      dispOff = false;
-      ignoreBreakpointOnce = true;
+    currentMode = RUNNING;
+    cursor = CURSOR_OFF;
+    oneStepOnly = false;
+    dispOff = false;
+    ignoreBreakpointOnce = true;
 
-      clearStack();
-      jump = true; // don't increment PC !
-      //step();
+    clearStack();
+    jump = true; // don't increment PC !
+    //step();
 
-      speakAndWait("Run");
-      lcd.clear();
-      refreshLCD = true;
+    speakAndWait("Run");
+    lcd.clear();
+    refreshLCD = true;
 
-      lastRunTime = millis(); 
+    lastRunTime = millis(); 
 
-      break;
+    break;
 
-    case NEXT :
-      if (currentMode == STOPPED) {
-        currentMode = ENTERING_ADDRESS_HIGH;
-        cursor = 0;
-      } else {
-        pc++;
-        cursor = 2;
-        currentMode = ENTERING_OP;
-      }
+  case NEXT :
+    if (currentMode == STOPPED) {
+      currentMode = ENTERING_ADDRESS_HIGH;
+      cursor = 0;
+    } else {
+      pc++;
+      cursor = 2;
+      currentMode = ENTERING_OP;
+    }
 
-      speakAndWait("Next");
-      lcd.clear();
-      refreshLCD = true;
-      jump = true;
+    speakAndWait("Next");
+    lcd.clear();
+    refreshLCD = true;
+    jump = true;
 
-      break;
+    break;
 
-    case REG :
+  case REG :
 
-      if (currentMode != ENTERING_REG) {
-        currentMode = ENTERING_REG;
-        cursor = 0;
-        speakAndWait("Register");
-      } else {
-        currentMode = INSPECTING;
-        cursor = 1;
-        speakAndWait("Content");
-      }
-      lcd.clear();
-      refreshLCD = true;
+    if (currentMode != ENTERING_REG) {
+      currentMode = ENTERING_REG;
+      cursor = 0;
+      speakAndWait("Register");
+    } else {
+      currentMode = INSPECTING;
+      cursor = 1;
+      speakAndWait("Content");
+    }
+    lcd.clear();
+    refreshLCD = true;
 
-      break;
+    break;
 
-    case STEP :
+  case STEP :
 
-      currentMode = RUNNING;
-      oneStepOnly = true;
-      dispOff = false;
-      jump = true; // don't increment PC !
+    currentMode = RUNNING;
+    oneStepOnly = true;
+    dispOff = false;
+    jump = true; // don't increment PC !
 
-      speakAndWait("Step");
-      refreshLCD = true;
+    speakAndWait("Step");
+    refreshLCD = true;
 
-      displayStatus();
+    displayStatus();
 
-      break;
+    break;
 
-    case BKP :
+  case BKP :
 
-      if (currentMode != ENTERING_BREAKPOINT_LOW ) {
-        currentMode = ENTERING_BREAKPOINT_HIGH;
-        cursor = 0;
-      } else {
-        cursor = 1;
-        currentMode = ENTERING_BREAKPOINT_LOW;
-      }
+    if (currentMode != ENTERING_BREAKPOINT_LOW ) {
+      currentMode = ENTERING_BREAKPOINT_HIGH;
+      cursor = 0;
+    } else {
+      cursor = 1;
+      currentMode = ENTERING_BREAKPOINT_LOW;
+    }
 
-      speakAndWait("Breakpoint");
-      refreshLCD = true;
+    speakAndWait("Breakpoint");
+    refreshLCD = true;
 
-      break;
+    break;
 
-    case CCE :
+  case CCE :
 
-      if (cursor == 2) {
-        cursor = 4;
-        arg2[pc] = 0;
-        currentMode = ENTERING_ARG2;
-      } else if (cursor == 3) {
-        cursor = 2;
-        op[pc] = 0;
-        currentMode = ENTERING_OP;
-      } else {
-        cursor = 3;
-        arg1[pc] = 0;
-        currentMode = ENTERING_ARG1;
-      }
+    if (cursor == 2) {
+      cursor = 4;
+      arg2[pc] = 0;
+      currentMode = ENTERING_ARG2;
+    } else if (cursor == 3) {
+      cursor = 2;
+      op[pc] = 0;
+      currentMode = ENTERING_OP;
+    } else {
+      cursor = 3;
+      arg1[pc] = 0;
+      currentMode = ENTERING_ARG1;
+    }
 
-      speakAndWait("Clear");
-      lcd.clear();
-      refreshLCD = true;
+    speakAndWait("Clear");
+    lcd.clear();
+    refreshLCD = true;
 
-      break;
+    break;
 
-    case PGM :
+  case PGM :
 
-      if ( currentMode != ENTERING_PROGRAM ) {
-        cursor = 0;
-        currentMode = ENTERING_PROGRAM;
-      }
+    if ( currentMode != ENTERING_PROGRAM ) {
+      cursor = 0;
+      currentMode = ENTERING_PROGRAM;
+    }
 
-      speakAndWait("Program");
-      lcd.clear();
-      refreshLCD = true;
+    speakAndWait("Program");
+    lcd.clear();
+    refreshLCD = true;
 
-      break;
+    break;
 
   }
 
@@ -2616,232 +2614,232 @@ void interpret() {
 
   switch (currentMode) {
 
-    case STOPPED :
+  case STOPPED :
+    cursor = CURSOR_OFF;
+    break;
+
+  case ENTERING_VALUE :
+
+    if (keypadPressed) {
+      curInput = curKeypadKey;
+      reg[currentInputRegister] = curInput;
+      carry = false;
+      zero = reg[currentInputRegister] == 0;
+      currentMode = RUNNING;
+    }
+
+    break;
+
+  case ENTERING_TIME :
+
+    if (keypadPressed ) {
+
+      curInput = curKeypadKey;
+
+      switch (cursor) {
+      case 0 : if (curInput < 3) {
+	  timeHours10 = curInput;
+	  cursor++;
+	} break;
+      case 1 : if (timeHours10 == 2 && curInput < 4 || timeHours10 < 2 && curInput < 10) {
+	  timeHours1 = curInput;
+	  cursor++;
+	} break;
+      case 2 : if (curInput < 6) {
+	  timeMinutes10 = curInput;
+	  cursor++;
+	} break;
+      case 3 : if (curInput < 10) {
+	  timeMinutes1 = curInput;
+	  cursor++;
+	} break;
+      case 4 : if (curInput < 6) {
+	  timeSeconds10 = curInput;
+	  cursor++;
+	} break;
+      case 5 : if (curInput < 10) {
+	  timeSeconds1 = curInput;
+	  cursor++;
+	} break;
+      default : break;
+      }
+
+      if (cursor > 5)
+	cursor = 0;
+
+    }
+
+    break;
+
+  case ENTERING_PROGRAM :
+
+    if (keypadPressed) {
+
+      program = curKeypadKey;
+      currentMode = STOPPED;
       cursor = CURSOR_OFF;
-      break;
 
-    case ENTERING_VALUE :
+      switch ( program ) {
 
-      if (keypadPressed) {
-        curInput = curKeypadKey;
-        reg[currentInputRegister] = curInput;
-        carry = false;
-        zero = reg[currentInputRegister] == 0;
-        currentMode = RUNNING;
+      case 0 :
+	speakInit();
+	speakSend("Bad program");
+	speakEnter();
+	break;
+
+      case 1 :
+	loadProgram();
+	break;
+
+      case 2 :
+
+	saveProgram();
+	break;
+
+      case 3 :
+	speakInit();
+	speakSend("Set time");
+	speakEnter();
+	currentMode = ENTERING_TIME;
+	lcd.clear();
+	lcd.print("PGM 3 ENTER TIME");
+	cursor = 0;
+	break;
+
+      case 4 :
+	speakInit();
+	speakSend("Show time");
+	speakEnter();
+	currentMode = SHOWING_TIME;
+	lcd.clear();
+	lcd.print("PGM 4 SHOW TIME");
+	cursor = CURSOR_OFF;
+	break;
+
+      case 5 : // clear mem
+	speakInit();
+	speakSend("Clear memory");
+	speakEnter();
+	clearMem();
+	break;
+
+      case 6 : // load NOPs
+	speakInit();
+	speakSend("Load NOPPs");
+	speakEnter();
+	loadNOPs();
+	break;
+
+      default : // load other
+
+	if (program - 7 < programs ) {
+	  speakInit();
+	  speakSend("Load ");
+	  speakSend( hexStringChar [ program ]);
+	  speakEnter();
+	  loadPGMProgram(program - 7, 0);
+	} else {
+	  speakInit();
+	  speakSend("Bad program");
+	  speakEnter();
+	}
       }
 
-      break;
+    }
 
-    case ENTERING_TIME :
+    break;
 
-      if (keypadPressed ) {
+  case ENTERING_ADDRESS_HIGH :
 
-        curInput = curKeypadKey;
+    if (keypadPressed) {
+      cursor = 1;
+      pc = curKeypadKey * 16;
+      currentMode = ENTERING_ADDRESS_LOW;
+    }
 
-        switch (cursor) {
-          case 0 : if (curInput < 3) {
-              timeHours10 = curInput;
-              cursor++;
-            } break;
-          case 1 : if (timeHours10 == 2 && curInput < 4 || timeHours10 < 2 && curInput < 10) {
-              timeHours1 = curInput;
-              cursor++;
-            } break;
-          case 2 : if (curInput < 6) {
-              timeMinutes10 = curInput;
-              cursor++;
-            } break;
-          case 3 : if (curInput < 10) {
-              timeMinutes1 = curInput;
-              cursor++;
-            } break;
-          case 4 : if (curInput < 6) {
-              timeSeconds10 = curInput;
-              cursor++;
-            } break;
-          case 5 : if (curInput < 10) {
-              timeSeconds1 = curInput;
-              cursor++;
-            } break;
-          default : break;
-        }
+    break;
 
-        if (cursor > 5)
-          cursor = 0;
+  case ENTERING_ADDRESS_LOW :
 
-      }
+    if (keypadPressed) {
+      cursor = 2;
+      pc += curKeypadKey;
+      currentMode = ENTERING_OP;
+    }
 
-      break;
+    break;
 
-    case ENTERING_PROGRAM :
+  case ENTERING_BREAKPOINT_HIGH :
 
-      if (keypadPressed) {
+    if (keypadPressed) {
+      cursor = 1;
+      breakAt = curKeypadKey * 16;
+      currentMode = ENTERING_BREAKPOINT_LOW;
+    }
 
-        program = curKeypadKey;
-        currentMode = STOPPED;
-        cursor = CURSOR_OFF;
+    refreshLCD = true;
 
-        switch ( program ) {
+    break;
 
-          case 0 :
-            speakInit();
-            speakSend("Bad program");
-            speakEnter();
-            break;
+  case ENTERING_BREAKPOINT_LOW :
 
-          case 1 :
-            loadProgram();
-            break;
+    if (keypadPressed) {
+      cursor = 0;
+      breakAt += curKeypadKey;
+      currentMode = ENTERING_BREAKPOINT_HIGH;
+    }
 
-          case 2 :
+    refreshLCD = true;
 
-            saveProgram();
-            break;
+    break;
 
-          case 3 :
-            speakInit();
-            speakSend("Set time");
-            speakEnter();
-            currentMode = ENTERING_TIME;
-            lcd.clear();
-            lcd.print("PGM 3 ENTER TIME");
-            cursor = 0;
-            break;
+  case ENTERING_OP :
 
-          case 4 :
-            speakInit();
-            speakSend("Show time");
-            speakEnter();
-            currentMode = SHOWING_TIME;
-            lcd.clear();
-            lcd.print("PGM 4 SHOW TIME");
-            cursor = CURSOR_OFF;
-            break;
+    if (keypadPressed) {
+      cursor = 3;
+      op[pc] = curKeypadKey;
+      currentMode = ENTERING_ARG1;
+    }
 
-          case 5 : // clear mem
-            speakInit();
-            speakSend("Clear memory");
-            speakEnter();
-            clearMem();
-            break;
+    break;
 
-          case 6 : // load NOPs
-            speakInit();
-            speakSend("Load NOPPs");
-            speakEnter();
-            loadNOPs();
-            break;
+  case ENTERING_ARG1 :
 
-          default : // load other
+    if (keypadPressed) {
+      cursor = 4;
+      arg1[pc] = curKeypadKey;
+      currentMode = ENTERING_ARG2;
+    }
 
-            if (program - 7 < programs ) {
-              speakInit();
-              speakSend("Load ");
-              speakSend( hexStringChar [ program ]);
-              speakEnter();
-              loadPGMProgram(program - 7, 0);
-            } else {
-              speakInit();
-              speakSend("Bad program");
-              speakEnter();
-            }
-        }
+    break;
 
-      }
+  case ENTERING_ARG2 :
 
-      break;
+    if (keypadPressed) {
+      cursor = 2;
+      arg2[pc] = curKeypadKey;
+      currentMode = ENTERING_OP;
+    }
 
-    case ENTERING_ADDRESS_HIGH :
+    break;
 
-      if (keypadPressed) {
-        cursor = 1;
-        pc = curKeypadKey * 16;
-        currentMode = ENTERING_ADDRESS_LOW;
-      }
+  case RUNNING:
+    run();
+    break;
 
-      break;
+  case ENTERING_REG:
 
-    case ENTERING_ADDRESS_LOW :
+    if (keypadPressed)
+      currentReg = curKeypadKey;
 
-      if (keypadPressed) {
-        cursor = 2;
-        pc += curKeypadKey;
-        currentMode = ENTERING_OP;
-      }
+    break;
 
-      break;
+  case INSPECTING :
 
-    case ENTERING_BREAKPOINT_HIGH :
+    if (keypadPressed)
+      reg[currentReg] = curKeypadKey;
 
-      if (keypadPressed) {
-        cursor = 1;
-        breakAt = curKeypadKey * 16;
-        currentMode = ENTERING_BREAKPOINT_LOW;
-      }
-
-      refreshLCD = true;
-
-      break;
-
-    case ENTERING_BREAKPOINT_LOW :
-
-      if (keypadPressed) {
-        cursor = 0;
-        breakAt += curKeypadKey;
-        currentMode = ENTERING_BREAKPOINT_HIGH;
-      }
-
-      refreshLCD = true;
-
-      break;
-
-    case ENTERING_OP :
-
-      if (keypadPressed) {
-        cursor = 3;
-        op[pc] = curKeypadKey;
-        currentMode = ENTERING_ARG1;
-      }
-
-      break;
-
-    case ENTERING_ARG1 :
-
-      if (keypadPressed) {
-        cursor = 4;
-        arg1[pc] = curKeypadKey;
-        currentMode = ENTERING_ARG2;
-      }
-
-      break;
-
-    case ENTERING_ARG2 :
-
-      if (keypadPressed) {
-        cursor = 2;
-        arg2[pc] = curKeypadKey;
-        currentMode = ENTERING_OP;
-      }
-
-      break;
-
-    case RUNNING:
-      run();
-      break;
-
-    case ENTERING_REG:
-
-      if (keypadPressed)
-        currentReg = curKeypadKey;
-
-      break;
-
-    case INSPECTING :
-
-      if (keypadPressed)
-        reg[currentReg] = curKeypadKey;
-
-      break;
+    break;
 
   }
 
@@ -2888,490 +2886,509 @@ void run() {
   byte adr = hi * 16 + lo;
   byte op2 = op1 * 16 + hi;
   unsigned int op3 = op1 * 256 + hi * 16 + lo;
+  
+  byte speechOn0 = speechOn; 
 
   switch (op1) {
-    case OP_MOV :
+  case OP_MOV :
 
-      reg[d] = reg[s];
-      zero = reg[d] == 0;
+    reg[d] = reg[s];
+    zero = reg[d] == 0;
 
-      if (d == s)
-        if ( nibbleHi == 255)
-          nibbleHi = d;
-        else {
-          nibbleLo = d;
-          char c = char(nibbleHi * 10 + nibbleLo);
-          if (c == 13 || c >= 32 && c <= 125 ) {
-            speakSendChar(c);
-          }
-          nibbleHi = 255;
-        }
-
-      break;
-
-    case OP_MOVI :
-
-      reg[d] = n;
-      zero = reg[d] == 0;
-
-      break;
-
-    case OP_AND :
-
-      reg[d] &= reg[s];
-      carry = false;
-      zero = reg[d] == 0;
-
-      break;
-
-    case OP_ANDI :
-
-      reg[d] &= n;
-      carry = false;
-      zero = reg[d] == 0;
-
-      break;
-
-    case OP_ADD :
-
-      reg[d] += reg[s];
-      carry = reg[d] > 15;
-      reg[d] &= 15;
-      zero = reg[d] == 0;
-
-      break;
-
-    case OP_ADDI :
-
-      reg[d] += n;
-      carry = reg[d] > 15;
-      reg[d] &= 15;
-      zero =  reg[d] == 0;
-
-      break;
-
-    case OP_SUB :
-
-      reg[d] -= reg[s];
-      carry = reg[d] > 15;
-      reg[d] &= 15;
-      zero =  reg[d] == 0;
-
-      break;
-
-    case OP_SUBI :
-
-      reg[d] -= n;
-      carry = reg[d] > 15;
-      reg[d] &= 15;
-      zero =  reg[d] == 0;
-
-      break;
-
-    case OP_CMP :
-
-      carry = reg[s] < reg[d];
-      zero = reg[s] == reg[d];
-
-      break;
-
-    case OP_CMPI :
-
-      carry = n < reg[d];
-      zero = reg[d] == n;
-
-      break;
-
-    case OP_OR :
-
-      reg[d] |= reg[s];
-      carry = false;
-      zero = reg[d] == 0;
-
-      break;
-
-    //
-    //
-    //
-
-
-    case OP_CALL :
-
-      if (sp < STACK_DEPTH - 1) {
-        stack[sp] = pc;
-        sp++;
-        pc = adr;
-        jump = true;
-
-      } else {
-
-        error = true;
-        currentMode = STOPPED;
-
+    if (d == s) {
+      speechOn = true; 
+      if ( d == 10) {
+	speakInit(); 
+	nibbleHi = 255;
+	nibbleLo = 255;
+      } else if ( d == 11 ) {
+	speakWait(); 
+	nibbleHi = 255;
+	nibbleLo = 255;
+      } else if ( d == 15) {
+	speakEnter();    
+	nibbleHi = 255;
+	nibbleLo = 255;
+      } else {     
+	if ( nibbleHi == 255)
+	  nibbleHi = d;
+	else {
+	  nibbleLo = d;
+	  char c = char(nibbleHi * 10 + nibbleLo);
+	  if (c == 13 || c >= 32 && c <= 125 ) {
+	    speakSendChar(c);
+	  }
+	  nibbleHi = 255;
+	}
       }
-      break;
+      speechOn = speechOn0; 
+    }
 
-    case OP_GOTO :
+    break;
 
+  case OP_MOVI :
+
+    reg[d] = n;
+    zero = reg[d] == 0;
+
+    break;
+
+  case OP_AND :
+
+    reg[d] &= reg[s];
+    carry = false;
+    zero = reg[d] == 0;
+
+    break;
+
+  case OP_ANDI :
+
+    reg[d] &= n;
+    carry = false;
+    zero = reg[d] == 0;
+
+    break;
+
+  case OP_ADD :
+
+    reg[d] += reg[s];
+    carry = reg[d] > 15;
+    reg[d] &= 15;
+    zero = reg[d] == 0;
+
+    break;
+
+  case OP_ADDI :
+
+    reg[d] += n;
+    carry = reg[d] > 15;
+    reg[d] &= 15;
+    zero =  reg[d] == 0;
+
+    break;
+
+  case OP_SUB :
+
+    reg[d] -= reg[s];
+    carry = reg[d] > 15;
+    reg[d] &= 15;
+    zero =  reg[d] == 0;
+
+    break;
+
+  case OP_SUBI :
+
+    reg[d] -= n;
+    carry = reg[d] > 15;
+    reg[d] &= 15;
+    zero =  reg[d] == 0;
+
+    break;
+
+  case OP_CMP :
+
+    carry = reg[s] < reg[d];
+    zero = reg[s] == reg[d];
+
+    break;
+
+  case OP_CMPI :
+
+    carry = n < reg[d];
+    zero = reg[d] == n;
+
+    break;
+
+  case OP_OR :
+
+    reg[d] |= reg[s];
+    carry = false;
+    zero = reg[d] == 0;
+
+    break;
+
+    //
+    //
+    //
+
+
+  case OP_CALL :
+
+    if (sp < STACK_DEPTH - 1) {
+      stack[sp] = pc;
+      sp++;
       pc = adr;
       jump = true;
 
-      break;
+    } else {
 
-    case OP_BRC :
+      error = true;
+      currentMode = STOPPED;
 
-      if (carry) {
-        pc = adr;
-        jump = true;
-      }
+    }
+    break;
 
-      break;
+  case OP_GOTO :
 
-    case OP_BRZ :
+    pc = adr;
+    jump = true;
 
-      if (zero) {
-        pc = adr;
-        jump = true;
-      }
+    break;
 
-      break;
+  case OP_BRC :
+
+    if (carry) {
+      pc = adr;
+      jump = true;
+    }
+
+    break;
+
+  case OP_BRZ :
+
+    if (zero) {
+      pc = adr;
+      jump = true;
+    }
+
+    break;
 
     //
     //
     //
+
+  default : {
+
+    switch (op2) {
+
+    case OP_MAS :
+
+      regEx[d] = reg[d];
+
+      break;
+
+    case OP_INV :
+
+      reg[d] ^= 15;
+
+      break;
+
+    case OP_SHR :
+
+      carry = reg[d] & 1;
+      reg[d] >>= 1;
+      zero = reg[d] == 0;
+
+      break;
+
+    case OP_SHL :
+
+      reg[d] <<= 1;
+      carry = reg[d] & 16;
+      reg[d] &= 15;
+      zero = reg[d] == 0;
+
+      break;
+
+    case OP_ADC :
+
+      if (carry) reg[d]++;
+      carry = reg[d] > 15;
+      reg[d] &= 15;
+      zero = reg[d] == 0;
+
+      break;
+
+    case OP_SUBC :
+
+      if (carry) reg[d]--;
+      carry = reg[d] > 15;
+      reg[d] &= 15;
+      zero = reg[d] == 0;
+
+      break;
+
+      //
+      //
+      //
+
+    case OP_DIN :
+
+      reg[d] = readDIN();
+      carry = false;
+      zero = reg[d] == 0;
+
+      break;
+
+    case OP_DOT :
+
+      outputs = reg[dot_s];
+      carry = false;
+      zero = reg[dot_s] == 0;
+
+      break;
+
+    case OP_KIN :
+
+      currentMode = ENTERING_VALUE;
+      currentInputRegister = d;
+      //speakAndWait("input");
+
+      break;
+
+      //
+      //
+      //
 
     default : {
 
-        switch (op2) {
+      switch (op3) {
 
-          case OP_MAS :
+      case OP_HALT :
 
-            regEx[d] = reg[d];
+	currentMode = STOPPED;
+	break;
 
-            break;
+      case OP_NOP :
 
-          case OP_INV :
+	break;
 
-            reg[d] ^= 15;
+      case OP_DISOUT :
 
-            break;
+	displayOff();
 
-          case OP_SHR :
+	break;
 
-	    carry = reg[d] & 1;
-	    reg[d] >>= 1;
-	    zero = reg[d] == 0;
+      case OP_HXDZ :
 
-            break;
+	num =
+	  reg[0xD] +
+	  16 * reg[0xE] +
+	  256 * reg[0xF];
 
-          case OP_SHL :
+	zero = num > 999;
+	carry = false;
 
-            reg[d] <<= 1;
-            carry = reg[d] & 16;
-            reg[d] &= 15;
-            zero = reg[d] == 0;
+	num %= 1000;
 
-            break;
+	reg[0xD] = num % 10;
+	reg[0xE] = ( num / 10 ) % 10;
+	reg[0xF] = ( num / 100 ) % 10;
 
-          case OP_ADC :
+	break;
 
-            if (carry) reg[d]++;
-            carry = reg[d] > 15;
-            reg[d] &= 15;
-            zero = reg[d] == 0;
+      case OP_DZHX :
 
-            break;
+	num =
+	  reg[0xD] +
+	  10 * reg[0xE] +
+	  100 * reg[0xF];
 
-          case OP_SUBC :
+	carry = false;
+	zero = false;
 
-            if (carry) reg[d]--;
-            carry = reg[d] > 15;
-            reg[d] &= 15;
-            zero = reg[d] == 0;
+	reg[0xD] = num % 16;
+	reg[0xE] = ( num / 16 ) % 16;
+	reg[0xF] = ( num / 256 ) % 16;
 
-            break;
+	break;
 
-          //
-          //
-          //
+      case OP_RND :
 
-          case OP_DIN :
+	reg[0xD] = random(16);
+	reg[0xE] = random(16);
+	reg[0xF] = random(16);
 
-            reg[d] = readDIN();
-            carry = false;
-            zero = reg[d] == 0;
+	break;
 
-            break;
+      case OP_TIME :
 
-          case OP_DOT :
+	reg[0xA] = timeSeconds1;
+	reg[0xB] = timeSeconds10;
+	reg[0xC] = timeMinutes1;
+	reg[0xD] = timeMinutes10;
+	reg[0xE] = timeHours1;
+	reg[0xF] = timeHours10;
 
-            outputs = reg[dot_s];
-            carry = false;
-            zero = reg[dot_s] == 0;
+	break;
 
-            break;
+      case OP_RET :
 
-          case OP_KIN :
+	pc = stack[--sp] + 1;
+	jump = true;
+	break;
 
-            currentMode = ENTERING_VALUE;
-            currentInputRegister = d;
-            //speakAndWait("input");
+      case OP_CLEAR :
 
-            break;
+	for (byte i = 0; i < 16; i ++)
+	  reg[i] = 0;
 
-          //
-          //
-          //
+	carry = false;
+	zero = true;
 
-          default : {
+	break;
 
-              switch (op3) {
+      case OP_STC :
 
-                case OP_HALT :
+	carry = true;
 
-                  currentMode = STOPPED;
-                  break;
+	break;
 
-                case OP_NOP :
+      case OP_RSC :
 
-                  break;
+	carry = false;
 
-                case OP_DISOUT :
+	break;
 
-                  displayOff();
+      case OP_MULT :
 
-                  break;
+	num =
+	  reg[0] + 10 * reg[1] + 100 * reg[2] +
+	  1000 * reg[3] + 10000 * reg[4] + 100000 * reg[5];
 
-                case OP_HXDZ :
+	num2 =
+	  regEx[0] + 10 * regEx[1] + 100 * regEx[2] +
+	  1000 * regEx[3] + 10000 * regEx[4] + 100000 * regEx[5];
 
-                  num =
-                    reg[0xD] +
-                    16 * reg[0xE] +
-                    256 * reg[0xF];
+	num *= num2;
 
-                  zero = num > 999;
-                  carry = false;
+	carry = num > 999999;
 
-                  num %= 1000;
+	for (int i = 0; i < 6; i++) {
+	  carry |= ( reg[i] > 9 || regEx[i] > 9 );
+	}
 
-                  reg[0xD] = num % 10;
-                  reg[0xE] = ( num / 10 ) % 10;
-                  reg[0xF] = ( num / 100 ) % 10;
+	zero  = false;
 
-                  break;
+	num = num % 1000000;
 
-                case OP_DZHX :
+	if (carry) {
 
-                  num =
-                    reg[0xD] +
-                    10 * reg[0xE] +
-                    100 * reg[0xF];
+	  reg[0] = 0xE;
+	  reg[1] = 0xE;
+	  reg[2] = 0xE;
+	  reg[3] = 0xE;
+	  reg[4] = 0xE;
+	  reg[5] = 0xE;
 
-                  carry = false;
-                  zero = false;
+	} else {
 
-                  reg[0xD] = num % 16;
-                  reg[0xE] = ( num / 16 ) % 16;
-                  reg[0xF] = ( num / 256 ) % 16;
+	  reg[0] = num % 10;
+	  reg[1] = ( num / 10 ) % 10;
+	  reg[2] = ( num / 100 ) % 10;
+	  reg[3] = ( num / 1000 ) % 10;
+	  reg[4] = ( num / 10000 ) % 10;
+	  reg[5] = ( num / 100000 ) % 10;
+	}
 
-                  break;
+	for (int i = 0; i < 6; i++) // not documented in manual, but true!
+	  regEx[i] = 0;
 
-                case OP_RND :
+	break;
 
-                  reg[0xD] = random(16);
-                  reg[0xE] = random(16);
-                  reg[0xF] = random(16);
+      case OP_DIV :
 
-                  break;
+	num2 =
+	  reg[0] + 10 * reg[1] + 100 * reg[2] +
+	  1000 * reg[3];
 
-                case OP_TIME :
+	num =
+	  regEx[0] + 10 * regEx[1] + 100 * regEx[2] +
+	  1000 * regEx[3];
 
-                  reg[0xA] = timeSeconds1;
-                  reg[0xB] = timeSeconds10;
-                  reg[0xC] = timeMinutes1;
-                  reg[0xD] = timeMinutes10;
-                  reg[0xE] = timeHours1;
-                  reg[0xF] = timeHours10;
+	carry = false;
 
-                  break;
+	for (int i = 0; i < 6; i++) {
+	  carry |= ( reg[i] > 9 || regEx[i] > 9 );
+	}
 
-                case OP_RET :
+	if (num2 == 0 || carry ) {
 
-                  pc = stack[--sp] + 1;
-                  jump = true;
-                  break;
+	  carry = true;
+	  zero = false,
 
-                case OP_CLEAR :
+	    reg[0] = 0xE;
+	  reg[1] = 0xE;
+	  reg[2] = 0xE;
+	  reg[3] = 0xE;
+	  reg[4] = 0xE;
+	  reg[5] = 0xE;
 
-                  for (byte i = 0; i < 16; i ++)
-                    reg[i] = 0;
+	} else {
 
-                  carry = false;
-                  zero = true;
+	  carry = false;
+	  num3 = num / num2;
 
-                  break;
+	  reg[0] = num3 % 10;
+	  reg[1] = ( num3 / 10 ) % 10;
+	  reg[2] = ( num3 / 100 ) % 10;
+	  reg[3] = ( num3 / 1000 ) % 10;
 
-                case OP_STC :
+	  num3 = num % num2;
+	  zero = num3 > 0;
 
-                  carry = true;
+	  regEx[0] = num3 % 10;
+	  regEx[1] = ( num3 / 10 ) % 10;
+	  regEx[2] = ( num3 / 100 ) % 10;
+	  regEx[3] = ( num3 / 1000 ) % 10;
 
-                  break;
+	}
 
-                case OP_RSC :
+	break;
 
-                  carry = false;
+      case OP_EXRL :
 
-                  break;
+	for (int i = 0; i < 8; i++) {
+	  byte aux = reg[i];
+	  reg[i] = regEx[i];
+	  regEx[i] = aux;
+	}
 
-                case OP_MULT :
+	break;
 
-                  num =
-                    reg[0] + 10 * reg[1] + 100 * reg[2] +
-                    1000 * reg[3] + 10000 * reg[4] + 100000 * reg[5];
+      case OP_EXRM :
 
-                  num2 =
-                    regEx[0] + 10 * regEx[1] + 100 * regEx[2] +
-                    1000 * regEx[3] + 10000 * regEx[4] + 100000 * regEx[5];
+	for (int i = 8; i < 16; i++) {
+	  byte aux = reg[i];
+	  reg[i] = regEx[i];
+	  regEx[i] = aux;
+	}
 
-                  num *= num2;
+	break;
 
-                  carry = num > 999999;
+      case OP_EXRA :
 
-                  for (int i = 0; i < 6; i++) {
-                    carry |= ( reg[i] > 9 || regEx[i] > 9 );
-                  }
+	for (int i = 0; i < 8; i++) {
+	  byte aux = reg[i];
+	  reg[i]   = reg[i + 8];
+	  reg[i + 8] = aux;
+	}
 
-                  zero  = false;
+	break;
 
-                  num = num % 1000000;
+      default : // DISP!
 
-                  if (carry) {
+	dispOff = false;
+	showingDisplayDigits = disp_n;
+	showingDisplayFromReg = disp_s;
+	lastInstructionWasDisp = true;
 
-                    reg[0] = 0xE;
-                    reg[1] = 0xE;
-                    reg[2] = 0xE;
-                    reg[3] = 0xE;
-                    reg[4] = 0xE;
-                    reg[5] = 0xE;
+	if (oneStepOnly) {
+	  clearDisplay();
+	  writeDisplay();
+	  showDISP();
+	}
 
-                  } else {
+	break;
 
-                    reg[0] = num % 10;
-                    reg[1] = ( num / 10 ) % 10;
-                    reg[2] = ( num / 100 ) % 10;
-                    reg[3] = ( num / 1000 ) % 10;
-                    reg[4] = ( num / 10000 ) % 10;
-                    reg[5] = ( num / 100000 ) % 10;
-                  }
+	//
+	//
+	//
 
-                  for (int i = 0; i < 6; i++) // not documented in manual, but true!
-                    regEx[i] = 0;
-
-                  break;
-
-                case OP_DIV :
-
-                  num2 =
-                    reg[0] + 10 * reg[1] + 100 * reg[2] +
-                    1000 * reg[3];
-
-                  num =
-                    regEx[0] + 10 * regEx[1] + 100 * regEx[2] +
-                    1000 * regEx[3];
-
-                  carry = false;
-
-                  for (int i = 0; i < 6; i++) {
-                    carry |= ( reg[i] > 9 || regEx[i] > 9 );
-                  }
-
-                  if (num2 == 0 || carry ) {
-
-                    carry = true;
-                    zero = false,
-
-                    reg[0] = 0xE;
-                    reg[1] = 0xE;
-                    reg[2] = 0xE;
-                    reg[3] = 0xE;
-                    reg[4] = 0xE;
-                    reg[5] = 0xE;
-
-                  } else {
-
-                    carry = false;
-                    num3 = num / num2;
-
-                    reg[0] = num3 % 10;
-                    reg[1] = ( num3 / 10 ) % 10;
-                    reg[2] = ( num3 / 100 ) % 10;
-                    reg[3] = ( num3 / 1000 ) % 10;
-
-                    num3 = num % num2;
-                    zero = num3 > 0;
-
-                    regEx[0] = num3 % 10;
-                    regEx[1] = ( num3 / 10 ) % 10;
-                    regEx[2] = ( num3 / 100 ) % 10;
-                    regEx[3] = ( num3 / 1000 ) % 10;
-
-                  }
-
-                  break;
-
-                case OP_EXRL :
-
-                  for (int i = 0; i < 8; i++) {
-                    byte aux = reg[i];
-                    reg[i] = regEx[i];
-                    regEx[i] = aux;
-                  }
-
-                  break;
-
-                case OP_EXRM :
-
-                  for (int i = 8; i < 16; i++) {
-                    byte aux = reg[i];
-                    reg[i] = regEx[i];
-                    regEx[i] = aux;
-                  }
-
-                  break;
-
-                case OP_EXRA :
-
-                  for (int i = 0; i < 8; i++) {
-                    byte aux = reg[i];
-                    reg[i]   = reg[i + 8];
-                    reg[i + 8] = aux;
-                  }
-
-                  break;
-
-                default : // DISP!
-
-                  dispOff = false;
-                  showingDisplayDigits = disp_n;
-                  showingDisplayFromReg = disp_s;
-                  lastInstructionWasDisp = true;
-
-                  if (oneStepOnly) {
-                    clearDisplay();
-                    writeDisplay();
-                    showDISP();
-                  }
-
-                  break;
-
-                  //
-                  //
-                  //
-
-              }
-            }
-        }
       }
+    }
+    }
+  }
   }
 
   if (oneStepOnly) {
@@ -3431,4 +3448,3 @@ void loop() {
     cpu_delay = 0;
 
 }
-
