@@ -1,5 +1,4 @@
 /*
-
   A Busch 2090 Microtronic Emulator for Arduino Mega 2560
   Optional support for
   - Emic 2 TTS Speech Module
@@ -8,7 +7,7 @@
   See #define SDCARD
   See #define SPEECH
 
-  Version 4 (c) Michael Wessel, March 14, 2022 
+  Version 4 (c) Michael Wessel, March 16, 2022 
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -98,8 +97,8 @@ const char PGMA[] PROGMEM = "F30 510 FB1 FB2 FE1 FE1 C00 ";
 // PGM B - scrolling LED light
 const char PGMB[] PROGMEM = "110 F10 FE0 FA0 FB0 C02 ";
 
-// PGM C - DIN digital input test
-const char PGMC[] PROGMEM = "F10 FD0 FE0 C00 ";
+// PGM C - Speaking Counter 
+const char PGMC[] PROGMEM = "F20 100 131 3FA 700 3FF 3FB 510 FB1 9A0 E01 C03 ";
 
 // PGM D - Lunar Lander
 const char PGMD[] PROGMEM = "F02 F08 FE0 142 1F3 114 125 136 187 178 1A1 02D 03E 04F F03 F5D FFB F02 1B1 10F 05D 06E F03 F5D FFB F02 1C1 07D 08E F03 F5D FFB 10D 10E F2D FFB 99B D29 0DE 0BD C22 F02 10F F04 6D7 FC8 D69 6E8 D69 75D FCE D5A 4D2 FB3 FB4 4E3 FB4 652 FC3 FC4 D7B 663 FC4 D7B 6D5 FC6 D80 6E6 D80 904 D0A 903 D0A 952 D0A 906 D0A 955 D0A 1E0 1E1 1E2 1E3 1E4 1E5 1F6 FE6 F60 FF0 C00 6DF 6F2 FC3 FC4 D7B 652 FC3 FC4 D7B 663 FC4 D7B 4F5 FB6 C45 1E0 1A1 1E2 1A3 1FF 1FE FEF 71E D73 C70 F40 FEF 10D FED 71E D58 F02 C73 1A0 1A1 1A2 1A3 C6D 1F0 1A1 1F2 1A3 C6D ";
@@ -2915,9 +2914,8 @@ void run() {
 	else {
 	  nibbleLo = d;
 	  char c = char(nibbleHi * 10 + nibbleLo);
-	  if (c == 13 || c >= 32 && c <= 125 ) {
+	  if (c == 13 || c >= 32 && c <= 125 ) 
 	    speakSendChar(c);
-	  }
 	  nibbleHi = 255;
 	}
       }
@@ -2947,6 +2945,23 @@ void run() {
     carry = false;
     zero = reg[d] == 0;
 
+    if (n == 15) {
+      speechOn = true;  
+      if ( d == 10) {
+	speakInit(); 
+	nibbleHi = 255;
+	nibbleLo = 255;
+      } else if ( d == 11 ) {
+	speakWait(); 
+	nibbleHi = 255;
+	nibbleLo = 255;
+      } else if ( d == 15) {
+	speakEnter();    
+	nibbleHi = 255;
+	nibbleLo = 255;
+      }
+      speechOn = speechOn0; 
+    }
     break;
 
   case OP_ADD :
@@ -2965,6 +2980,17 @@ void run() {
     reg[d] &= 15;
     zero =  reg[d] == 0;
 
+    if (n == 0) {
+      // decimal encoded 
+      speechOn = true; 
+      nibbleLo = reg[d];
+      nibbleHi = reg[(d+1) % 16];
+      char c = char(nibbleHi * 10 + nibbleLo);
+      if (c == 13 || c >= 32 && c <= 125 ) 
+         speakSendChar(c);      
+      speechOn = speechOn0; 
+    }
+
     break;
 
   case OP_SUB :
@@ -2982,6 +3008,17 @@ void run() {
     carry = reg[d] > 15;
     reg[d] &= 15;
     zero =  reg[d] == 0;
+
+     if (n == 0) {
+      // HEX encoded 
+      speechOn = true; 
+      nibbleLo = reg[d];
+      nibbleHi = reg[(d+1) % 16];
+      char c = char(nibbleHi * 16 + nibbleLo);
+      if (c == 13 || c >= 32 && c <= 125 ) 
+         speakSendChar(c);      
+      speechOn = speechOn0; 
+    }
 
     break;
 
