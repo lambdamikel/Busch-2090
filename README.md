@@ -699,14 +699,70 @@ be continued.  The PCB Gerbers will follow shortly.
 
 ### The Microtronic Mega Emulator Version 3 - Updated Firmware 
 
-An updated firmware (January 2022) for the [Microtronic Mega Emulator Version 3 from 2016](./README.old.md)     
+An updated firmware (March 2022) for the [Microtronic Mega Emulator Version 3 from 2016](./README.old.md)     
 is [available here.](busch2090-mega-v4/)
 
-Like the 2016 version, it supports speech output over the Emic-2 speech
-synthesizer. Please refer to the [2016 documentation for further
-details.](./README.old.md) 
+Like the 2016 version, it supports speech output over the Emic-2
+speech synthesizer. Please also refer to the [2016 documentation for
+further details.](./README.old.md)
 
-Note the following changes to the 2016 version: 
+The new firmware update supports more versatile speech output. In
+addition to utilizing the vacuous ``MOV x,x`` opcodes for outputting
+BCD-encoded hi/low nibbles to the Emic-2 (e.g., the ASCII code for
+`A`, 65, would be sent via the sequence ``MOV 6,6 = 066``, ``MOV 5,5 =
+055``), we now also support sending of ASCII codes stored in register
+pairs.
+
+More specically, ``ADDI 0,x = 50x`` will send the BCD-encoded ASCII
+value stored in registers ``x`` and ``(x+1) mod %16``:
+
+```
+      nibbleLo = reg[x];
+      nibbleHi = reg[(x+1) % 16];
+      char c = char(nibbleHi * 10 + nibbleLo);
+      if (c == 13 || c >= 32 && c <= 125 ) 
+         speakSendChar(c);      
+``` 
+
+Moreover, ``SUBI 0,x = 70x`` does the same, but with standard
+hex-encoded nibbles:
+
+```
+      nibbleLo = reg[x];
+      nibbleHi = reg[(x+1) % 16];
+      char c = char(nibbleHi * 16 + nibbleLo);
+      if (c == 13 || c >= 32 && c <= 125 ) 
+         speakSendChar(c);      
+      if (c == 13 || c >= 32 && c <= 125 ) 
+         speakSendChar(c);      
+```
+
+In addition, ``MOV A,A = 0AA`` initializes the Emic-2, ``MOV B,B =
+0BB`` waits for speech to finish, and ``MOV F,F`` sends Enter (CR 13)
+to the Emic-2 to flush the speech buffer and start the speech.  Note
+that also ``ANDI F,x = 3Fx`` can be used with `x = A`, `B`, or `F`,
+with the same functions just described.
+
+Here is a simple program that lets the Emic-2 count from 0 to 9. This
+program is available under `PGM C`:
+
+```
+F20 
+100 # load 0x0 into reg 0
+131 # load 0x3 into reg 1; note that 0x30 = 48 = ASCII code of 0
+3FA # initialize Emic-2 
+700 # send ASCII character reg[0]+16*reg[1] to Emic-2 
+3FF # send Enter to Emic-2 (start speech) 
+3FB # wait for speech to finish 
+510 # add 1 to reg 0 (next ASCII code) 
+FB1 # carry overflow into register 1? 
+9A0 # check if we are at 0x3A = 58 = ; (after ASCII code 9) 
+E01 # if so, zero is set, then goto 01, start from x30 = 48 again 
+C03 # else goto 03 
+```
+
+In addition, it differs as following from the documented 2016 version:
+
 - PGM programs are no longer stored in EEPROM, but in PROGMEM (hence, ignore all instructions in the 2016 documentation referring to a prior programming of the EEPROM, this is not necessary anylonger). 
 - The 1 Hz clock signal is now properly implemented by means of a timer ISR. 
 - Speech output can be en/dis-abled. Default is off. 
