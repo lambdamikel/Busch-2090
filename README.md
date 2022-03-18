@@ -733,8 +733,6 @@ hex-encoded nibbles:
       char c = char(nibbleHi * 16 + nibbleLo);
       if (c == 13 || c >= 32 && c <= 125 ) 
          speakSendChar(c);      
-      if (c == 13 || c >= 32 && c <= 125 ) 
-         speakSendChar(c);      
 ```
 
 In addition, ``MOV A,A = 0AA`` initializes the Emic-2, ``MOV B,B =
@@ -761,7 +759,8 @@ E01 # if so, zero is set, then goto 01, start from x30 = 48 again
 C03 # else goto 03 
 ```
 
-In addition, it differs as following from the documented 2016 version:
+In addition, we the new version differs as follows from the documented 2016 version; 
+most of these are simple improvements over the 2016 version: 
 
 - PGM programs are no longer stored in EEPROM, but in PROGMEM (hence, ignore all instructions in the 2016 documentation referring to a prior programming of the EEPROM, this is not necessary anylonger). 
 - The 1 Hz clock signal is now properly implemented by means of a timer ISR. 
