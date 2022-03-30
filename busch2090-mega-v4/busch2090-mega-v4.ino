@@ -7,7 +7,7 @@
   See #define SDCARD
   See #define SPEECH
 
-  Version 4 (c) Michael Wessel, March 16, 2022 
+  Version 4 (c) Michael Wessel, March 29, 2022 
 
   michael_wessel@gmx.de
   miacwess@gmail.com
@@ -1668,7 +1668,7 @@ void displayStatus() {
   }
 
   digitalWrite(CARRY_LED, carry);
-  digitalWrite(ZERO_LED, carry);
+  digitalWrite(ZERO_LED, zero);
   digitalWrite(CLOCK_LED, clock);
 
   digitalWrite(CLOCK_1HZ_LED, clock1hz);
