@@ -54,7 +54,11 @@ The "Next Generation" version was featured on the Hackaday front page,
 The "Next Generation" version was also a winner of [Hackaday's 2021 "Reinvented Retro Contest"](https://hackaday.com/2021/07/17/reinvented-retro-contest-winners-announced/): 
 
 ![Hackaday 4](./hackaday/winner1.png) 
-![Hackaday 5](./hackaday/winner2.png) 
+![Hackaday 5](./hackaday/winner2.png)
+
+The "Retro-Authentic Bubble LED Version" was a winner of the [RetroChallenge 2021/10](https://www.retrochallenge.org/2022/09/rc202110-results.html#more):
+
+![RetroChallenge Winner](./images/retrochallenge-winner.jpg) 
 
 
 ## History 
@@ -666,6 +670,28 @@ the sketch using ``PGMSPACE`` strings.  Note that ``PGM 1`` to ``PGM
 - ``PGM F`` : Game 17+4 BlackJack, from the "Computerspiele 2094" book, page 32
 
 Have fun! 
+
+#### RetroChallenge 2021/11 Contribution 
+
+Here is my RetroChallenge 2021/11 contribution which won one of the prizes: 
+![RetroChallenge Winner](./images/retrochallenge-winner.jpg) 
+
+For
+[RC2021/11](https://www.retrochallenge.org/p/entrants-list-202110.html),
+I created a number of YouTube videos documenting the development of a
+MIDI-based drum computer with the Bubble LED Microtronic. This
+required firmware extensions and additional op-codes to support the
+implementation the drum computer in Microtronic machine language. To
+conclude the video series and contribution, I also demonstrated how to
+user the emulator as an external hardware drum module for the original
+Busch Microtronic. If this sparks your interest, then please check out
+[the YouTube
+playlist.](https://www.youtube.com/playlist?list=PLvdXKcHrGqhfq1AK5TonfBeDN-dWtGDih)
+
+You can find the required firmware extensions and Microtronic
+programms [here;](./busch2090-pcb-midi/); they are documented on the
+[Hackday page.](https://hackaday.io/project/180252-a-retro-authentic-microtronic-emulator) 
+
 
 ## Current Arduino Sketches & Gerbers 
 
