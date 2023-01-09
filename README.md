@@ -680,16 +680,16 @@ For
 [RC2021/11](https://www.retrochallenge.org/p/entrants-list-202110.html),
 I created a number of YouTube videos documenting the development of a
 MIDI-based drum computer with the Bubble LED Microtronic. This
-required firmware extensions and additional op-codes to support the
-implementation the drum computer in Microtronic machine language. To
-conclude the video series and contribution, I also demonstrated how to
-user the emulator as an external hardware drum module for the original
-Busch Microtronic. If this sparks your interest, then please check out
-[the YouTube
+required firmware extensions and additional Microtronic machine
+language op-codes to support the implementation of the drum computer
+in Microtronic machine language. To conclude the video series and
+RC2021/11 contribution, I connected a real Microtronic to the Bubble
+LED Microtronic which used it as an external drum module. If this
+sparks your interest, then please check out [the YouTube
 playlist.](https://www.youtube.com/playlist?list=PLvdXKcHrGqhfq1AK5TonfBeDN-dWtGDih)
 
 You can find the required firmware extensions and Microtronic
-programms [here;](./busch2090-pcb-midi/); they are documented on the
+programms [here](./busch2090-pcb-midi/); they are documented on the
 [Hackday page.](https://hackaday.io/project/180252-a-retro-authentic-microtronic-emulator) 
 
 
