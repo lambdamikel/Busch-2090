@@ -10,22 +10,6 @@
 #### License: GPL 3
 #### [YouTube Videos](https://www.youtube.com/playlist?list=PLvdXKcHrGqhekyx81EoCwQij1Lqylp0dB) 
 
-## Latest News
-
-### 02-02-2023
-
-I was invited to give a presentation about this long-running project
-for the [AIC (Artificial Intelligence Center)
-Seminar](https://www.ai.sri.com/) at [SRI
-International](https://www.sri.com/)
-
-I had a few Microtronic emulators on display as well, and 
-[here are the slides of the talk.](./manuals/SRI International AIC Seminar - 02-02-2023.pdf) 
-
-![AIC 1](./images/aic-seminar-1.jpg)
-![AIC 2](./images/aic-seminar-2.jpg)
-![AIC 3](./images/aic-seminar-3.jpg)
-
 ## Abstract
 
 This repository contains a number of Arduino-based emulators of the 
@@ -75,6 +59,21 @@ The "Next Generation" version was also a winner of [Hackaday's 2021 "Reinvented 
 The "Retro-Authentic Bubble LED Version" was a winner of the [RetroChallenge 2021/10](https://www.retrochallenge.org/2022/09/rc202110-results.html#more):
 
 ![RetroChallenge Winner](./images/retrochallenge-winner.jpg) 
+
+## Latest News
+
+### 02-02-2023
+
+I was invited to give a presentation about this long-running project
+as a 1-hour seminar for the [Artificial Intelligence Center](https://www.ai.sri.com/) at [SRI International.](https://www.sri.com/)
+
+I had a few Microtronic emulators on display as well, and 
+[here are the slides of the talk.](./manuals/SRI International AIC Seminar - 02-02-2023.pdf) 
+
+![AIC 1](./images/aic-seminar-1.jpg)
+![AIC 2](./images/aic-seminar-2.jpg)
+![AIC 3](./images/aic-seminar-3.jpg)
+
 
 
 ## History 
