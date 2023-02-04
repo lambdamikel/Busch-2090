@@ -68,7 +68,7 @@ I was invited to give a presentation about this long-running project
 as a 1-hour seminar for the [Artificial Intelligence Center](https://www.ai.sri.com/) at [SRI International.](https://www.sri.com/)
 
 I had a few Microtronic emulators on display as well, and 
-[here are the slides of the talk.](./manuals/SRI International AIC Seminar - 02-02-2023.pdf) 
+[here are the slides of the talk.](./manuals/seminar-02-02-2023.pdf) 
 
 ![AIC 1](./images/aic-seminar-1.jpg)
 ![AIC 2](./images/aic-seminar-2.jpg)
