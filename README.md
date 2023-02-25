@@ -65,7 +65,10 @@ The "Retro-Authentic Bubble LED Version" was a winner of the [RetroChallenge 202
 ### 02-02-2023
 
 I was invited to give a presentation about this long-running project
-as a 1-hour seminar for the [Artificial Intelligence Center](https://www.ai.sri.com/) at [SRI International.](https://www.sri.com/)
+as a 1-hour seminar for the [Artificial Intelligence
+Center](https://www.ai.sri.com/) at [SRI
+International.](https://www.sri.com/).  There is also a [YouTube
+Video](https://youtu.be/YCL7jwhlZqo).
 
 I had a few Microtronic emulators on display as well, and 
 [here are the slides of the talk.](./manuals/seminar-02-02-2023.pdf) 
