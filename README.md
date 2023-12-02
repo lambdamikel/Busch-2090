@@ -73,7 +73,7 @@ of the Microtronic genesis, from early planning stages in the fall of 1979 at
 Busch to mass-production of the masked-programmed TMS1600 by Texas 
 Instrument in the fall of 1981.
 
-Whereas it was previously rumoured that the original hardware design
+Whereas it was previously rumored that the original hardware design
 of the Microtronic might have been contributed by the electronics
 magazin "ELO" due to a previous collaboration between Busch and "ELO"
 for some of their earlier electronics kits, this turned out to be
