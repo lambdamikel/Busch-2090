@@ -60,7 +60,36 @@ The "Retro-Authentic Bubble LED Version" was a winner of the [RetroChallenge 202
 
 ![RetroChallenge Winner](./images/retrochallenge-winner.jpg) 
 
-## Latest News
+## Latest Bombshell News - December 1st 2023   
+
+*The creator of the original Busch Microtronic, **Mr. JÃ¶rg Vallen of
+Busch** and author of the excellent Microtronic manuals found an
+important historical document in his archives: [the summary / abstract
+of his master thesis (Diplomarbeit)!](manuals/joerg-vallen-diplom.pdf)* 
+
+The Microtronic manuals were an essential part of his master thesis in
+1982, and this abstract / summary unveils previously unknown details
+of the Microtronic genesis, from early planning stages in fall 1979 at
+Busch to mass-production of the masked-programmed TMS1600 by Texas 
+Instrument in the fall of 1981.
+
+Whereas it was previously rumoured that the original hardware design
+of the Microtronic might have been contributed by the electronics
+magazin "ELO" due to a previous collaboration between Busch and "ELO"
+for some of their earlier electronics kits, this turned out to be
+*not* the case. But read for yourself to uncover who, under commission
+of Busch and with and guidance from Mr. Jörg Vallen, developed the
+hardware and operating system of the Microtronic! The document is a
+fascinating read and also nicely discusses some of the engineering
+challenges that cropped up along the way.
+
+Thanks much to Mr. Vallen for this great gift to all Microtronic
+enthusiasts, and for giving me [permission to include this important
+historical Microtronic document in the
+repository.](manuals/vallen-permission-diplom.txt)*
+
+
+## Older News
 
 ### 02-02-2023
 

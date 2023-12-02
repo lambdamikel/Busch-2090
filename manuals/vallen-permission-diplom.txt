@@ -1,0 +1,34 @@
+On 11/30/2023 8:48 AM, Jörg Vallen wrote:
+> Hallo Herr Wessel,
+>
+> ich habe da nichts dagegen - ist ja alles schon etwas historisch - vor allem in der schnelllebigen Computerwelt. Insofern ist mein Text von damals, wenn man ihn heute liest, direkt amüsant.
+>
+> Sollen wir von unserer Microtronic-Seite noch auf eine andere Seite Ihres Web-Bereichs verlinken?
+>
+> Grüße
+> Jörg Vallen
+>
+>
+> -----Ursprüngliche Nachricht-----
+> Von: Michael Wessel <miacwess@gmail.com>
+> Gesendet: Donnerstag, 30. November 2023 17:36
+> An: Jörg Vallen <j.vallen@busch-model.com>
+> Betreff: Re: AW: AW: PicoRAM 2090 für das Busch 2090 Microtronic Computer System
+>
+> Wow - hervorragend! Schon einmal vielen Dank dafür - das ist ja ein wahrer Schatz für das Microtronic-Archiv!
+>
+> Ist es Ihnen Recht, wenn Ihre schöne Arbeit ebenfalls unter
+>
+> https://github.com/lambdamikel/Busch-2090/tree/master/manuals
+>
+> einen Platz findet, damit andere sie lesen können? Ich würde auch die Hauptseite
+>
+> https://github.com/lambdamikel/Busch-2090
+>
+> anpassen, damit dieses wertvolle Fundstück entsprechend hervorgehoben wird. Falls Ihnen das nicht Recht ist, kann ich das natürlich voll und ganz verstehen.
+>
+> Ich werde Ihre Arbeit in aller Ruhe studieren und melde mich wieder, bis dahin,
+>
+> Viele Grüße
+>
+> Michael Wessel
