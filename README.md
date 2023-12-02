@@ -69,22 +69,22 @@ of his master thesis (Diplomarbeit)!](manuals/joerg-vallen-diplom.pdf)*
 
 The Microtronic manuals were an essential part of his master thesis in
 1982, and this abstract / summary unveils previously unknown details
-of the Microtronic genesis, from early planning stages in fall 1979 at
-Busch to mass-production of the masked-programmed TMS1600 by Texas
-Instrument in the fall of 1981.
+of the Microtronic genesis, from early planning stages in the fall of
+1979 at Busch to mass-production of the masked-programmed TMS1600 by
+Texas Instrument in the fall of 1981.
 
-Whereas it was previously rumoured that the original hardware design
-of the Microtronic might have been contributed by the electronics
-magazin "ELO" due to a previous collaboration between Busch and "ELO"
+Whereas it was previously rumored that the original hardware design of
+the Microtronic might have been contributed by the electronics
+magazine "ELO" due to a previous collaboration between Busch and "ELO"
 for some of their earlier electronics kits, this turned out to be
 *not* the case. But read for yourself to uncover who, under commission
-of Busch and with and guidance from Mr. Jörg Vallen, developed the
-hardware and operating system of the Microtronic! The document is a
-fascinating read and also nicely discusses some of the engineering
-challenges that cropped up along the way. It becomes clear that the
-*excellent Microtronic instruction* set is largely Mr. Vallen's
-brainchild and that he had a profound impact on the design and
-creation of the Microtronic.
+of Busch and guidance from Mr. Vallen, developed the hardware and
+operating system of the Microtronic! The document is a fascinating
+read and also nicely discusses some of the engineering challenges that
+cropped up along the way. It becomes clear that the *excellent
+Microtronic instruction* set is largely Mr. Vallen's brainchild and
+that he had a profound impact on the design and creation of the
+Microtronic.
 
 Thanks much to Mr. Vallen for this great gift to all Microtronic
 enthusiasts, and for giving me [permission to include this important
