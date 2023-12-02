@@ -34,7 +34,7 @@ on the official Busch website here, including PDFs of the original
 manuals in
 German](https://www.busch-model.info/service/historie-microtronic/.)
 
-The designer of the original Busch Microtronic, **Mr. Jörg Vallen of Busch**, 
+The designer of the original Busch Microtronic, **Mr. JÃ¶rg Vallen of Busch**, 
 was also so kind to grant permission to include a full copy of the
 manual set in the [`manuals`](./manuals/) directory of this project. 
 
@@ -78,7 +78,7 @@ of the Microtronic might have been contributed by the electronics
 magazin "ELO" due to a previous collaboration between Busch and "ELO"
 for some of their earlier electronics kits, this turned out to be
 *not* the case. But read for yourself to uncover who, under commission
-of Busch and with and guidance from Mr. J�rg Vallen, developed the
+of Busch and with and guidance from Mr. Jörg Vallen, developed the
 hardware and operating system of the Microtronic! The document is a
 fascinating read and also nicely discusses some of the engineering
 challenges that cropped up along the way.
