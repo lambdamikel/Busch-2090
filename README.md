@@ -62,7 +62,7 @@ The "Retro-Authentic Bubble LED Version" was a winner of the [RetroChallenge 202
 
 ## Latest Bombshell News - December 1st 2023   
 
-*The creator of the original Busch Microtronic, **Mr. Jörg Vallen of
+*The creator of the original Busch Microtronic, **Mr. JÃ¶rg Vallen of
 Busch** and author of the excellent Microtronic manuals found an
 important historical document in his archives: [the summary / abstract
 of his master thesis (Diplomarbeit)!](manuals/joerg-vallen-diplom.pdf)* 
