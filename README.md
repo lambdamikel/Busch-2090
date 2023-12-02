@@ -75,7 +75,7 @@ Instrument in the fall of 1981.
 
 Whereas it was previously rumored that the original hardware design
 of the Microtronic might have been contributed by the electronics
-magazin "ELO" due to a previous collaboration between Busch and "ELO"
+magazine "ELO" due to a previous collaboration between Busch and "ELO"
 for some of their earlier electronics kits, this turned out to be
 *not* the case. But read for yourself to uncover who, under commission
 of Busch and with and guidance from Mr. Jörg Vallen, developed the
