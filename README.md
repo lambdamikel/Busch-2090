@@ -78,7 +78,7 @@ of the Microtronic might have been contributed by the electronics
 magazine "ELO" due to a previous collaboration between Busch and "ELO"
 for some of their earlier electronics kits, this turned out to be
 *not* the case. But read for yourself to uncover who, under commission
-of Busch and with and guidance from Mr. Jörg Vallen, developed the
+of Busch and guidance from Mr. Vallen, developed the
 hardware and operating system of the Microtronic! The document is a
 fascinating read and also nicely discusses some of the engineering
 challenges that cropped up along the way.
