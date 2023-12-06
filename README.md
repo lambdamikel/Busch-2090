@@ -60,7 +60,9 @@ The "Retro-Authentic Bubble LED Version" was a winner of the [RetroChallenge 202
 
 ![RetroChallenge Winner](./images/retrochallenge-winner.jpg) 
 
-## Latest Bombshell News - December 1st 2023   
+## Latest News 
+
+### December 1st 2023   
 
 *The creator of the original Busch Microtronic, **Mr. Jörg Vallen of
 Busch** and author of the excellent Microtronic manuals found an
@@ -91,6 +93,24 @@ enthusiasts, and for giving me [permission to include this important
 historical Microtronic document in the
 repository.](manuals/vallen-permission-diplom.txt)
 
+### December 2nd 2023
+
+[Another Microtronic review
+article](manuals/Microtronic-Review-HC-84-07.pdf) was found - in the
+7/1984 issue of the German computer magazine "HC - Mein
+Home-Computer".  This review is rather late to the game, but what
+makes it interesting is that it compares the Microtronic with the
+competition's educational computer systems - the [Kosmos
+CP1](https://youtu.be/CJRhAwR-_xM) and the [Philips MasterLab MC
+6400](https://youtu.be/dlj2oZUlRDY).
+
+### December 4th 2023
+
+Mr. Jörg Vallen of Busch was so kind to include a link to my [PicoRAM
+2090](https://github.com/lambdamikel/picoram2090) as well as to [this
+repository](https://github.com/lambdamikel/Busch-2090) on the [Busch
+Microtronic main
+page.](https://www.busch-modell.de/information/Microtronic-Computer.aspx)
 
 ## Older News
 
