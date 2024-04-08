@@ -5,7 +5,8 @@
 - Frank de Jaeger: 2nd Generation Microtronic PCB 
 - Manfred Henf: 2nd Generation Microtronic 3D Design & Printing 
 - Martin Sauter: Busch 2095 Cassette Interface Protocol Reengineering & Research
-- Lilly (https://github.com/ducatimaus/Busch-2090): Breakpoint & Single Stepping Integration for Uno R3 Version 
+- Lilly (https://github.com/ducatimaus/Busch-2090): Breakpoint & Single Stepping Integration for Uno R3 Version
+- BjÃ¶rn Rathje: HZDZ op-code bug fix (overflow set to 0 behavior)
 
 #### License: GPL 3
 #### [YouTube Videos](https://www.youtube.com/playlist?list=PLvdXKcHrGqhekyx81EoCwQij1Lqylp0dB) 
@@ -34,7 +35,7 @@ on the official Busch website here, including PDFs of the original
 manuals in
 German](https://www.busch-model.info/service/historie-microtronic/.)
 
-The designer of the original Busch Microtronic, **Mr. Jörg Vallen of Busch**, 
+The designer of the original Busch Microtronic, **Mr. JÃ¶rg Vallen of Busch**, 
 was also so kind to grant permission to include a full copy of the
 manual set in the [`manuals`](./manuals/) directory of this project. 
 
@@ -64,7 +65,7 @@ The "Retro-Authentic Bubble LED Version" was a winner of the [RetroChallenge 202
 
 ### December 1st 2023   
 
-*The creator of the original Busch Microtronic, **Mr. Jörg Vallen of
+*The creator of the original Busch Microtronic, **Mr. JÃ¶rg Vallen of
 Busch** and author of the excellent Microtronic manuals found an
 important historical document in his archives: [the summary / abstract
 of his master thesis (Diplomarbeit)!](manuals/joerg-vallen-diplom.pdf)* 
@@ -106,7 +107,7 @@ CP1](https://youtu.be/CJRhAwR-_xM) and the [Philips MasterLab MC
 
 ### December 4th 2023
 
-Mr. Jörg Vallen of Busch was so kind to include a link to my [PicoRAM
+Mr. JÃ¶rg Vallen of Busch was so kind to include a link to my [PicoRAM
 2090](https://github.com/lambdamikel/picoram2090) as well as to [this
 repository](https://github.com/lambdamikel/Busch-2090) on the [Busch
 Microtronic main
