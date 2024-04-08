@@ -3180,11 +3180,19 @@ void run() {
     zero = num > 999;
     carry = false;
     
-    num %= 1000;
-    
-    reg[0xD] = num % 10;
-    reg[0xE] = ( num / 10 ) % 10;
-    reg[0xF] = ( num / 100 ) % 10;
+    if (zero) {
+
+      reg[0xD] = 0;
+      reg[0xE] = 0;
+      reg[0xF] = 0;
+
+    } else {
+
+      reg[0xD] = num % 10;
+      reg[0xE] = ( num / 10 ) % 10;
+      reg[0xF] = ( num / 100 ) % 10;
+
+    }
     
   } else if (op3 == OP_DZHX ) {
 
