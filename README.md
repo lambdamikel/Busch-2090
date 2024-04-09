@@ -6,7 +6,7 @@
 - Manfred Henf: 2nd Generation Microtronic 3D Design & Printing 
 - Martin Sauter: Busch 2095 Cassette Interface Protocol Reengineering & Research
 - Lilly (https://github.com/ducatimaus/Busch-2090): Breakpoint & Single Stepping Integration for Uno R3 Version
-- Björn Rathje: HZDZ op-code bug fix (overflow set to 0 behavior)
+- Björn Rathje: HXDZ op-code bug fix (overflow set to 0 behavior)
 
 #### License: GPL 3
 #### [YouTube Videos](https://www.youtube.com/playlist?list=PLvdXKcHrGqhekyx81EoCwQij1Lqylp0dB) 
