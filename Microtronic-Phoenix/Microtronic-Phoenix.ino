@@ -9,9 +9,8 @@
 //
 //
 
-// int cpu_delay = 12;
-
 int cpu_delay = 0;
+int cpu_speed = 0;
 
 //                    0  1  2  3   4   5   6   7   8   9  10  11   12   13   14  15
 int cpu_delays[16] = {0, 3, 6, 9, 12, 15, 18, 21, 30, 40, 50, 80, 120, 150, 200, 500 }; 
@@ -60,7 +59,7 @@ const char PGMF[] PROGMEM = "F08 FE0 14A 1DB 1DC 1AD 17E 11F F6A FFF F02 B6C C12
 #define PROGRAMS 9
 
 const char *const PGMROM[PROGRAMS] PROGMEM = {
-    PGM7, PGM8, PGM9, PGMA, PGMB, PGMC, PGMD, PGME, PGMF};
+  PGM7, PGM8, PGM9, PGMA, PGMB, PGMC, PGMD, PGME, PGMF};
 
 byte programs = PROGRAMS;
 
@@ -71,30 +70,33 @@ byte program = 0;
 //
 
 //
-// Keypad 4 x 4 matrix
+// Keypad 7 x 4 matrix
 //
 
 #define ROWS 4
-#define COLS 6
+#define COLS 7
 
 
-#define HALT 0x11
-#define NEXT 0x12
-#define RUN  0x13
-#define CCE  0x14
-#define REG  0x15
-#define STEP 0x16
-#define BKP  0x17
-#define PGM  0x18 
+#define HALT  0x11
+#define NEXT  0x12
+#define RUN   0x13
+#define CCE   0x14
+#define REG   0x15
+#define STEP  0x16
+#define BKP   0x17
+#define PGM   0x18 
+#define RESET 0x19
+#define CPUP  0x1A
+#define CPUM  0x1B
 
 char keys[ROWS][COLS] = { // plus one because 0 = no key pressed!
-  {0xD, 0xE, 0xF, 0x10, NEXT, REG},
-  {0x9, 0xA, 0xB, 0xC,  BKP,  STEP},
-  {0x5, 0x6, 0x7, 0x8,  RUN,  HALT},
-  {0x1, 0x2, 0x3, 0x4,  CCE , PGM}
+  {0xD, 0xE, 0xF, 0x10, NEXT, REG, RESET},
+  {0x9, 0xA, 0xB, 0xC,  BKP,  STEP, CPUP},
+  {0x5, 0x6, 0x7, 0x8,  RUN,  HALT, CPUM},
+  {0x1, 0x2, 0x3, 0x4,  CCE , PGM,  NO_KEY}
 }; 
 
-byte colPins[COLS] = {PIN_PB0, PIN_PB1, PIN_PB2, PIN_PB3, PIN_PB4, PIN_PB5 }; // 6 columns
+byte colPins[COLS] = {PIN_PB0, PIN_PB1, PIN_PB2, PIN_PB3, PIN_PB4, PIN_PB5, PIN_PD6 }; // 7 columns
 byte rowPins[ROWS] = {PIN_PD0, PIN_PD1, PIN_PD2, PIN_PD3}; // 4 rows
 
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
@@ -230,33 +232,33 @@ byte previousKeypadKey = NO_KEY;
 //
 
 enum mode
-{
-  STOPPED,
-  RESETTING,
+  {
+    STOPPED,
+    RESETTING,
 
-  ENTERING_ADDRESS_HIGH,
-  ENTERING_ADDRESS_LOW,
+    ENTERING_ADDRESS_HIGH,
+    ENTERING_ADDRESS_LOW,
 
-  ENTERING_BREAKPOINT_HIGH,
-  ENTERING_BREAKPOINT_LOW,
+    ENTERING_BREAKPOINT_HIGH,
+    ENTERING_BREAKPOINT_LOW,
 
-  ENTERING_OP,
-  ENTERING_ARG1,
-  ENTERING_ARG2,
+    ENTERING_OP,
+    ENTERING_ARG1,
+    ENTERING_ARG2,
 
-  RUNNING,
-  STEPING,
+    RUNNING,
+    STEPING,
 
-  ENTERING_REG,
-  INSPECTING,
+    ENTERING_REG,
+    INSPECTING,
 
-  ENTERING_VALUE,
-  ENTERING_PROGRAM,
+    ENTERING_VALUE,
+    ENTERING_PROGRAM,
 
-  ENTERING_TIME,
-  SHOWING_TIME
+    ENTERING_TIME,
+    SHOWING_TIME
 
-};
+  };
 
 mode currentMode = STOPPED;
 
@@ -367,17 +369,17 @@ volatile byte status_led;
 
 void initializeTimer()
 {
-    TCCR2A = 0;
-    TCCR2B = (1 << CS22) | (1 << CS21) | (0 << CS20) ;  // /256 pre-scaler 
+  TCCR2A = 0;
+  TCCR2B = (1 << CS22) | (1 << CS21) | (0 << CS20) ;  // /256 pre-scaler 
     
-    // Enable Timer0 overflow interrupt
-    TIMSK2 |= (1 << TOIE2);
+  // Enable Timer0 overflow interrupt
+  TIMSK2 |= (1 << TOIE2);
     
-    // Set initial timer value
-    TCNT2 = 0; 
+  // Set initial timer value
+  TCNT2 = 0; 
     
-    // Enable global interrupts
-    sei();
+  // Enable global interrupts
+  sei();
 }
 
 
@@ -416,75 +418,74 @@ ISR(TIMER1_COMPA_vect)
   clock = !clock;
 
   if (clock)
-  {
-
-    timeSeconds1++;
-
-    if (timeSeconds1 > 9)
     {
-      timeSeconds10++;
-      timeSeconds1 = 0;
 
-      if (timeSeconds10 > 5)
-      {
-        timeMinutes1++;
-        timeSeconds10 = 0;
+      timeSeconds1++;
 
-        if (timeMinutes1 > 9)
-        {
-          timeMinutes10++;
-          timeMinutes1 = 0;
+      if (timeSeconds1 > 9)
+	{
+	  timeSeconds10++;
+	  timeSeconds1 = 0;
 
-          if (timeMinutes10 > 5)
-          {
-            timeHours1++;
-            timeMinutes10 = 0;
+	  if (timeSeconds10 > 5)
+	    {
+	      timeMinutes1++;
+	      timeSeconds10 = 0;
 
-            if (timeHours10 < 2)
-            {
-              if (timeHours1 > 9)
-              {
-                timeHours1 = 0;
-                timeHours10++;
-              }
-            }
-            else if (timeHours10 == 2)
-            {
-              if (timeHours1 > 3)
-              {
-                timeHours1 = 0;
-                timeHours10 = 0;
-              }
-            }
-          }
-        }
-      }
+	      if (timeMinutes1 > 9)
+		{
+		  timeMinutes10++;
+		  timeMinutes1 = 0;
+
+		  if (timeMinutes10 > 5)
+		    {
+		      timeHours1++;
+		      timeMinutes10 = 0;
+
+		      if (timeHours10 < 2)
+			{
+			  if (timeHours1 > 9)
+			    {
+			      timeHours1 = 0;
+			      timeHours10++;
+			    }
+			}
+		      else if (timeHours10 == 2)
+			{
+			  if (timeHours1 > 3)
+			    {
+			      timeHours1 = 0;
+			      timeHours10 = 0;
+			    }
+			}
+		    }
+		}
+	    }
+	}
     }
-  }
 }
 
 void show_digit() {
 
-    pinMode(23-seg, INPUT);
-    if (!seg) {
-       digitalWrite(INPUT_READ, LOW); 
-       inputs1 = digitalRead(23-seg);
-       digitalWrite(INPUT_READ, HIGH); 
-    } else if (seg < 4) {
-       digitalWrite(INPUT_READ, LOW); 
-       inputs1 |= (digitalRead(23-seg) << seg);
-       digitalWrite(INPUT_READ, HIGH);
-       if (seg == 3)
-       	  inputs = inputs1; 
-    } 
+  pinMode(23-seg, INPUT);
+  if (!seg) {
+    digitalWrite(INPUT_READ, LOW); 
+    inputs1 = digitalRead(23-seg);
+    digitalWrite(INPUT_READ, HIGH); 
+  } else if (seg < 4) {
+    digitalWrite(INPUT_READ, LOW); 
+    inputs1 |= (digitalRead(23-seg) << seg);
+    digitalWrite(INPUT_READ, HIGH);
+    if (seg == 3)
+      inputs = inputs1; 
+  } 
   
-    seg = (seg+1) % 6; 
-    uint8_t i = 23 - seg; 
+  seg = (seg+1) % 6; 
+  uint8_t i = 23 - seg; 
 
-    portWrite(0, disp_data[seg] | (clock ? 0b10000000 : 0b00000000)); 
-    pinMode(i, OUTPUT); 
-    digitalWrite(i, LOW);
-
+  portWrite(0, disp_data[seg] | (clock ? 0b10000000 : 0b00000000)); 
+  pinMode(i, OUTPUT); 
+  digitalWrite(i, LOW);
   
 }
 
@@ -502,9 +503,9 @@ void sendString(String string)
 {
 
   for (int i = 0; i < 6; i++)
-  {
-    sendChar(i+2, FONT_DEFAULT[string[i] - 32], false);
-  }
+    {
+      sendChar(i+2, FONT_DEFAULT[string[i] - 32], false);
+    }
 
   delay(DISP_DELAY);
 }
@@ -543,78 +544,79 @@ void setup() {
 
   randomSeed(analogRead(0));
 
-   pinMode(PIN_PB2, OUTPUT);
+  pinMode(PIN_PB2, OUTPUT);
    
-   pinMode(PIN_PC2, INPUT);  // Display Digit Cathodes, 18 
-   pinMode(PIN_PC3, INPUT); 
-   pinMode(PIN_PC4, INPUT); 
-   pinMode(PIN_PC5, INPUT); 
-   pinMode(PIN_PC6, INPUT); 
-   pinMode(PIN_PC7, INPUT); // Display Digit Cathodes, 23 
+  pinMode(PIN_PC2, INPUT);  // Display Digit Cathodes, 18 
+  pinMode(PIN_PC3, INPUT); 
+  pinMode(PIN_PC4, INPUT); 
+  pinMode(PIN_PC5, INPUT); 
+  pinMode(PIN_PC6, INPUT); 
+  pinMode(PIN_PC7, INPUT); // Display Digit Cathodes, 23 
 
-   /*
-   --- A ---
-   |       |
-   F       B
-   --- G ---
-   E       C
-   |       |
-   --- D --- .7 <- DOT not used 
-   */ 
+  /*
+    --- A ---
+    |       |
+    F       B
+    --- G ---
+    E       C
+    |       |
+    --- D --- .7 <- DOT not used 
+  */ 
 
-   pinMode(PIN_PA0, OUTPUT); // Display Anode Segment A
-   pinMode(PIN_PA1, OUTPUT); // Display Anode Segment B
-   pinMode(PIN_PA2, OUTPUT); // Display Anode Segment C
-   pinMode(PIN_PA3, OUTPUT); // Display Anode Segment D
-   pinMode(PIN_PA4, OUTPUT); // Display Anode Segment E
-   pinMode(PIN_PA5, OUTPUT); // Display Anode Segment F
-   pinMode(PIN_PA6, OUTPUT); // Display Anode Segment G
+  pinMode(PIN_PA0, OUTPUT); // Display Anode Segment A
+  pinMode(PIN_PA1, OUTPUT); // Display Anode Segment B
+  pinMode(PIN_PA2, OUTPUT); // Display Anode Segment C
+  pinMode(PIN_PA3, OUTPUT); // Display Anode Segment D
+  pinMode(PIN_PA4, OUTPUT); // Display Anode Segment E
+  pinMode(PIN_PA5, OUTPUT); // Display Anode Segment F
+  pinMode(PIN_PA6, OUTPUT); // Display Anode Segment G
    
-   pinMode(PIN_PA7, OUTPUT); // 1 Hz Clock
+  pinMode(PIN_PA7, OUTPUT); // 1 Hz Clock
 
-   // Keypads - 6 Columns, 4 + 2 (HEX + Function keypad) 
+  // Keypads - 6 Columns, 4 + 2 (HEX + Function keypad) 
 
-   pinMode(PIN_PB0, OUTPUT); // Col 1
-   pinMode(PIN_PB1, OUTPUT); // Col 2
-   pinMode(PIN_PB2, OUTPUT); // Col 3
-   pinMode(PIN_PB3, OUTPUT); // Col 4
-   pinMode(PIN_PB4, OUTPUT); // Col 5
-   pinMode(PIN_PB5, OUTPUT); // Col 6
+  pinMode(PIN_PB0, OUTPUT); // Col 1
+  pinMode(PIN_PB1, OUTPUT); // Col 2
+  pinMode(PIN_PB2, OUTPUT); // Col 3
+  pinMode(PIN_PB3, OUTPUT); // Col 4
+  pinMode(PIN_PB4, OUTPUT); // Col 5
+  pinMode(PIN_PB5, OUTPUT); // Col 6
+  pinMode(PIN_PD5, OUTPUT); // FUNCTION Col 7
 
-   // Keypads - 4 Rows
+  // Keypads - 4 Rows
 
-   pinMode(PIN_PD0, INPUT); // Row 1
-   pinMode(PIN_PD1, INPUT); // Row 2
-   pinMode(PIN_PD2, INPUT); // Row 3
-   pinMode(PIN_PD3, INPUT); // Row 4
+  pinMode(PIN_PD0, INPUT); // Row 1
+  pinMode(PIN_PD1, INPUT); // Row 2
+  pinMode(PIN_PD2, INPUT); // Row 3
+  pinMode(PIN_PD3, INPUT); // Row 4
 
-   // Microtronic IOs 
+  // Microtronic IOs 
 
-   pinMode(INPUT_READ  , OUTPUT);  // Input Inverter OE (74LS04)
-   digitalWrite(INPUT_READ, HIGH); // DISABLE 
+  pinMode(INPUT_READ  , OUTPUT);  // Input Inverter OE (74LS04)
+  digitalWrite(INPUT_READ, HIGH); // DISABLE 
   
-   pinMode(OUTPUT_LATCH, OUTPUT);   // Output Latch (74LS373/4) 
-   digitalWrite(OUTPUT_LATCH, LOW); // Wait for rising edge
+  pinMode(OUTPUT_LATCH, OUTPUT);   // Output Latch (74LS373/4) 
+  digitalWrite(OUTPUT_LATCH, LOW); // Wait for rising edge
 
-   //
-   // Flags 
-   // 
+  //
+  // Flags 
+  // 
 
-   pinMode(PIN_PB6, OUTPUT); // Carry
-   pinMode(PIN_PB7, OUTPUT); // Zero
+  pinMode(PIN_PB6, OUTPUT); // Carry
+  pinMode(PIN_PB7, OUTPUT); // Zero
 
-   //
-   // Timers 
-   //
+  //
+  // Timers 
+  //
 
-   initializeClock(); 
-   initializeTimer();
+  initializeClock(); 
+  initializeTimer();
 
-   //
-   //
-   //
+  //
+  //
+  //
 
-  scrollString("microtronic computer system");
+  scrollString("microtronic phoenix computer system");
 
   delay(400);
   sendString(" ready");
@@ -777,24 +779,24 @@ void displayStatus()
   unsigned long delta2 = time - lastDispTime2;
 
   if (delta2 > 300)
-  {
-    blink = !blink;
-    lastDispTime2 = time;
-  }
+    {
+      blink = !blink;
+      lastDispTime2 = time;
+    }
 
   char status = ' ';
 
   if (currentMode == STOPPED && !error)
     status = 'H';
   else if (currentMode ==
-               ENTERING_ADDRESS_HIGH ||
+	   ENTERING_ADDRESS_HIGH ||
            currentMode ==
-               ENTERING_ADDRESS_LOW)
+	   ENTERING_ADDRESS_LOW)
     status = 'A';
   else if (currentMode ==
-               ENTERING_BREAKPOINT_HIGH ||
+	   ENTERING_BREAKPOINT_HIGH ||
            currentMode ==
-               ENTERING_BREAKPOINT_LOW)
+	   ENTERING_BREAKPOINT_LOW)
     status = 'b';
   else if (currentMode == ENTERING_OP ||
            currentMode == ENTERING_ARG1 ||
@@ -815,18 +817,6 @@ void displayStatus()
     status = ' ';
 
   sendChar(0, FONT_DEFAULT[status - 32], false);
-
-  /* moduleLEDs |= (outputs << 3);
-
-  setLEDs(moduleLEDs);
-
-  digitalWrite(DOT_PIN_1, ! (outputs & 1));
-  digitalWrite(DOT_PIN_2, ! (outputs & 2));
-  digitalWrite(DOT_PIN_3, ! (outputs & 4));
-  digitalWrite(DOT_PIN_4, ! (outputs & 8));
-   
-  digitalWrite(CLOCK_1HZ, clock);
-  */ 
 
   if ( currentMode == RUNNING || currentMode == ENTERING_VALUE )
     showDisplay();
@@ -866,30 +856,30 @@ void enterProgram(int pgm, int start)
   char *pgm_string = (char *)pgm_read_word(&PGMROM[pgm]);
 
   while (pgm_read_byte(pgm_string))
-  {
-
-    op[start] = decodeHex(pgm_read_byte(pgm_string++));
-    arg1[start] = decodeHex(pgm_read_byte(pgm_string++));
-    arg2[start] = decodeHex(pgm_read_byte(pgm_string++));
-
-    pc = start;
-    start++;
-
-    // currentMode = STOPPED;
-    //outputs = pc;
-    //displayOff();
-    //displayStatus();
-
-    showMem(); 
-    delay(5);
-
-    if (start == 256)
     {
-      exit(1);
-    }
 
-    pgm_string++; // skip over space
-  };
+      op[start] = decodeHex(pgm_read_byte(pgm_string++));
+      arg1[start] = decodeHex(pgm_read_byte(pgm_string++));
+      arg2[start] = decodeHex(pgm_read_byte(pgm_string++));
+
+      pc = start;
+      start++;
+
+      // currentMode = STOPPED;
+      //outputs = pc;
+      //displayOff();
+      //displayStatus();
+
+      showMem(); 
+      delay(5);
+
+      if (start == 256)
+	{
+	  exit(1);
+	}
+
+      pgm_string++; // skip over space
+    };
 
   pc = origin;
   currentMode = STOPPED;
@@ -912,10 +902,10 @@ void reset()
   cursor = CURSOR_OFF;
 
   for (currentReg = 0; currentReg < 16; currentReg++)
-  {
-    reg[currentReg] = 0;
-    regEx[currentReg] = 0;
-  }
+    {
+      reg[currentReg] = 0;
+      regEx[currentReg] = 0;
+    }
 
   currentReg = 0;
   currentInputRegister = 0;
@@ -941,15 +931,15 @@ void clearMem()
   blink = false;  
 
   for (pc = 0; pc < 255; pc++)
-  {
-    op[pc] = 0;
-    arg1[pc] = 0;
-    arg2[pc] = 0;
-    //outputs = pc;
-    //displayStatus();
-    showMem(); 
-    delay(5); 
-  }
+    {
+      op[pc] = 0;
+      arg1[pc] = 0;
+      arg2[pc] = 0;
+      //outputs = pc;
+      //displayStatus();
+      showMem(); 
+      delay(5); 
+    }
   op[255] = 0;
   arg1[255] = 0;
   arg2[255] = 0;
@@ -965,15 +955,15 @@ void loadNOPs()
   blink = false;  
 
   for (pc = 0; pc < 255; pc++)
-  {
-    op[pc] = 15;
-    arg1[pc] = 0;
-    arg2[pc] = 1;
-    //outputs = pc;
-    //displayStatus();
-    showMem(); 
-    delay(5); 
-  }
+    {
+      op[pc] = 15;
+      arg1[pc] = 0;
+      arg2[pc] = 1;
+      //outputs = pc;
+      //displayStatus();
+      showMem(); 
+      delay(5); 
+    }
   op[255] = 15;
   arg1[255] = 0;
   arg2[255] = 1;
@@ -1022,25 +1012,25 @@ void loadCore()
 
   if (readEEPROM(adr++) == keypadKey &&
       readEEPROM(adr++) == keypadKey16 )
-  {
-
-    for (int i = 0; i < 256; i++)
     {
-      op[i] = readEEPROM(adr++);
-      arg1[i] = readEEPROM(adr++);
-      arg2[i] = readEEPROM(adr++);
 
-      pc = i; 
-      showMem();
+      for (int i = 0; i < 256; i++)
+	{
+	  op[i] = readEEPROM(adr++);
+	  arg1[i] = readEEPROM(adr++);
+	  arg2[i] = readEEPROM(adr++);
+
+	  pc = i; 
+	  showMem();
+	}
+
+      sendString("LOADED");
     }
-
-    sendString("LOADED");
-  }
   else
-  {
+    {
 
-    error = true;
-  }
+      error = true;
+    }
 
   delay(DISP_DELAY*2);  
 
@@ -1093,14 +1083,14 @@ void saveCore()
   writeEEPROM(adr++, keypadKey16);
 
   for (int i = 0; i < 256; i++)
-  {
-    writeEEPROM(adr++, op[i]);
-    writeEEPROM(adr++, arg1[i]);
-    writeEEPROM(adr++, arg2[i]);
+    {
+      writeEEPROM(adr++, op[i]);
+      writeEEPROM(adr++, arg1[i]);
+      writeEEPROM(adr++, arg2[i]);
 
-    pc = i; 
-    showMem();
-  };
+      pc = i; 
+      showMem();
+    };
 
   sendString("DUMPED");
 
@@ -1112,364 +1102,384 @@ void saveCore()
   end_EEPROM(); 
 }
 
+
+void dot_output(byte value) {
+
+  pinMode(DOT_PIN_1, OUTPUT); // Row 1
+  pinMode(DOT_PIN_2, OUTPUT); // Row 2
+  pinMode(DOT_PIN_3, OUTPUT); // Row 3
+  pinMode(DOT_PIN_4, OUTPUT); // Row 4
+
+  digitalWrite(OUTPUT_LATCH, HIGH);
+
+  // set outputs
+  digitalWrite(DOT_PIN_1, value & 1);
+  digitalWrite(DOT_PIN_2, value & 2);
+  digitalWrite(DOT_PIN_3, value & 4);
+  digitalWrite(DOT_PIN_4, value & 8);
+
+  digitalWrite(OUTPUT_LATCH, LOW);
+   
+}
+
 void interpret()
 {
 
   switch (functionKey)
-  {
+    {
 
-  case HALT:
-    currentMode = STOPPED;
-    cursor = CURSOR_OFF;
+    case HALT:
+      currentMode = STOPPED;
+      cursor = CURSOR_OFF;
 
-    showMem();
+      showMem();
 
-    break;
+      break;
 
-  case RUN:
+    case RUN:
 
-    if (currentMode != RUNNING) {
+      if (currentMode != RUNNING) {
+	currentMode = RUNNING;
+	displayOff();
+	singleStep = false;
+	ignoreBreakpointOnce = true;
+	clearStack();
+	jump = true; // don't increment PC !
+      }
+
+      break;
+
+    case NEXT:
+      if (currentMode == STOPPED)
+	{
+	  currentMode = ENTERING_ADDRESS_HIGH;
+	  cursor = 0;
+	}
+      else
+	{
+	  pc++;
+	  cursor = 2;
+	  currentMode = ENTERING_OP;
+	}
+
+      break;
+
+    case REG:
+
+      if (currentMode != ENTERING_REG)
+	{
+	  currentMode = ENTERING_REG;
+	  cursor = 0;
+	}
+      else
+	{
+	  currentMode = INSPECTING;
+	  cursor = 1;
+	}
+
+      break;
+
+    case STEP:
+
       currentMode = RUNNING;
-      displayOff();
-      singleStep = false;
-      ignoreBreakpointOnce = true;
-      clearStack();
-      jump = true; // don't increment PC !
-    }
-
-    break;
-
-  case NEXT:
-    if (currentMode == STOPPED)
-    {
-      currentMode = ENTERING_ADDRESS_HIGH;
-      cursor = 0;
-    }
-    else
-    {
-      pc++;
-      cursor = 2;
-      currentMode = ENTERING_OP;
-    }
-
-    break;
-
-  case REG:
-
-    if (currentMode != ENTERING_REG)
-    {
-      currentMode = ENTERING_REG;
-      cursor = 0;
-    }
-    else
-    {
-      currentMode = INSPECTING;
-      cursor = 1;
-    }
-
-    break;
-
-  case STEP:
-
-    currentMode = RUNNING;
     
-    //  if (! singleStep) 
-    // displayStatus();
+      //  if (! singleStep) 
+      // displayStatus();
 
-    singleStep = true;
-    jump = true; // don't increment PC !
+      singleStep = true;
+      jump = true; // don't increment PC !
 
-    break;
+      break;
 
-  case BKP:
+    case BKP:
 
-    if (currentMode != ENTERING_BREAKPOINT_LOW)
-    {
-      currentMode = ENTERING_BREAKPOINT_HIGH;
-      cursor = 0;
+      if (currentMode != ENTERING_BREAKPOINT_LOW)
+	{
+	  currentMode = ENTERING_BREAKPOINT_HIGH;
+	  cursor = 0;
+	}
+      else
+	{
+	  cursor = 1;
+	  currentMode = ENTERING_BREAKPOINT_LOW;
+	}
+
+      break;
+
+    case CCE:
+
+      if (cursor == 2)
+	{
+	  cursor = 4;
+	  arg2[pc] = 0;
+	  currentMode = ENTERING_ARG2;
+	}
+      else if (cursor == 3)
+	{
+	  cursor = 2;
+	  op[pc] = 0;
+	  currentMode = ENTERING_OP;
+	}
+      else
+	{
+	  cursor = 3;
+	  arg1[pc] = 0;
+	  currentMode = ENTERING_ARG1;
+	}
+
+      break;
+
+    case PGM:
+
+      if (currentMode != ENTERING_PROGRAM)
+	{
+	  cursor = 0;
+	  currentMode = ENTERING_PROGRAM;
+	}
+
+      break;
     }
-    else
-    {
-      cursor = 1;
-      currentMode = ENTERING_BREAKPOINT_LOW;
-    }
-
-    break;
-
-  case CCE:
-
-    if (cursor == 2)
-    {
-      cursor = 4;
-      arg2[pc] = 0;
-      currentMode = ENTERING_ARG2;
-    }
-    else if (cursor == 3)
-    {
-      cursor = 2;
-      op[pc] = 0;
-      currentMode = ENTERING_OP;
-    }
-    else
-    {
-      cursor = 3;
-      arg1[pc] = 0;
-      currentMode = ENTERING_ARG1;
-    }
-
-    break;
-
-  case PGM:
-
-    if (currentMode != ENTERING_PROGRAM)
-    {
-      cursor = 0;
-      currentMode = ENTERING_PROGRAM;
-    }
-
-    break;
-  }
 
   //
   //
   //
 
   switch (currentMode)
-  {
-
-  case STOPPED:
-    cursor = CURSOR_OFF;
-    break;
-
-  case ENTERING_VALUE:
-
-    if (keypadPressed)
-    {
-      input = keypadKey;
-      reg[currentInputRegister] = input;
-      carry = false;
-      zero = reg[currentInputRegister] == 0;
-      currentMode = RUNNING;
-    }
-
-    break;
-
-  case ENTERING_TIME:
-
-    if (keypadPressed)
     {
 
-      input = keypadKey;
-      switch (cursor)
-      {
-      case 0:
-        if (input < 3)
-        {
-          timeHours10 = input;
-          cursor++;
-        }
-        break;
-      case 1:
-        if (timeHours10 == 2 && input < 4 || timeHours10 < 2 && input < 10)
-        {
-          timeHours1 = input;
-          cursor++;
-        }
-        break;
-      case 2:
-        if (input < 6)
-        {
-          timeMinutes10 = input;
-          cursor++;
-        }
-        break;
-      case 3:
-        if (input < 10)
-        {
-          timeMinutes1 = input;
-          cursor++;
-        }
-        break;
-      case 4:
-        if (input < 6)
-        {
-          timeSeconds10 = input;
-          cursor++;
-        }
-        break;
-      case 5:
-        if (input < 10)
-        {
-          timeSeconds1 = input;
-          cursor++;
-        }
-        break;
-      default:
-        break;
-      }
-
-      if (cursor > 5)
-        cursor = 0;
-    }
-
-    break;
-
-  case ENTERING_PROGRAM:
-
-    if (keypadPressed)
-    {
-
-      program = keypadKey;
-      currentMode = STOPPED;
+    case STOPPED:
       cursor = CURSOR_OFF;
+      break;
 
-      switch (program)
-      {
+    case ENTERING_VALUE:
 
-      case 0:
-        error = true;
-        break;
+      if (keypadPressed)
+	{
+	  input = keypadKey;
+	  reg[currentInputRegister] = input;
+	  carry = false;
+	  zero = reg[currentInputRegister] == 0;
+	  currentMode = RUNNING;
+	}
 
-      case 1:
-        loadCore();
-        reset();
-        break;
+      break;
 
-      case 2:
-        saveCore();
-        reset();
-        break;
+    case ENTERING_TIME:
 
-      case 3:
+      if (keypadPressed)
+	{
 
-        currentMode = ENTERING_TIME;
-        cursor = 0;
-        break;
+	  input = keypadKey;
+	  switch (cursor)
+	    {
+	    case 0:
+	      if (input < 3)
+		{
+		  timeHours10 = input;
+		  cursor++;
+		}
+	      break;
+	    case 1:
+	      if (timeHours10 == 2 && input < 4 || timeHours10 < 2 && input < 10)
+		{
+		  timeHours1 = input;
+		  cursor++;
+		}
+	      break;
+	    case 2:
+	      if (input < 6)
+		{
+		  timeMinutes10 = input;
+		  cursor++;
+		}
+	      break;
+	    case 3:
+	      if (input < 10)
+		{
+		  timeMinutes1 = input;
+		  cursor++;
+		}
+	      break;
+	    case 4:
+	      if (input < 6)
+		{
+		  timeSeconds10 = input;
+		  cursor++;
+		}
+	      break;
+	    case 5:
+	      if (input < 10)
+		{
+		  timeSeconds1 = input;
+		  cursor++;
+		}
+	      break;
+	    default:
+	      break;
+	    }
 
-      case 4:
+	  if (cursor > 5)
+	    cursor = 0;
+	}
 
-        currentMode = SHOWING_TIME;
-        cursor = CURSOR_OFF;
-        break;
+      break;
 
-      case 5: // clear mem
+    case ENTERING_PROGRAM:
 
-        clearMem();
-        break;
+      if (keypadPressed)
+	{
 
-      case 6: // load NOPs
+	  program = keypadKey;
+	  currentMode = STOPPED;
+	  cursor = CURSOR_OFF;
 
-        loadNOPs();
-        break;
+	  switch (program)
+	    {
 
-      default: // load other
+	    case 0:
+	      error = true;
+	      break;
 
-        if (program - 7 < programs)
-        {
-          enterProgram(program - 7, 0);
-        }
-        else
-          error = true;
-      }
+	    case 1:
+	      loadCore();
+	      reset();
+	      break;
+
+	    case 2:
+	      saveCore();
+	      reset();
+	      break;
+
+	    case 3:
+
+	      currentMode = ENTERING_TIME;
+	      cursor = 0;
+	      break;
+
+	    case 4:
+
+	      currentMode = SHOWING_TIME;
+	      cursor = CURSOR_OFF;
+	      break;
+
+	    case 5: // clear mem
+
+	      clearMem();
+	      break;
+
+	    case 6: // load NOPs
+
+	      loadNOPs();
+	      break;
+
+	    default: // load other
+
+	      if (program - 7 < programs)
+		{
+		  enterProgram(program - 7, 0);
+		}
+	      else
+		error = true;
+	    }
+	}
+
+      break;
+
+    case ENTERING_ADDRESS_HIGH:
+
+      if (keypadPressed)
+	{
+	  cursor = 1;
+	  pc = keypadKey * 16;
+	  currentMode = ENTERING_ADDRESS_LOW;
+	}
+
+      break;
+
+    case ENTERING_ADDRESS_LOW:
+
+      if (keypadPressed)
+	{
+	  cursor = 2;
+	  pc += keypadKey;
+	  currentMode = ENTERING_OP;
+	}
+
+      break;
+
+    case ENTERING_BREAKPOINT_HIGH:
+
+      if (keypadPressed)
+	{
+	  cursor = 1;
+	  breakAt = keypadKey * 16;
+	  currentMode = ENTERING_BREAKPOINT_LOW;
+	}
+
+      break;
+
+    case ENTERING_BREAKPOINT_LOW:
+
+      if (keypadPressed)
+	{
+	  cursor = 2;
+	  breakAt += keypadKey;
+	  currentMode = ENTERING_BREAKPOINT_HIGH;
+	}
+
+      break;
+
+    case ENTERING_OP:
+
+      if (keypadPressed)
+	{
+	  cursor = 3;
+	  op[pc] = keypadKey;
+	  currentMode = ENTERING_ARG1;
+	}
+
+      break;
+
+    case ENTERING_ARG1:
+
+      if (keypadPressed)
+	{
+	  cursor = 4;
+	  arg1[pc] = keypadKey;
+	  currentMode = ENTERING_ARG2;
+	}
+
+      break;
+
+    case ENTERING_ARG2:
+
+      if (keypadPressed)
+	{
+	  cursor = 2;
+	  arg2[pc] = keypadKey;
+	  currentMode = ENTERING_OP;
+	}
+
+      break;
+
+    case RUNNING:
+      run();
+      break;
+
+    case ENTERING_REG:
+
+      if (keypadPressed)
+	currentReg = keypadKey;
+
+      break;
+
+    case INSPECTING:
+
+      if (keypadPressed)
+	reg[currentReg] = keypadKey;
+
+      break;
     }
-
-    break;
-
-  case ENTERING_ADDRESS_HIGH:
-
-    if (keypadPressed)
-    {
-      cursor = 1;
-      pc = keypadKey * 16;
-      currentMode = ENTERING_ADDRESS_LOW;
-    }
-
-    break;
-
-  case ENTERING_ADDRESS_LOW:
-
-    if (keypadPressed)
-    {
-      cursor = 2;
-      pc += keypadKey;
-      currentMode = ENTERING_OP;
-    }
-
-    break;
-
-  case ENTERING_BREAKPOINT_HIGH:
-
-    if (keypadPressed)
-    {
-      cursor = 1;
-      breakAt = keypadKey * 16;
-      currentMode = ENTERING_BREAKPOINT_LOW;
-    }
-
-    break;
-
-  case ENTERING_BREAKPOINT_LOW:
-
-    if (keypadPressed)
-    {
-      cursor = 2;
-      breakAt += keypadKey;
-      currentMode = ENTERING_BREAKPOINT_HIGH;
-    }
-
-    break;
-
-  case ENTERING_OP:
-
-    if (keypadPressed)
-    {
-      cursor = 3;
-      op[pc] = keypadKey;
-      currentMode = ENTERING_ARG1;
-    }
-
-    break;
-
-  case ENTERING_ARG1:
-
-    if (keypadPressed)
-    {
-      cursor = 4;
-      arg1[pc] = keypadKey;
-      currentMode = ENTERING_ARG2;
-    }
-
-    break;
-
-  case ENTERING_ARG2:
-
-    if (keypadPressed)
-    {
-      cursor = 2;
-      arg2[pc] = keypadKey;
-      currentMode = ENTERING_OP;
-    }
-
-    break;
-
-  case RUNNING:
-    run();
-    break;
-
-  case ENTERING_REG:
-
-    if (keypadPressed)
-      currentReg = keypadKey;
-
-    break;
-
-  case INSPECTING:
-
-    if (keypadPressed)
-      reg[currentReg] = keypadKey;
-
-    break;
-  }
 }
 
 void run()
@@ -1483,10 +1493,10 @@ void run()
     pc++;
 
   if (!singleStep && breakAt == pc && breakAt > 0 && !ignoreBreakpointOnce)
-  {
-    currentMode = STOPPED;
-    return;
-  }
+    {
+      currentMode = STOPPED;
+      return;
+    }
 
   ignoreBreakpointOnce = false;
 
@@ -1510,244 +1520,141 @@ void run()
   unsigned int op3 = op1 * 256 + hi * 16 + lo;
 
   switch (op1)
-  {
-  case OP_MOV:
-
-    reg[d] = reg[s];
-    zero = reg[d] == 0;
-
-    break;
-
-  case OP_MOVI:
-
-    reg[d] = n;
-    zero = reg[d] == 0;
-
-    break;
-
-  case OP_AND:
-
-    reg[d] &= reg[s];
-    carry = false;
-    zero = reg[d] == 0;
-
-    break;
-
-  case OP_ANDI:
-
-    reg[d] &= n;
-    carry = false;
-    zero = reg[d] == 0;
-
-    break;
-
-  case OP_ADD:
-
-    reg[d] += reg[s];
-    carry = reg[d] > 15;
-    reg[d] &= 15;
-    zero = reg[d] == 0;
-
-    break;
-
-  case OP_ADDI:
-
-    reg[d] += n;
-    carry = reg[d] > 15;
-    reg[d] &= 15;
-    zero = reg[d] == 0;
-
-    break;
-
-  case OP_SUB:
-
-    reg[d] -= reg[s];
-    carry = reg[d] > 15;
-    reg[d] &= 15;
-    zero = reg[d] == 0;
-
-    break;
-
-  case OP_SUBI:
-
-    reg[d] -= n;
-    carry = reg[d] > 15;
-    reg[d] &= 15;
-    zero = reg[d] == 0;
-
-    break;
-
-  case OP_CMP:
-
-    carry = reg[s] < reg[d];
-    zero = reg[s] == reg[d];
-
-    break;
-
-  case OP_CMPI:
-
-    carry = n < reg[d];
-    zero = reg[d] == n;
-
-    break;
-
-  case OP_OR:
-
-    reg[d] |= reg[s];
-    carry = false;
-    zero = reg[d] == 0;
-
-    break;
-
-    //
-    //
-    //
-
-  case OP_CALL:
-
-    if (sp < STACK_DEPTH - 1)
     {
-      stack[sp] = pc;
-      sp++;
-      pc = adr;
-      jump = true;
-    }
-    else
-    {
+    case OP_MOV:
 
-      error = true;
-      currentMode = STOPPED;
-    }
-
-    break;
-
-  case OP_GOTO:
-
-    pc = adr;
-    jump = true;
-
-    break;
-
-  case OP_BRC:
-
-    if (carry)
-    {
-      pc = adr;
-      jump = true;
-    }
-
-    break;
-
-  case OP_BRZ:
-
-    if (zero)
-    {
-      pc = adr;
-      jump = true;
-    }
-
-    break;
-
-    //
-    //
-    //
-
-  default:
-  {
-
-    switch (op2)
-    {
-
-    case OP_MAS:
-
-      regEx[d] = reg[d];
-
-      break;
-
-    case OP_INV:
-
-      reg[d] ^= 15;
-
-      break;
-
-    case OP_SHR:
-
-      carry = reg[d] & 1;
-      reg[d] >>= 1;
+      reg[d] = reg[s];
       zero = reg[d] == 0;
 
       break;
 
-    case OP_SHL:
+    case OP_MOVI:
 
-      reg[d] <<= 1;
-      carry = reg[d] & 16;
-      reg[d] &= 15;
+      reg[d] = n;
       zero = reg[d] == 0;
 
       break;
 
-    case OP_ADC:
+    case OP_AND:
 
-      if (carry)
-        reg[d]++;
+      reg[d] &= reg[s];
+      carry = false;
+      zero = reg[d] == 0;
+
+      break;
+
+    case OP_ANDI:
+
+      reg[d] &= n;
+      carry = false;
+      zero = reg[d] == 0;
+
+      break;
+
+    case OP_ADD:
+
+      reg[d] += reg[s];
       carry = reg[d] > 15;
       reg[d] &= 15;
       zero = reg[d] == 0;
 
       break;
 
-    case OP_SUBC:
+    case OP_ADDI:
 
-      if (carry)
-        reg[d]--;
+      reg[d] += n;
       carry = reg[d] > 15;
       reg[d] &= 15;
       zero = reg[d] == 0;
 
       break;
 
-      //
-      //
-      //
+    case OP_SUB:
 
-    case OP_DIN:
+      reg[d] -= reg[s];
+      carry = reg[d] > 15;
+      reg[d] &= 15;
+      zero = reg[d] == 0;
 
-      cli();
-      // we need a number of cycles here... 
-      show_digit(); 
-      show_digit(); 
-      show_digit(); 
-      show_digit(); 
-      show_digit(); 
-      show_digit(); 
-      show_digit(); 
-      show_digit(); 
-      show_digit(); 
-      show_digit(); 
-      show_digit(); 
-      show_digit(); 
-      sei(); 
-      
-      reg[d] = inputs; 
+      break;
 
+    case OP_SUBI:
+
+      reg[d] -= n;
+      carry = reg[d] > 15;
+      reg[d] &= 15;
+      zero = reg[d] == 0;
+
+      break;
+
+    case OP_CMP:
+
+      carry = reg[s] < reg[d];
+      zero = reg[s] == reg[d];
+
+      break;
+
+    case OP_CMPI:
+
+      carry = n < reg[d];
+      zero = reg[d] == n;
+
+      break;
+
+    case OP_OR:
+
+      reg[d] |= reg[s];
       carry = false;
       zero = reg[d] == 0;
 
       break;
 
-    case OP_DOT:
+      //
+      //
+      //
 
-      outputs = reg[dot_s];
-      carry = false;
-      zero = reg[dot_s] == 0;
+    case OP_CALL:
+
+      if (sp < STACK_DEPTH - 1)
+	{
+	  stack[sp] = pc;
+	  sp++;
+	  pc = adr;
+	  jump = true;
+	}
+      else
+	{
+
+	  error = true;
+	  currentMode = STOPPED;
+	}
 
       break;
 
-    case OP_KIN:
+    case OP_GOTO:
 
-      currentMode = ENTERING_VALUE;
-      currentInputRegister = d;
+      pc = adr;
+      jump = true;
+
+      break;
+
+    case OP_BRC:
+
+      if (carry)
+	{
+	  pc = adr;
+	  jump = true;
+	}
+
+      break;
+
+    case OP_BRZ:
+
+      if (zero)
+	{
+	  pc = adr;
+	  jump = true;
+	}
 
       break;
 
@@ -1756,276 +1663,380 @@ void run()
       //
 
     default:
-    {
-
-      switch (op3)
       {
 
-      case OP_HALT:
+	switch (op2)
+	  {
 
-        currentMode = STOPPED;
-        break;
+	  case OP_MAS:
 
-      case OP_NOP:
+	    regEx[d] = reg[d];
 
-        break;
+	    break;
 
-      case OP_DISOUT:
+	  case OP_INV:
 
-        showingDisplayDigits = 0;
-        displayOff();
+	    reg[d] ^= 15;
 
-        break;
+	    break;
 
-      case OP_HXDZ:
+	  case OP_SHR:
 
-        num =
-            reg[0xD] +
-            16 * reg[0xE] +
-            256 * reg[0xF];
+	    carry = reg[d] & 1;
+	    reg[d] >>= 1;
+	    zero = reg[d] == 0;
 
-        zero = num > 999;
-        carry = false;
+	    break;
 
-        if (zero) {
+	  case OP_SHL:
 
-	  reg[0xD] = 0;
-	  reg[0xE] = 0;
-	  reg[0xF] = 0;
+	    reg[d] <<= 1;
+	    carry = reg[d] & 16;
+	    reg[d] &= 15;
+	    zero = reg[d] == 0;
 
-	} else {
+	    break;
 
-	  reg[0xD] = num % 10;
-	  reg[0xE] = ( num / 10 ) % 10;
-	  reg[0xF] = ( num / 100 ) % 10;
+	  case OP_ADC:
 
-	}
+	    if (carry)
+	      reg[d]++;
+	    carry = reg[d] > 15;
+	    reg[d] &= 15;
+	    zero = reg[d] == 0;
 
-        break;
+	    break;
 
-      case OP_DZHX:
+	  case OP_SUBC:
 
-        num =
-            reg[0xD] +
-            10 * reg[0xE] +
-            100 * reg[0xF];
+	    if (carry)
+	      reg[d]--;
+	    carry = reg[d] > 15;
+	    reg[d] &= 15;
+	    zero = reg[d] == 0;
 
-        carry = false;
-        zero = false;
+	    break;
 
-        reg[0xD] = num % 16;
-        reg[0xE] = (num / 16) % 16;
-        reg[0xF] = (num / 256) % 16;
+	    //
+	    //
+	    //
 
-        break;
+	  case OP_DIN:
 
-      case OP_RND:
+	    cli();
+	    // we need a number of cycles here... 
+	    show_digit(); 
+	    show_digit(); 
+	    show_digit(); 
+	    show_digit(); 
+	    show_digit(); 
+	    show_digit(); 
+	    show_digit(); 
+	    show_digit(); 
+	    show_digit(); 
+	    show_digit(); 
+	    show_digit(); 
+	    show_digit(); 
+	    sei(); 
+      
+	    reg[d] = inputs; 
 
-        reg[0xD] = random(16);
-        reg[0xE] = random(16);
-        reg[0xF] = random(16);
+	    carry = false;
+	    zero = reg[d] == 0;
 
-        break;
+	    break;
 
-      case OP_TIME:
+	  case OP_DOT:
 
-        reg[0xA] = timeSeconds1;
-        reg[0xB] = timeSeconds10;
-        reg[0xC] = timeMinutes1;
-        reg[0xD] = timeMinutes10;
-        reg[0xE] = timeHours1;
-        reg[0xF] = timeHours10;
+	    outputs = reg[dot_s];
+	    carry = false;
+	    zero = reg[dot_s] == 0;
+	    dot_output(outputs);
+      
+	    break;
 
-        break;
+	  case OP_KIN:
 
-      case OP_RET:
+	    currentMode = ENTERING_VALUE;
+	    currentInputRegister = d;
 
-        pc = stack[--sp] + 1;
-        jump = true;
-        break;
+	    break;
 
-      case OP_CLEAR:
+	    //
+	    //
+	    //
 
-        for (byte i = 0; i < 16; i++)
-          reg[i] = 0;
+	  default:
+	    {
 
-        carry = false;
-        zero = true;
+	      switch (op3)
+		{
 
-        break;
+		case OP_HALT:
 
-      case OP_STC:
+		  currentMode = STOPPED;
+		  break;
 
-        carry = true;
+		case OP_NOP:
 
-        break;
+		  break;
 
-      case OP_RSC:
+		case OP_DISOUT:
 
-        carry = false;
+		  showingDisplayDigits = 0;
+		  displayOff();
 
-        break;
+		  break;
 
-      case OP_MULT:
+		case OP_HXDZ:
 
-        num =
-            reg[0] + 10 * reg[1] + 100 * reg[2] +
-            1000 * reg[3] + 10000 * reg[4] + 100000 * reg[5];
+		  num =
+		    reg[0xD] +
+		    16 * reg[0xE] +
+		    256 * reg[0xF];
 
-        num2 =
-            regEx[0] + 10 * regEx[1] + 100 * regEx[2] +
-            1000 * regEx[3] + 10000 * regEx[4] + 100000 * regEx[5];
+		  zero = num > 999;
+		  carry = false;
 
-        num *= num2;
+		  if (zero) {
 
-        carry = num > 999999;
+		    reg[0xD] = 0;
+		    reg[0xE] = 0;
+		    reg[0xF] = 0;
 
-        for (int i = 0; i < 6; i++)
-        {
-          carry |= (reg[i] > 9 || regEx[i] > 9);
-        }
+		  } else {
 
-        zero = false;
+		    reg[0xD] = num % 10;
+		    reg[0xE] = ( num / 10 ) % 10;
+		    reg[0xF] = ( num / 100 ) % 10;
 
-        num = num % 1000000;
+		  }
 
-        if (carry)
-        {
+		  break;
 
-          reg[0] = 0xE;
-          reg[1] = 0xE;
-          reg[2] = 0xE;
-          reg[3] = 0xE;
-          reg[4] = 0xE;
-          reg[5] = 0xE;
-        }
-        else
-        {
+		case OP_DZHX:
 
-          reg[0] = num % 10;
-          reg[1] = (num / 10) % 10;
-          reg[2] = (num / 100) % 10;
-          reg[3] = (num / 1000) % 10;
-          reg[4] = (num / 10000) % 10;
-          reg[5] = (num / 100000) % 10;
-        }
+		  num =
+		    reg[0xD] +
+		    10 * reg[0xE] +
+		    100 * reg[0xF];
 
-        for (int i = 0; i < 6; i++) // not documented in manual, but true!
-          regEx[i] = 0;
+		  carry = false;
+		  zero = false;
 
-        break;
+		  reg[0xD] = num % 16;
+		  reg[0xE] = (num / 16) % 16;
+		  reg[0xF] = (num / 256) % 16;
 
-      case OP_DIV:
+		  break;
 
-        num2 =
-            reg[0] + 10 * reg[1] + 100 * reg[2] +
-            1000 * reg[3];
+		case OP_RND:
 
-        num =
-            regEx[0] + 10 * regEx[1] + 100 * regEx[2] +
-            1000 * regEx[3];
+		  reg[0xD] = random(16);
+		  reg[0xE] = random(16);
+		  reg[0xF] = random(16);
 
-        carry = false;
+		  break;
 
-        for (int i = 0; i < 6; i++)
-        {
-          carry |= (reg[i] > 9 || regEx[i] > 9);
-        }
+		case OP_TIME:
 
-        if (num2 == 0 || carry)
-        {
+		  reg[0xA] = timeSeconds1;
+		  reg[0xB] = timeSeconds10;
+		  reg[0xC] = timeMinutes1;
+		  reg[0xD] = timeMinutes10;
+		  reg[0xE] = timeHours1;
+		  reg[0xF] = timeHours10;
 
-          carry = true;
-          zero = false,
+		  break;
 
-          reg[0] = 0xE;
-          reg[1] = 0xE;
-          reg[2] = 0xE;
-          reg[3] = 0xE;
-          reg[4] = 0xE;
-          reg[5] = 0xE;
-        }
-        else
-        {
+		case OP_RET:
 
-          carry = false;
-          num3 = num / num2;
+		  pc = stack[--sp] + 1;
+		  jump = true;
+		  break;
 
-          reg[0] = num3 % 10;
-          reg[1] = (num3 / 10) % 10;
-          reg[2] = (num3 / 100) % 10;
-          reg[3] = (num3 / 1000) % 10;
+		case OP_CLEAR:
 
-          num3 = num % num2;
-          zero = num3 > 0;
+		  for (byte i = 0; i < 16; i++)
+		    reg[i] = 0;
 
-          regEx[0] = num3 % 10;
-          regEx[1] = (num3 / 10) % 10;
-          regEx[2] = (num3 / 100) % 10;
-          regEx[3] = (num3 / 1000) % 10;
-        }
+		  carry = false;
+		  zero = true;
 
-        break;
+		  break;
 
-      case OP_EXRL:
+		case OP_STC:
 
-        for (int i = 0; i < 8; i++)
-        {
-          byte aux = reg[i];
-          reg[i] = regEx[i];
-          regEx[i] = aux;
-        }
+		  carry = true;
 
-        break;
+		  break;
 
-      case OP_EXRM:
+		case OP_RSC:
 
-        for (int i = 8; i < 16; i++)
-        {
-          byte aux = reg[i];
-          reg[i] = regEx[i];
-          regEx[i] = aux;
-        }
+		  carry = false;
 
-        break;
+		  break;
 
-      case OP_EXRA:
+		case OP_MULT:
 
-        for (int i = 0; i < 8; i++)
-        {
-          byte aux = reg[i];
-          reg[i] = reg[i + 8];
-          reg[i + 8] = aux;
-        }
+		  num =
+		    reg[0] + 10 * reg[1] + 100 * reg[2] +
+		    1000 * reg[3] + 10000 * reg[4] + 100000 * reg[5];
 
-        break;
+		  num2 =
+		    regEx[0] + 10 * regEx[1] + 100 * regEx[2] +
+		    1000 * regEx[3] + 10000 * regEx[4] + 100000 * regEx[5];
 
-      default: // DISP!
+		  num *= num2;
 
-        displayOff();
-        showingDisplayDigits = disp_n;
-        showingDisplayFromReg = disp_s;
-        isDISP = true;
+		  carry = num > 999999;
 
-	if ( singleStep ) 
-	   showDisplay();
+		  for (int i = 0; i < 6; i++)
+		    {
+		      carry |= (reg[i] > 9 || regEx[i] > 9);
+		    }
 
-        break;
+		  zero = false;
 
+		  num = num % 1000000;
+
+		  if (carry)
+		    {
+
+		      reg[0] = 0xE;
+		      reg[1] = 0xE;
+		      reg[2] = 0xE;
+		      reg[3] = 0xE;
+		      reg[4] = 0xE;
+		      reg[5] = 0xE;
+		    }
+		  else
+		    {
+
+		      reg[0] = num % 10;
+		      reg[1] = (num / 10) % 10;
+		      reg[2] = (num / 100) % 10;
+		      reg[3] = (num / 1000) % 10;
+		      reg[4] = (num / 10000) % 10;
+		      reg[5] = (num / 100000) % 10;
+		    }
+
+		  for (int i = 0; i < 6; i++) // not documented in manual, but true!
+		    regEx[i] = 0;
+
+		  break;
+
+		case OP_DIV:
+
+		  num2 =
+		    reg[0] + 10 * reg[1] + 100 * reg[2] +
+		    1000 * reg[3];
+
+		  num =
+		    regEx[0] + 10 * regEx[1] + 100 * regEx[2] +
+		    1000 * regEx[3];
+
+		  carry = false;
+
+		  for (int i = 0; i < 6; i++)
+		    {
+		      carry |= (reg[i] > 9 || regEx[i] > 9);
+		    }
+
+		  if (num2 == 0 || carry)
+		    {
+
+		      carry = true;
+		      zero = false,
+
+			reg[0] = 0xE;
+		      reg[1] = 0xE;
+		      reg[2] = 0xE;
+		      reg[3] = 0xE;
+		      reg[4] = 0xE;
+		      reg[5] = 0xE;
+		    }
+		  else
+		    {
+
+		      carry = false;
+		      num3 = num / num2;
+
+		      reg[0] = num3 % 10;
+		      reg[1] = (num3 / 10) % 10;
+		      reg[2] = (num3 / 100) % 10;
+		      reg[3] = (num3 / 1000) % 10;
+
+		      num3 = num % num2;
+		      zero = num3 > 0;
+
+		      regEx[0] = num3 % 10;
+		      regEx[1] = (num3 / 10) % 10;
+		      regEx[2] = (num3 / 100) % 10;
+		      regEx[3] = (num3 / 1000) % 10;
+		    }
+
+		  break;
+
+		case OP_EXRL:
+
+		  for (int i = 0; i < 8; i++)
+		    {
+		      byte aux = reg[i];
+		      reg[i] = regEx[i];
+		      regEx[i] = aux;
+		    }
+
+		  break;
+
+		case OP_EXRM:
+
+		  for (int i = 8; i < 16; i++)
+		    {
+		      byte aux = reg[i];
+		      reg[i] = regEx[i];
+		      regEx[i] = aux;
+		    }
+
+		  break;
+
+		case OP_EXRA:
+
+		  for (int i = 0; i < 8; i++)
+		    {
+		      byte aux = reg[i];
+		      reg[i] = reg[i + 8];
+		      reg[i + 8] = aux;
+		    }
+
+		  break;
+
+		default: // DISP!
+
+		  displayOff();
+		  showingDisplayDigits = disp_n;
+		  showingDisplayFromReg = disp_s;
+		  isDISP = true;
+
+		  if ( singleStep ) 
+		    showDisplay();
+
+		  break;
+
+		}
+	    }
+	  }
       }
     }
-    }
-  }
-  }
 
   if (singleStep)
-  {
-    currentMode = STOPPED;
-    if (!jump)
     {
-      pc++;
+      currentMode = STOPPED;
+      if (!jump)
+	{
+	  pc++;
+	}
     }
-  }
 }
 
 //
@@ -2035,44 +2046,6 @@ void run()
 void loop()
 {
 
-   pinMode(DOT_PIN_1, OUTPUT); // Row 1
-   pinMode(DOT_PIN_2, OUTPUT); // Row 2
-   pinMode(DOT_PIN_3, OUTPUT); // Row 3
-   pinMode(DOT_PIN_4, OUTPUT); // Row 4
-
-   digitalWrite(OUTPUT_LATCH, HIGH);
-
-    // set outputs
-    digitalWrite(DOT_PIN_1, outputs & 1);
-    digitalWrite(DOT_PIN_2, outputs & 2);
-    digitalWrite(DOT_PIN_3, outputs & 4);
-    digitalWrite(DOT_PIN_4, outputs & 8);
-
-   digitalWrite(OUTPUT_LATCH, LOW);
-
-   digitalWrite(OUTPUT_LATCH, HIGH);
-   digitalWrite(OUTPUT_LATCH, LOW);
-
-   /* 
-   pinMode(DIN_PIN_1, INPUT); // configure as INPUT Microtronic Inputs 
-   pinMode(DIN_PIN_2, INPUT); 
-   pinMode(DIN_PIN_3, INPUT); 
-   pinMode(DIN_PIN_4, INPUT); 
-
-   digitalWrite(INPUT_READ, HIGH); // read inputs from 74LS240 
-
-   inputs = digitalRead(DIN_PIN_1) | digitalRead(DIN_PIN_2) << 1 | digitalRead(DIN_PIN_3) << 2 | digitalRead(DIN_PIN_4) << 3;
-
-   outputs = inputs; 
-
-   digitalWrite(INPUT_READ, LOW); // Disable
-   
-   */
-
-   //
-   //
-   //
-    
   uint8_t key = keypad.getKey(); // reconfigures ROW keys to inputs!
 
 
@@ -2091,15 +2064,15 @@ void loop()
   functionKey = functionKeyRaw; 
 
   if (functionKey == previousFunctionKey)
-  { // button held down pressed
-    functionKey = NO_KEY;
-  }
+    { // button held down pressed
+      functionKey = NO_KEY;
+    }
   else if (millis() - lastFuncKeyTime > FUNCTION_KEY_DEBOUNCE_TIME)
-  { // debounce
-    previousFunctionKey = functionKey;
-    error = false;
-    lastFuncKeyTime = millis();
-  }
+    { // debounce
+      previousFunctionKey = functionKey;
+      error = false;
+      lastFuncKeyTime = millis();
+    }
   else
     functionKey = NO_KEY;
 
@@ -2110,24 +2083,24 @@ void loop()
   keypadKey = keypadKeyRaw; 
 
   if (keypadKey == previousKeypadKey)
-  { // button held down pressed
-    keypadKey = NO_KEY;
-  }
+    { // button held down pressed
+      keypadKey = NO_KEY;
+    }
   else
-  {
-    previousKeypadKey = keypadKey;
-  }
+    {
+      previousKeypadKey = keypadKey;
+    }
 
   //
   //
   //
 
   if (keypadKey != NO_KEY)
-  {
-    keypadKey--;
-    previousFunctionKey = NO_KEY;
-    keypadPressed = true;
-  }
+    {
+      keypadKey--;
+      previousFunctionKey = NO_KEY;
+      keypadPressed = true;
+    }
   else
     keypadPressed = false;
 
@@ -2138,53 +2111,31 @@ void loop()
   displayStatus();
   interpret();
 
-#ifdef RESET_BUTTON_AT_PIN_0 
-  if (!digitalRead(RESET_PIN))
-  {
-    reset();
+
+  if (functionKey == RESET)
+    {
+      reset();
+    }
+
+  if (functionKey == CPUP) {
+    cpu_speed ++; 
+    if (cpu_speed == 16)
+      cpu_speed = 15; 
+    cpu_delay = cpu_delays[cpu_speed]; 
+    dot_output(cpu_speed);
+    delay(100);
+    dot_output(outputs);
+    
+  } else if (functionKey == CPUM) {
+    if (cpu_speed)
+      cpu_speed--; 
+    else
+      cpu_speed = 0; 
+    cpu_delay = cpu_delays[cpu_speed]; 
+    dot_output(cpu_speed);
+    delay(100);
+    dot_output(outputs);   
   }
-#endif
 
-  if (functionKey == (HALT | CCE))
-  {
-    reset();
-  }
-
-#ifdef USE_CPU_THROTTLE_POT_AT_PIN_A5 
-  cpu_delay = analogRead(CPU_THROTTLE_ANALOG_PIN) / CPU_THROTTLE_DIVISOR;
-  if (cpu_delay < CPU_MIN_THRESHOLD)
-    cpu_delay = 0;
-#endif 
-
-  // RUN + HEX = Set CPU Throttle: 
-
-  if (functionKeyRaw == RUN && keypadKeyRaw != NO_KEY) {
-    cpu_delay = cpu_delays[keypadKeyRaw-1]; 
-    keypadPressed = false;
-    functionKey = NO_KEY;
-    keypadKey = NO_KEY;    
-  }
 
 }
-
-/* 
-void loop() {
-
-  for (uint32_t x = 0 ; x < 1000000; x++) 
-    show_num(x); 
- 
-
-    // show_num(999999); 
-
-    // sendChar(0,0b01011011, False); 
-
-    // sendChar(5,0b00000000, false); 
-    // sendChar(4,0b00100000, false); 
-    // sendChar(3,0b00000000, false); 
-    // sendChar(2,0b00000000, false); 
-    // sendChar(1,0b00000000, false); 
-    // sendChar(0,0b00000000, false);  
-
-}
-
-*/ 
