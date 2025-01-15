@@ -17,14 +17,13 @@
 #define FUNTONELENGTH 50 
 
 //
-//
-//
-
-int cpu_delay = 0;
-int cpu_speed = 0;
-
 //                    0  1  2  3   4   5   6   7   8   9  10  11   12   13   14  15
+//
+
 int cpu_delays[16] = {0, 3, 6, 9, 12, 15, 18, 21, 30, 40, 50, 80, 120, 150, 200, 500 }; 
+
+int cpu_speed = 15 - 6;  
+int cpu_delay = 0; 
 
 //
 //
@@ -681,14 +680,19 @@ void setup() {
   sendString(" ready");
   delay(600);
 
-  lasttime = millis();
-
   //
   // Sound - PD7 
   //
   
   pinMode(TONEPIN, OUTPUT); 
   NewTone(TONEPIN, 400, 100); 
+
+  //
+  //	
+  //
+
+  lasttime = millis();
+  cpu_delay = cpu_delays[15-cpu_speed]; 
 
 }
 
@@ -2225,7 +2229,7 @@ void loop()
     cpu_speed ++; 
     if (cpu_speed == 16)
       cpu_speed = 15; 
-    cpu_delay = cpu_delays[cpu_speed]; 
+    cpu_delay = cpu_delays[15-cpu_speed]; 
     dot_output(cpu_speed);
     NewTone(TONEPIN, note_frequencies_subi[cpu_speed], FUNTONELENGTH); 
     delay(100);
@@ -2237,7 +2241,7 @@ void loop()
       cpu_speed--; 
     else
       cpu_speed = 0; 
-    cpu_delay = cpu_delays[cpu_speed]; 
+    cpu_delay = cpu_delays[15-cpu_speed]; 
     dot_output(cpu_speed);
     NewTone(TONEPIN, note_frequencies_subi[cpu_speed], FUNTONELENGTH); 
     delay(100);
