@@ -4,6 +4,17 @@
 #include <TM16XXFonts.h>
 #include <EEPROM.h>
 #include <Wire.h>
+#include <NewTone.h>
+
+//
+// Keypad Tones
+// 
+
+#define TONEPIN PIN_PD7
+#define HEXKEYTONE 440 
+#define KEYTONELENGTH 50
+#define FUNKEYTONE 880
+#define FUNTONELENGTH 50 
 
 //
 //
@@ -14,6 +25,36 @@ int cpu_speed = 0;
 
 //                    0  1  2  3   4   5   6   7   8   9  10  11   12   13   14  15
 int cpu_delays[16] = {0, 3, 6, 9, 12, 15, 18, 21, 30, 40, 50, 80, 120, 150, 200, 500 }; 
+
+//
+//
+//
+
+boolean keybeep = true;
+
+// Tone sound;
+
+//
+// MOV: 15 Notes (0 = Tone Off!) 
+// C2, C#2, D2, D#2, E2, F2, F#2, G2, G#2, A2, B#2, B2, C3, C#3, D3
+//  1   2    3   4    5   6   7    8   9    A   B    C   D   E    F 
+//
+
+int note_frequencies_mov[ ] = { 65, 69, 73, 78, 82, 87, 93, 98, 104, 110, 117, 123, 131, 139, 147 };
+
+// ADDI: 16 Notes 
+// D#3, E3, F3, F#3, G3, G#3, A3, B#3, B3, C4, C#4, D4, D#4, E4, F4, F#4
+//  0    1   2   3    4   5    6   7    8   9   A    B   C    D   E   F
+//
+
+int note_frequencies_addi[] = { 156, 165, 175, 185, 196, 208, 220, 233, 247, 262, 277, 294, 311, 330, 349, 370 }; 
+
+// SUBI: 16 Notes 
+// G4, G#4, A4, B#4, B4, C5, C#5, D5, D#5, E5, F5, F#5, G5,  G#5, A5,  B#5
+//  0   1    2   3    4   5   6    7   8    9   A   B    C    D    E    F 
+// 
+ 
+int note_frequencies_subi[] = { 392, 415, 440, 466, 494, 523, 554, 587, 622, 659, 698, 740, 784, 831, 880, 932 }; 
 
 //
 //
@@ -88,12 +129,13 @@ byte program = 0;
 #define RESET 0x19
 #define CPUP  0x1A
 #define CPUM  0x1B
+#define KEYBT 0x1C
 
 char keys[ROWS][COLS] = { // plus one because 0 = no key pressed!
   {0xD, 0xE, 0xF, 0x10, NEXT, REG, RESET},
   {0x9, 0xA, 0xB, 0xC,  BKP,  STEP, CPUP},
   {0x5, 0x6, 0x7, 0x8,  RUN,  HALT, CPUM},
-  {0x1, 0x2, 0x3, 0x4,  CCE , PGM,  NO_KEY}
+  {0x1, 0x2, 0x3, 0x4,  CCE , PGM,  KEYBT }
 }; 
 
 byte colPins[COLS] = {PIN_PB0, PIN_PB1, PIN_PB2, PIN_PB3, PIN_PB4, PIN_PB5, PIN_PD6 }; // 7 columns
@@ -152,6 +194,8 @@ byte showingDisplayDigits = 0;
 
 byte currentReg = 0;
 byte currentInputRegister = 0;
+
+unsigned long lasttime = 0; 
 
 boolean clock = false;
 boolean carry = false;
@@ -383,42 +427,11 @@ void initializeTimer()
 }
 
 
-void initializeClock()
-{
-
-  // Timer1 interrupt at 1Hz
-
-  cli();
-
-  TCCR1A = 0;
-  TCCR1B = 0;
-  TCNT1 = 624;
-
-  // OCR1A =0xF9;
-  // OCR1A = 15624 / 2;
-  // OCR1A = 50;
-  OCR1A =  20000 / 2; 
-
-  // turn on CTC mode
-  TCCR1B |= (1 << WGM12);
-  // Set CS12 and CS10 bits for 1024 prescaler
-  TCCR1B |= (1 << CS12) | (1 << CS10);
-  // enable timer compare interrupt
-  TIMSK1 |= (1 << OCIE1A);
-
-  sei();
-}
-
-// volatile bool clock = false; 
-volatile uint8_t seg = 0; 
-
-ISR(TIMER1_COMPA_vect)
-{
-
+void advance_clock() {
+  
   clock = !clock;
 
-  if (clock)
-    {
+  if (clock) {
 
       timeSeconds1++;
 
@@ -463,7 +476,52 @@ ISR(TIMER1_COMPA_vect)
 	    }
 	}
     }
+  
 }
+
+void initializeClock() {}; 
+
+/*
+
+// we'll need Timer1 for NewTone sound!
+// so do the 1 Hz clock in software again...
+
+void initializeClock()
+  {
+
+  // Timer1 interrupt at 1Hz
+
+  cli();
+
+  TCCR1A = 0;
+  TCCR1B = 0;
+  TCNT1 = 624;
+
+  // OCR1A =0xF9;
+  // OCR1A = 15624 / 2;
+  // OCR1A = 50;
+  OCR1A =  20000 / 2; 
+
+  // turn on CTC mode
+  TCCR1B |= (1 << WGM12);
+  // Set CS12 and CS10 bits for 1024 prescaler
+  TCCR1B |= (1 << CS12) | (1 << CS10);
+  // enable timer compare interrupt
+  TIMSK1 |= (1 << OCIE1A);
+
+  sei();
+  }
+
+  ISR(TIMER1_COMPA_vect)
+  {
+
+  advance_clock();
+
+  }
+
+*/
+
+volatile uint8_t seg = 0; 
 
 void show_digit() {
 
@@ -605,6 +663,7 @@ void setup() {
   pinMode(PIN_PB6, OUTPUT); // Carry
   pinMode(PIN_PB7, OUTPUT); // Zero
 
+
   //
   // Timers 
   //
@@ -622,6 +681,14 @@ void setup() {
   sendString(" ready");
   delay(600);
 
+  lasttime = millis();
+
+  //
+  // Sound - PD7 
+  //
+  
+  pinMode(TONEPIN, OUTPUT); 
+  NewTone(TONEPIN, 400, 100); 
 
 }
 
@@ -751,8 +818,10 @@ void showError()
 void showReset()
 {
 
+  noNewTone(TONEPIN);// Turn off the tone.
   displayOff();
   sendString("reset ");
+
 }
 
 void displayOff()
@@ -1526,6 +1595,15 @@ void run()
       reg[d] = reg[s];
       zero = reg[d] == 0;
 
+      if (d == s) {
+	if (! d) {
+	  noNewTone(TONEPIN);
+	} else { 
+	  NewTone(TONEPIN, note_frequencies_mov[d-1]); 
+	}
+      }
+
+
       break;
 
     case OP_MOVI:
@@ -1567,6 +1645,10 @@ void run()
       reg[d] &= 15;
       zero = reg[d] == 0;
 
+      if (! n) {
+        NewTone(TONEPIN, note_frequencies_addi[d]);
+      }
+	
       break;
 
     case OP_SUB:
@@ -1575,6 +1657,10 @@ void run()
       carry = reg[d] > 15;
       reg[d] &= 15;
       zero = reg[d] == 0;
+
+      if (! n)  {
+        NewTone(TONEPIN, note_frequencies_subi[d]);
+      }
 
       break;
 
@@ -2043,11 +2129,11 @@ void run()
 // Main Loop
 //
 
+
 void loop()
 {
 
   uint8_t key = keypad.getKey(); // reconfigures ROW keys to inputs!
-
 
   if (key < HALT) {
     keypadKeyRaw = key;
@@ -2072,6 +2158,9 @@ void loop()
       previousFunctionKey = functionKey;
       error = false;
       lastFuncKeyTime = millis();
+      if (keybeep && functionKey != CPUP && functionKey != CPUM) {
+	NewTone(TONEPIN, FUNKEYTONE, KEYTONELENGTH);
+      }
     }
   else
     functionKey = NO_KEY;
@@ -2100,6 +2189,10 @@ void loop()
       keypadKey--;
       previousFunctionKey = NO_KEY;
       keypadPressed = true;
+      if (keybeep) {
+	NewTone(TONEPIN, HEXKEYTONE, KEYTONELENGTH);
+      }
+
     }
   else
     keypadPressed = false;
@@ -2111,31 +2204,62 @@ void loop()
   displayStatus();
   interpret();
 
+  switch (functionKey) {
+    
+  case RESET : 
+    reset();
+    break;
+    
+  case KEYBT : 
+    pinMode(TONEPIN, OUTPUT); 
 
-  if (functionKey == RESET)
-    {
-      reset();
+    keybeep = !keybeep;
+    if (keybeep) {
+      NewTone(TONEPIN, 400, FUNTONELENGTH); 
+    } else {
+      NewTone(TONEPIN, 200, FUNTONELENGTH); 
     }
+    break; 
 
-  if (functionKey == CPUP) {
+  case CPUP : 
     cpu_speed ++; 
     if (cpu_speed == 16)
       cpu_speed = 15; 
     cpu_delay = cpu_delays[cpu_speed]; 
     dot_output(cpu_speed);
+    NewTone(TONEPIN, note_frequencies_subi[cpu_speed], FUNTONELENGTH); 
     delay(100);
     dot_output(outputs);
+    break; 
     
-  } else if (functionKey == CPUM) {
+  case CPUM : 
     if (cpu_speed)
       cpu_speed--; 
     else
       cpu_speed = 0; 
     cpu_delay = cpu_delays[cpu_speed]; 
     dot_output(cpu_speed);
+    NewTone(TONEPIN, note_frequencies_subi[cpu_speed], FUNTONELENGTH); 
     delay(100);
-    dot_output(outputs);   
+    dot_output(outputs);
+    break;
+
+  default:
+    break;
+    
   }
 
+  //
+  //
+  //
+
+  unsigned long time = millis();
+  unsigned long delta = time - lasttime;
+
+  if (delta >= 500) 
+    {
+      advance_clock();
+      lasttime = time;
+    }
 
 }
