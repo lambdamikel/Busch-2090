@@ -138,7 +138,7 @@ char keys[ROWS][COLS] = { // plus one because 0 = no key pressed!
 }; 
 
 byte colPins[COLS] = {PIN_PB0, PIN_PB1, PIN_PB2, PIN_PB3, PIN_PB4, PIN_PB5, PIN_PD6 }; // 7 columns
-byte rowPins[ROWS] = {PIN_PD0, PIN_PD1, PIN_PD2, PIN_PD3}; // 4 rows
+byte rowPins[ROWS] = {PIN_PD3, PIN_PD2, PIN_PD1, PIN_PD0}; // 4 rows
 
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
@@ -691,10 +691,12 @@ void setup() {
   //	
   //
 
+  dot_output(0); 
+
   lasttime = millis();
   cpu_delay = cpu_delays[15-cpu_speed]; 
 
-}
+} 
 
 //
 //
