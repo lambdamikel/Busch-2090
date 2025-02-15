@@ -7,10 +7,94 @@
 #include <NewTone.h>
 
 //
+// Hardware Config (HAL) 
+// 
+
+#define CARRY PIN_PC1
+#define ZERO  PIN_PC2
+
+#define SDA PIN_PC1
+#define SCL PIN_PC0
+
+#define DIN_PIN_1 PIN_PC4
+#define DIN_PIN_2 PIN_PC5
+#define DIN_PIN_3 PIN_PC6
+#define DIN_PIN_4 PIN_PC7 
+
+#define DOT_PIN_1 PIN_PD2
+#define DOT_PIN_2 PIN_PD3
+#define DOT_PIN_3 PIN_PD4
+#define DOT_PIN_4 PIN_PD5 
+
+#define CLOCK_1HZ PIN_PD6
+
+#define SPEAKER_PIN PIN_PD7
+
+#define DISPLAY_A PIN_PA0
+#define DISPLAY_B PIN_PA1
+#define DISPLAY_C PIN_PA2
+#define DISPLAY_D PIN_PA3
+#define DISPLAY_E PIN_PA4
+#define DISPLAY_F PIN_PA5
+#define DISPLAY_G PIN_PA6
+#define DISPLAY_DOT PIN_PA7
+
+#define DISPLAY_CAT_R0 PIN_PB4
+#define DISPLAY_CAT_R1 PIN_PB5
+#define DISPLAY_CAT_R2 PIN_PB6
+#define DISPLAY_CAT_R3 PIN_PB7
+#define DISPLAY_CAT_R4 PIN_PD0
+#define DISPLAY_CAT_R5 PIN_PD1
+
+// 
+// Keypad Matrix 7 x 4  
+//
+
+#define ROWS 4
+#define COLS 7
+
+#define NO_KEY 0x0  
+
+byte key = NO_KEY;
+byte key0 = NO_KEY;
+
+volatile boolean start_scanning = false; 
+volatile boolean scanning = false; 
+volatile boolean scanned = false; 
+
+#define HALT  0x11
+#define NEXT  0x12
+#define RUN   0x13
+#define CCE   0x14
+#define REG   0x15
+#define STEP  0x16
+#define BKP   0x17
+#define PGM   0x18 
+#define RESET 0x19
+#define CPUP  0x1A
+#define CPUM  0x1B
+#define KEYBT 0x1C
+
+char keys[ROWS][COLS] = { 
+			 { 0x1, 0x2, 0x3, 0x4,  CCE, PGM,  RESET }, 
+			 { 0x5, 0x6, 0x7, 0x8,  RUN,  HALT, KEYBT },
+			 { 0x9, 0xA, 0xB, 0xC,  BKP,  STEP, CPUP },
+			 { 0xD, 0xE, 0xF, 0x10,  NEXT, REG, CPUM } 
+}; 
+
+// R0 ,  R1,  R2 , R3,  R4,  R5, R12, OUTPUTS 
+// PB4, PB5, PB6, PB7, PD0, PD1, PC3
+
+byte colPins[COLS] = {PIN_PB4, PIN_PB5, PIN_PB6, PIN_PB7, PIN_PD0, PIN_PD1, PIN_PC3 }; // 7 columns
+
+// K1, K2, K4, K8 INPUTS
+// PB0 PB1 PB2 PB3 
+byte rowPins[ROWS] = {PIN_PB0, PIN_PB1, PIN_PB2, PIN_PB3}; // 4 rows
+
+//
 // Keypad Tones
 // 
 
-#define TONEPIN PIN_PD7
 #define HEXKEYTONE 440 
 #define KEYTONELENGTH 50
 #define FUNKEYTONE 880
@@ -99,83 +183,11 @@ const char PGMF[] PROGMEM = "F08 FE0 14A 1DB 1DC 1AD 17E 11F F6A FFF F02 B6C C12
 #define PROGRAMS 9
 
 const char *const PGMROM[PROGRAMS] PROGMEM = {
-  PGM7, PGM8, PGM9, PGMA, PGMB, PGMC, PGMD, PGME, PGMF};
+					      PGM7, PGM8, PGM9, PGMA, PGMB, PGMC, PGMD, PGME, PGMF};
 
 byte programs = PROGRAMS;
 
 byte program = 0;
-
-//
-// Set up the hardware
-//
-
-//
-// Keypad 7 x 4 matrix
-//
-
-#define ROWS 4
-#define COLS 7
-
-
-#define HALT  0x11
-#define NEXT  0x12
-#define RUN   0x13
-#define CCE   0x14
-#define REG   0x15
-#define STEP  0x16
-#define BKP   0x17
-#define PGM   0x18 
-#define RESET 0x19
-#define CPUP  0x1A
-#define CPUM  0x1B
-#define KEYBT 0x1C
-
-char keys[ROWS][COLS] = { // plus one because 0 = no key pressed!
-  {0xD, 0xE, 0xF, 0x10, NEXT, REG, RESET},
-  {0x9, 0xA, 0xB, 0xC,  BKP,  STEP, CPUP},
-  {0x5, 0x6, 0x7, 0x8,  RUN,  HALT, CPUM},
-  {0x1, 0x2, 0x3, 0x4,  CCE , PGM,  KEYBT }
-}; 
-
-byte colPins[COLS] = {PIN_PB0, PIN_PB1, PIN_PB2, PIN_PB3, PIN_PB4, PIN_PB5, PIN_PD6 }; // 7 columns
-byte rowPins[ROWS] = {PIN_PD3, PIN_PD2, PIN_PD1, PIN_PD0}; // 4 rows
-
-Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
-
-unsigned long lastFuncKeyTime = 0;
-
-#define FUNCTION_KEY_DEBOUNCE_TIME 0
-
-//
-// Microtronic IOs - These are Keypad ROW Inputs! 
-// See 74LS04 Logic - NOT inverted
-// 
-
-#define INPUT_READ PIN_PD4
-
-#define DIN_PIN_1 PD0
-#define DIN_PIN_2 PD1
-#define DIN_PIN_3 PD2
-#define DIN_PIN_4 PD3
-
-//
-// These are Keypad COL Outputs! 
-// See 74LS373 Logic for latching
-//
-
-#define OUTPUT_LATCH PIN_PD5
-
-#define DOT_PIN_1 PIN_PD0
-#define DOT_PIN_2 PIN_PD1
-#define DOT_PIN_3 PIN_PD2
-#define DOT_PIN_4 PIN_PD3
-
-//
-//
-//
-
-#define CARRY PIN_PB6
-#define ZERO  PIN_PB7
 
 //
 //
@@ -202,8 +214,6 @@ boolean zero = false;
 boolean error = false;
 
 volatile byte outputs = 0;
-volatile byte inputs1 = 0;
-volatile byte inputs = 0;
 
 //
 // internal clock
@@ -260,46 +270,45 @@ byte regEx[16];
 // keypad key and function key input
 //
 
+byte last_key = NO_KEY;
+
 boolean keypadPressed = false;
 
 byte input = 0;
 byte keypadKey = NO_KEY;
-byte keypadKeyRaw = NO_KEY;
 byte functionKey = NO_KEY;
-byte functionKeyRaw = NO_KEY;
-byte previousFunctionKey = NO_KEY;
-byte previousKeypadKey = NO_KEY;
 
+ 
 //
 // current mode / status of emulator
 //
 
 enum mode
   {
-    STOPPED,
-    RESETTING,
+   STOPPED,
+   RESETTING,
 
-    ENTERING_ADDRESS_HIGH,
-    ENTERING_ADDRESS_LOW,
+   ENTERING_ADDRESS_HIGH,
+   ENTERING_ADDRESS_LOW,
 
-    ENTERING_BREAKPOINT_HIGH,
-    ENTERING_BREAKPOINT_LOW,
+   ENTERING_BREAKPOINT_HIGH,
+   ENTERING_BREAKPOINT_LOW,
 
-    ENTERING_OP,
-    ENTERING_ARG1,
-    ENTERING_ARG2,
+   ENTERING_OP,
+   ENTERING_ARG1,
+   ENTERING_ARG2,
 
-    RUNNING,
-    STEPING,
+   RUNNING,
+   STEPING,
 
-    ENTERING_REG,
-    INSPECTING,
+   ENTERING_REG,
+   INSPECTING,
 
-    ENTERING_VALUE,
-    ENTERING_PROGRAM,
+   ENTERING_VALUE,
+   ENTERING_PROGRAM,
 
-    ENTERING_TIME,
-    SHOWING_TIME
+   ENTERING_TIME,
+   SHOWING_TIME
 
   };
 
@@ -362,14 +371,13 @@ mode currentMode = STOPPED;
 
 void init_EEPROM(void)
 {
-  Wire.begin();  
+  Wire.begin();
+  Wire.setClock(400000); 
 }
 
 void end_EEPROM(void)
 {
-  Wire.end();  
-
-  initializeClock(); 
+  Wire.end();
 
 }
   
@@ -425,56 +433,70 @@ void initializeTimer()
   sei();
 }
 
+void disableTimer()
+{
+  TCCR2B = 0; 
+  pinMode(DISPLAY_CAT_R0, INPUT); // Display Digit Cathodes, 4
+  pinMode(DISPLAY_CAT_R1, INPUT); 
+  pinMode(DISPLAY_CAT_R2, INPUT); 
+  pinMode(DISPLAY_CAT_R3, INPUT); 
+  pinMode(DISPLAY_CAT_R4, INPUT); 
+  pinMode(DISPLAY_CAT_R5, INPUT); // Display Digit Cathodes, 9 
+  pinMode(PIN_PC3, INPUT); // NOW SCAN THE KEYBOARD; R12 = PC3 is LOW 
+}
 
 void advance_clock() {
-  
+
   clock = !clock;
+
+  digitalWrite(CLOCK_1HZ, clock); 
+  
 
   if (clock) {
 
-      timeSeconds1++;
+    timeSeconds1++;
 
-      if (timeSeconds1 > 9)
-	{
-	  timeSeconds10++;
-	  timeSeconds1 = 0;
+    if (timeSeconds1 > 9)
+      {
+	timeSeconds10++;
+	timeSeconds1 = 0;
 
-	  if (timeSeconds10 > 5)
-	    {
-	      timeMinutes1++;
-	      timeSeconds10 = 0;
+	if (timeSeconds10 > 5)
+	  {
+	    timeMinutes1++;
+	    timeSeconds10 = 0;
 
-	      if (timeMinutes1 > 9)
-		{
-		  timeMinutes10++;
-		  timeMinutes1 = 0;
+	    if (timeMinutes1 > 9)
+	      {
+		timeMinutes10++;
+		timeMinutes1 = 0;
 
-		  if (timeMinutes10 > 5)
-		    {
-		      timeHours1++;
-		      timeMinutes10 = 0;
+		if (timeMinutes10 > 5)
+		  {
+		    timeHours1++;
+		    timeMinutes10 = 0;
 
-		      if (timeHours10 < 2)
-			{
-			  if (timeHours1 > 9)
-			    {
-			      timeHours1 = 0;
-			      timeHours10++;
-			    }
-			}
-		      else if (timeHours10 == 2)
-			{
-			  if (timeHours1 > 3)
-			    {
-			      timeHours1 = 0;
-			      timeHours10 = 0;
-			    }
-			}
-		    }
-		}
-	    }
-	}
-    }
+		    if (timeHours10 < 2)
+		      {
+			if (timeHours1 > 9)
+			  {
+			    timeHours1 = 0;
+			    timeHours10++;
+			  }
+		      }
+		    else if (timeHours10 == 2)
+		      {
+			if (timeHours1 > 3)
+			  {
+			    timeHours1 = 0;
+			    timeHours10 = 0;
+			  }
+		      }
+		  }
+	      }
+	  }
+      }
+  }
   
 }
 
@@ -486,72 +508,130 @@ void initializeClock() {};
 // so do the 1 Hz clock in software again...
 
 void initializeClock()
-  {
+{
 
-  // Timer1 interrupt at 1Hz
+// Timer1 interrupt at 1Hz
 
-  cli();
+cli();
 
-  TCCR1A = 0;
-  TCCR1B = 0;
-  TCNT1 = 624;
+TCCR1A = 0;
+TCCR1B = 0;
+TCNT1 = 624;
 
-  // OCR1A =0xF9;
-  // OCR1A = 15624 / 2;
-  // OCR1A = 50;
-  OCR1A =  20000 / 2; 
+// OCR1A =0xF9;
+// OCR1A = 15624 / 2;
+// OCR1A = 50;
+OCR1A =  20000 / 2; 
 
-  // turn on CTC mode
-  TCCR1B |= (1 << WGM12);
-  // Set CS12 and CS10 bits for 1024 prescaler
-  TCCR1B |= (1 << CS12) | (1 << CS10);
-  // enable timer compare interrupt
-  TIMSK1 |= (1 << OCIE1A);
+// turn on CTC mode
+TCCR1B |= (1 << WGM12);
+// Set CS12 and CS10 bits for 1024 prescaler
+TCCR1B |= (1 << CS12) | (1 << CS10);
+// enable timer compare interrupt
+TIMSK1 |= (1 << OCIE1A);
 
-  sei();
-  }
+sei();
+}
 
-  ISR(TIMER1_COMPA_vect)
-  {
+ISR(TIMER1_COMPA_vect)
+{
 
-  advance_clock();
+advance_clock();
 
-  }
+}
 
 */
+
+
+byte scan_current_key(void) {
+  if (scanned) {
+    key0 = key;
+    scanned = false; 
+    return key;
+  } if (scanning) {
+    return key0;
+  } else {
+    start_scanning = true;
+    return key0; 
+  } 
+}
+
+byte get_current_key(void) {
+  while ( scanning ) { __asm__("nop\n\t"); };
+  start_scanning = true;
+  while ( ! scanned) { __asm__("nop\n\t"); };
+  return key;    
+}
+
+byte get_current_key1(void) {
+  byte ikey0 = NO_KEY; 
+  do {
+    byte ikey = get_current_key();
+    if (ikey == NO_KEY && ikey0 != NO_KEY) 
+      return ikey0;
+    ikey0 = ikey;
+  } while (true); 
+}
+
 
 volatile uint8_t seg = 0; 
 
 void show_digit() {
 
-  pinMode(23-seg, INPUT);
-  if (!seg) {
-    digitalWrite(INPUT_READ, LOW); 
-    inputs1 = digitalRead(23-seg);
-    digitalWrite(INPUT_READ, HIGH); 
-  } else if (seg < 4) {
-    digitalWrite(INPUT_READ, LOW); 
-    inputs1 |= (digitalRead(23-seg) << seg);
-    digitalWrite(INPUT_READ, HIGH);
-    if (seg == 3)
-      inputs = inputs1; 
-  } 
-  
-  seg = (seg+1) % 6; 
-  uint8_t i = 23 - seg; 
+  // PD1, PD0, PB7, PB6, PB5, PB4 CATHODES OF LED DISPLAY 
+  // R5, R4, R3, R2, R1, R0
 
-  portWrite(0, disp_data[seg] | (clock ? 0b10000000 : 0b00000000)); 
-  pinMode(i, OUTPUT); 
-  digitalWrite(i, LOW);
+  if (start_scanning && ! scanning && seg == 0 ) {
+    scanned = false;
+    start_scanning = false;
+    scanning = true;
+    key = NO_KEY; 
+  }
+
+  uint8_t row = 0;
+  
+  if (! digitalRead(PB0)) 
+    row = 1;
+  else if (! digitalRead(PB1))
+    row = 2;
+  else if (! digitalRead(PB2))
+    row = 3;
+  else if (! digitalRead(PB3))
+    row = 4;
+
+  if (scanning) {
+    if (row) 
+      key = keys[row-1][seg == 6 ? 6 : 5-seg ];
+  }
+
+  if (scanning && seg == 6) {
+    scanned = true;
+    scanning = false; 
+  }
+
+  if (seg == 6) 
+    pinMode(PIN_PC3, INPUT);     
+  else 
+    pinMode(9-seg, INPUT);
+    
+  seg = (seg+1) % 7;
+
+  if (seg == 6) {
+    pinMode(PIN_PC3, OUTPUT); // NOW SCAN THE KEYBOARD; R12 = PC3 is LOW 
+    digitalWrite(PIN_PC3, LOW);   
+  } else {
+    uint8_t i = 9 - seg; 
+    portWrite(0, disp_data[seg]);
+
+    pinMode(i, OUTPUT); // NOW SCAN THE KEYBOARD; K1, K2, K4, K8 are INPUTS = PB0 PB1 PB2 PB3
+    digitalWrite(i, LOW);
+
+  } 
   
 }
 
 ISR(TIMER2_OVF_vect) {
-
-  show_digit();
-  digitalWrite(CARRY, carry);
-  digitalWrite(ZERO , zero);
-  
+  show_digit(); 
 }
   
 #define DISP_DELAY 100
@@ -601,14 +681,44 @@ void setup() {
 
   randomSeed(analogRead(0));
 
-  pinMode(PIN_PB2, OUTPUT);
-   
-  pinMode(PIN_PC2, INPUT);  // Display Digit Cathodes, 18 
-  pinMode(PIN_PC3, INPUT); 
-  pinMode(PIN_PC4, INPUT); 
-  pinMode(PIN_PC5, INPUT); 
-  pinMode(PIN_PC6, INPUT); 
-  pinMode(PIN_PC7, INPUT); // Display Digit Cathodes, 23 
+  // Keyboard COLUMN OUTPUTS: 
+
+  // R0 , R1, R2, R3, R4, R5, R12  OUTPUTS 
+  // PB4, PB5, PB6, PB7, PD0, PD1, PC3
+
+  // don't initialize, see Display initialization below 
+  
+  // pinMode(rowPins[0], OUTPUT); 
+  // pinMode(rowPins[1], OUTPUT); 
+  // pinMode(rowPins[2], OUTPUT); 
+  // pinMode(rowPins[3], OUTPUT); 
+  // pinMode(rowPins[4], OUTPUT); 
+  // pinMode(rowPins[5], OUTPUT); 
+
+  // R12 
+  pinMode(colPins[6], OUTPUT);
+
+  // Keyboard ROW INPUTS:
+
+  // K1, K2, K4, K8 INPUTS
+  // PB0 PB1 PB2 PB3 
+
+  pinMode(rowPins[0], INPUT_PULLUP); // K1 
+  pinMode(rowPins[1], INPUT_PULLUP); // K2 
+  pinMode(rowPins[2], INPUT_PULLUP); // K3 
+  pinMode(rowPins[3], INPUT_PULLUP); // K4 
+  
+  //
+  // Display
+  //
+
+
+  pinMode(DISPLAY_CAT_R0, INPUT); // Display Digit Cathodes, 4
+  pinMode(DISPLAY_CAT_R1, INPUT); 
+  pinMode(DISPLAY_CAT_R2, INPUT); 
+  pinMode(DISPLAY_CAT_R3, INPUT); 
+  pinMode(DISPLAY_CAT_R4, INPUT); 
+  pinMode(DISPLAY_CAT_R5, INPUT); // Display Digit Cathodes, 9 
 
   /*
     --- A ---
@@ -620,48 +730,44 @@ void setup() {
     --- D --- .7 <- DOT not used 
   */ 
 
-  pinMode(PIN_PA0, OUTPUT); // Display Anode Segment A
-  pinMode(PIN_PA1, OUTPUT); // Display Anode Segment B
-  pinMode(PIN_PA2, OUTPUT); // Display Anode Segment C
-  pinMode(PIN_PA3, OUTPUT); // Display Anode Segment D
-  pinMode(PIN_PA4, OUTPUT); // Display Anode Segment E
-  pinMode(PIN_PA5, OUTPUT); // Display Anode Segment F
-  pinMode(PIN_PA6, OUTPUT); // Display Anode Segment G
-   
-  pinMode(PIN_PA7, OUTPUT); // 1 Hz Clock
-
-  // Keypads - 6 Columns, 4 + 2 (HEX + Function keypad) 
-
-  pinMode(PIN_PB0, OUTPUT); // Col 1
-  pinMode(PIN_PB1, OUTPUT); // Col 2
-  pinMode(PIN_PB2, OUTPUT); // Col 3
-  pinMode(PIN_PB3, OUTPUT); // Col 4
-  pinMode(PIN_PB4, OUTPUT); // Col 5
-  pinMode(PIN_PB5, OUTPUT); // Col 6
-  pinMode(PIN_PD5, OUTPUT); // FUNCTION Col 7
-
-  // Keypads - 4 Rows
-
-  pinMode(PIN_PD0, INPUT); // Row 1
-  pinMode(PIN_PD1, INPUT); // Row 2
-  pinMode(PIN_PD2, INPUT); // Row 3
-  pinMode(PIN_PD3, INPUT); // Row 4
-
-  // Microtronic IOs 
-
-  pinMode(INPUT_READ  , OUTPUT);  // Input Inverter OE (74LS04)
-  digitalWrite(INPUT_READ, HIGH); // DISABLE 
-  
-  pinMode(OUTPUT_LATCH, OUTPUT);   // Output Latch (74LS373/4) 
-  digitalWrite(OUTPUT_LATCH, LOW); // Wait for rising edge
+  pinMode(DISPLAY_A, OUTPUT); // Display Anode Segment A
+  pinMode(DISPLAY_B, OUTPUT); // Display Anode Segment B
+  pinMode(DISPLAY_C, OUTPUT); // Display Anode Segment C
+  pinMode(DISPLAY_D, OUTPUT); // Display Anode Segment D
+  pinMode(DISPLAY_E, OUTPUT); // Display Anode Segment E
+  pinMode(DISPLAY_F, OUTPUT); // Display Anode Segment F
+  pinMode(DISPLAY_G, OUTPUT); // Display Anode Segment G
+  pinMode(DISPLAY_DOT, OUTPUT); // Display Anode Segment . 
 
   //
-  // Flags 
-  // 
+  //
+  //
+    
+  pinMode(SDA  , OUTPUT); // R13 = SCL 
+  pinMode(CARRY, OUTPUT); // R14 = SDA = CARRY 
+  pinMode(ZERO , OUTPUT); // R15 = ZERO 
 
-  pinMode(PIN_PB6, OUTPUT); // Carry
-  pinMode(PIN_PB7, OUTPUT); // Zero
+  // DIN 
+  
+  pinMode(DIN_PIN_1, INPUT);
+  pinMode(DIN_PIN_2, INPUT);
+  pinMode(DIN_PIN_3, INPUT);
+  pinMode(DIN_PIN_4, INPUT);
 
+  // DOT 
+  
+  pinMode(DOT_PIN_1, OUTPUT); 
+  pinMode(DOT_PIN_2, OUTPUT);
+  pinMode(DOT_PIN_3, OUTPUT);
+  pinMode(DOT_PIN_4, OUTPUT);
+
+  //
+  
+  pinMode(CLOCK_1HZ, OUTPUT); // CLOCK 1 HZ
+
+  // SOUND
+  
+  pinMode(SPEAKER_PIN, OUTPUT);
 
   //
   // Timers 
@@ -674,7 +780,7 @@ void setup() {
   //
   //
 
-  scrollString("microtronic phoenix computer system");
+  scrollString("microtronic phoenix 2-0");
 
   delay(400);
   sendString(" ready");
@@ -684,8 +790,7 @@ void setup() {
   // Sound - PD7 
   //
   
-  pinMode(TONEPIN, OUTPUT); 
-  NewTone(TONEPIN, 400, 100); 
+  NewTone(SPEAKER_PIN, 400, 100); 
 
   //
   //	
@@ -739,11 +844,6 @@ void showMem()
   else
     sendChar(7, NUMBER_FONT[arg2[adr]], false);
 }
-
-
-//
-//
-//
 
 //
 //
@@ -824,7 +924,7 @@ void showError()
 void showReset()
 {
 
-  noNewTone(TONEPIN);// Turn off the tone.
+  noNewTone(SPEAKER_PIN);// Turn off the tone.
   displayOff();
   sendString("reset ");
 
@@ -1058,18 +1158,18 @@ void loadCore()
   unsigned int keypadKey16 = 0; 
 
   do {
-    keypadKey16 = keypad.getKey();	
-  } while (keypadKey16 == NO_KEY); 
+    keypadKey16 = get_current_key1(); 
+  } while (keypadKey16 == NO_KEY);
 
   keypadKey16--; 
   sendString("LOAD");
   sendChar(6, NUMBER_FONT[keypadKey16], false);
   sendChar(7, FONT_DEFAULT['_' - 32], false);
 
-  delay(20); 
+  delay(400); 
 
   do {
-    keypadKey = keypad.getKey();	
+    keypadKey = get_current_key1();	
   } while (keypadKey == NO_KEY); 
 
   keypadKey--; 
@@ -1097,9 +1197,7 @@ void loadCore()
 
 	  pc = i; 
 	  showMem();
-	}
-
-      sendString("LOADED");
+	}      
     }
   else
     {
@@ -1107,12 +1205,15 @@ void loadCore()
       error = true;
     }
 
-  delay(DISP_DELAY*2);  
+  end_EEPROM(); 
+
+  if (! error) {
+    sendString("LOADED");
+    delay(DISP_DELAY*2);
+  }
 
   displayOff();
   delay(DISP_DELAY);
-
-  end_EEPROM(); 
 
 }
 
@@ -1127,7 +1228,7 @@ void saveCore()
   unsigned int keypadKey16 = 0; 
 
   do {
-    keypadKey16 = keypad.getKey();	
+    keypadKey16 = get_current_key1();	
   } while (keypadKey16 == NO_KEY); 
 
   keypadKey16--; 
@@ -1135,10 +1236,10 @@ void saveCore()
   sendChar(6, NUMBER_FONT[keypadKey16], false);
   sendChar(7, FONT_DEFAULT['_' - 32], false);
 
-  delay(20); 
+  delay(400); 
 
   do {
-    keypadKey = keypad.getKey();	
+    keypadKey = get_current_key1();	
   } while (keypadKey == NO_KEY); 
 
   keypadKey--; 
@@ -1167,34 +1268,32 @@ void saveCore()
       showMem();
     };
 
+  end_EEPROM(); 
+
   sendString("DUMPED");
 
   delay(DISP_DELAY*2);  
 
   displayOff();
+  
   delay(DISP_DELAY);
 
-  end_EEPROM(); 
 }
 
 
 void dot_output(byte value) {
 
-  pinMode(DOT_PIN_1, OUTPUT); // Row 1
-  pinMode(DOT_PIN_2, OUTPUT); // Row 2
-  pinMode(DOT_PIN_3, OUTPUT); // Row 3
-  pinMode(DOT_PIN_4, OUTPUT); // Row 4
-
-  digitalWrite(OUTPUT_LATCH, HIGH);
-
-  // set outputs
   digitalWrite(DOT_PIN_1, value & 1);
   digitalWrite(DOT_PIN_2, value & 2);
   digitalWrite(DOT_PIN_3, value & 4);
   digitalWrite(DOT_PIN_4, value & 8);
 
-  digitalWrite(OUTPUT_LATCH, LOW);
-   
+}
+
+byte din_input(void) {
+
+  return digitalRead(DIN_PIN_1) | digitalRead(DIN_PIN_2) << 1 | digitalRead(DIN_PIN_3) << 2 | digitalRead(DIN_PIN_4) << 3; 
+
 }
 
 void interpret()
@@ -1603,9 +1702,9 @@ void run()
 
       if (d == s) {
 	if (! d) {
-	  noNewTone(TONEPIN);
+	  noNewTone(SPEAKER_PIN);
 	} else { 
-	  NewTone(TONEPIN, note_frequencies_mov[d-1]); 
+	  NewTone(SPEAKER_PIN, note_frequencies_mov[d-1]); 
 	}
       }
 
@@ -1652,7 +1751,7 @@ void run()
       zero = reg[d] == 0;
 
       if (! n) {
-        NewTone(TONEPIN, note_frequencies_addi[d]);
+        NewTone(SPEAKER_PIN, note_frequencies_addi[d]);
       }
 	
       break;
@@ -1665,7 +1764,7 @@ void run()
       zero = reg[d] == 0;
 
       if (! n)  {
-        NewTone(TONEPIN, note_frequencies_subi[d]);
+        NewTone(SPEAKER_PIN, note_frequencies_subi[d]);
       }
 
       break;
@@ -1814,24 +1913,8 @@ void run()
 	    //
 
 	  case OP_DIN:
-
-	    cli();
-	    // we need a number of cycles here... 
-	    show_digit(); 
-	    show_digit(); 
-	    show_digit(); 
-	    show_digit(); 
-	    show_digit(); 
-	    show_digit(); 
-	    show_digit(); 
-	    show_digit(); 
-	    show_digit(); 
-	    show_digit(); 
-	    show_digit(); 
-	    show_digit(); 
-	    sei(); 
       
-	    reg[d] = inputs; 
+	    reg[d] = din_input(); 
 
 	    carry = false;
 	    zero = reg[d] == 0;
@@ -2134,74 +2217,56 @@ void run()
 //
 // Main Loop
 //
-
-
+  
 void loop()
 {
 
-  uint8_t key = keypad.getKey(); // reconfigures ROW keys to inputs!
+  uint8_t cur_key = scan_current_key();
+  
+  //
+  //
+  // 
 
-  if (key < HALT) {
-    keypadKeyRaw = key;
-    functionKeyRaw = NO_KEY;
+  functionKey = NO_KEY;
+  keypadKey = NO_KEY;
+
+  if (cur_key != NO_KEY) {
+     
   } else {
-    functionKeyRaw = key; 
-    keypadKeyRaw = NO_KEY;
+
+    if (last_key != NO_KEY) {
+      if (last_key < HALT) {
+        keypadKey = last_key;
+        functionKey = NO_KEY;
+      } else {
+        functionKey = last_key;
+        keypadKey = NO_KEY;
+      }
+    }
   }
 
+  last_key = cur_key; 
+   
   //
   //
   //
   
-  functionKey = functionKeyRaw; 
-
-  if (functionKey == previousFunctionKey)
-    { // button held down pressed
-      functionKey = NO_KEY;
-    }
-  else if (millis() - lastFuncKeyTime > FUNCTION_KEY_DEBOUNCE_TIME)
-    { // debounce
-      previousFunctionKey = functionKey;
-      error = false;
-      lastFuncKeyTime = millis();
-      if (keybeep && functionKey != CPUP && functionKey != CPUM) {
-	NewTone(TONEPIN, FUNKEYTONE, KEYTONELENGTH);
-      }
-    }
-  else
-    functionKey = NO_KEY;
-
-  //
-  //
-  //
-    
-  keypadKey = keypadKeyRaw; 
-
-  if (keypadKey == previousKeypadKey)
-    { // button held down pressed
-      keypadKey = NO_KEY;
-    }
-  else
-    {
-      previousKeypadKey = keypadKey;
-    }
-
-  //
-  //
-  //
-
   if (keypadKey != NO_KEY)
     {
       keypadKey--;
-      previousFunctionKey = NO_KEY;
       keypadPressed = true;
       if (keybeep) {
-	NewTone(TONEPIN, HEXKEYTONE, KEYTONELENGTH);
+	NewTone(SPEAKER_PIN, HEXKEYTONE, KEYTONELENGTH);
       }
-
     }
   else
     keypadPressed = false;
+
+  if (functionKey != NO_KEY ) 
+    { if (keybeep && functionKey != CPUP && functionKey != CPUM) {
+	NewTone(SPEAKER_PIN, FUNKEYTONE, KEYTONELENGTH);
+      }
+    }
 
   //
   //
@@ -2212,18 +2277,20 @@ void loop()
 
   switch (functionKey) {
     
-  case RESET : 
+  case RESET :
+    scrollString("reset");
+
     reset();
     break;
     
   case KEYBT : 
-    pinMode(TONEPIN, OUTPUT); 
+    pinMode(SPEAKER_PIN, OUTPUT); 
 
     keybeep = !keybeep;
     if (keybeep) {
-      NewTone(TONEPIN, 400, FUNTONELENGTH); 
+      NewTone(SPEAKER_PIN, 400, FUNTONELENGTH); 
     } else {
-      NewTone(TONEPIN, 200, FUNTONELENGTH); 
+      NewTone(SPEAKER_PIN, 200, FUNTONELENGTH); 
     }
     break; 
 
@@ -2233,7 +2300,7 @@ void loop()
       cpu_speed = 15; 
     cpu_delay = cpu_delays[15-cpu_speed]; 
     dot_output(cpu_speed);
-    NewTone(TONEPIN, note_frequencies_subi[cpu_speed], FUNTONELENGTH); 
+    NewTone(SPEAKER_PIN, note_frequencies_subi[cpu_speed], FUNTONELENGTH); 
     delay(100);
     dot_output(outputs);
     break; 
@@ -2245,7 +2312,7 @@ void loop()
       cpu_speed = 0; 
     cpu_delay = cpu_delays[15-cpu_speed]; 
     dot_output(cpu_speed);
-    NewTone(TONEPIN, note_frequencies_subi[cpu_speed], FUNTONELENGTH); 
+    NewTone(SPEAKER_PIN, note_frequencies_subi[cpu_speed], FUNTONELENGTH); 
     delay(100);
     dot_output(outputs);
     break;
@@ -2267,5 +2334,9 @@ void loop()
       advance_clock();
       lasttime = time;
     }
+
+    
+  digitalWrite(CARRY, carry);
+  digitalWrite(ZERO , zero);
 
 }
