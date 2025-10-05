@@ -63,6 +63,32 @@ The "Retro-Authentic Bubble LED Version" was a winner of the [RetroChallenge 202
 
 ## Latest News 
 
+### October 3rd 2025
+
+I have written an article about the Busch Microtronic and its
+emulators for the the "LOAD" magazine of the German organization for
+the preservation of classic computers ("Verein zum Erhalt klassischer
+Computer (VzEkC)") - you can download the [PDF of the "LOAD#11" free
+of
+charge](https://www.classic-computing.de/wp-content/uploads/2025/10/load11web.pdf).
+There are also still print editions available for purchase.
+
+![Load 11 - A](./images/load11.jpg)
+![Load 11 - B](./images/load11-microtronic.jpg)
+
+This article is the last in a series of three about the three major
+educational computer systems available in the first half of the the
+1980s in Germany: the Busch Microtronic, the Kosmos CP1, and the
+Philips MasterLab MC6400. Busch played a pivotal role here, since they
+released the first such system and literally created the market for
+such systems in Germany. The overview and article covering the Philips
+Masterlab can be found in ["LOAD#10" (free PDF
+download)](https://www.classic-computing.de/wp-content/uploads/2024/10/load10web.pdf).
+The Kosmos CP1 is also in "LOAD#11", together with the Microtronic
+article.
+
+## Older News
+
 ### December 1st 2023   
 
 *The creator of the original Busch Microtronic, **Mr. Jörg Vallen of
@@ -112,8 +138,6 @@ Mr. Jörg Vallen of Busch was so kind to include a link to my [PicoRAM
 repository](https://github.com/lambdamikel/Busch-2090) on the [Busch
 Microtronic main
 page.](https://www.busch-modell.de/information/Microtronic-Computer.aspx)
-
-## Older News
 
 ### 02-02-2023
 
