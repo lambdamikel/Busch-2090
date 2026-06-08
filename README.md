@@ -63,6 +63,19 @@ The "Retro-Authentic Bubble LED Version" was a winner of the [RetroChallenge 202
 
 ## Latest News 
 
+### June 8th 2026
+
+Using Claude Code (Opus 4.8), I have translated the first part of the
+Microtronic manuals part to English! You can find the PDF and HTML
+versions here:
+
+[https://github.com/lambdamikel/microtronic-2090-manuals-english](https://github.com/lambdamikel/microtronic-2090-manuals-english)
+
+![Translated Manual English](./images/manuals-en-online.png)
+
+Part 2 will follow soon, as well as the "Computerspiele" booklet. 
+
+
 ### October 3rd 2025
 
 I have written an article about the Busch Microtronic and its
