@@ -73,8 +73,10 @@ as we can tell - the **first working Tic-Tac-Toe for the Microtronic ever**, in 
 computer-first version (the authentic Busch look-ahead strategy) and a human-first
 version against a from-scratch board-scanning AI. The two-bank human-first Tic-Tac-Toe
 is also the first PicoRAM program to combine OLED graphics, TTS speech, SRAM
-bank-switching, and a real game AI all at once. Programs, `.asm` sources, and a
-two-bank simulator are in the PicoRAM repository under
+bank-switching, and a real game AI all at once. There is also a graphical
+**BLOCKADE** - the two-track strategy game from the Busch 2094 "Computerspiele"
+booklet, with numbered OLED lanes and "YOU WIN" / "I WIN" speech. Programs, `.asm`
+sources, and a two-bank simulator are in the PicoRAM repository under
 [`software/vibe-coded/`](https://github.com/lambdamikel/picoram2090/tree/main/software/vibe-coded).
 
 ![Tic-Tac-Toe on the Busch Microtronic + PicoRAM](./images/titato.jpg)
