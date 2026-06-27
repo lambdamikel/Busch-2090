@@ -75,7 +75,11 @@ version against a from-scratch board-scanning AI. The two-bank human-first Tic-T
 is also the first PicoRAM program to combine OLED graphics, TTS speech, SRAM
 bank-switching, and a real game AI all at once. There is also a graphical
 **BLOCKADE** - the two-track strategy game from the Busch 2094 "Computerspiele"
-booklet, with numbered OLED lanes and "YOU WIN" / "I WIN" speech. Programs, `.asm`
+booklet, with numbered OLED lanes and "YOU WIN" / "I WIN" speech. And, going a step
+further than porting existing games, a **wholly original** game designed from
+scratch for the hardware by Claude: a turn-based **LUNAR LANDER** with red-LED
+instruments, an OLED window (descending lander, thrust flame, crash crater) and
+"THE EAGLE HAS LANDED" / "CRASH" speech. Programs, `.asm`
 sources, and a two-bank simulator are in the PicoRAM repository under
 [`software/vibe-coded/`](https://github.com/lambdamikel/picoram2090/tree/main/software/vibe-coded).
 
