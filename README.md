@@ -63,6 +63,31 @@ The "Retro-Authentic Bubble LED Version" was a winner of the [RetroChallenge 202
 
 ## Latest News 
 
+### June 26th 2026
+
+Using Claude (Opus 4.8), I have vibe-coded a set of brand-new games for the Busch
+Microtronic 2090, written entirely in Microtronic machine code and running on the
+[PicoRAM 2090](https://github.com/lambdamikel/picoram2090) expansion: a graphical
+**MERLIN** (Lights-Out) puzzle, **MERLIN 2** with selectable difficulty, and - as far
+as we can tell - the **first working Tic-Tac-Toe for the Microtronic ever**, in both a
+computer-first version (the authentic Busch look-ahead strategy) and a human-first
+version against a from-scratch board-scanning AI. The two-bank human-first Tic-Tac-Toe
+is also the first PicoRAM program to combine OLED graphics, TTS speech, SRAM
+bank-switching, and a real game AI all at once. Programs, `.asm` sources, and a
+two-bank simulator are in the PicoRAM repository under
+[`software/vibe-coded/`](https://github.com/lambdamikel/picoram2090/tree/main/software/vibe-coded).
+
+![Tic-Tac-Toe on the Busch Microtronic + PicoRAM](./images/titato.jpg)
+
+### June 24th 2026
+
+Claude (Opus 4.8) has also produced an English edition of my two German **LOAD**
+articles on the educational computers of the 1980s - the Busch Microtronic, the Kosmos
+CP1, and the Philips MasterLab. It merges LOAD #10 and #11 into a single, updated
+all-in-one piece, with a print-ready PDF and faithful per-article translations:
+**[Educational Computers in Germany in the
+1980s](https://github.com/lambdamikel/german-educational-computers-of-the-80s)**.
+
 ### June 8th 2026
 
 Using Claude Code (Opus 4.8), I have translated the first part of the
