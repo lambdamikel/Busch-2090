@@ -61,7 +61,13 @@ The "Retro-Authentic Bubble LED Version" was a winner of the [RetroChallenge 202
 
 ![RetroChallenge Winner](./images/retrochallenge-winner.jpg) 
 
-## Latest News 
+## Latest News
+
+### July 9th 2026
+
+Part 2 of the Microtronic manuals in English is available now: 
+
+[https://github.com/lambdamikel/microtronic-2090-manuals-english](https://github.com/lambdamikel/microtronic-2090-manuals-english)
 
 ### June 26th 2026
 
