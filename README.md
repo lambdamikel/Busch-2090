@@ -63,6 +63,17 @@ The "Retro-Authentic Bubble LED Version" was a winner of the [RetroChallenge 202
 
 ## Latest News
 
+### September 6th 2026
+
+The Busch 2094 "Computerspiele" booklet is now available in English, too - 25 games and
+experiments to program yourself on the Microtronic 2090, from Black Jack, Roulette and a
+chess clock to a code lock, a world-time calculator and a prime-number benchmark. As with
+the 2090 manuals, the English is overlaid onto the original scans, so the layout, the
+artwork and the machine-code listings are preserved exactly; the two loose game boards and
+the flow chart are translated in place, and the red covers are rebuilt in English:
+
+[https://github.com/lambdamikel/microtronic-2090-manuals-english](https://github.com/lambdamikel/microtronic-2090-manuals-english)
+
 ### July 9th 2026
 
 Part 2 of the Microtronic manuals in English is available now: 
