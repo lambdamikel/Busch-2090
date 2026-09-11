@@ -472,15 +472,15 @@ In a nutshell, it offers:
 - Breakpoint (``BKP``) and Single Step (``STEP``) functionality: **Thanks much to Lilly (https://github.com/ducatimaus/Busch-2090) for integrating & refactoring this functionality! Great job!** 
 - A simple build - you can set this up in 30 minutes.
 
-![Busch 2090 Microtronic Emulator for Arduino Uno R3 2021 Version - Pic 1](https://github.com/lambdamikel/Busch-2090/blob/master/images/2090-2021-1.jpg)
+  ![Busch 2090 Microtronic Emulator for Arduino Uno R3 2021 Version - Pic 1](https://github.com/lambdamikel/Busch-2090/blob/master/images/2090-2021-1.jpg)
 
-![Busch 2090 Microtronic Emulator for Arduino Uno R3 2021 Version - Pic 2](https://github.com/lambdamikel/Busch-2090/blob/master/images/2090-2021-2.jpg)
+  ![Busch 2090 Microtronic Emulator for Arduino Uno R3 2021 Version - Pic 2](https://github.com/lambdamikel/Busch-2090/blob/master/images/2090-2021-2.jpg)
 
-![Busch 2090 Microtronic Emulator for Arduino Uno R3 2021 Version - Pic 3](https://github.com/lambdamikel/Busch-2090/blob/master/images/2090-2021-3.jpg)
+  ![Busch 2090 Microtronic Emulator for Arduino Uno R3 2021 Version - Pic 3](https://github.com/lambdamikel/Busch-2090/blob/master/images/2090-2021-3.jpg)
 
-![Busch 2090 Microtronic Emulator for Arduino Uno R3 2021 Version - Pic 4](https://github.com/lambdamikel/Busch-2090/blob/master/images/2090-2021-input-board-1.jpg)
+  ![Busch 2090 Microtronic Emulator for Arduino Uno R3 2021 Version - Pic 4](https://github.com/lambdamikel/Busch-2090/blob/master/images/2090-2021-input-board-1.jpg)
 
-![Busch 2090 Microtronic Emulator for Arduino Uno R3 2021 Version - Pic 5](https://github.com/lambdamikel/Busch-2090/blob/master/images/2090-2021-input-board-2.jpg)
+  ![Busch 2090 Microtronic Emulator for Arduino Uno R3 2021 Version - Pic 5](https://github.com/lambdamikel/Busch-2090/blob/master/images/2090-2021-input-board-2.jpg)
 
 **Thanks to Lilly (Germany) for pointing out that the R3 version was
 still compiling and working (which motivated me to resurrect this
