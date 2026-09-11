@@ -2,7 +2,7 @@
 
 **Please note that these version have note been tested recently (they
 are from 2016, and Arduino has changed since then).  I strongly
-recommend to use the "Micotronic Next Generation" version given above 
+recommend to use the "Microtronic Next Generation" version given above 
 instead.**
 
 Hence, the following info is solely provided to give a historical
@@ -555,7 +555,7 @@ retrieving the code from an original Busch Microtronic and contributing it to th
 - ``PGM 9`` : the electronic die, from Microtronic Manual Vol. 1, page 10
 - ``PGM A`` : the three digit counter from Microtronic Manual Vol. 1, page 19 
 - ``PGM B`` : moving LED light from Manul Vol. 1, page 48 
-- ``PGM C`` : digitial input ``DIN`` test (port input output echo)
+- ``PGM C`` : digital input ``DIN`` test (port input output echo)
 
 ## Optional Emic 2 TTS Speech Module for Mega Version 3 
 

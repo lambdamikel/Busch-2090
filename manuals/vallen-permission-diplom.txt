@@ -1,34 +1,34 @@
-On 11/30/2023 8:48 AM, Jörg Vallen wrote:
+On 11/30/2023 8:48 AM, JÃ¶rg Vallen wrote:
 > Hallo Herr Wessel,
 >
-> ich habe da nichts dagegen - ist ja alles schon etwas historisch - vor allem in der schnelllebigen Computerwelt. Insofern ist mein Text von damals, wenn man ihn heute liest, direkt amüsant.
+> ich habe da nichts dagegen - ist ja alles schon etwas historisch - vor allem in der schnelllebigen Computerwelt. Insofern ist mein Text von damals, wenn man ihn heute liest, direkt amÃ¼sant.
 >
 > Sollen wir von unserer Microtronic-Seite noch auf eine andere Seite Ihres Web-Bereichs verlinken?
 >
-> Grüße
-> Jörg Vallen
+> GrÃ¼ÃŸe
+> JÃ¶rg Vallen
 >
 >
-> -----Ursprüngliche Nachricht-----
+> -----UrsprÃ¼ngliche Nachricht-----
 > Von: Michael Wessel <miacwess@gmail.com>
 > Gesendet: Donnerstag, 30. November 2023 17:36
-> An: Jörg Vallen <j.vallen@busch-model.com>
-> Betreff: Re: AW: AW: PicoRAM 2090 für das Busch 2090 Microtronic Computer System
+> An: JÃ¶rg Vallen <j.vallen@busch-model.com>
+> Betreff: Re: AW: AW: PicoRAM 2090 fÃ¼r das Busch 2090 Microtronic Computer System
 >
-> Wow - hervorragend! Schon einmal vielen Dank dafür - das ist ja ein wahrer Schatz für das Microtronic-Archiv!
+> Wow - hervorragend! Schon einmal vielen Dank dafÃ¼r - das ist ja ein wahrer Schatz fÃ¼r das Microtronic-Archiv!
 >
-> Ist es Ihnen Recht, wenn Ihre schöne Arbeit ebenfalls unter
+> Ist es Ihnen Recht, wenn Ihre schÃ¶ne Arbeit ebenfalls unter
 >
 > https://github.com/lambdamikel/Busch-2090/tree/master/manuals
 >
-> einen Platz findet, damit andere sie lesen können? Ich würde auch die Hauptseite
+> einen Platz findet, damit andere sie lesen kÃ¶nnen? Ich wÃ¼rde auch die Hauptseite
 >
 > https://github.com/lambdamikel/Busch-2090
 >
-> anpassen, damit dieses wertvolle Fundstück entsprechend hervorgehoben wird. Falls Ihnen das nicht Recht ist, kann ich das natürlich voll und ganz verstehen.
+> anpassen, damit dieses wertvolle FundstÃ¼ck entsprechend hervorgehoben wird. Falls Ihnen das nicht Recht ist, kann ich das natÃ¼rlich voll und ganz verstehen.
 >
 > Ich werde Ihre Arbeit in aller Ruhe studieren und melde mich wieder, bis dahin,
 >
-> Viele Grüße
+> Viele GrÃ¼ÃŸe
 >
 > Michael Wessel

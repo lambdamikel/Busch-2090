@@ -22,7 +22,7 @@ See: TM1640 Display module at http://www.dealextreme.com/p/104311?r=68099021
 USAGE NOTES
 -----------
 
-Just put the files on a TM1638 directory under "arduino/libraries" on your arduino IDE instalation
+Just put the files on a TM1638 directory under "arduino/libraries" on your arduino IDE installation
 
 
 PROJECT HOME

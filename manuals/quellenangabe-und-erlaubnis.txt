@@ -2,13 +2,13 @@
 Quellenangabe
 >>>>>>>>>>>>>>>>>>>>>>>>>> 
 
-Fahrschule für Computer? "Busch-Microtronic" für Einsteiger 
+Fahrschule fÃ¼r Computer? "Busch-Microtronic" fÃ¼r Einsteiger 
 Verfasser:Vallen, Hans
 In:Spielmittel  4 (1984), 16, S. 58-60
 ISSN 0174-1772
 
-Verpassen Schulen ein Stück Lebenswirklichkeit?  
-Verfasser: Joachim Metzner, Jürgen Fritz 
+Verpassen Schulen ein StÃ¼ck Lebenswirklichkeit?  
+Verfasser: Joachim Metzner, JÃ¼rgen Fritz 
 In:Spielmittel  1 (1983), S. 58-60
 
 >>>>>>>>>>>>>>>>>>>>>>>>>> 
@@ -28,7 +28,7 @@ Date: Wed, 17 Jan 2018 17:08:39 +0100
 
 Gerne :-), bitte mit Quellenangabe
 
- -----Ursprüngliche Nachricht-----
+ -----UrsprÃ¼ngliche Nachricht-----
 
  Von: Michael Wessel [mailto:miacwess@gmail.com]
  Gesendet: Mittwoch, 17. Januar 2018 16:46
@@ -36,16 +36,16 @@ Gerne :-), bitte mit Quellenangabe
  Betreff: Re: Spielmittel Ausgabe von 1984
 
 
- PS2 Noch toller wäre natürlich, wenn ich von Ihnen die Erlaubnis bekommen
- könnte, den Artikel in dieses Projekt-Verzeichnis hochladen zu
- können:
+ PS2 Noch toller wÃ¤re natÃ¼rlich, wenn ich von Ihnen die Erlaubnis bekommen
+ kÃ¶nnte, den Artikel in dieses Projekt-Verzeichnis hochladen zu
+ kÃ¶nnen:
  
  https://github.com/lambdamikel/Busch-2090/tree/master/manuals
  
- Dann könnten andere Microtronic-Fans es ebenfalls lesen.
+ Dann kÃ¶nnten andere Microtronic-Fans es ebenfalls lesen.
  
- Herr Vallen hat mir damals die Erlaubnis gegeben, alle seine Handbücher
- und Prospekte etc. dort hochzuladen, insofern wäre er sicherlich
+ Herr Vallen hat mir damals die Erlaubnis gegeben, alle seine HandbÃ¼cher
+ und Prospekte etc. dort hochzuladen, insofern wÃ¤re er sicherlich
  einverstanden.
  
  Michael Wessel

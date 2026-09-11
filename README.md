@@ -40,7 +40,7 @@ was also so kind to grant permission to include a full copy of the
 manual set in the [`manuals`](./manuals/) directory of this project. 
 
 The latest PCB version - "The Microtronic Next Generation" - also
-povides an emulation of the Busch 2095 Cassette Interface that plugs
+provides an emulation of the Busch 2095 Cassette Interface that plugs
 into a real Microtronic to provide SD-card based file storage. The
 2095 Cassette Interface implementation was made possible by Martin
 Sauter's ingenious reverse engineering of the 2095 protocol. Martin
@@ -220,7 +220,7 @@ I had a few Microtronic emulators on display as well, and
 ## History 
 
 The project started in January 2016 and is still active in January 
-2021. In that time, the number of contributers increased from 1 to 6. 
+2021. In that time, the number of contributors increased from 1 to 6. 
 See below for the different versions using different Arduino
 variants and form factors. 
 
@@ -236,7 +236,7 @@ There are 4  supported versions:
 
 ### The "Microtronic Next Generation" Project 
 
-The current version of the Microtronic Emulator (emulator for short) is called the "Micotronic Next Generation", and it comes as a PCB. It features many improvements over the original; i.e., SDcard-based file storage, 2095 emulation, a DS3231 battery-buffered real time clock (RTC),  a big display with different display modes that facilitate machine code learning by means of a mnemonics display / dissassembler mode, sound output, a larger number of built-in ``PGM`` ROM programs including some fun games such as the Lunar Lander, and much more. It also has the 4 digital inputs (DIN ports) and 4 digital outputs (DOT ports) of the original, the 1 Hz Clock signal output, and an analog input (which is currently not used by the firmware). It can run on for 4 to 5 hours on a 9V battery. 
+The current version of the Microtronic Emulator (emulator for short) is called the "Microtronic Next Generation", and it comes as a PCB. It features many improvements over the original; i.e., SDcard-based file storage, 2095 emulation, a DS3231 battery-buffered real time clock (RTC),  a big display with different display modes that facilitate machine code learning by means of a mnemonics display / disassembler mode, sound output, a larger number of built-in ``PGM`` ROM programs including some fun games such as the Lunar Lander, and much more. It also has the 4 digital inputs (DIN ports) and 4 digital outputs (DOT ports) of the original, the 1 Hz Clock signal output, and an analog input (which is currently not used by the firmware). It can run on for 4 to 5 hours on a 9V battery. 
 
 The current / latest version is equipped with a 1.3" OLED display (SPI SH1106): 
 
@@ -280,7 +280,7 @@ The emulator has an **additional 8 function keys.** From left to right, top to b
 
 - ``LEFT, RIGHT``: in RUN mode, these are used for changing the display mode. The buttons are also used for cursor navigation for file name creation when saving a program to SDcard. 
 
-- ``UP, DOWN``: in RUN mode, these buttons control the CPU emulator speed. The CPU can be throttled, i.e., delayed in order to slow down the emulation. This can be useful for programm debugging, or to achieve a more authentic behavior of the emulator: certain electronics experiments (especially those that control the digital outputs) are timinig critical and require a 2090-authentic emulation speed. In the file browser, these buttons are used for browsing / selecting the file to be loaded from SDcard. When creating a file name during the save (``PGM 2``) operation, these keys are used to determine the individual characters in the filename (in combination with ``LEFT, RIGHT, ENTER, CANCEL``). 
+- ``UP, DOWN``: in RUN mode, these buttons control the CPU emulator speed. The CPU can be throttled, i.e., delayed in order to slow down the emulation. This can be useful for programm debugging, or to achieve a more authentic behavior of the emulator: certain electronics experiments (especially those that control the digital outputs) are timing critical and require a 2090-authentic emulation speed. In the file browser, these buttons are used for browsing / selecting the file to be loaded from SDcard. When creating a file name during the save (``PGM 2``) operation, these keys are used to determine the individual characters in the filename (in combination with ``LEFT, RIGHT, ENTER, CANCEL``). 
 
 - ``ENTER, CANCEL``: in RUN mode, ``ENTER`` also changes the display mode. In file operations (save, load), these are frequently used as ``Yes / No`` or ``Enter / Cancel`` buttons, e.g., to cancel a save operation if a file of the same name already exist and would be overwritten, etc. These buttons are also used to answer the question during ``PGM 1`` and ``PGM 2`` whether the 2095 emulation mode is to be used, or the turbo mode for loading / saving. 
 
@@ -296,7 +296,7 @@ PGM``, the hex keys for program and data input, and the ``RESET`` button
 Like the original, it contains a number of **ROM programs** that can be loaded via the key sequence ``HALT, PGM, <HEXKEY>``. The programs are 
 
 - ``PGM 0`` : show & set date of the battery-buffered DS3213 Real Time Clock. The original 2090 contains a test program here. 
-- ``PGM 1`` : loads a ``MIC`` file from SDcard into the emulator memory, OR transfer the file contents to an original Microtronic via 2095 emulation over the wire. Note that **there is an important difference to the original** - the **program is loaded at the currently active address shown in the display (PC)!** Make sure to specify the start address before using ``PGM 1`` by means of ``HALT-NEXT-xx``, where ``xx`` is the two-digital hex start address (from ``00`` to ``FF``). Usually, ``00``. So, usually you want to use the load function as follow: ``HALT-NEXT-00-PGM-1``. This is a *useful extension to the orginal behavior, because it allows you to load "reusable" program fragments into different memory regions.* Unfortunately, the (conditional) jump instructions in the Microtronic are all absolute and not relocatable, so there is a limit to the usefulness of this feature currently. However, it is conceivable to automatically rewrite these (conditional) jump instructions during load to reflect the proper offset / load address, which is a useful extension for a future firmware update. 
+- ``PGM 1`` : loads a ``MIC`` file from SDcard into the emulator memory, OR transfer the file contents to an original Microtronic via 2095 emulation over the wire. Note that **there is an important difference to the original** - the **program is loaded at the currently active address shown in the display (PC)!** Make sure to specify the start address before using ``PGM 1`` by means of ``HALT-NEXT-xx``, where ``xx`` is the two-digital hex start address (from ``00`` to ``FF``). Usually, ``00``. So, usually you want to use the load function as follow: ``HALT-NEXT-00-PGM-1``. This is a *useful extension to the original behavior, because it allows you to load "reusable" program fragments into different memory regions.* Unfortunately, the (conditional) jump instructions in the Microtronic are all absolute and not relocatable, so there is a limit to the usefulness of this feature currently. However, it is conceivable to automatically rewrite these (conditional) jump instructions during load to reflect the proper offset / load address, which is a useful extension for a future firmware update. 
 - ``PGM 2`` : saves the current RAM contents to a ``MIC`` file on SDcard, or receives a program from a connected original Microtronic over the wire via the 2095 emulation. Note that, unlike ``PGM 1``, ``PGM 2`` does not care for the current address (PC), but rather dumps the whole memory contents into a ``MIC`` file. 
 - ``PGM 3`` : set clock; this also sets the DS323 RTC 
 - ``PGM 4`` : show clock
@@ -375,7 +375,7 @@ The ``#`` and ``@`` annotations will only be found in manually curated ``MIC`` f
 #### The ``PGM 1`` (Load) and ``PGM 2`` (Save) Functions - SDCard Storage & 2095 Emulation 
 
 Note that 
-- ``PGM 1`` loads a ``MIC`` file from SDcard into the emulator memory, OR transfer the file contents to an original Microtronic via 2095 emulation over the wire. Note that **there is an important difference to the original** - the **program is loaded at the currently active address shown in the display (PC)!** Make sure to specify the start address before using ``PGM 1`` by means of ``HALT-NEXT-xx``, where ``xx`` is the two-digital hex start address (from ``00`` to ``FF``). Usually, ``00``. So, usually you want to use the load function as follow: ``HALT-NEXT-00-PGM-1``. This is a *useful extension to the orginal behavior, because it allows you to load "reusable" program fragments into different memory regions.* Unfortunately, the (conditional) jump instructions in the Microtronic are all absolute and not relocatable, so there is a limit to the usefulness of this feature currently. However, it is conceivable to automatically rewrite these (conditional) jump instructions during load to reflect the proper offset / load address, which is a useful extension for a future firmware update. 
+- ``PGM 1`` loads a ``MIC`` file from SDcard into the emulator memory, OR transfer the file contents to an original Microtronic via 2095 emulation over the wire. Note that **there is an important difference to the original** - the **program is loaded at the currently active address shown in the display (PC)!** Make sure to specify the start address before using ``PGM 1`` by means of ``HALT-NEXT-xx``, where ``xx`` is the two-digital hex start address (from ``00`` to ``FF``). Usually, ``00``. So, usually you want to use the load function as follow: ``HALT-NEXT-00-PGM-1``. This is a *useful extension to the original behavior, because it allows you to load "reusable" program fragments into different memory regions.* Unfortunately, the (conditional) jump instructions in the Microtronic are all absolute and not relocatable, so there is a limit to the usefulness of this feature currently. However, it is conceivable to automatically rewrite these (conditional) jump instructions during load to reflect the proper offset / load address, which is a useful extension for a future firmware update. 
 
 - ``PGM 2`` : saves the current RAM contents to a ``MIC`` file on SDcard, or receives a program from a connected original Microtronic over the wire via the 2095 emulation. Note that, unlike ``PGM 1``, ``PGM 2`` does not care for the current address (PC), but rather dumps the whole memory contents into a ``MIC`` file. 
 
@@ -436,13 +436,13 @@ Previous versions used a Nokia 5110 display:
 
 ### The "Microtronic 2nd Generation" Sister Project  
 
-The "sister project", created by **Frank de Jaeger from Belgium and Manfred Henf from Germany,** ist called the **"Microtronic 2nd Generation"**. Please consider this great project if you wish to create a more professional Microtronic emulator that neatly and professionally installs into an original Busch electronics console, including a 3D-printed keyboad that mounts onto the console hole raster on the top! 
+The "sister project", created by **Frank de Jaeger from Belgium and Manfred Henf from Germany,** ist called the **"Microtronic 2nd Generation"**. Please consider this great project if you wish to create a more professional Microtronic emulator that neatly and professionally installs into an original Busch electronics console, including a 3D-printed keyboard that mounts onto the console hole raster on the top! 
 
 The project uses the same firmware as the "Microtronic Next Generation" presented here, but has a slightly different pin layout (i.e., requires some slight adjustments to the `hardware.h` pin configuration file). The firmware can be found in the [`microtronic-2nd-generation`](./microtronic-2nd-generation/) folder. The 2nd Generation version uses the Nokia 5110, does not support the real time clock (RTC), and does not have a 1Hz output port. 
 
 The loudspeaker described above can also be added between A0 and GND
 over a 75 Ohm resistor, as an "after market" hack / mod (it wasn't 
-anticipated in the original 2nd Generation design). The same instructions for controling the speaker as documented above are used (``0xx``, ``50x``, ``70x``). 
+anticipated in the original 2nd Generation design). The same instructions for controlling the speaker as documented above are used (``0xx``, ``50x``, ``70x``). 
 
 **Thanks to Frank and Manfred for this great piece of engineering.** They also *exactly replicated the input and output transistor-stages of the original Microtronic,* so the 2nd Generation project is electrically maximally compatible with the original. It is hence the best choice for a fully compatible  Microtronic emulator that blends perfectly with the Busch electronics system, and for conducting the plenty electronics experiments described in the original Microtronic Busch manuals. 
 
@@ -465,7 +465,7 @@ In a nutshell, it offers:
 - High-speed Microtronic emulation with an authentic retro user experience (LED 7segment display etc.)
 - Extended PGM program library in AVR ``PGMSPACE``, e.g. Blackjack, Prime Numbers, Lunar Lander, and the Nim Game. Unlike previous versions of the R3 emulator, the PGM programs are now no longer stored in the AVR's EEPROM; hence, more and longer programs can be accessed with the push of a PGM button - more fun! Note that the ``PGM-EEPROM.INO`` loader is no longer required with that version and is considered obsolete by now. 
 - PGM 2 & PGM 1 functionality: the EEPROM is now used to store & restore the Microtronic memory contents! Before powering down the emulator, simply dump the current memory contents into the EEPROM via ``PGM 2``, and resume your work with ``PGM 1``. Better than a 2095 Cassette Interface! 
-- Soft reset functionaliy; either via an extra push button, or the ``RUN + CCE`` key combination. 
+- Soft reset functionality; either via an extra push button, or the ``RUN + CCE`` key combination. 
 - CPU Speed Control / Throttle: go turbo Microtronic (Prime Numbers have never been computed faster on a Microtronic!), or experience the cozy processing speed of the original Microtronic. You can either use a 10 kOhm potentiometer to dial in the speed, or use the ``RUN + <HEXKEY>`` key combination. 
 - Four digital inputs for ``DIN``, and either 3 or 4 digital outputs for ``DOT`` *(note: for 4 outputs, the soft reset button has to be sacrificed).* 
 - 1 Hz clock output as required for certain experiments *(note: then, the CPU speed potentiometer has to be sacrificed).* 
@@ -517,7 +517,7 @@ dumps. Moreover, the outputs and inputs are protected using drivers,
 accounting for 5 SMD chips in total. There a still some Through Hole
 components though, e.g., the 16 MHz crystal, the DIL switch, the LEDs
 displays and push buttons etc. Power is coming from a 7805 SMD voltage
-regulator and I stuck a Rasperry Pi heat sink with adhesive tape on
+regulator and I stuck a Raspberry Pi heat sink with adhesive tape on
 top of it because it is getting quite warm. I will revise this design
 one more time and replace the SMD voltage regulator with a standard
 Through Hole 7805, to which I can more easily attach a more effective
@@ -537,7 +537,7 @@ and the [PDF schematics.](./images/retro-microtronic-schematics.pdf)
 
 ##### Breadboard of the PCB 
 
-The first breadboad prototype had individual (non-clustered) 7segment displays, which explains the abundance of colorful wires:  
+The first breadboard prototype had individual (non-clustered) 7segment displays, which explains the abundance of colorful wires:  
 
 ![2090 Breadboard Prototype](images/2090-breadboard.jpg)
 
@@ -699,7 +699,7 @@ The inputs are configured using ``pinMode(DIN_PIN_x, INPUT)`` by
 default.  Without these external pulldown resistors, floating inputs
 will not quickly and reliably respond to HIGH -> LOW transitions;
 floating inputs always have to be avoided, the inputs may even
-oscilate.
+oscillate.
 
 Please note that ``Serial.begin(9600)`` interferes with with ``D1`` and
 hence the ``DIN 1`` input! You will read a permanent (stuck bit) 1 if
@@ -846,7 +846,7 @@ playlist.](https://www.youtube.com/playlist?list=PLvdXKcHrGqhfq1AK5TonfBeDN-dWtG
 
 You can find the required firmware extensions and Microtronic
 programms [here](./busch2090-pcb-midi/); they are documented on the
-[Hackday page.](https://hackaday.io/project/180252-a-retro-authentic-microtronic-emulator) 
+[Hackaday page.](https://hackaday.io/project/180252-a-retro-authentic-microtronic-emulator) 
 
 
 ## Current Arduino Sketches & Gerbers 
@@ -857,7 +857,7 @@ Please check the sub-directories
 - [`microtronic-2nd-generation`](./microtronic-2nd-generation/) for the Nokia 5110-based Microtronic 2nd Generation project, and 
 - [`busch2090`](./busch2090/) for the 2021 Arduino Uno R3 version, 
 - [`busch2090-pcb/`](./busch2090-pcb/) for the SMD PCB version with bubble display, and 
-- [`busch2090-mega-v4//`](./busch2090-mega-v4/) for the 2016 Mega Emulator Vesion 4, updated in January 2022. 
+- [`busch2090-mega-v4//`](./busch2090-mega-v4/) for the 2016 Mega Emulator Version 4, updated in January 2022. 
 
 The *SH1106 SPI OLED is the latest version* and we have identified this
 display as the best option for the project. The Nokia 5510 is a good
@@ -895,7 +895,7 @@ BCD-encoded hi/low nibbles to the Emic-2 (e.g., the ASCII code for
 055``), we now also support sending of ASCII codes stored in register
 pairs.
 
-More specically, ``ADDI 0,x = 50x`` will send the BCD-encoded ASCII
+More specifically, ``ADDI 0,x = 50x`` will send the BCD-encoded ASCII
 value stored in registers ``x`` and ``(x+1) mod %16``:
 
 ```
@@ -944,7 +944,7 @@ C03 # else goto 03
 In addition, we the new version differs as follows from the documented 2016 version; 
 most of these are simple improvements over the 2016 version: 
 
-- PGM programs are no longer stored in EEPROM, but in PROGMEM (hence, ignore all instructions in the 2016 documentation referring to a prior programming of the EEPROM, this is not necessary anylonger). 
+- PGM programs are no longer stored in EEPROM, but in PROGMEM (hence, ignore all instructions in the 2016 documentation referring to a prior programming of the EEPROM, this is not necessary any longer). 
 - The 1 Hz clock signal is now properly implemented by means of a timer ISR. 
 - Speech output can be en/dis-abled. Default is off. 
 - Some bugfixes to the CPU emulation (e.g., SHR). 
