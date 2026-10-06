@@ -1,21 +1,22 @@
 # Days Between Calculator
 # Part 1
-# tested
+
+# Verified against the printed listing (Busch Microtronic Manual Part 2, p. 34-35) and corrected by Claude Code (Opus 5.5), October 2026.
 
 @ 00
 
 F08
-FOE
+F0E
 F08
 F6C
 FF2
 992
-DOE
+D0E
 001
-OFO
-OEF
-ODE
-OCD
+0F0
+0EF
+0DE
+0CD
 02C
 C03
 F02
@@ -23,16 +24,16 @@ F02
 
 006
 B9E
-OCO
+0C0
 0D1
 BAE
 F76
 F77
-FOD
+F0D
 B9E
 110
 131
-FOB
+F0B
 BBC
 90D
 D2D
@@ -41,9 +42,9 @@ D2D
 D2D
 B99
 BAE
-FOD
+F0D
 140
-FOC
+F0C
 BBC
 B99
 BAE
@@ -53,11 +54,11 @@ BDF
 C43
 B9E
 0D1
-OCO
+0C0
 
-FOD
+F0D
 140
-FOB
+F0B
 134
 125
 BA5
@@ -65,9 +66,9 @@ BA5
 101
 BDF
 B99
-FOD
+F0D
 140
-FOC
+F0C
 BBC
 B99
 11D
@@ -76,54 +77,54 @@ C88
 10D
 BDF
 B99
-FOD
+F0D
 B9E
 150
 161
 132
-FOB
+F0B
 BBC
 B9E
 F20
 FF1
-FFO
+FF0
 F02
 
 BBC
-FOE
+F0E
 90F
 D57
 1FF
 F7F
 C02
-FOF
-FOE
+F0F
+F0E
 BDF
 F58
-FFO
-COO
+FF0
+C00
 
 @ 88
 
 10C
-FOD
+F0D
 B9E
 112
-FOC
+F0C
 114
 BA5
-FOD
+F0D
 
 B9E
 130
-FOB
-FOD
+F0B
+F0D
 140
-FOC
+F0C
 90D
 E2B
 C41
-OEO
+0E0
 0F1
 062
 073
@@ -212,7 +213,7 @@ CEC
 71A
 DEF
 62A
-DFO
+DF0
 CF3
 62A
 
@@ -232,4 +233,3 @@ F07
 64C
 76C
 F07
-

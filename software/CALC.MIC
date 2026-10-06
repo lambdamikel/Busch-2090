@@ -1,18 +1,20 @@
 # Calculator
 
+# Verified against the printed listing (Busch Microtronic Manual Part 2, p. 26-27) and corrected by Claude Code (Opus 5.5), October 2026.
+
 @ 00
 
 F08
 917
 E05
-FOA
+F0A
 C06
 F09
 F60
 FF6
 F02
 996
-DID
+D1D
 947
 D15
 187
@@ -58,14 +60,14 @@ E3F
 C01
 347
 947
-EOO
+E00
 147
 106
-COE
+C0E
 06E
 B49
 B53
-FOB
+F0B
 D59
 C61
 06E
@@ -73,10 +75,10 @@ C61
 B49
 104
 105
-IOC
+10C
 10D
 B53
-FOC
+F0C
 D59
 C61
 907
@@ -90,10 +92,10 @@ C52
 D4D
 107
 F07
-FOF
+F0F
 06E
-FOD
-FOF
+F0D
+F0F
 06E
 F07
 1E0
@@ -174,7 +176,7 @@ C6B
 
 EA4
 C6B
-FOF
+F0F
 06E
 608
 DA7
@@ -214,7 +216,7 @@ CC6
 DCC
 65D
 DCD
-FOF
+F0F
 107
 06E
 C61

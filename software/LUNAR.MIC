@@ -1,7 +1,8 @@
 # Lunar Lander
-# tested 
 
-@ 00 
+# Verified against the printed listing (Busch Microtronic Manual Part 1, p. 24) and corrected by Claude Code (Opus 5.5), October 2026.
+
+@ 00
 
 F02
 F08
@@ -144,4 +145,3 @@ C6D
 1F2
 1A3
 C6D
-

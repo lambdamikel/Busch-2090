@@ -1,22 +1,23 @@
-# 100 Wins 
-# tested 
+# 100 Wins
+
+# Verified against the printed listing (Busch Microtronic Computer Games (2094), p. 15) and corrected by Claude Code (Opus 5.5), October 2026.
 
 @ 00
 
 F02
 F08
-FEO
+FE0
 F05
 92E
 D07
-COB
+C0B
 52F
 6FD
 FCE
 C04
-IIB
+11B
 1A2
-1OF
+10F
 F03
 B8B
 
@@ -26,7 +27,7 @@ FF6
 E44
 996
 D11
-ClB
+C1B
 B9E
 FF6
 996
@@ -41,7 +42,7 @@ FF6
 D25
 001
 060
-CIF
+C1F
 911
 D2D
 E2B
@@ -98,8 +99,8 @@ FC9
 D6B
 9A8
 D6B
-OBD
-OCE
+0BD
+0CE
 10F
 B8A
 998
@@ -107,7 +108,7 @@ D68
 
 BA5
 1C2
-B9O
+B90
 91A
 E80
 92A
@@ -147,19 +148,19 @@ B9E
 B9E
 B9E
 B9E
-FFO
-C00 
+FF0
+C00
 F03
 0D3
 0E4
 0F5
 F07
-FOI
+F01
 
 915
 E95
 D97
-1OA
+10A
 F07
 904
 E99
@@ -168,14 +169,14 @@ F07
 903
 E9C
 C97
-IIA
+11A
 F07
 1F7
 FE7
 
 737
 EA3
-CAO
+CA0
 FE7
 F07
 080
@@ -184,11 +185,10 @@ F07
 D6F
 90D
 E6F
-ODO
+0D0
 101
 F07
 403
 D37
 
 F07
-

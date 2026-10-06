@@ -1,20 +1,21 @@
 # Black Jack 17+4
-# tested 
 
-@ 00 
+# Verified against the printed listing (Busch Microtronic Computer Games (2094), p. 33) and corrected by Claude Code (Opus 5.5), October 2026.
+
+@ 00
 
 F08
-FEO
+FE0
 14A
-IDB
-IDC
+1DB
+1DC
 1AD
 17E
 11F
 F6A
 FFF
 F02
-86C
+B6C
 C12
 F40
 B6C
@@ -24,17 +25,17 @@ F02
 E2C
 80D
 E15
-CIE
+C1E
 9A0
 E18
-CIE
+C1E
 902
 E1B
-CIE
+C1E
 1A2
 1A3
 C5A
-ODO
+0D0
 402
 
 D24
@@ -59,7 +60,7 @@ D33
 C36
 90F
 E53
-COD
+C0D
 84E
 E39
 C42
@@ -85,7 +86,7 @@ C4A
 E4F
 90F
 E53
-COD
+C0D
 916
 
 E60
@@ -98,9 +99,9 @@ C5A
 826
 E60
 D60
-IDC
-lOD
-l0E
+1DC
+10D
+10E
 16F
 F4C
 C64
@@ -115,8 +116,8 @@ FFB
 104
 FE4
 F62
-FFO
-COO
+FF0
+C00
 F05
 4FE
 9AD
@@ -130,4 +131,3 @@ D76
 F07
 57E
 C73
-

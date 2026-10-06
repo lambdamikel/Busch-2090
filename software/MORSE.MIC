@@ -1,12 +1,13 @@
 # Morse Encoder
-# tested 
+
+# Verified against the printed listing (Busch Microtronic Manual Part 2, p. 18-20) and corrected by Claude Code (Opus 5.5), October 2026.
 
 @ 00
 
 F01
 F02
 F08
-FEO
+FE0
 FF1
 9D1
 D29
@@ -16,11 +17,11 @@ EA2
 EA9
 9C1
 EBE
-DBO
+DB0
 155
 951
 
-DIF
+D1F
 901
 E18
 615
@@ -29,7 +30,7 @@ BD7
 E18
 C14
 905
-EOO
+E00
 BE3
 715
 C18
@@ -44,7 +45,7 @@ E25
 C21
 BD7
 715
-EOO
+E00
 C25
 FF2
 9F1
@@ -173,7 +174,7 @@ BE3
 C9A
 906
 
-EOO
+E00
 CC7
 BD7
 BE3
@@ -203,7 +204,7 @@ BE3
 BD7
 BD7
 BD7
-COO
+C00
 116
 F17
 
@@ -254,4 +255,3 @@ FDE
 EEC
 F8A
 F07
-

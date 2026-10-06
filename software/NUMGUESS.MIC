@@ -1,9 +1,10 @@
 # Number Guessing
-# tested 
+
+# Verified against the printed listing (Busch Microtronic Computer Games (2094), p. 12-13) and corrected by Claude Code (Opus 5.5), October 2026.
 
 @ 00
 
-FOB
+F08
 F02
 F05
 56D
@@ -11,7 +12,7 @@ F05
 D03
 56E
 99E
-DO6
+D06
 56F
 99F
 D09
@@ -25,7 +26,7 @@ D09
 F30
 FF6
 9A6
-EIE
+E1E
 9B6
 E5E
 9C6
@@ -91,10 +92,10 @@ F5C
 FF6
 F33
 FF6
-COO
-OOA
-OIB
-O2C
+C00
+00A
+01B
+02C
 C5B
 007
 018

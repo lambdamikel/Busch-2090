@@ -1,33 +1,34 @@
-# Super Division 
-# tested
+# Super Division
+
+# Verified against the printed listing (Busch Microtronic Computer Games (2094), p. 57) and corrected by Claude Code (Opus 5.5), October 2026.
 
 @ 00
 
 F08
-FOD
-FOE
+F0D
+F0E
 F08
 1AF
 F2E
 FFE
 10F
-FOE
+F0E
 B50
 00D
-OIE
+01E
 02F
-FOD
+F0D
 B50
-OOA
+00A
 
-OIB
+01B
 02C
-FOE
-FOC
+F0E
+F0C
 F30
-FFO
+FF0
 F02
-FOD
+F0D
 902
 D29
 901
@@ -37,31 +38,31 @@ D29
 94F
 E26
 
-OCD
-OBC
-OAB
+0CD
+0BC
+0AB
 10A
 51F
-CIE
+C1E
 F3B
 FFF
-COO
+C00
 023
 012
 001
 100
-FOD
-FOE
-OAO
+F0D
+F0E
+0A0
 
-OBI
+0B1
 0C2
-FOE
-FOC
-OCD
-OBC
-OAB
-OOA
+F0E
+F0C
+0CD
+0BC
+0AB
+00A
 51F
 94F
 E3C
@@ -79,7 +80,7 @@ D4B
 F4A
 FFF
 9FF
-EOO
+E00
 10F
 C16
 F4A
@@ -88,7 +89,7 @@ F4A
 E49
 C4C
 
-FIO
+F10
 FF6
 996
 D63
@@ -109,4 +110,3 @@ D63
 F30
 C5B
 F07
-

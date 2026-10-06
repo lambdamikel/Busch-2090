@@ -1,5 +1,6 @@
-# Powers 
-# tested 
+# Powers
+
+# Verified against the printed listing (Busch Microtronic Computer Games (2094), p. 61) and corrected by Claude Code (Opus 5.5), October 2026.
 
 @ 00
 
@@ -14,15 +15,15 @@ D09
 C02
 02A
 019
-OO8
+008
 F2D
 FFC
 99C
 D13
 
-ODE
-OCD
-COD
+0DE
+0CD
+C0D
 90E
 E16
 C18
@@ -37,16 +38,15 @@ C20
 90D
 E29
 
-FOD
-OA2
+F0D
+0A2
 091
 080
-FOD
-FOB 
-CIA
+F0D
+F0B
+C1A
 F08
 110
 F60
 FFB
-COO
-
+C00

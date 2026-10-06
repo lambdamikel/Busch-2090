@@ -1,8 +1,9 @@
 # Diagonals
-# tested 
+
+# Verified against the printed listing (Busch Microtronic Computer Games (2094), p. 55) and corrected by Claude Code (Opus 5.5), October 2026.
 
 @ 00
- 
+
 F08
 F20
 FFF
@@ -16,15 +17,14 @@ F70
 F71
 730
 D14
-FOB
-FOD
+F0B
+F0D
 120
 
-FOC
+F0C
 F40
 FFF
-COO
+C00
 760
 711
-COD
-
+C0D

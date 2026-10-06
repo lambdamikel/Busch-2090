@@ -1,11 +1,12 @@
 # Nim 2
-# tested 
+
+# Verified against the printed listing (Busch Microtronic Manual Part 2, p. 12-13) and corrected by Claude Code (Opus 5.5), October 2026.
 
 @ 00
 
 F08
-FEO
-FIO
+FE0
+F10
 FF8
 F61
 FF3
@@ -27,15 +28,15 @@ E1E
 926
 E1A
 815
-DOE
+D0E
 651
 C21
 825
-DOE
+D0E
 652
 C21
 835
-D0E 
+D0E
 
 653
 B5C
@@ -72,7 +73,7 @@ B5C
 D59
 
 F31
-COD
+C0D
 918
 E35
 928
@@ -90,15 +91,15 @@ FE1
 
 519
 E54
-FEO
+FE0
 C4F
 1E5
 1E6
 F61
-FFO
-COO
-1FO
-FEO
+FF0
+C00
+1F0
+FE0
 C54
 901
 D64
@@ -109,14 +110,12 @@ D64
 D64
 F09
 F07
-FOA
+F0A
 F07
-OEC
+0EC
 2DC
 AED
 F8D
 ACD
 F8D
 F07
-
-

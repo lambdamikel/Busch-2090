@@ -1,5 +1,6 @@
-# Car Racing 
-# tested 
+# Car Racing
+
+# Verified against the printed listing (Busch Microtronic Computer Games (2094), p. 27) and corrected by Claude Code (Opus 5.5), October 2026.
 
 @ 00
 
@@ -9,13 +10,13 @@ F08
 F40
 F05
 8D9
-EOD
+E0D
 9FD
-EOD
+E0D
 0D9
 515
 FB6
-CIO
+C10
 71E
 6ED
 C05
@@ -24,7 +25,7 @@ F06
 0A7
 0B8
 967
-DIO
+D10
 527
 FE9
 FFC
@@ -80,8 +81,8 @@ C49
 098
 248
 E04
-1OD
-1OE
+10D
+10E
 10F
 F02
 51D
@@ -102,4 +103,3 @@ F03
 F2D
 FFF
 C00
-

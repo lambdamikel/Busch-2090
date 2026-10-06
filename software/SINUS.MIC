@@ -1,19 +1,21 @@
 # Sinus Calculator
-# tested 
+
+# Verified against the printed listing (Busch Microtronic Manual Part 2, p. 32) and corrected by Claude Code (Opus 5.5), October 2026.
+# Address 55: the manual prints 51D here but gives the mnemonic ADDI 1,B; 51B is the code for it.
 
 @ 00
 
 F08
 F20
 FF1
-FFO
+FF0
 F02
-FOD
+F0D
 F08
 140
 171
 112
-FOB
+F0B
 00C
 01D
 02E
@@ -21,24 +23,24 @@ FOB
 B59
 
 0F1
-OEO
-FOD
-OF1
-OEO
-FOB
-FOD
+0E0
+F0D
+0F1
+0E0
+F0B
+F0D
 160
-FOC
-FOD
+F0C
+F0D
 B59
 0F1
-OEO
-FOB
+0E0
+F0B
 0C8
 0D9
 
-OEA
-OFB
+0EA
+0FB
 628
 D25
 C28
@@ -61,19 +63,19 @@ C34
 030
 041
 B5B
-FOD
-OEO
+F0D
+0E0
 0F1
-FOB
-FOD
+F0B
+F0D
 121
-FOC
-FOD
+F0C
+F0D
 B59
 
-OEO
-OF1
-FOB
+0E0
+0F1
+F0B
 438
 D48
 998
@@ -93,10 +95,10 @@ C56
 D54
 C56
 56A
-51D
+51B
 F48
-FFO
-COO
+FF0
+C00
 100
 101
 102

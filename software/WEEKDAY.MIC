@@ -1,37 +1,37 @@
-# Calculate Weekday 
+# Calculate Weekday
 # Part 2 - Load DAYS.MIC first
-# tested
+
+# Verified against the printed listing (Busch Microtronic Manual Part 2, p. 36) and corrected by Claude Code (Opus 5.5), October 2026.
 
 @ 51
 
 B9E
 090
-OA1
+0A1
 0B2
 0C3
-FOD
+F0D
 170
-FOC
+F0C
 006
 017
 02E
-FOD
+F0D
 001
 080
-FOD
+F0D
 
 B9E
 170
-FOC
+F0C
 061
 072
 0E3
-FOD
+F0D
 B9E
 170
-FOB
+F0B
 BDF
 F18
-FFO
-COO
-
+FF0
+C00

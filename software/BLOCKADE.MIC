@@ -1,10 +1,11 @@
 # Blockade
-# tested 
+
+# Verified against the printed listing (Busch Microtronic Computer Games (2094), p. 7) and corrected by Claude Code (Opus 5.5), October 2026.
 
 @ 00
 
 F08
-FEO
+FE0
 1A0
 151
 112
@@ -14,20 +15,20 @@ FFF
 FFE
 B76
 91F
-EOF
+E0F
 92F
 E11
-COO
-OEO
+C00
+0E0
 
 C12
-OEl
+0E1
 B5B
 664
 675
 845
 E18
-CIB
+C1B
 B5B
 B60
 C06
@@ -74,7 +75,7 @@ C42
 943
 E43
 C06
-IFA
+1FA
 FEA
 51B
 D48
@@ -83,22 +84,22 @@ FE9
 1FB
 1FC
 F3A
-FFO
-COO
-IFA
+FF0
+C00
+1FA
 FEA
 
-1OA
+10A
 FEA
 51B
 D55
 C4E
-ICA
+1CA
 1CB
-ICC
+1CC
 F3A
-FFO
-COO
+FF0
+C00
 004
 015
 026
@@ -118,7 +119,7 @@ F07
 924
 E6D
 F07
-CAE
+C4E
 675
 654
 
@@ -131,20 +132,19 @@ F07
 92F
 E80
 9AE
-DOO
+D00
 8E2
 D00
-EOO
+E00
 80E
-EOO
+E00
 F07
 
 95E
-DOO
+D00
 8E3
-DOO
-EOO
+D00
+E00
 81E
-EOO
+E00
 F07
-

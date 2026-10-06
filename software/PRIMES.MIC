@@ -1,5 +1,6 @@
-# Primes 
-# tested 
+# Primes
+
+# Verified against the printed listing (Busch Microtronic Computer Games (2094), p. 58-59) and corrected by Claude Code (Opus 5.5), October 2026.
 
 @ 00
 
@@ -10,7 +11,7 @@ FFE
 FE5
 9BE
 D09
-EOC
+E0C
 C00
 9CE
 D02
@@ -24,20 +25,20 @@ D18
 023
 012
 001
-OFO
-COC
+0F0
+C0C
 F02
 B77
 F02
 B90
-FOD
+F0D
 F08
 168
-FOD
-FOF
+F0D
+F0F
 B77
 
-FOF
+F0F
 904
 D2A
 903
@@ -69,9 +70,9 @@ C41
 909
 D3F
 C41
-IFF
+1FF
 
-COI
+C01
 F70
 F71
 F72
@@ -97,7 +98,7 @@ C5D
 6A2
 762
 713
-D58
+D5B
 C5D
 763
 714
@@ -115,19 +116,19 @@ D46
 903
 D46
 82A
-DID
+D1D
 E6D
 C46
 819
-DID
+D1D
 E71
 
 C46
 808
-DID
+D1D
 E75
 C46
-FOD
+F0D
 C17
 510
 990
@@ -216,24 +217,23 @@ DD2
 901
 DAE
 930
-EDO
+ED0
 960
-EDO
+ED0
 990
-EDO
-FOD
+ED0
+F0D
 F07
 
-FOD
+F0D
 C77
 560
 511
 92F
 DC4
 EBE
-9OF
+90F
 DB8
 CB2
 F08
-COC
-
+C0C

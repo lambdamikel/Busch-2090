@@ -1,17 +1,18 @@
-# Biorythm Calculator 
+# Biorythm Calculator
 # Part 3 - Load DAYS.MIC and WEEKDAY.MIC first
-# tested 
+
+# Verified against the printed listing (Busch Microtronic Manual Part 2, p. 37) and corrected by Claude Code (Opus 5.5), October 2026.
 
 @ 51
 
-FOE
+F0E
 90F
 D57
 1FF
 F7F
 C02
-FOF
-FOE
+F0F
+F0E
 BDF
 136
 127
@@ -32,33 +33,33 @@ B9E
 0A1
 0B2
 0C3
-FOD
+F0D
 060
 071
-FOC
+F0C
 
-FOD
+F0D
 012
 001
 080
-FOD
+F0D
 B9E
 060
 071
-FOC
-FOD
+F0C
+F0D
 012
 001
 100
-FOD
+F0D
 B9E
 060
 
 071
-FOC
-FIO
-FFO
+F0C
+F10
+FF0
 92F
 E62
-D00 
+D00
 C5E

@@ -1,12 +1,14 @@
-# Tic Tac Toe 
-# tested 
+# Tic Tac Toe
+
+# Verified against the printed listing (Busch Microtronic Manual Part 2, p. 5) and corrected by Claude Code (Opus 5.5), October 2026.
+# Address 23: the manual prints 02B here but gives the mnemonic CALL 2B; B2B is the code for it.
 
 @ 00
 
 F08
-FOD
+F0D
 F08
-FEO
+FE0
 198
 F28
 FF9
@@ -25,22 +27,22 @@ B2B
 89C
 E07
 0C8
-ICA
+1CA
 1CB
 F48
 10F
 FEF
 516
 D1F
-IFF
+1FF
 FEF
 C18
-FFO
+FF0
 
-C00 
+C00
 09D
 55D
-02B
+B2B
 0C8
 1EA
 1EB
@@ -48,20 +50,19 @@ C00
 FEF
 F48
 C1F
-ODC
+0DC
 71D
 10E
 F03
-ODO
+0D0
 
 0E1
-FOD
+F0D
 180
-FOC
-FOD
+F0C
+F0D
 101
 180
-FOB
+F0B
 60C
 F07
-

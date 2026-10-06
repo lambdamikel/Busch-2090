@@ -1,14 +1,16 @@
 # Schlacht im Weltraum
 # Space / Battle Ships
 
-@ 00 
+# Verified against the printed listing (Busch Microtronic Manual Part 2, p. 6-7) and corrected by Claude Code (Opus 5.5), October 2026.
+
+@ 00
 
 F02
 F08
-FEO
+FE0
 B53
-ODO
-OE1
+0D0
+0E1
 B53
 B6D
 D06
@@ -16,13 +18,13 @@ D06
 0E3
 B53
 B68
-DOB
+D0B
 0D4
 0E5
 
 B53
 B63
-DIO
+D10
 0D6
 0E7
 10D
@@ -59,7 +61,7 @@ C33
 E3E
 1FC
 FEC
-IOC
+10C
 FEC
 C18
 100
@@ -71,7 +73,7 @@ C40
 106
 1FC
 
-IFA
+1FA
 FEA
 10A
 FEA
@@ -81,7 +83,7 @@ C40
 51F
 94F
 E4E
-IAA
+1AA
 1AB
 F48
 C19
@@ -89,8 +91,8 @@ C19
 F03
 
 F3D
-FFO
-COO
+FF0
+C00
 F05
 90D
 E59
@@ -124,8 +126,7 @@ C72
 
 8E1
 E74
-FOA
+F0A
 F07
 F09
 F07
-

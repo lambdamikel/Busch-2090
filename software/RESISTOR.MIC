@@ -1,15 +1,17 @@
 # Resistor Calculator
 
+# Verified against the printed listing (Busch Microtronic Manual Part 2, p. 24) and corrected by Claude Code (Opus 5.5), October 2026.
+
 @ 00
 
 F19
 F08
-FFO
-9BO
-DOD
+FF0
+9B0
+D0D
 519
 949
-DOD
+D00
 034
 023
 012
@@ -22,17 +24,17 @@ D14
 E1E
 B34
 712
-COF
+C0F
 952
-DIA
+D1A
 B34
 1A3
 732
-COF
+C0F
 B34
 1B3
 762
-COF
+C0F
 911
 E2C
 
@@ -44,10 +46,10 @@ E30
 E32
 12F
 F63
-FFO
+FF0
 F2E
-FFO
-COO
+FF0
+C00
 11E
 C27
 12E
@@ -68,4 +70,3 @@ D3D
 F07
 104
 F07
-

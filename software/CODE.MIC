@@ -1,5 +1,7 @@
 # Code Breaker
 
+# Verified against the printed listing (Busch Microtronic Manual Part 2, p. 9-10) and corrected by Claude Code (Opus 5.5), October 2026.
+
 @ 00
 
 F08
@@ -16,13 +18,13 @@ F05
 4DC
 579
 999
-DOC
+D0C
 57A
 
 99A
-DOF
+D0F
 8A9
-EOF
+E0F
 57B
 99B
 D14
@@ -32,7 +34,7 @@ E14
 E14
 57C
 99C
-DIB
+D1B
 8C9
 E1B
 
@@ -44,7 +46,7 @@ E1B
 10E
 10F
 F61
-FFO
+FF0
 9A0
 E33
 D31
@@ -104,11 +106,11 @@ C27
 1E5
 F60
 
-FFO
+FF0
 F03
 F3D
-FFO
-COO
+FF0
+C00
 878
 E68
 C69
@@ -119,4 +121,3 @@ E6D
 C6E
 515
 F07
-
