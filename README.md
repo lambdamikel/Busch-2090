@@ -63,6 +63,21 @@ The "Retro-Authentic Bubble LED Version" was a winner of the [RetroChallenge 202
 
 ## Latest News
 
+### October 5th 2026
+
+A Microtronic emulator that runs in your web browser is now online. It runs the original
+1981 firmware ROM on an emulated TMS1600, with the program RAM, display, keypad, inputs,
+outputs and 1 Hz clock modelled at pin level behind a console drawn from photos of the real
+machine, and it comes with a library of programs from the manuals. Everybody can now
+experience the Microtronic - there is nothing to build, and nothing to load or install on
+your computer: just open the page. Made with Claude Code (Opus 5.5).
+
+**[https://lambdamikel.github.io/microtronic-emulator/](https://lambdamikel.github.io/microtronic-emulator/)**
+
+Source code: [https://github.com/lambdamikel/microtronic-emulator](https://github.com/lambdamikel/microtronic-emulator)
+
+![Microtronic Emulator](https://github.com/lambdamikel/microtronic-emulator/raw/main/screenshot.png)
+
 ### September 6th 2026
 
 The Busch 2094 "Computerspiele" booklet is now available in English, too - 25 games and
