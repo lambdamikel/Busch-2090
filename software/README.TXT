@@ -12,4 +12,6 @@ verified against. In two places (SINUS address 55, TITATO address 23)
 the manual itself prints a code that contradicts its own mnemonic
 column; the files follow the mnemonic, and say so in a comment.
 
-HANOI, HAL9000, HELLO and PRIMES-ENUM are not from the manuals.
+HANOI, HAL9000, HELLO, PRIMES-ENUM and PRIMES-LOOP are not from the manuals.
+PRIMES-ENUM and PRIMES-LOOP (prime-number enumerators, with .asm sources) were
+written by Claude Code (Opus 5.5) in October 2026.

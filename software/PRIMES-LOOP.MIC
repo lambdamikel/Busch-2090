@@ -1,0 +1,91 @@
+# PRIMES-LOOP  -  endless prime-number enumerator for the Busch Microtronic 2090
+#
+# Shows the primes 2, 3, 5, 7, ... 997 and then starts again at 2.
+#
+# After RUN it waits for ONE key: the pause after each prime, 0 to F
+# (about one second per unit; 0 = no pause).
+#
+# The display stays on the last prime found while the next one is searched,
+# and the output LEDs flicker with the trial divisor.
+#
+# Fully commented source: PRIMES-LOOP.asm.  Written by Claude Code (Opus 5.5), October 2026.
+
+@ 00
+
+F08
+F74
+F75
+FFB
+F02
+12C
+10D
+10E
+F3C
+B44
+138
+109
+10A
+126
+107
+FE6
+080
+091
+0A2
+103
+F70
+F71
+F72
+F73
+060
+071
+102
+103
+F0C
+E1F
+C36
+902
+E22
+C29
+817
+D30
+E26
+C29
+860
+D29
+C30
+516
+9A6
+E2D
+C0F
+106
+517
+C0F
+F02
+08C
+09D
+0AE
+F3C
+B44
+518
+9A8
+E3A
+C0D
+108
+519
+9A9
+E3F
+C0D
+109
+51A
+9AA
+E04
+C0D
+0BF
+90F
+E4C
+514
+D4A
+C47
+71F
+C45
+F07

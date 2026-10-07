@@ -1,0 +1,92 @@
+# PRIMES-ENUM  -  prime-number enumerator for the Busch Microtronic 2090
+#
+# Displays the primes 2, 3, 5, 7, 11, ... in decimal, one after another,
+# pausing after each, then HALTs after the last prime below 1000 (997).
+#
+# Just LOAD and RUN (no input needed) -- unlike the interactive PRIMES.MIC,
+# this one simply counts up and shows every prime it finds.
+#
+# Method: trial division by the built-in DIV, using DIV's remainder flag
+# and its quotient (for a sqrt(n) early-out).  See PRIMES-ENUM.asm for the
+# fully commented source.
+#
+# Delay length is tunable: the word at address 39 is  '3'  (the high nibble
+# 3 of instruction 13C = 'MOVI 3,C').  Raise it (up to F) for a longer pause
+# between numbers, lower it for a shorter one.
+# Each unit is about one second on the real machine (the pause is roughly 3 s as shipped).
+#
+# Registers: R8/R9/RA = n (units/tens/hundreds), R6/R7 = trial divisor,
+#            RC/RD/RE = delay counters.  (c) source: CC BY 4.0.
+
+@ 00
+
+F08
+F74
+F75
+128
+B38
+138
+126
+107
+080
+091
+0A2
+103
+F70
+F71
+F72
+F73
+060
+071
+102
+103
+F0C
+E17
+C29
+902
+E1A
+C21
+817
+D28
+E1E
+C21
+860
+D21
+C28
+516
+9A6
+E25
+C08
+106
+517
+C08
+B38
+518
+9A8
+E2D
+C06
+108
+519
+9A9
+E32
+C06
+109
+51A
+9AA
+E37
+C06
+F00
+F38
+13C
+1FD
+10E
+51E
+D3F
+C3C
+51D
+D42
+C3B
+71C
+D45
+C3A
+F07
