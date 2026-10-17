@@ -8,6 +8,7 @@
 - Lilly (https://github.com/ducatimaus/Busch-2090): Breakpoint & Single Stepping Integration for Uno R3 Version
 - Björn Rathje: HXDZ op-code bug fix (overflow set to 0 behavior)
 
+#### Project Page: [www.michael-wessel.info/hardware.html](https://www.michael-wessel.info/hardware.html#the-microtronic-emulator-build-log-2016-2026)
 #### License: GPL 3
 #### [YouTube Videos](https://www.youtube.com/playlist?list=PLvdXKcHrGqhekyx81EoCwQij1Lqylp0dB) 
 
