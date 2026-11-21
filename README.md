@@ -64,6 +64,20 @@ The "Retro-Authentic Bubble LED Version" was a winner of the [RetroChallenge 202
 
 ## Latest News
 
+### November 20th 2026
+
+The Microtronic now also runs on the [MiSTer FPGA](https://github.com/MiSTer-devel/Main_MiSTer/wiki)
+platform. The FPGA runs the original 1981 firmware ROM on a TMS1600 implemented in Verilog,
+wired to the 2114 program RAM, display, keypad, inputs, outputs and 1 Hz clock as on the real
+board, and shows the console over HDMI. The core is a port of the browser emulator and was
+checked against it instruction by instruction; it ran on the DE10-Nano out of the box. It comes
+with 37 programs from the manuals and the programmer's guide, and Björn Rathje's games, which
+are loaded as `.MIC` files from the MiSTer menu. Made with Claude Code (Opus 5.5).
+
+Core and source code: [https://github.com/lambdamikel/Microtronic_MiSTer](https://github.com/lambdamikel/Microtronic_MiSTer)
+
+![Microtronic MiSTer Core](https://github.com/lambdamikel/Microtronic_MiSTer/raw/main/docs/screenshot.png)
+
 ### October 5th 2026
 
 A Microtronic emulator that runs in your web browser is now online. It runs the original
